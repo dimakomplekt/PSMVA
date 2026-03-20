@@ -4,7 +4,7 @@
 
 ___
 
-### Принимает видео, подобные данным:
+### Принимает видео c подобными кадрами:
 
 <a href="https://ibb.co/jk8RWYtb"><img src="https://i.ibb.co/hFgfZN0L/1.png" alt="1" border="0" /></a>
 
