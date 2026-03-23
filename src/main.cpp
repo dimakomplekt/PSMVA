@@ -8,8 +8,18 @@
 
 
 
+
+
 int main()
 {
+    // SDL ttf initialization
+    if (TTF_Init() != 0)
+    {
+        SDL_Log("TTF_Init failed: %s", SDL_GetError());
+        return -1;
+    }
+
+
     // App initialization
     sdl_app_ctx app_test;
 
@@ -21,7 +31,7 @@ int main()
     }
 
     // Initialize game states
-    init_game_states(app_test.app_sm);
+    init_program_states(app_test.app_sm);
 
     // Set the initial state to START_ID
     if (!app_test.app_sm.go_to(START_ID))

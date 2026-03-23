@@ -109,6 +109,6 @@ void program_end_render(SDL_Renderer* renderer);
  *
  * @param app_state_machine Reference to the State_machine to populate.
  */
-void init_game_states(State_machine& app_state_machine);
+void init_program_states(State_machine& app_state_machine);
 
 // =========================================================================================== INITIALIZATION

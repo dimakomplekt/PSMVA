@@ -27,4 +27,8 @@
 
 #include "special/opencv_to_sdl/opencv_to_sdl.h"
 
+// SDL ttf include
+
+#include "SDL3_ttf-3.1.0/include/SDL3_ttf/SDL_ttf.h"
+
 // =========================================================================================== IMPORT

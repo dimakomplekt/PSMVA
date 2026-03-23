@@ -316,7 +316,7 @@ void program_end_render(SDL_Renderer* renderer)
 
 // =========================================================================================== INITIALIZATION
 
-void init_game_states(State_machine& app_state_machine)
+void init_program_states(State_machine& app_state_machine)
 {
     // Each block below creates a State object, assigns its enter/exit callbacks,
     // and adds it to the state machine. The hierarchy linking is handled

@@ -25,6 +25,15 @@ target_link_libraries(PSMVA PRIVATE
     ${CMAKE_SOURCE_DIR}/libs/engine/SDL3-3.4.2/lib/x64/SDL3.lib
 )
 
+# SDL ttf include
+target_include_directories(PSMVA PRIVATE
+    ${CMAKE_SOURCE_DIR}/libs/engine/SDL3_ttf-3.1.0/include
+)
+
+target_link_libraries(PSMVA PRIVATE
+    ${CMAKE_SOURCE_DIR}/libs/engine/SDL3_ttf-3.1.0/lib/x64/SDL3_ttf.lib
+)
+
 # ---------------- OpenCV ----------------
 
 set(OpenCV_DIR "C:/opencv/build")
