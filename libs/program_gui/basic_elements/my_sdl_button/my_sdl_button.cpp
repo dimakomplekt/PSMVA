@@ -101,13 +101,94 @@ My_SDL_button::My_SDL_button()
 
 My_SDL_button::~My_SDL_button()
 {
-    // TODO: Realization with panels linked list clear
+    // TODO: Realization with panels linked list clear (both side registration) or just siple comment about 
+    // destructor workflow rules - basic destructor from global space or My_SDL_panel.button_delete method
+    // only for buttons inside panels
 }
 
 // =========================================================================================== CONSTRUCTOR AND DESTRUCTOR
 
 
 // =========================================================================================== MAIN LOGIC
+
+void My_SDL_button::update()
+{
+    // Hover check
+    this->hover_check();
+
+    // Hover logic
+    if (this->hovered)
+    {
+        // Hover logic by the callback
+        if (this->on_hover) this->on_hover();
+
+        // New click or release check  
+        this->click_check();
+    }
+    else
+    {
+        // Clicked flags reset with hover ending (blocks the click logic without hovering)
+        this->clicked = false;
+        this->clicked_tmp = false; 
+    }
+
+
+    // Click with hover check with the click permission logic by the button access type
+
+
+    if (this->click_access_type == BUTTON_DEFAULT_CLICK_PERMISSION)
+        if (this->hovered && this->clicked)
+            if (!this->clicked_tmp) this->clicked_tmp = true;
+
+    // There can not be anything instead of BUTTON_EXTERN_CLICK_PERMISSION
+    else
+    {
+        // Permission check by the callback
+        if (this->extern_click_permission)
+        {
+            this->click_permission = this->extern_click_permission();
+
+            // Clicked logic by the callback if the permission obtained
+            if (this->click_permission)
+                if (this->hovered && this->clicked)
+                    // Clicked logic by the callback
+                    if (!this->clicked_tmp) this->clicked_tmp = true;
+
+        }
+        else 
+        {
+            // Error handler
+            std::cerr << "No callback for the button access status check! Click can't be handled!" << std::endl;
+        }
+    }
+
+    // If we press and then release - reset permission
+    if (!this->clicked && this->clicked_tmp) 
+    {
+        // One callback call after release
+        if (this->click_access_type == BUTTON_DEFAULT_CLICK_PERMISSION || this->click_permission)
+            if (this->on_click) this->on_click();
+
+        // Block repeats and reset
+        this->clicked_tmp = false;
+    }
+}
+
+
+void My_SDL_button::set_access_type(button_access_type new_access_type)
+{
+    // Error handling for invalid access type
+    if (new_access_type != BUTTON_DEFAULT_CLICK_PERMISSION && new_access_type != BUTTON_EXTERN_CLICK_PERMISSION)
+    {
+        std::cerr << "Invalid button access type. Access type not changed." << std::endl;
+    }
+
+    // New type setting
+    else this->click_access_type = new_access_type;
+}
+
+
+
 
 
 // =========================================================================================== MAIN LOGIC

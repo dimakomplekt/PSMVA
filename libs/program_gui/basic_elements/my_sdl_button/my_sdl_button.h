@@ -18,7 +18,7 @@ enum button_access_type
 {
 
     BUTTON_DEFAULT_CLICK_PERMISSION,        // Always can be clicked
-    BUTTON_CLICK_EXTERN_CLICK_PERMISSION,   // Can be clicked only by the true return of the extern function for click permission check
+    BUTTON_EXTERN_CLICK_PERMISSION,   // Can be clicked only by the true return of the extern function for click permission check
 
 };
 
@@ -47,11 +47,20 @@ class My_SDL_button
 
         // ===== MAIN LOGIC =====
 
-        // Button access type setter 
-        void set_access_type(button_access_type new_access_type);
-
-        // Element update method (to be called in the main loop)
+        
+        // Element logic global update method (to be called in the main loop)
         void update();                                      
+
+
+        /**
+         * @brief Button access type setter 
+         * 
+         * Setup the button access type for click permission logic by the
+         * button_access_type enum values
+         * 
+         * @param new_access_type - one of the two button_access_type enum values 
+         */
+        void set_access_type(button_access_type new_access_type);
 
 
         // Extern click permission check callback method - to be called in the main loop if 
@@ -71,7 +80,7 @@ class My_SDL_button
         // ===== GUI ======
 
         // Button render with logic by the button state flags (hovered, clicked)
-        void render();
+        void render(SDL_Renderer *r);
 
         // Button size setter
         void set_size(unsigned int width, unsigned int height);
@@ -150,21 +159,21 @@ class My_SDL_button
 
         // ===== MAIN LOGIC =====
 
-        bool hovered;                                // Button hover state
-        bool hover_check();                          // Button hover check method (to be called in the main loop)
-
-
         // Only onetime click realization in this version
 
         button_access_type click_access_type;        // Button click access type for click callback logic permission
 
-        bool click_permission_check();               // Button click check method (to be called in the main loop)
+
         bool click_permission;                       // Button click permission flag
+
+
+        bool hovered;                                // Button hover state
+        bool hover_check();                          // Button hover check method (to be called in the main loop)
 
 
         bool clicked;                                // Button click state
         bool clicked_tmp;                            // Button click state temp for callback block until the next click
-        bool clicked_check();                        // Button click check method (to be called in the main loop)
+        bool click_check();                          // Button click check method (to be called in the main loop)
         
         // ===== MAIN LOGIC =====
         

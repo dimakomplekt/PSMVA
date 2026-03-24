@@ -227,7 +227,7 @@ class My_SDL_button
 
         bool clicked;                                // Button click state
         bool clicked_tmp;                            // Button click state temp for callback block until the next click
-        bool clicked_check();                        // Button click check method (to be called in the main loop)
+        bool click_check();                        // Button click check method (to be called in the main loop)
         
         // ===== MAIN LOGIC =====
         
