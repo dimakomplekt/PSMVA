@@ -22,10 +22,18 @@ enum button_access_type
 
 };
 
+// Button signal type for GUI change logic
+enum button_gui_type
+{
+
+    STATIC_BUTTON_GUI,        // One color pallette
+    DYNAMIC_BUTTON_GUI,       // Different color pallettes for different extern logic
+
+};
+
 
 class My_SDL_button
 {
-
 
     public:
 
@@ -48,13 +56,13 @@ class My_SDL_button
 
         // Extern click permission check callback method - to be called in the main loop if 
         // the button access type is BUTTON_CLICK_EXTERN_CLICK_PERMISSION
-        std::function<bool()> extern_click_permission();
+        std::function<bool()> extern_click_permission;
 
         // Hover callback method
-        std::function<void()> on_hover();                    
+        std::function<void()> on_hover;                    
 
         // Click callback method - one call after click and blocked until the next
-        std::function<void()> on_click();                    
+        std::function<void()> on_click;                    
 
 
         // ===== MAIN LOGIC =====
@@ -67,6 +75,12 @@ class My_SDL_button
 
         // Button size setter
         void set_size(unsigned int width, unsigned int height);
+
+
+        // Shadow offset setter
+        void set_shadow_offset(int x, int y);
+        
+        void set_shadow_scale_factor(float new_scale_factor);
 
 
         // Set the text displayed on the button
@@ -85,17 +99,40 @@ class My_SDL_button
         // Opacity
         void set_opacity(Uint8 new_opacity);
 
+
+        // GUI type setter
+        void set_gui_type(button_gui_type new_gui_type);
+
         // Color setters
 
-        void set_background_color(SDL_Color new_color);
-        void set_border_color(SDL_Color new_color);
-        void set_content_color(SDL_Color new_color);
-        void set_background_color_hovered(SDL_Color new_color);
-        void set_border_color_hovered(SDL_Color new_color);
-        void set_content_color_hovered(SDL_Color new_color);
-        void set_background_color_clicked(SDL_Color new_color);
-        void set_border_color_clicked(SDL_Color new_color);
-        void set_content_color_clicked(SDL_Color new_color);
+        void set_background_color_1(SDL_Color new_color);
+        void set_border_color_1(SDL_Color new_color);
+        void set_content_color_1(SDL_Color new_color);
+        void set_shadow_color_1(SDL_Color new_color);
+        void set_background_color_hovered_1(SDL_Color new_color);
+        void set_border_color_hovered_1(SDL_Color new_color);
+        void set_content_color_hovered_1(SDL_Color new_color);
+        void set_shadow_color_hovered_1(SDL_Color new_color);
+        void set_background_color_clicked_1(SDL_Color new_color);
+        void set_border_color_clicked_1(SDL_Color new_color);
+        void set_content_color_clicked_1(SDL_Color new_color);
+        void set_shadow_color_clicked_1(SDL_Color new_color);
+
+        void set_background_color_2(SDL_Color new_color);
+        void set_border_color_2(SDL_Color new_color);
+        void set_content_color_2(SDL_Color new_color);
+        void set_shadow_color_2(SDL_Color new_color);
+        void set_background_color_hovered_2(SDL_Color new_color);
+        void set_border_color_hovered_2(SDL_Color new_color);
+        void set_content_color_hovered_2(SDL_Color new_color);
+        void set_shadow_color_hovered_2(SDL_Color new_color);
+        void set_background_color_clicked_2(SDL_Color new_color);
+        void set_border_color_clicked_2(SDL_Color new_color);
+        void set_content_color_clicked_2(SDL_Color new_color);
+        void set_shadow_color_clicked_2(SDL_Color new_color);
+
+        // Click callback method - one call after click and blocked until the next
+        std::function<void()> pallette_switch;      
 
         // Texture setters
 
@@ -107,10 +144,6 @@ class My_SDL_button
         void set_text_texture(SDL_Texture* new_texture);
 
         // ===== GUI ======
-
-
-    protected:
-
 
 
     private:
@@ -146,7 +179,12 @@ class My_SDL_button
         unsigned int boarder_size;
         unsigned int boarder_radius;
 
-        unsigned int content_size;
+        int shadow_offset_x;
+        int shadow_offset_y;
+
+        float shadow_scale_factor;
+
+        unsigned int font_size;
 
 
         // Content
@@ -165,35 +203,62 @@ class My_SDL_button
         // calling of commands like
         // SDL_SetRenderDrawColor(renderer, background_color.r, background_color.g, background_color.b, alpha);
         // before rendering
-        Uint8 opacity = 255; // 0 = fully transperent, 255 = fully opaque
+        Uint8 opacity; // 0 = fully transperent, 255 = fully opaque
 
+        // GUI type
+        button_gui_type gui_type;
 
-        // Button colors by SDL type  
+        // Button basic colors by SDL type  
 
-        SDL_Color background_color;
-        SDL_Color border_color;
-        SDL_Color content_color;
+        SDL_Color background_color_1;
+        SDL_Color border_color_1;
+        SDL_Color content_color_1;
+        SDL_Color shadow_color_1;
         
-        SDL_Color background_color_hovered;
-        SDL_Color border_color_hovered;
-        SDL_Color content_color_hovered;
+        SDL_Color background_color_hovered_1;
+        SDL_Color border_color_hovered_1;
+        SDL_Color content_color_hovered_1;
+        SDL_Color shadow_color_hovered_1;
 
-        SDL_Color background_color_clicked;
-        SDL_Color border_color_clicked;
-        SDL_Color content_color_clicked;
+        SDL_Color background_color_clicked_1;
+        SDL_Color border_color_clicked_1;
+        SDL_Color content_color_clicked_1;
+        SDL_Color shadow_color_clicked_1;
+
+        // Button additional colors for different states
+
+        SDL_Color background_color_2;
+        SDL_Color border_color_2;
+        SDL_Color content_color_2;
+        SDL_Color shadow_color_2;
+        
+        SDL_Color background_color_hovered_2;
+        SDL_Color border_color_hovered_2;
+        SDL_Color content_color_hovered_2;
+        SDL_Color shadow_color_hovered_2;
+
+        SDL_Color background_color_clicked_2;
+        SDL_Color border_color_clicked_2;
+        SDL_Color content_color_clicked_2;
+        SDL_Color shadow_color_clicked_2;
+
+        // Pallette switch function
+        void current_pallette_choose(unsigned int pallette_number);
+
+        unsigned int current_pallette_number; // 1 or 2
+
 
         // Button textures by SDL type
 
-
         // Text texture for rendering
-        SDL_Texture* background_texture = nullptr;
+        SDL_Texture* background_texture;
         
         // Text texture for rendering
-        SDL_Texture* border_texture = nullptr;
+        SDL_Texture* border_texture;
 
         // Text texture for rendering
-        SDL_Renderer* content_texture_renderer = nullptr;
-        SDL_Texture* content_texture = nullptr;
+        SDL_Renderer* content_texture_renderer;
+        SDL_Texture* content_texture;
 
         // ===== GUI ======
 };

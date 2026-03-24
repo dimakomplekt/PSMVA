@@ -4,38 +4,9 @@
 2) Сделать компоненты (допустим для начала просто кнопку, фейдер и окно под SDL_Texture) которые могут быть частями панели или окна, компоненты хранят инфу о своём рендеринге - цвета, содержимое, ширина, высота, и инфу о своей логике - всё на базе коллбеков
 3) Просто собрать GUI на базе стейт машины и окон обычной вёрсткой компонент-панель типо вот пример работы стейт машины (типо просто в апп 2 колла по текущему стейту - апдейт и рендер + прокрутка работы апп в мейне) 
 
-
 ___
 
-#### **При таком цикле**
-
-``` cpp 
-
-bool SDL_app_cycle(sdl_app_ctx* app)
-{
-    // State update
-    if (app->app_sm.get_current_state()) app->app_sm.state_update();
-
-    // State rendering
-    if (app->app_sm.get_current_state())
-    {
-        SDL_SetRenderDrawColor(app->renderer, 0, 0, 0, 255);
-        SDL_RenderClear(app->renderer);
-
-        app->app_sm.state_render(app->renderer);
-
-        SDL_RenderPresent(app->renderer);
-    }
-
-    return app->app_state == SDL_APP_CONTINUE;
-}
-
-```
-   
-
-___
-
-#### **И подобной работе движка на коллбеках стейт-машины***
+#### **При подобной работе движка на коллбеках стейт-машины***
 
 ``` cpp 
 
@@ -89,6 +60,37 @@ void init_program_states(State_machine& app_state_machine)
 ___
 
 
+___
+
+#### **В таком цикле**
+
+``` cpp 
+
+bool SDL_app_cycle(sdl_app_ctx* app)
+{
+    // State update
+    if (app->app_sm.get_current_state()) app->app_sm.state_update();
+
+    // State rendering
+    if (app->app_sm.get_current_state())
+    {
+        SDL_SetRenderDrawColor(app->renderer, 0, 0, 0, 255);
+        SDL_RenderClear(app->renderer);
+
+        app->app_sm.state_render(app->renderer);
+
+        SDL_RenderPresent(app->renderer);
+    }
+
+    return app->app_state == SDL_APP_CONTINUE;
+}
+
+```
+
+
+___
+
+
 #### **Имея на руках какую-то доработанную кнопку вроде такой**
 
 ``` cpp 
@@ -112,7 +114,7 @@ enum button_access_type
 {
 
     BUTTON_DEFAULT_CLICK_PERMISSION,        // Always can be clicked
-    BUTTON_CLICK_EXTERN_CLICK_PERMISSION,   // Can be clicked only by the true return of the extern function for click permission check
+    BUTTON_CLICK_EXTERN_CLICK_PERMISSION,   // Can be clicked only by the true return of the extern function
 
 };
 
@@ -307,12 +309,16 @@ for (auto& element : panel.elements)
     element.update();
 }
 
+```
+
+#### **А далее рендерить таким же итератором**
+
+``` cpp
 
 for (auto& element : panel.elements)
 {
     element.render();
 }
-
 
 ``` 
 

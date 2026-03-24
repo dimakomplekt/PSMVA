@@ -8,17 +8,18 @@
 
 
 
-
-
 int main()
 {
     // SDL ttf initialization
-    if (TTF_Init() != 0)
+    if (!TTF_Init()) 
     {
         SDL_Log("TTF_Init failed: %s", SDL_GetError());
         return -1;
     }
-
+    else
+    {
+        SDL_Log("TTF_Init succeeded!");
+    }
 
     // App initialization
     sdl_app_ctx app_test;
