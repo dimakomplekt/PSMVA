@@ -6,6 +6,8 @@
 #include "program_states.h"
 #include <iostream> // for std::cout, std::cerr
 
+#include "../../program_gui/basic_elements/my_sdl_button/my_sdl_button.h"
+
 // =========================================================================================== IMPORT
 
 
@@ -18,13 +20,35 @@
 // Currently, they are simple stubs printing to the console.
 // You can replace the body with more complex logic or calls to other modules.
 
+// Button
+My_SDL_button Button_1;
 
-void start_enter()         { std::cout << "Entering START\n"; }
+void cout_on_but_1_click()
+{
+    std::cout << "Button_1 is clicked... Finally." << std::endl;
+}
+
+
+void start_enter()
+{
+    std::cout << "Entering START\n";
+
+    Button_1.on_click = cout_on_but_1_click;
+}
+
+
 void start_exit()          { std::cout << "Exiting START\n"; }
+
+void start_update()
+{
+    App_mouse.update();
+    Button_1.update();
+}
 
 void start_render(SDL_Renderer* renderer)
 {
-
+    // Button 1
+    Button_1.render(renderer);
 
     // Рисуем красный круг для чека работоспособности
     SDL_SetRenderDrawColor(renderer, 255, 100, 50, 255);
@@ -332,6 +356,7 @@ void init_program_states(State_machine& app_state_machine)
     {
         s->on_enter = start_enter;          // Actions on the state entering 
         s->on_exit  = start_exit;           // Actions on the state exit
+        s->state_update = start_update;
         s->state_render = start_render;     // Rendering for the state
     }
 

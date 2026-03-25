@@ -25,7 +25,7 @@
 
 // =========================================================================================== DEFINES
 
-#define PALLETES_QUANTITY 2
+constexpr unsigned int PALLETTES_QUANTITY = 2;
 
 // =========================================================================================== DEFINES
 
@@ -80,7 +80,7 @@ class My_SDL_button
 
         // ===== CONSTRUCTOR AND DESTRUCTOR =====
 
-        My_SDL_button(SDL_Renderer* renderer);      // Button constructor
+        My_SDL_button();                            // Button constructor
         ~My_SDL_button();                           // Button destructor    
 
         // ===== CONSTRUCTOR AND DESTRUCTOR =====
@@ -116,34 +116,15 @@ class My_SDL_button
         std::function<void()> on_click;     
         
         
-        /**
-         * 
-         * Use only with lambda-catch, like:
-         *  
-         * 
-         *      My_button->pallette_switch_need_check = [My_button]() 
-         *      {
-         *          ..
-         * 
-         *          My_button->current_pallette_choose(1);
-         * 
-         *      };
-         * 
-         *  
-         * Don't use with ordinary functions!
-         * 
-         */
-        std::function<void()> pallette_switch_need_check;      
+        std::function<unsigned int()> get_required_palette;      
 
         // ===== MAIN LOGIC =====
 
 
         // ===== GUI ======
 
-        void set_element_renderer(SDL_Renderer* renderer);
-
         // Button render with logic by the button state flags (hovered, clicked)
-        void render();
+        void render(SDL_Renderer* renderer);
 
 
         /**
@@ -260,10 +241,6 @@ class My_SDL_button
         
         void set_content_texture(SDL_Texture* new_texture);
 
-        // Set the renderer for the SDL ttf workflow
-        void set_content_texture_renderer(SDL_Renderer* new_renderer);
-
-
         // ===== GUI ======
 
 
@@ -296,8 +273,6 @@ class My_SDL_button
         
 
         // ===== GUI ======
-
-        SDL_Renderer* element_renderer;
 
         // Render points (center-center)
 
@@ -344,6 +319,11 @@ class My_SDL_button
 
         // Button text
         std::string content;
+
+        int content_w;
+        int content_h;
+
+        bool content_dirty;
 
 
         // Button opacity by 
@@ -406,6 +386,8 @@ class My_SDL_button
 
 
         SDL_Texture* content_texture;
+
+        void update_content_texture(SDL_Renderer* renderer, SDL_Color new_color);
 
         
         // ===== GUI ======

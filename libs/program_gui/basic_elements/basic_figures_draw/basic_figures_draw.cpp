@@ -37,7 +37,7 @@ void rectangle_draw(
     int rect_width  = static_cast<int>(width);
     int rect_height = static_cast<int>(height);
 
-    SDL_Rect rect;
+    SDL_FRect rect;
 
     // Center-center
     rect.x = center_x - rect_width  / 2;
@@ -104,31 +104,38 @@ void rounded_rectangle_draw(
 
     // ========================= CENTER
 
-    SDL_Rect center_rect{
-        center_x - half_width + corner_radius,
-        center_y - half_height,
-        rect_width - 2 * corner_radius,
-        rect_height
+    SDL_FRect center_rect{
+
+        static_cast<float>(center_x - half_width + corner_radius),
+        static_cast<float>(center_y - half_height),
+        static_cast<float>(rect_width - 2 * corner_radius),
+        static_cast<float>(rect_height)
+
     };
+
 
     SDL_RenderFillRect(renderer, &center_rect);
 
     // ========================= SIDES
 
-    SDL_Rect left_rect{
-        center_x - half_width,
-        center_y - half_height + corner_radius,
-        corner_radius,
-        rect_height - 2 * corner_radius
+    SDL_FRect left_rect{
+
+        static_cast<float>(center_x - half_width),
+        static_cast<float>(center_y - half_height + corner_radius),
+        static_cast<float>(corner_radius),
+        static_cast<float>(rect_height - 2 * corner_radius)
+
     };
 
     SDL_RenderFillRect(renderer, &left_rect);
 
-    SDL_Rect right_rect{
-        center_x + half_width - corner_radius,
-        center_y - half_height + corner_radius,
-        corner_radius,
-        rect_height - 2 * corner_radius
+    SDL_FRect right_rect{
+
+        static_cast<float>(center_x + half_width - corner_radius),
+        static_cast<float>(center_y - half_height + corner_radius),
+        static_cast<float>(corner_radius),
+        static_cast<float>(rect_height - 2 * corner_radius)
+
     };
 
     SDL_RenderFillRect(renderer, &right_rect);
@@ -149,23 +156,23 @@ void rounded_rectangle_draw(
             {
                 // Left top
                 SDL_RenderPoint(renderer,
-                    center_x - half_width + corner_radius + dx,
-                    center_y - half_height + corner_radius + dy);
+                    static_cast<float>(center_x - half_width + corner_radius + dx),
+                    static_cast<float>(center_y - half_height + corner_radius + dy));
 
                 // Right top
                 SDL_RenderPoint(renderer,
-                    center_x + half_width - corner_radius + dx,
-                    center_y - half_height + corner_radius + dy);
+                    static_cast<float>(center_x + half_width - corner_radius + dx),
+                    static_cast<float>(center_y - half_height + corner_radius + dy));
 
                 // Left bottom
                 SDL_RenderPoint(renderer,
-                    center_x - half_width + corner_radius + dx,
-                    center_y + half_height - corner_radius + dy);
+                    static_cast<float>(center_x - half_width + corner_radius + dx),
+                    static_cast<float>(center_y + half_height - corner_radius + dy));
 
                 // Right bottom
                 SDL_RenderPoint(renderer,
-                    center_x + half_width - corner_radius + dx,
-                    center_y + half_height - corner_radius + dy);
+                    static_cast<float>(center_x + half_width - corner_radius + dx),
+                    static_cast<float>(center_y + half_height - corner_radius + dy));
             }
         }
     }
@@ -207,7 +214,7 @@ void circle_draw(
         {
             if (dx * dx + dy * dy <= circle_radius * circle_radius)
             {
-                SDL_RenderPoint(renderer, center_x + dx, center_y + dy);
+                SDL_RenderPoint(renderer, static_cast<float>(center_x + dx), static_cast<float>(center_y + dy));
             }
         }
     }

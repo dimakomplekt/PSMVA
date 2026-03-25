@@ -15,7 +15,7 @@
 
 // =========================================================================================== MOUSE
 
-// Sinletone class for mouse input state tracking - API wrapper for SDL mouse state functions and event 
+// Singletone class for mouse input state tracking - API wrapper for SDL mouse state functions and event 
 // handling for mouse data and logic centralization
 class GI_mouse
 {
@@ -89,3 +89,11 @@ private:
 
 
 // =========================================================================================== GLOBAL INPUTS
+
+
+// =========================================================================================== SINGLETONES FOR USE
+
+// Global singleton instance of GI_mouse for easy access throughout the program
+inline GI_mouse& App_mouse = GI_mouse::Instance();
+
+// =========================================================================================== SINGLETONES FOR USE

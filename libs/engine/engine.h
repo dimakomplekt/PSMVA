@@ -34,6 +34,6 @@
 
 // Mouse and keyboard read
 
-#include "/global_inputs/global_inputs.h"
+#include "global_inputs/global_inputs.h" 
 
 // =========================================================================================== IMPORT
