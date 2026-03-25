@@ -4,12 +4,13 @@
 
 #include "my_sdl_button.h"
 
+
 // =========================================================================================== IMPORT
 
 
 // =========================================================================================== CONSTRUCTOR AND DESTRUCTOR
 
-My_SDL_button::My_SDL_button()
+My_SDL_button::My_SDL_button(SDL_Renderer* renderer)
 {
     // Basic settings setter
 
@@ -22,25 +23,41 @@ My_SDL_button::My_SDL_button()
 
     // Callbacks nullptr
 
-    this->extern_click_permission = nullptr;
-    this->on_hover = nullptr;
-    this->on_click = nullptr;
-    this->pallette_switch = nullptr;
+    this->extern_click_permission = {};
+    this->on_hover = {};
+    this->on_click = {};
+    this->pallette_switch_need_check = {};
 
     // Data
+
+    this->element_renderer = renderer;
+
     this->hovered = false;
 
     this->click_permission = true;
     this->clicked = false;
     this->clicked_tmp = false;
 
+    this->push_mode_on = true;
+    this->press_offset = 0;
+
+    this->current_element_state = DEFAULT_BS;
+
     this->set_size(100, 50);
-    this->boarder_size = 5;
-    this->boarder_radius = 0;
+
+    this->x_render_point = this->width_size / 2;
+    this->y_render_point = this->height_size / 2;
+
+    this->reset_boundaries_points();
+    
+
+    this->border_width_size = 5;
+    this->border_radius_size = 0;
 
     this->set_shadow_offset(5, -5);
     this->shadow_scale_factor = 1.0f;
 
+    this->current_form = ROUNDED_RECTANGLE_EF;
 
     this->font_size = 10; 
 
@@ -94,7 +111,6 @@ My_SDL_button::My_SDL_button()
 
     background_texture = nullptr;
     border_texture = nullptr;
-    content_texture_renderer = nullptr;
     content_texture = nullptr;
 }
 
@@ -104,6 +120,8 @@ My_SDL_button::~My_SDL_button()
     // TODO: Realization with panels linked list clear (both side registration) or just siple comment about 
     // destructor workflow rules - basic destructor from global space or My_SDL_panel.button_delete method
     // only for buttons inside panels
+
+    // Textures destructors
 }
 
 // =========================================================================================== CONSTRUCTOR AND DESTRUCTOR
@@ -122,14 +140,18 @@ void My_SDL_button::update()
         // Hover logic by the callback
         if (this->on_hover) this->on_hover();
 
+        this->current_element_state = HOVERED_BS;
+
         // New click or release check  
-        this->click_check();
+        this->clicked = this->click_check();
     }
     else
     {
         // Clicked flags reset with hover ending (blocks the click logic without hovering)
         this->clicked = false;
         this->clicked_tmp = false; 
+
+        this->current_element_state = DEFAULT_BS;
     }
 
 
@@ -138,7 +160,12 @@ void My_SDL_button::update()
 
     if (this->click_access_type == BUTTON_DEFAULT_CLICK_PERMISSION)
         if (this->hovered && this->clicked)
-            if (!this->clicked_tmp) this->clicked_tmp = true;
+            if (!this->clicked_tmp) 
+            {
+                this->clicked_tmp = true;
+
+                this->current_element_state = CLICKED_BS;
+            }
 
     // There can not be anything instead of BUTTON_EXTERN_CLICK_PERMISSION
     else
@@ -152,15 +179,24 @@ void My_SDL_button::update()
             if (this->click_permission)
                 if (this->hovered && this->clicked)
                     // Clicked logic by the callback
-                    if (!this->clicked_tmp) this->clicked_tmp = true;
+                    if (!this->clicked_tmp)
+                    {
+                        this->clicked_tmp = true;
 
+                        this->current_element_state = CLICKED_BS;
+                    }
         }
         else 
         {
             // Error handler
             std::cerr << "No callback for the button access status check! Click can't be handled!" << std::endl;
+            return;
         }
     }
+
+
+    // Holded click or release check  
+    this->clicked = this->click_check();
 
     // If we press and then release - reset permission
     if (!this->clicked && this->clicked_tmp) 
@@ -171,7 +207,21 @@ void My_SDL_button::update()
 
         // Block repeats and reset
         this->clicked_tmp = false;
+
+        this->current_element_state = DEFAULT_BS;
     }
+
+    // Pallete check callback 
+    if (this->pallette_switch_need_check)
+    {
+        this->pallette_switch_need_check();
+    }
+}
+
+
+void My_SDL_button::push_mode_switch()
+{
+    this->push_mode_on = !this->push_mode_on;
 }
 
 
@@ -181,6 +231,7 @@ void My_SDL_button::set_access_type(button_access_type new_access_type)
     if (new_access_type != BUTTON_DEFAULT_CLICK_PERMISSION && new_access_type != BUTTON_EXTERN_CLICK_PERMISSION)
     {
         std::cerr << "Invalid button access type. Access type not changed." << std::endl;
+        return;
     }
 
     // New type setting
@@ -188,14 +239,554 @@ void My_SDL_button::set_access_type(button_access_type new_access_type)
 }
 
 
+void My_SDL_button::hover_check()
+{
+    // Compare element boundaries_points data with GI_mouse singleton current mouse position data
+
+    if (App_mouse.x_pos >= this->boundaries_points.left_boundary &&
+        App_mouse.x_pos <= this->boundaries_points.right_boundary &&
+        App_mouse.y_pos <= this->boundaries_points.bottom_boundary &&
+        App_mouse.y_pos >= this->boundaries_points.top_boundary) 
+        
+        // Mouse inside the element zone 
+        this->hovered = true;
+    
+    else 
+
+        // Mouse outside the element zone
+        this->hovered = false;
+}
 
 
+bool My_SDL_button::click_check()
+{
+    // Click status by GI_mouse singleton
+    return App_mouse.lb_state;
+}
+
+
+void My_SDL_button::reset_boundaries_points()
+{
+    this->boundaries_points.left_boundary = this->x_render_point - this->width_size / 2;
+    this->boundaries_points.right_boundary = this->x_render_point + this->width_size / 2;
+    this->boundaries_points.top_boundary = this->y_render_point - this->height_size / 2;
+    this->boundaries_points.bottom_boundary = this->y_render_point + this->height_size / 2;
+}
+
+
+void My_SDL_button::reset_current_form()
+{
+    if (this->border_radius_size == 0)
+
+        // Rectangle
+        this->current_form = RECTANGLE_EF;
+
+    else if (this->border_radius_size != 0 &&
+        this->width_size / 2 > this->border_radius_size &&
+        this->height_size / 2 > this->border_radius_size)
+
+        // Rounded rectangle
+        this->current_form = ROUNDED_RECTANGLE_EF;
+
+    else if (this->border_radius_size != 0 &&
+        this->width_size / 2 == this->border_radius_size &&
+        this->height_size / 2 == this->border_radius_size)
+
+        // Circle
+        this->current_form = CIRCLE_EF;
+}
 
 // =========================================================================================== MAIN LOGIC
 
 
 
 // =========================================================================================== GUI
+
+// Main render method
+
+void My_SDL_button::set_element_renderer(SDL_Renderer* renderer)
+{
+    this->element_renderer = renderer; 
+}
+
+void My_SDL_button::render()
+{
+    // Local color variables for final rendering
+    SDL_Color background_color;
+    SDL_Color border_color;
+    SDL_Color content_color;
+    SDL_Color shadow_color;
+
+
+    // Current pallette define logic
+    
+    if (this->gui_type == STATIC_BUTTON_GUI)
+    {
+        this->current_pallette_number = 1;
+    }
+
+
+    // Pallette switch-case
+    switch (this->current_pallette_number)
+    {
+
+        case 1:
+            // Basic
+            if (this->current_element_state == DEFAULT_BS)
+            {
+                background_color = this->background_color_1;
+                border_color = this->border_color_1;
+                content_color = this->content_color_1;
+                shadow_color = this->shadow_color_1;
+            }
+
+            // Hovered
+            else if (this->current_element_state == HOVERED_BS)
+            {
+                background_color = this->background_color_hovered_1;
+                border_color = this->border_color_hovered_1;
+                content_color = this->content_color_hovered_1;
+                shadow_color = this->shadow_color_hovered_1;
+            }
+
+            // Clicked
+            else if (this->current_element_state == CLICKED_BS)
+            {
+                background_color = this->background_color_clicked_1;
+                border_color = this->border_color_clicked_1;
+                content_color = this->content_color_clicked_1;
+                shadow_color = this->shadow_color_clicked_1;
+            }    
+
+            break;
+
+        case 2:
+            // 2nd pallette
+            if (this->current_element_state == DEFAULT_BS)
+            {
+                background_color = this->background_color_2;
+                border_color = this->border_color_2;
+                content_color = this->content_color_2;
+                shadow_color = this->shadow_color_2;
+            }
+
+            // Hovered
+            else if (this->current_element_state == HOVERED_BS)
+            {
+                background_color = this->background_color_hovered_2;
+                border_color = this->border_color_hovered_2;
+                content_color = this->content_color_hovered_2;
+                shadow_color = this->shadow_color_hovered_2;
+            }
+
+            // Clicked
+            else if (this->current_element_state == CLICKED_BS)
+            {
+                background_color = this->background_color_clicked_2;
+                border_color = this->border_color_clicked_2;
+                content_color = this->content_color_clicked_2;
+                shadow_color = this->shadow_color_clicked_2;
+            }    
+
+            break;
+    
+        default:
+
+            break;
+    }
+    
+
+    // GLOBAL element opacity implementation
+    float opacity_scaler = this->opacity / 255.0f;
+
+    background_color.a = static_cast<uint8_t>(std::round(background_color.a * opacity_scaler));
+    border_color.a = static_cast<uint8_t>(std::round(border_color.a * opacity_scaler));
+    content_color.a = static_cast<uint8_t>(std::round(content_color.a * opacity_scaler));
+    shadow_color.a = static_cast<uint8_t>(std::round(shadow_color.a * opacity_scaler));
+    
+
+    // Press offset for push simulation
+
+    if (this->current_element_state != CLICKED_BS) this->press_offset = 0;
+
+
+    // Figures to build data calculation
+
+    int sw_cx = this->x_render_point + shadow_offset_x;
+    int sw_cy = this->y_render_point + shadow_offset_y;
+
+    int br_cx = this->x_render_point;
+    int br_cy = this->y_render_point;
+
+    int bd_cx = this->x_render_point;
+    int bd_cy = this->y_render_point;
+
+
+    unsigned int sw_w = static_cast<unsigned int>(std::round((this->width_size) * this->shadow_scale_factor));
+    unsigned int sw_h = static_cast<unsigned int>(std::round((this->height_size) * this->shadow_scale_factor));
+
+    unsigned int br_w = this->width_size - this->press_offset; 
+    unsigned int br_h = this->height_size - this->press_offset;
+
+    unsigned int bg_w = (this->width_size - this->press_offset) - 2 * this->border_width_size;
+    unsigned int bg_h = (this->height_size - this->press_offset) - 2 * this->border_width_size;
+
+    unsigned int sw_r = static_cast<unsigned int>(std::round(this->border_radius_size * this->shadow_scale_factor));
+    unsigned int br_r = this->border_radius_size;
+    unsigned int bg_r = this->border_radius_size - this->border_width_size; 
+
+    
+    // Incrementation of the press offset at every render repeat
+    if (this->push_mode_on && (this->width_size > 40 && this->height_size > 40) && this->press_offset <= 10) this->press_offset += 2;
+
+
+    // Render 3 figures (shadow (border sizes * scaler), border and background (width or hight - 2 * border_width)) 
+    // by their sizes, with use of current colors and render point (center-center)
+    if (this->current_form == RECTANGLE_EF)
+    {
+        // SHADOW
+        rectangle_draw(sw_cx, sw_cy, sw_w, sw_h, shadow_color, this->element_renderer);
+
+        // BORDER
+        rectangle_draw(br_cx, br_cy, br_w, br_h, border_color, this->element_renderer);
+
+        // BACKGROUND
+        rectangle_draw(bd_cx, bd_cy, bg_w, bg_h, background_color, this->element_renderer);
+    }
+
+    else if (this->current_form == ROUNDED_RECTANGLE_EF)
+    {
+        // SHADOW
+        rounded_rectangle_draw(sw_cx, sw_cy, sw_w, sw_h, sw_r, shadow_color, this->element_renderer);
+
+        // BORDER
+        rounded_rectangle_draw(br_cx, br_cy, br_w, br_h, br_r, border_color, this->element_renderer);
+
+        // BACKGROUND
+        rounded_rectangle_draw(bd_cx, bd_cy, bg_w, bg_h, bg_r, background_color, this->element_renderer);
+    }
+    else if (this->current_form == CIRCLE_EF)
+    {
+        // SHADOW
+        circle_draw(sw_cx, sw_cy, sw_w / 2, shadow_color, this->element_renderer);
+
+        // BORDER
+        circle_draw(br_cx, br_cy, br_w / 2, border_color, this->element_renderer);
+
+        // BACKGROUND
+        circle_draw(bd_cx, bd_cy, bg_w / 2, background_color, this->element_renderer);
+    }
+}
+
+
+// GUI type setter 
+
+void My_SDL_button::set_gui_type(button_gui_type new_gui_type)
+{
+    // Error handling for invalid GUI type
+    if (new_gui_type != STATIC_BUTTON_GUI && new_gui_type != DYNAMIC_BUTTON_GUI)
+    {
+        std::cerr << "Invalid button GUI type. GUI type not changed." << std::endl;
+        return;
+    }
+
+    // New type setting
+    else this->gui_type = new_gui_type;
+}
+
+
+void My_SDL_button::current_pallette_choose(unsigned int new_pallette_number)
+{
+    if (new_pallette_number == 0 || new_pallette_number > PALLETES_QUANTITY)
+    {
+        std::cerr << "Invalid pallette number. Element pallette ain' changed." << std::endl;
+        return;
+    }
+
+    this->current_pallette_number = new_pallette_number;
+}
+
+
+// Render point setter and getters
+
+void My_SDL_button::set_render_point(int x_cc_rp, int y_cc_rp)
+{
+    this->x_render_point = x_cc_rp;
+    this->y_render_point = y_cc_rp;
+
+    this->reset_boundaries_points();
+}
+
+
+int My_SDL_button::get_x_render_point() const { return this->x_render_point; }
+
+int My_SDL_button::get_y_render_point() const { return this->y_render_point; }
+
+
+// Size setters and getters
+
+void My_SDL_button::set_size(unsigned int new_width, unsigned int new_height)
+{
+    this->width_size = new_width;
+    this->height_size = new_height;
+
+    this->reset_boundaries_points();
+
+    this->reset_current_form();
+}
+
+
+unsigned int My_SDL_button::get_width_size() const { return this->width_size; }
+
+unsigned int My_SDL_button::get_height_size() const { return this->height_size; }
+
+
+// Styling setters
+
+void My_SDL_button::set_border_width_size(unsigned int new_size)
+{
+    if (new_size > this->width_size / 2 || new_size > this->height_size / 2 || new_size > (border_radius_size - 1))
+    {
+        std::cerr << "Wrong border size value pass! Border width size ain't changed" << std::endl;
+        return;
+    }
+
+    this->border_width_size = new_size;
+}
+
+void My_SDL_button::set_border_radius(unsigned int new_size)
+{
+    if (new_size > this->width_size / 2 || new_size > this->height_size / 2 || new_size < (border_width_size + 1))
+    {
+        std::cerr << "Wrong radius size value pass! Border radius size ain't changed" << std::endl;
+        return;
+    }
+
+    this->border_radius_size = new_size;
+
+    this->reset_current_form();
+}
+
+
+void My_SDL_button::set_shadow_offset(int new_x_offset, int new_y_offset)
+{
+    this->shadow_offset_x = new_x_offset;
+    this->shadow_offset_y = new_y_offset;
+}
+
+void My_SDL_button::set_shadow_scale_factor(float new_scale_factor)
+{ 
+    this->shadow_scale_factor = new_scale_factor;
+}
+
+
+
+void My_SDL_button::set_content(const std::string& new_text) 
+{
+    this->content = new_text;
+}
+
+
+void My_SDL_button::set_ttf_font_link(TTF_Font* new_ttf_font_link) 
+{
+    // TODO: Error handling for the invalid links
+    if (!new_ttf_font_link)
+    {
+        std::cerr << "Invalid TTF_Font pointer! Font link not set!" << std::endl;
+        return;
+    }
+
+    this->ttf_font_link = new_ttf_font_link;
+}
+
+
+void My_SDL_button::set_font_path(const std::string& new_font_path) 
+{
+    // TODO: Error handling for the invalid links
+    if (new_font_path.empty())
+    {
+        std::cerr << "Invalid font path! Font path not set!" << std::endl;
+        return;
+    }
+
+    this->font_path = new_font_path;
+}
+
+
+void My_SDL_button::set_font_size(unsigned int new_size) 
+{
+    if (new_size == 0)
+    {
+        std::cerr << "Invalid font size! Font size not set!" << std::endl;
+    }
+
+    this->font_size = new_size;
+}
+
+
+
+void My_SDL_button::set_opacity(Uint8 new_opacity) 
+{
+    if (new_opacity > 255)
+    {
+        std::cerr << "Invalid opacity. Value must be between 0 and 255. Opacity not changed." << std::endl;
+        return;
+    }
+
+    this->opacity = new_opacity;
+}
+
+
+// Color setters
+
+// Pallete 1
+
+void My_SDL_button::set_background_color_1(SDL_Color new_color)
+{
+    this->background_color_1 = new_color;
+}
+
+void My_SDL_button::set_border_color_1(SDL_Color new_color)
+{
+    this->border_color_1 = new_color;
+}
+
+void My_SDL_button::set_content_color_1(SDL_Color new_color)
+{
+    this->content_color_1 = new_color;
+}
+
+void My_SDL_button::set_shadow_color_1(SDL_Color new_color)
+{
+    this->shadow_color_1 = new_color;
+}
+
+void My_SDL_button::set_background_color_hovered_1(SDL_Color new_color)
+{
+    this->background_color_hovered_1 = new_color;
+}
+
+void My_SDL_button::set_border_color_hovered_1(SDL_Color new_color)
+{
+    this->border_color_hovered_1 = new_color;
+}
+
+void My_SDL_button::set_content_color_hovered_1(SDL_Color new_color)
+{
+    this->content_color_hovered_1 = new_color;
+}
+
+void My_SDL_button::set_shadow_color_hovered_1(SDL_Color new_color)
+{
+    this->shadow_color_hovered_1 = new_color;
+}
+
+void My_SDL_button::set_background_color_clicked_1(SDL_Color new_color)
+{
+    this->background_color_clicked_1 = new_color;
+}
+
+void My_SDL_button::set_border_color_clicked_1(SDL_Color new_color)
+{
+    this->border_color_clicked_1 = new_color;
+}
+
+void My_SDL_button::set_content_color_clicked_1(SDL_Color new_color)
+{
+    this->content_color_clicked_1 = new_color;
+}
+
+void My_SDL_button::set_shadow_color_clicked_1(SDL_Color new_color)
+{
+    this->shadow_color_clicked_1 = new_color;
+}
+
+
+// Pallete 2
+
+void My_SDL_button::set_background_color_2(SDL_Color new_color)
+{
+    this->background_color_2 = new_color;
+}
+
+void My_SDL_button::set_border_color_2(SDL_Color new_color)
+{
+    this->border_color_2 = new_color;
+}
+
+void My_SDL_button::set_content_color_2(SDL_Color new_color)
+{
+    this->content_color_2 = new_color;
+}
+
+void My_SDL_button::set_shadow_color_2(SDL_Color new_color)
+{
+    this->shadow_color_2 = new_color;
+}
+
+void My_SDL_button::set_background_color_hovered_2(SDL_Color new_color)
+{
+    this->background_color_hovered_2 = new_color;
+}
+
+void My_SDL_button::set_border_color_hovered_2(SDL_Color new_color)
+{
+    this->border_color_hovered_2 = new_color;
+}
+
+void My_SDL_button::set_content_color_hovered_2(SDL_Color new_color)
+{
+    this->content_color_hovered_2 = new_color;
+}
+
+void My_SDL_button::set_shadow_color_hovered_2(SDL_Color new_color)
+{
+    this->shadow_color_hovered_2 = new_color;
+}
+
+void My_SDL_button::set_background_color_clicked_2(SDL_Color new_color)
+{
+    this->background_color_clicked_2 = new_color;
+}
+
+void My_SDL_button::set_border_color_clicked_2(SDL_Color new_color)
+{
+    this->border_color_clicked_2 = new_color;
+}
+
+void My_SDL_button::set_content_color_clicked_2(SDL_Color new_color)
+{
+    this->content_color_clicked_2 = new_color;
+}
+
+void My_SDL_button::set_shadow_color_clicked_2(SDL_Color new_color)
+{
+    this->shadow_color_clicked_2 = new_color;
+}
+
+
+// Textures
+
+void My_SDL_button::set_background_texture(SDL_Texture* new_texture)
+{
+    this->background_texture = new_texture;
+}
+
+void My_SDL_button::set_border_texture(SDL_Texture* new_texture)
+{
+    this->border_texture = new_texture;
+}
+
+void My_SDL_button::set_content_texture(SDL_Texture* new_texture)
+{
+    this->content_texture = new_texture;
+}
+
+
+void My_SDL_button::set_content_texture_renderer(SDL_Renderer* new_renderer)
+{
+    this->content_texture_renderer = new_renderer;
+}
 
 
 // =========================================================================================== GUI

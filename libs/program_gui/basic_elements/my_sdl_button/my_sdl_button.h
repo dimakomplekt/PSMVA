@@ -6,19 +6,38 @@
 
 // =========================================================================================== IMPORT
 
-#include <functional>                   // for std::function
+#include <functional>                                   // for std::function
+#include <cmath>                                        // for std::round()
 
-#include "../../../engine/engine.h"     // SDL3 and SDL ttf import
+
+#include "../../../engine/engine.h"                     // SDL3 and SDL ttf import
+
+#include "../basic_figures_draw/basic_figures_draw.h"   // Basic figures
+
+// =========================================================================================== IMPORT
 
 
 // =========================================================================================== IMPORT
+
+
+// =========================================================================================== IMPORT
+
+
+// =========================================================================================== DEFINES
+
+#define PALLETES_QUANTITY 2
+
+// =========================================================================================== DEFINES
+
+
+// =========================================================================================== TYPES
 
 // Button access type for click callback logic permission
 enum button_access_type
 {
 
     BUTTON_DEFAULT_CLICK_PERMISSION,        // Always can be clicked
-    BUTTON_EXTERN_CLICK_PERMISSION,   // Can be clicked only by the true return of the extern function for click permission check
+    BUTTON_EXTERN_CLICK_PERMISSION,         // Can be clicked only by the true return of the extern function for click permission check
 
 };
 
@@ -32,6 +51,28 @@ enum button_gui_type
 };
 
 
+struct element_rect_boundaries
+{
+
+    int left_boundary;
+    int right_boundary;
+    int top_boundary;
+    int bottom_boundary;
+
+};
+
+enum button_state
+{
+
+    DEFAULT_BS,
+    HOVERED_BS,
+    CLICKED_BS
+
+};
+
+// =========================================================================================== TYPES
+
+
 class My_SDL_button
 {
 
@@ -39,8 +80,8 @@ class My_SDL_button
 
         // ===== CONSTRUCTOR AND DESTRUCTOR =====
 
-        My_SDL_button();             // Button constructor
-        ~My_SDL_button();            // Button destructor    
+        My_SDL_button(SDL_Renderer* renderer);      // Button constructor
+        ~My_SDL_button();                           // Button destructor    
 
         // ===== CONSTRUCTOR AND DESTRUCTOR =====
 
@@ -62,6 +103,7 @@ class My_SDL_button
          */
         void set_access_type(button_access_type new_access_type);
 
+        void push_mode_switch();
 
         // Extern click permission check callback method - to be called in the main loop if 
         // the button access type is BUTTON_CLICK_EXTERN_CLICK_PERMISSION
@@ -71,46 +113,115 @@ class My_SDL_button
         std::function<void()> on_hover;                    
 
         // Click callback method - one call after click and blocked until the next
-        std::function<void()> on_click;                    
-
+        std::function<void()> on_click;     
+        
+        
+        /**
+         * 
+         * Use only with lambda-catch, like:
+         *  
+         * 
+         *      My_button->pallette_switch_need_check = [My_button]() 
+         *      {
+         *          ..
+         * 
+         *          My_button->current_pallette_choose(1);
+         * 
+         *      };
+         * 
+         *  
+         * Don't use with ordinary functions!
+         * 
+         */
+        std::function<void()> pallette_switch_need_check;      
 
         // ===== MAIN LOGIC =====
 
 
         // ===== GUI ======
 
+        void set_element_renderer(SDL_Renderer* renderer);
+
         // Button render with logic by the button state flags (hovered, clicked)
-        void render(SDL_Renderer *r);
+        void render();
+
+
+        /**
+         * @brief GUI type setter
+         * 
+         * Choose the gui type (static or dynamic) for the button by the button_gui_type enum values
+         * 
+         * @param new_gui_type one of the two button_gui_type enum values
+         * 
+         */
+        void set_gui_type(button_gui_type new_gui_type);
+
+
+        // Render point
+
+        /**
+         * @brief Button render point setter
+         * 
+         * Setup the button center-center render point for the button rendering
+         * by the coordinate system of the WINDOW, which contains the element 
+         * 
+         * 
+         * @param x_cc_rp x coordinate of the center-center render point
+         * @param y_cc_rp y coordinate of the center-center render point
+         * 
+         */
+        void set_render_point(int x_cc_rp, int y_cc_rp);
+
+
+        // Horizontal size getter
+        int get_x_render_point() const;
+
+        // Vertical size getter
+        int get_y_render_point() const;
+
+
+        // Size
 
         // Button size setter
-        void set_size(unsigned int width, unsigned int height);
+        void set_size(unsigned int new_width, unsigned int new_height);
+
+        // Horizontal size getter
+        unsigned int get_width_size() const;
+
+        // Vertical size getter
+        unsigned int get_height_size() const;
+
+
+        // Styling
+
+
+        void set_border_width_size(unsigned int new_size);
+
+        void set_border_radius(unsigned int new_size);
 
 
         // Shadow offset setter
-        void set_shadow_offset(int x, int y);
+        void set_shadow_offset(int new_x_offset, int new_y_offset);
         
         void set_shadow_scale_factor(float new_scale_factor);
 
 
         // Set the text displayed on the button
-        void set_content(const std::string& text);
+        void set_content(const std::string& new_text);
 
         // Set ttf font
-        void set_ttf_font_link(TTF_Font* ttf_font_link);
+        void set_ttf_font_link(TTF_Font* new_ttf_font_link);
 
         // Set font file path
-        void set_font_path(const std::string& font_path);
+        void set_font_path(const std::string& new_font_path);
 
         // Set font size
-        void set_font_size(unsigned int size);
+        void set_font_size(unsigned int new_size);
 
 
         // Opacity
         void set_opacity(Uint8 new_opacity);
 
-
-        // GUI type setter
-        void set_gui_type(button_gui_type new_gui_type);
 
         // Color setters
 
@@ -140,17 +251,18 @@ class My_SDL_button
         void set_content_color_clicked_2(SDL_Color new_color);
         void set_shadow_color_clicked_2(SDL_Color new_color);
 
-        // Click callback method - one call after click and blocked until the next
-        std::function<void()> pallette_switch;      
 
         // Texture setters
 
         void set_background_texture(SDL_Texture* new_texture);
+
         void set_border_texture(SDL_Texture* new_texture);
+        
+        void set_content_texture(SDL_Texture* new_texture);
 
         // Set the renderer for the SDL ttf workflow
-        void set_content_texture_renderer(SDL_Renderer* renderer);
-        void set_text_texture(SDL_Texture* new_texture);
+        void set_content_texture_renderer(SDL_Renderer* new_renderer);
+
 
         // ===== GUI ======
 
@@ -168,25 +280,51 @@ class My_SDL_button
 
 
         bool hovered;                                // Button hover state
-        bool hover_check();                          // Button hover check method (to be called in the main loop)
+        void hover_check();                          // Button hover check method (to be called in the main loop)
 
 
         bool clicked;                                // Button click state
         bool clicked_tmp;                            // Button click state temp for callback block until the next click
         bool click_check();                          // Button click check method (to be called in the main loop)
         
+        bool push_mode_on;
+        int press_offset;
+
+        button_state current_element_state;
+
         // ===== MAIN LOGIC =====
         
 
         // ===== GUI ======
+
+        SDL_Renderer* element_renderer;
+
+        // Render points (center-center)
+
+        // Center-center x-render point
+        int x_render_point;
+
+        // Center-center y-render point
+        int y_render_point;
+
 
         // Sizes
 
         unsigned int width_size;
         unsigned int height_size;
 
-        unsigned int boarder_size;
-        unsigned int boarder_radius;
+        element_rect_boundaries boundaries_points;     // Element rectangle bounds by the 
+
+        void reset_boundaries_points();                // Element bounds automatic recalculation
+
+        unsigned int border_width_size;
+        unsigned int border_radius_size;
+
+
+        element_form current_form;
+
+        void reset_current_form();
+
 
         int shadow_offset_x;
         int shadow_offset_y;
@@ -216,6 +354,13 @@ class My_SDL_button
 
         // GUI type
         button_gui_type gui_type;
+
+        unsigned int current_pallette_number; // 1 or 2
+
+        // Pallette switch function - only by the extern logic inside
+        // std::function<void()> pallette_switch_need_check;  
+        void current_pallette_choose(unsigned int new_pallette_number);
+
 
         // Button basic colors by SDL type  
 
@@ -251,12 +396,6 @@ class My_SDL_button
         SDL_Color content_color_clicked_2;
         SDL_Color shadow_color_clicked_2;
 
-        // Pallette switch function
-        void current_pallette_choose(unsigned int pallette_number);
-
-        unsigned int current_pallette_number; // 1 or 2
-
-
         // Button textures by SDL type
 
         // Text texture for rendering
@@ -265,9 +404,9 @@ class My_SDL_button
         // Text texture for rendering
         SDL_Texture* border_texture;
 
-        // Text texture for rendering
-        SDL_Renderer* content_texture_renderer;
+
         SDL_Texture* content_texture;
 
+        
         // ===== GUI ======
 };

@@ -239,8 +239,8 @@ class My_SDL_button
         unsigned int width_size;
         unsigned int height_size;
 
-        unsigned int boarder_size;
-        unsigned int boarder_radius;
+        unsigned int border_size;
+        unsigned int border_radius;
 
         unsigned int content_size;
 
