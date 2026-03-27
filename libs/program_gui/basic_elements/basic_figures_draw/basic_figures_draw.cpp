@@ -10,7 +10,7 @@
 
 // =========================================================================================== RECTANGLE
 
-void rectangle_draw(
+void rectangle_draw_by_color(
     
     int x_render_point,
     int y_render_point,
@@ -49,13 +49,41 @@ void rectangle_draw(
     SDL_RenderFillRect(renderer, &rect);
 }
 
+
+void rectangle_draw_by_texture(
+
+    int x_render_point,
+    int y_render_point,
+
+    unsigned int width,
+    unsigned int height,
+
+    SDL_Texture* texture,
+
+    SDL_Renderer* renderer
+
+)
+{
+    if (!texture || width < 1 || height < 1) return;
+
+    SDL_FRect rect;
+
+    rect.w = static_cast<float>(width);
+    rect.h = static_cast<float>(height);
+    rect.x = static_cast<float>(x_render_point - width / 2);
+    rect.y = static_cast<float>(y_render_point - height / 2);
+
+    SDL_RenderTexture(renderer, texture, nullptr, &rect);
+}
+
+
 // =========================================================================================== RECTANGLE
 
 
 
 // =========================================================================================== ROUNDED RECTANGLE
 
-void rounded_rectangle_draw(
+void rounded_rectangle_draw_by_color(
     
     int x_render_point,
     int y_render_point,
@@ -78,7 +106,7 @@ void rounded_rectangle_draw(
 
     if (radius == 0)
     {
-        rectangle_draw(x_render_point, y_render_point, width, height, color, renderer);
+        rectangle_draw_by_color(x_render_point, y_render_point, width, height, color, renderer);
         return;
     }
 
@@ -178,13 +206,110 @@ void rounded_rectangle_draw(
     }
 }
 
+
+
+void rounded_rectangle_draw_by_texture(
+
+    int x_render_point,
+    int y_render_point,
+
+    unsigned int width,
+    unsigned int height,
+
+    unsigned int radius,
+
+    SDL_Texture* texture,
+
+    SDL_Renderer* renderer)
+{
+    if (!texture || width < 3 || height < 3) return;
+
+    // Если радиус 0, просто растягиваем текстуру на весь прямоугольник
+    if (radius == 0)
+    {
+        SDL_FRect rect{
+            static_cast<float>(x_render_point - width / 2),
+            static_cast<float>(y_render_point - height / 2),
+            static_cast<float>(width),
+            static_cast<float>(height)
+        };
+        SDL_RenderTexture(renderer, texture, nullptr, &rect);
+        return;
+    }
+
+    // ---------------------- Создаём рендер-таргет
+
+    SDL_Texture* target = SDL_CreateTexture(
+
+        renderer,
+        SDL_PIXELFORMAT_RGBA8888,
+        SDL_TEXTUREACCESS_TARGET,
+        width,
+        height
+
+    );
+
+    if (!target) return;
+
+    // Сохраняем старый таргет
+
+    SDL_Texture* old_target = SDL_GetRenderTarget(renderer);
+
+    SDL_SetRenderTarget(renderer, target);
+
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+
+    // ---------------------- Рендерим текстуру на весь таргет
+    SDL_FRect full_rect{0.0f, 0.0f, static_cast<float>(width), static_cast<float>(height)};
+    SDL_RenderTexture(renderer, texture, nullptr, &full_rect);
+
+    // ---------------------- Рендерим маску скруглённых углов
+    // Маска: просто затираем прозрачным цветом углы
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0); // прозрачный
+    int diameter = radius * 2;
+    for (int dx = 0; dx < diameter; dx++)
+    {
+        for (int dy = 0; dy < diameter; dy++)
+        {
+            if (dx*dx + dy*dy > radius*radius)
+            {
+                // Левый верхний угол
+                SDL_RenderPoint(renderer, static_cast<float>(dx), static_cast<float>(dy));
+                // Правый верхний угол
+                SDL_RenderPoint(renderer, static_cast<float>(width - diameter + dx), static_cast<float>(dy));
+                // Левый нижний угол
+                SDL_RenderPoint(renderer, static_cast<float>(dx), static_cast<float>(height - diameter + dy));
+                // Правый нижний угол
+                SDL_RenderPoint(renderer, static_cast<float>(width - diameter + dx), static_cast<float>(height - diameter + dy));
+            }
+        }
+    }
+
+    // ---------------------- Восстанавливаем старый рендер-таргет и выводим в окно
+    SDL_SetRenderTarget(renderer, old_target);
+
+    SDL_FRect dst{
+
+        static_cast<float>(x_render_point - width / 2),
+        static_cast<float>(y_render_point - height / 2),
+        static_cast<float>(width),
+        static_cast<float>(height)
+
+    };
+
+    
+    SDL_RenderTexture(renderer, target, nullptr, &dst);
+
+    SDL_DestroyTexture(target);
+}
+
 // =========================================================================================== ROUNDED RECTANGLE
 
 
 
 // =========================================================================================== CIRCLE
 
-void circle_draw(
+void circle_draw_by_color(
     
     int x_render_point,
     int y_render_point,
@@ -219,5 +344,39 @@ void circle_draw(
         }
     }
 }
+
+
+void circle_draw_by_texture(
+
+    int x_render_point,
+    int y_render_point,
+
+    unsigned int radius,
+
+    SDL_Texture* texture,
+
+    SDL_Renderer* renderer
+
+)
+{
+    if (!texture || radius == 0) return;
+
+    for (int dx = -static_cast<int>(radius); dx <= static_cast<int>(radius); dx++)
+    {
+        for (int dy = -static_cast<int>(radius); dy <= static_cast<int>(radius); dy++)
+        {
+            if (dx*dx + dy*dy <= static_cast<int>(radius*radius))
+            {
+                SDL_FRect pixel_rect{
+                    static_cast<float>(x_render_point + dx),
+                    static_cast<float>(y_render_point + dy),
+                    1.0f, 1.0f
+                };
+                SDL_RenderTexture(renderer, texture, nullptr, &pixel_rect);
+            }
+        }
+    }
+}
+
 
 // =========================================================================================== CIRCLE

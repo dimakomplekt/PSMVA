@@ -195,11 +195,11 @@ class My_SDL_button
 
         // Texture setters
 
-        void set_background_texture(SDL_Texture* new_texture);
-        void set_border_texture(SDL_Texture* new_texture);
+        void set_background_texture_1(SDL_Texture* new_texture);
+        void set_border_texture_1(SDL_Texture* new_texture);
 
         // Set the renderer for the SDL ttf workflow
-        void set_content_texture_renderer(SDL_Renderer* renderer);
+        void set_content_texture_1_renderer(SDL_Renderer* renderer);
         void set_text_texture(SDL_Texture* new_texture);
 
         // ===== GUI ======
@@ -282,10 +282,10 @@ class My_SDL_button
 
 
         // Text texture for rendering
-        SDL_Texture* background_texture = nullptr;
+        SDL_Texture* background_texture_1 = nullptr;
         
         // Text texture for rendering
-        SDL_Texture* border_texture = nullptr;
+        SDL_Texture* border_texture_1 = nullptr;
 
         // Text texture for rendering
         SDL_Renderer* content_texture_renderer = nullptr;

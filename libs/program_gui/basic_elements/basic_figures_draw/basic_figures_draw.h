@@ -21,7 +21,7 @@ enum element_form
 };
 
 
-void rectangle_draw(
+void rectangle_draw_by_color(
     
     int x_render_point,
     int y_render_point,
@@ -36,7 +36,23 @@ void rectangle_draw(
 );
 
 
-void rounded_rectangle_draw(
+void rectangle_draw_by_texture(
+
+    int x_render_point,
+    int y_render_point,
+
+    unsigned int width,
+    unsigned int height,
+
+    SDL_Texture* texture,
+
+    SDL_Renderer* renderer
+
+);
+
+
+
+void rounded_rectangle_draw_by_color(
     
     int x_render_point,
     int y_render_point,
@@ -53,7 +69,23 @@ void rounded_rectangle_draw(
 );
 
 
-void circle_draw(
+void rounded_rectangle_draw_by_texture(
+
+    int x_render_point,
+    int y_render_point,
+
+    unsigned int width,
+    unsigned int height,
+
+    unsigned int radius,
+
+    SDL_Texture* texture,
+
+    SDL_Renderer* renderer
+);
+
+
+void circle_draw_by_color(
 
     int x_render_point,
     int y_render_point,
@@ -63,4 +95,18 @@ void circle_draw(
     SDL_Color color,
 
     SDL_Renderer* renderer
+    
+);
+
+void circle_draw_by_texture(
+
+    int x_render_point,
+    int y_render_point,
+
+    unsigned int radius,
+
+    SDL_Texture* texture,
+
+    SDL_Renderer* renderer
+
 );

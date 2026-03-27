@@ -16,7 +16,7 @@ My_SDL_button::My_SDL_button()
 
     // Types
 
-    this->set_access_type(BUTTON_DEFAULT_CLICK_PERMISSION);
+    this->click_access_type  = BUTTON_DEFAULT_CLICK_PERMISSION;
 
     this->set_gui_type(STATIC_BUTTON_GUI);
 
@@ -110,10 +110,6 @@ My_SDL_button::My_SDL_button()
 
     this->current_pallette_number = 1;
 
-    // Textures nullptr
-
-    background_texture = nullptr;
-    border_texture = nullptr;
     content_texture = nullptr;
 }
 
@@ -125,8 +121,6 @@ My_SDL_button::~My_SDL_button()
     // only for buttons inside panels
 
     // Textures destructors
-    if (background_texture) SDL_DestroyTexture(background_texture);
-    if (border_texture) SDL_DestroyTexture(border_texture);
     if (content_texture) SDL_DestroyTexture(content_texture);
 }
 
@@ -147,6 +141,8 @@ void My_SDL_button::update()
         if (this->on_hover) this->on_hover();
 
         this->current_element_state = HOVERED_BS;
+
+        this->content_dirty = true; // For update
 
         // New click or release check  
         this->clicked = this->click_check();
@@ -171,10 +167,12 @@ void My_SDL_button::update()
                 this->clicked_tmp = true;
 
                 this->current_element_state = CLICKED_BS;
+
+                this->content_dirty = true; // For update
             }
 
     // There can not be anything instead of BUTTON_EXTERN_CLICK_PERMISSION
-    else
+    else if (this->click_access_type == BUTTON_EXTERN_CLICK_PERMISSION)
     {
         // Permission check by the callback
         if (this->extern_click_permission)
@@ -190,7 +188,17 @@ void My_SDL_button::update()
                         this->clicked_tmp = true;
 
                         this->current_element_state = CLICKED_BS;
+
+                        this->content_dirty = true; // For update
                     }
+
+            else
+            {
+                // Block repeats and reset
+                this->clicked_tmp = false;
+
+                this->current_element_state = DEFAULT_BS;
+            }
         }
         else 
         {
@@ -204,6 +212,19 @@ void My_SDL_button::update()
     // Holded click or release check  
     this->clicked = this->click_check();
 
+    // Pallette check callback 
+    if (get_required_palette)
+    {
+        int new_pallette_number = get_required_palette();
+            
+        if (new_pallette_number != this->current_pallette_number)
+        {
+            this->current_pallette_choose(new_pallette_number);
+
+            this->content_dirty = true; // For update
+        }
+    }
+
     // If we press and then release - reset permission
     if (!this->clicked && this->clicked_tmp) 
     {
@@ -216,10 +237,6 @@ void My_SDL_button::update()
 
         this->current_element_state = DEFAULT_BS;
     }
-
-    // Pallette check callback 
-    if (get_required_palette)
-        this->current_pallette_choose(get_required_palette());
 }
 
 
@@ -284,24 +301,17 @@ void My_SDL_button::reset_boundaries_points()
 
 void My_SDL_button::reset_current_form()
 {
-    if (this->border_radius_size == 0)
+    float half_w = this->width_size / 2.0f;
+    float half_h = this->height_size / 2.0f;
 
-        // Rectangle
-        this->current_form = RECTANGLE_EF;
+    if (this->border_radius_size >= half_w && this->border_radius_size >= half_h)
+        this->current_form = CIRCLE_EF;         
 
-    else if (this->border_radius_size != 0 &&
-        this->width_size / 2 > this->border_radius_size &&
-        this->height_size / 2 > this->border_radius_size)
-
-        // Rounded rectangle
-        this->current_form = ROUNDED_RECTANGLE_EF;
-
-    else if (this->border_radius_size != 0 &&
-        this->width_size / 2 == this->border_radius_size &&
-        this->height_size / 2 == this->border_radius_size)
-
-        // Circle
-        this->current_form = CIRCLE_EF;
+    else if (this->border_radius_size > 0)
+        this->current_form = ROUNDED_RECTANGLE_EF; 
+         
+    else
+        this->current_form = RECTANGLE_EF;           
 }
 
 // =========================================================================================== MAIN LOGIC
@@ -415,6 +425,11 @@ void My_SDL_button::render(SDL_Renderer* renderer)
 
     // Figures to build data calculation
 
+
+    // TODO: CATCH CALCULATION BUG!!!!!!!!!
+
+    // Render points
+
     int sw_cx = this->x_render_point + shadow_offset_x;
     int sw_cy = this->y_render_point + shadow_offset_y;
 
@@ -424,6 +439,8 @@ void My_SDL_button::render(SDL_Renderer* renderer)
     int bd_cx = this->x_render_point;
     int bd_cy = this->y_render_point;
 
+
+    // Sizes 
 
     unsigned int sw_w = static_cast<unsigned int>(std::round((this->width_size) * this->shadow_scale_factor));
     unsigned int sw_h = static_cast<unsigned int>(std::round((this->height_size) * this->shadow_scale_factor));
@@ -445,6 +462,7 @@ void My_SDL_button::render(SDL_Renderer* renderer)
 
     
     // Incrementation of the press offset at every render repeat
+
     if (this->current_element_state == CLICKED_BS)
     {
         if (this->push_mode_on && this->press_offset <= 10)
@@ -455,44 +473,48 @@ void My_SDL_button::render(SDL_Renderer* renderer)
         this->press_offset = 0;
     }
 
+
     // Render 3 figures (shadow (border sizes * scaler), border and background (width or hight - 2 * border_width)) 
     // by their sizes, with use of current colors and render point (center-center)
     if (this->current_form == RECTANGLE_EF)
     {
         // SHADOW
-        rectangle_draw(sw_cx, sw_cy, sw_w, sw_h, shadow_color, renderer);
+        rectangle_draw_by_color(sw_cx, sw_cy, sw_w, sw_h, shadow_color, renderer);
 
         // BORDER
-        rectangle_draw(br_cx, br_cy, br_w, br_h, border_color, renderer);
+        rectangle_draw_by_color(br_cx, br_cy, br_w, br_h, border_color, renderer);
 
         // BACKGROUND
-        rectangle_draw(bd_cx, bd_cy, bg_w, bg_h, background_color, renderer);
+        rectangle_draw_by_color(bd_cx, bd_cy, bg_w, bg_h, background_color, renderer);
     }
 
     else if (this->current_form == ROUNDED_RECTANGLE_EF)
     {
         // SHADOW
-        rounded_rectangle_draw(sw_cx, sw_cy, sw_w, sw_h, sw_r, shadow_color, renderer);
+        rounded_rectangle_draw_by_color(sw_cx, sw_cy, sw_w, sw_h, sw_r, shadow_color, renderer);
 
         // BORDER
-        rounded_rectangle_draw(br_cx, br_cy, br_w, br_h, br_r, border_color, renderer);
+        rounded_rectangle_draw_by_color(br_cx, br_cy, br_w, br_h, br_r, border_color, renderer);
 
         // BACKGROUND
-        rounded_rectangle_draw(bd_cx, bd_cy, bg_w, bg_h, bg_r, background_color, renderer);
+        rounded_rectangle_draw_by_color(bd_cx, bd_cy, bg_w, bg_h, bg_r, background_color, renderer);
     }
+
     else if (this->current_form == CIRCLE_EF)
     {
         // SHADOW
-        circle_draw(sw_cx, sw_cy, sw_w / 2, shadow_color, renderer);
+        circle_draw_by_color(sw_cx, sw_cy, sw_w / 2, shadow_color, renderer);
 
         // BORDER
-        circle_draw(br_cx, br_cy, br_w / 2, border_color, renderer);
+        circle_draw_by_color(br_cx, br_cy, br_w / 2, border_color, renderer);
 
         // BACKGROUND
-        circle_draw(bd_cx, bd_cy, bg_w / 2, background_color, renderer);
+        circle_draw_by_color(bd_cx, bd_cy, bg_w / 2, background_color, renderer);
     }
 
+
     // Content draw by SDL ttf
+
     this->update_content_texture(renderer, content_color);
 
 
@@ -513,6 +535,8 @@ void My_SDL_button::render(SDL_Renderer* renderer)
 
 void My_SDL_button::update_content_texture(SDL_Renderer* renderer, SDL_Color new_color)
 {
+    // SDL ttf workflow
+
     if (!this->content_dirty) return;
     if (!this->ttf_font_link) return;
     if (this->content.empty()) return;
@@ -524,7 +548,8 @@ void My_SDL_button::update_content_texture(SDL_Renderer* renderer, SDL_Color new
         this->content_texture = nullptr;
     }
 
-    // Pallette throw after
+
+    // By passed pallete 
     SDL_Color color = new_color;
 
     SDL_Surface* surface = TTF_RenderText_Blended(
@@ -832,20 +857,10 @@ void My_SDL_button::set_shadow_color_clicked_2(SDL_Color new_color)
 
 // Textures
 
-void My_SDL_button::set_background_texture(SDL_Texture* new_texture)
-{
-    this->background_texture = new_texture;
-}
 
-void My_SDL_button::set_border_texture(SDL_Texture* new_texture)
+void My_SDL_button::set_content_texture_1(SDL_Texture* new_texture)
 {
-    this->border_texture = new_texture;
+    this->content_texture_1 = new_texture;
 }
-
-void My_SDL_button::set_content_texture(SDL_Texture* new_texture)
-{
-    this->content_texture = new_texture;
-}
-
 
 // =========================================================================================== GUI
