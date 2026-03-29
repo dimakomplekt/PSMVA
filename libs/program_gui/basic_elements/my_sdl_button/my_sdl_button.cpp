@@ -7,6 +7,17 @@
 
 // =========================================================================================== IMPORT
 
+SDL_Color hex_to_sdl_color(const std::string& hex, unsigned int opacity)
+{
+    SDL_Color color;
+
+    color.r = std::stoi(hex.substr(1, 2), nullptr, 16);
+    color.g = std::stoi(hex.substr(3, 2), nullptr, 16);
+    color.b = std::stoi(hex.substr(5, 2), nullptr, 16);
+    color.a = opacity;
+
+    return color;
+}
 
 // =========================================================================================== CONSTRUCTOR AND DESTRUCTOR
 
@@ -76,8 +87,8 @@ My_SDL_button::My_SDL_button()
 
 
     // Базовые цвета
-    this->set_background_color_1({232, 222, 42, 255});
-    this->set_border_color_1({23, 23, 23, 255});
+    this->set_background_color_1(hex_to_sdl_color("#fd3108", 255)); // #fd3108
+    this->set_border_color_1({23, 23, 23, 255});    // #f0e7d6
     this->set_content_color_1({23, 23, 23, 255});
     this->set_shadow_color_1({230, 212, 42, 255});
 
@@ -566,8 +577,7 @@ void My_SDL_button::update_content_texture(SDL_Renderer* renderer, SDL_Color new
     }
 
 
-    // By passed pallete 
-    SDL_Color color = new_color;
+    SDL_Color color = new_color; // By passed pallette 
 
     SDL_Surface* surface = TTF_RenderText_Blended(
         this->ttf_font_link,

@@ -73,6 +73,8 @@ enum button_state
 // =========================================================================================== TYPES
 
 
+SDL_Color hex_to_sdl_color(const std::string& hex, unsigned int opacity);
+
 
 class My_SDL_button
 {
