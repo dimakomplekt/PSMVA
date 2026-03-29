@@ -338,17 +338,6 @@ class My_SDL_button
 
 
         /**
-         * @brief Sets the TTF font link for the button.
-         *
-         * Assigns a pointer to a TTF_Font used for rendering text.
-         * If the pointer is null, the font is not set and an error is logged.
-         *
-         * @param new_ttf_font_link Pointer to a valid TTF_Font
-         */
-        void set_ttf_font_link(TTF_Font* new_ttf_font_link);
-
-
-        /**
          * @brief Sets the font file path for the button.
          *
          * Updates the path to the font file used for text rendering.
@@ -357,6 +346,9 @@ class My_SDL_button
          * @param new_font_path Path to the font file
          */
         void set_font_path(const std::string& new_font_path);
+
+        
+        std::string My_SDL_button::get_font_path() const;
 
 
         /**
@@ -464,10 +456,8 @@ class My_SDL_button
         // Texture setters
 
         // Sets the content texture of the button (replaces content color or text rendering)
-        void set_content_texture_1(SDL_Texture* new_texture);
+        void set_content_texture(SDL_Texture* new_texture);
 
-        // Sets the content texture of the button (replaces content color or text rendering)
-        void set_content_texture_2(SDL_Texture* new_texture);
 
         // ===== GUI ======
 
@@ -547,14 +537,27 @@ class My_SDL_button
 
         // Content
 
-        TTF_Font* ttf_font_link = nullptr;             // TTF Font pointer
 
         std::string font_path;                         // Font path for button text
+
+        TTF_Font* ttf_font_link = nullptr;             // TTF Font pointer
 
         unsigned int font_size;                        // Content size
 
 
         std::string content;                           // Button text
+
+        
+        /**
+         * @brief Sets the TTF font link for the button.
+         *
+         * Assigns a pointer to a TTF_Font used for rendering text.
+         * If the pointer is null, the font is not set and an error is logged.
+         *
+         * @param new_ttf_font_link Pointer to a valid TTF_Font
+         */
+        void set_ttf_font_link(TTF_Font* new_ttf_font_link);
+
 
         // Variables for rendering with autoset 
         

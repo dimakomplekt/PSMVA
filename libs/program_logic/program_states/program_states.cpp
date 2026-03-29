@@ -33,7 +33,9 @@ void start_enter()
 {
     std::cout << "Entering START\n";
 
+    // Button 1 initialization
     Button_1.on_click = cout_on_but_1_click;
+    Button_1.set_font_path(Button_1.get_font_path());
 }
 
 

@@ -50,19 +50,19 @@ My_SDL_button::My_SDL_button()
     
 
     this->border_width_size = 5;
-    this->border_radius_size = 0;
+    this->border_radius_size = 15;
 
     this->set_shadow_offset(5, -5);
     this->shadow_scale_factor = 1.0f;
 
     this->current_form = ROUNDED_RECTANGLE_EF;
 
-    this->font_size = 10; 
+    this->font_size = 12; 
 
+    this->font_path = "C:/creator/it/programs/cpp/PSMVA/libs/program_gui/basic_elements/ttf_fonts/Amiga_forever_pro.ttf"; // Need another logic
     this->ttf_font_link = nullptr;
-    this->font_path = "";
 
-    this->content = "";
+    this->content = "But";
 
     this->content_w = 0;
     this->content_h = 0;
@@ -75,20 +75,23 @@ My_SDL_button::My_SDL_button()
     this->set_opacity(255);
 
 
-    this->set_background_color_1({220, 220, 220, 255});
-    this->set_border_color_1({50, 50, 50, 255});
-    this->set_content_color_1({30, 30, 30, 255});
-    this->set_shadow_color_1({200, 200, 200, 255});
+    // Базовые цвета
+    this->set_background_color_1({232, 222, 42, 255});
+    this->set_border_color_1({23, 23, 23, 255});
+    this->set_content_color_1({23, 23, 23, 255});
+    this->set_shadow_color_1({230, 212, 42, 255});
 
-    this->set_background_color_hovered_1({200, 200, 200, 255});
-    this->set_border_color_hovered_1({70, 70, 70, 255});
-    this->set_content_color_hovered_1({50, 50, 50, 255});
-    this->set_shadow_color_hovered_1({180, 180, 180, 255});
+    // Hover (наведение мыши)
+    this->set_background_color_hovered_1({240, 231, 214, 255});
+    this->set_border_color_hovered_1({23, 23, 23, 255});
+    this->set_content_color_hovered_1({23, 23, 23, 255});
+    this->set_shadow_color_hovered_1({220, 220, 200, 255});
 
-    this->set_background_color_clicked_1({180, 180, 180, 255});
-    this->set_border_color_clicked_1({90, 90, 90, 255});
-    this->set_content_color_clicked_1({70, 70, 70, 255});
-    this->set_shadow_color_clicked_1({160, 160, 160, 255});
+    // Clicked (нажатие)
+    this->set_background_color_clicked_1({150, 120, 180, 255}); 
+    this->set_border_color_clicked_1({232, 222, 42, 255});
+    this->set_content_color_clicked_1({232, 222, 42, 255});
+    this->set_shadow_color_clicked_1({140, 122, 180, 255});
 
 
     // Nulled 2nd pallette
@@ -140,7 +143,8 @@ void My_SDL_button::update()
         // Hover logic by the callback
         if (this->on_hover) this->on_hover();
 
-        this->current_element_state = HOVERED_BS;
+        if (!this->clicked_tmp)
+            this->current_element_state = HOVERED_BS;
 
         this->content_dirty = true; // For update
 
@@ -153,7 +157,8 @@ void My_SDL_button::update()
         this->clicked = false;
         this->clicked_tmp = false; 
 
-        this->current_element_state = DEFAULT_BS;
+        if (!this->clicked_tmp) // Only without press
+            this->current_element_state = DEFAULT_BS;
     }
 
 
@@ -196,8 +201,6 @@ void My_SDL_button::update()
             {
                 // Block repeats and reset
                 this->clicked_tmp = false;
-
-                this->current_element_state = DEFAULT_BS;
             }
         }
         else 
@@ -207,10 +210,6 @@ void My_SDL_button::update()
             return;
         }
     }
-
-
-    // Holded click or release check  
-    this->clicked = this->click_check();
 
     // Pallette check callback 
     if (get_required_palette)
@@ -229,13 +228,16 @@ void My_SDL_button::update()
     if (!this->clicked && this->clicked_tmp) 
     {
         // One callback call after release
-        if (this->click_access_type == BUTTON_DEFAULT_CLICK_PERMISSION || this->click_permission)
-            if (this->on_click) this->on_click();
+        if ((this->click_access_type == BUTTON_DEFAULT_CLICK_PERMISSION || this->click_permission)
+        && this->on_click)
+        {
+            this->on_click();
+        }
+
 
         // Block repeats and reset
         this->clicked_tmp = false;
-
-        this->current_element_state = DEFAULT_BS;
+        this->current_element_state = DEFAULT_BS; 
     }
 }
 
@@ -442,8 +444,8 @@ void My_SDL_button::render(SDL_Renderer* renderer)
 
     // Sizes 
 
-    unsigned int sw_w = static_cast<unsigned int>(std::round((this->width_size) * this->shadow_scale_factor));
-    unsigned int sw_h = static_cast<unsigned int>(std::round((this->height_size) * this->shadow_scale_factor));
+    unsigned int sw_w = static_cast<unsigned int>(std::round((this->width_size - this->press_offset) * this->shadow_scale_factor));
+    unsigned int sw_h = static_cast<unsigned int>(std::round((this->height_size - this->press_offset) * this->shadow_scale_factor));
 
     unsigned int br_w = this->width_size - this->press_offset; 
     unsigned int br_h = this->height_size - this->press_offset;
@@ -465,12 +467,20 @@ void My_SDL_button::render(SDL_Renderer* renderer)
 
     if (this->current_element_state == CLICKED_BS)
     {
-        if (this->push_mode_on && this->press_offset <= 10)
-            this->press_offset += 2;
+        if (this->push_mode_on && this->press_offset <= 5)
+        {
+            this->press_offset += 1;
+
+            if (this->font_size - this->press_offset >= 10)
+            {
+                this->set_ttf_font_link(TTF_OpenFont(this->font_path.c_str(), this->font_size - this->press_offset));
+            }
+        }
     }
     else
     {
         this->press_offset = 0;
+        this->set_ttf_font_link(TTF_OpenFont(this->font_path.c_str(), this->font_size));
     }
 
 
@@ -525,8 +535,8 @@ void My_SDL_button::render(SDL_Renderer* renderer)
         dst.w = this->content_w;
         dst.h = this->content_h;
 
-        dst.x = this->x_render_point + (this->width_size - dst.w) / 2;
-        dst.y = this->y_render_point + (this->height_size - dst.h) / 2 + press_offset;
+        dst.x = this->x_render_point - dst.w / 2.0f;
+        dst.y = this->y_render_point - dst.h / 2.0f;
 
         SDL_RenderTexture(renderer, content_texture, nullptr, &dst);
     }
@@ -538,7 +548,14 @@ void My_SDL_button::update_content_texture(SDL_Renderer* renderer, SDL_Color new
     // SDL ttf workflow
 
     if (!this->content_dirty) return;
-    if (!this->ttf_font_link) return;
+
+
+    if (!this->ttf_font_link) 
+    {
+        std::cerr << "Font load error!" << SDL_GetError() << std::endl;
+        return;
+    }
+
     if (this->content.empty()) return;
 
     // Old texture clear
@@ -666,7 +683,7 @@ void My_SDL_button::set_border_radius(unsigned int new_size)
 void My_SDL_button::set_shadow_offset(int new_x_offset, int new_y_offset)
 {
     this->shadow_offset_x = new_x_offset;
-    this->shadow_offset_y = new_y_offset;
+    this->shadow_offset_y = -new_y_offset;  // SDL works with inverted y-axis on offset
 }
 
 void My_SDL_button::set_shadow_scale_factor(float new_scale_factor)
@@ -705,6 +722,18 @@ void My_SDL_button::set_font_path(const std::string& new_font_path)
     }
 
     this->font_path = new_font_path;
+
+    this->set_ttf_font_link(TTF_OpenFont(this->font_path.c_str(), this->font_size));
+
+    if (!this->ttf_font_link)
+    {
+        SDL_Log("TTF_OpenFont failed: %s", SDL_GetError());
+    }
+}
+
+std::string My_SDL_button::get_font_path() const
+{
+    return this->font_path;
 }
 
 
@@ -858,9 +887,9 @@ void My_SDL_button::set_shadow_color_clicked_2(SDL_Color new_color)
 // Textures
 
 
-void My_SDL_button::set_content_texture_1(SDL_Texture* new_texture)
+void My_SDL_button::set_content_texture(SDL_Texture* new_texture)
 {
-    this->content_texture_1 = new_texture;
+    this->content_texture = new_texture;
 }
 
 // =========================================================================================== GUI

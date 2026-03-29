@@ -25,7 +25,7 @@ int main()
     sdl_app_ctx app_test;
 
     // Initialize SDL application
-    if (!SDL_app_init(&app_test, 800, 600, "Miyoo Square")) 
+    if (!SDL_app_init(&app_test, 800, 600, "PSMVA")) 
     {
         std::cerr << "Failed to initialize SDL application." << std::endl;
         return -1;
