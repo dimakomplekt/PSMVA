@@ -7,17 +7,6 @@
 
 // =========================================================================================== IMPORT
 
-SDL_Color hex_to_sdl_color(const std::string& hex, unsigned int opacity)
-{
-    SDL_Color color;
-
-    color.r = std::stoi(hex.substr(1, 2), nullptr, 16);
-    color.g = std::stoi(hex.substr(3, 2), nullptr, 16);
-    color.b = std::stoi(hex.substr(5, 2), nullptr, 16);
-    color.a = opacity;
-
-    return color;
-}
 
 // =========================================================================================== CONSTRUCTOR AND DESTRUCTOR
 
@@ -70,7 +59,7 @@ My_SDL_button::My_SDL_button()
 
     this->font_size = 12; 
 
-    this->font_path = "C:/creator/it/programs/cpp/PSMVA/libs/program_gui/basic_elements/ttf_fonts/Amiga_forever_pro.ttf"; // Need another logic
+    this->font_path = "C:/creator/it/programs/cpp/PSMVA/libs/program_gui/basic_elements/content/ttf_fonts/Amiga_forever_pro.ttf"; // Need another logic
     this->ttf_font_link = nullptr;
 
     this->content = "But";

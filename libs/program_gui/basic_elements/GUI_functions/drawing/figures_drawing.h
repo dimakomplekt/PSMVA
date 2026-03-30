@@ -1,4 +1,4 @@
-// basic_figures_draw.h
+// figures_drawing.h
 
 #pragma once
 
