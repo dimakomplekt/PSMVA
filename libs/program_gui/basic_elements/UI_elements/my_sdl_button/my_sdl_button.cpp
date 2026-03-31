@@ -39,7 +39,7 @@ My_SDL_button::My_SDL_button()
     this->push_mode_on = true;
     this->press_offset = 0;
 
-    this->current_element_state = DEFAULT_BS;
+    this->current_element_state = DEFAULT_ES;
 
     this->set_size(100, 50);
 
@@ -151,7 +151,7 @@ void My_SDL_button::update()
         if (this->on_hover) this->on_hover();
 
         if (!this->clicked_tmp)
-            this->current_element_state = HOVERED_BS;
+            this->current_element_state = HOVERED_ES;
 
         this->content_dirty = true; // For update
 
@@ -165,7 +165,7 @@ void My_SDL_button::update()
         this->clicked_tmp = false; 
 
         if (!this->clicked_tmp) // Only without press
-            this->current_element_state = DEFAULT_BS;
+            this->current_element_state = DEFAULT_ES;
     }
 
 
@@ -178,7 +178,7 @@ void My_SDL_button::update()
             {
                 this->clicked_tmp = true;
 
-                this->current_element_state = CLICKED_BS;
+                this->current_element_state = CLICKED_ES;
 
                 this->content_dirty = true; // For update
             }
@@ -199,7 +199,7 @@ void My_SDL_button::update()
                     {
                         this->clicked_tmp = true;
 
-                        this->current_element_state = CLICKED_BS;
+                        this->current_element_state = CLICKED_ES;
 
                         this->content_dirty = true; // For update
                     }
@@ -244,7 +244,7 @@ void My_SDL_button::update()
 
         // Block repeats and reset
         this->clicked_tmp = false;
-        this->current_element_state = DEFAULT_BS; 
+        this->current_element_state = DEFAULT_ES; 
     }
 
     // Pallette prepare for rendering
@@ -341,7 +341,7 @@ void My_SDL_button::render(SDL_Renderer* renderer)
 
     // Press offset for push simulation
 
-    if (this->current_element_state != CLICKED_BS) this->press_offset = 0;
+    if (this->current_element_state != CLICKED_ES) this->press_offset = 0;
 
 
     // Figures to build data calculation
@@ -383,7 +383,7 @@ void My_SDL_button::render(SDL_Renderer* renderer)
     
     // Incrementation of the press offset at every render repeat
 
-    if (this->current_element_state == CLICKED_BS)
+    if (this->current_element_state == CLICKED_ES)
     {
         if (this->push_mode_on && this->press_offset <= 5)
         {
@@ -480,7 +480,7 @@ void My_SDL_button::button_pallette_prepare()
 
         case 1:
             // Basic
-            if (this->current_element_state == DEFAULT_BS)
+            if (this->current_element_state == DEFAULT_ES)
             {
                 this->render_background_color = this->background_color_1;
                 this->render_border_color = this->border_color_1;
@@ -489,7 +489,7 @@ void My_SDL_button::button_pallette_prepare()
             }
 
             // Hovered
-            else if (this->current_element_state == HOVERED_BS)
+            else if (this->current_element_state == HOVERED_ES)
             {
                 this->render_background_color = this->background_color_hovered_1;
                 this->render_border_color = this->border_color_hovered_1;
@@ -498,7 +498,7 @@ void My_SDL_button::button_pallette_prepare()
             }
 
             // Clicked
-            else if (this->current_element_state == CLICKED_BS)
+            else if (this->current_element_state == CLICKED_ES)
             {
                 this->render_background_color = this->background_color_clicked_1;
                 this->render_border_color = this->border_color_clicked_1;
@@ -510,7 +510,7 @@ void My_SDL_button::button_pallette_prepare()
 
         case 2:
             // 2nd pallette
-            if (this->current_element_state == DEFAULT_BS)
+            if (this->current_element_state == DEFAULT_ES)
             {
                 this->render_background_color = this->background_color_2;
                 this->render_border_color = this->border_color_2;
@@ -519,7 +519,7 @@ void My_SDL_button::button_pallette_prepare()
             }
 
             // Hovered
-            else if (this->current_element_state == HOVERED_BS)
+            else if (this->current_element_state == HOVERED_ES)
             {
                 this->render_background_color = this->background_color_hovered_2;
                 this->render_border_color = this->border_color_hovered_2;
@@ -528,7 +528,7 @@ void My_SDL_button::button_pallette_prepare()
             }
 
             // Clicked
-            else if (this->current_element_state == CLICKED_BS)
+            else if (this->current_element_state == CLICKED_ES)
             {
                 this->render_background_color = this->background_color_clicked_2;
                 this->render_border_color = this->border_color_clicked_2;

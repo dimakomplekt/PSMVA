@@ -29,6 +29,27 @@ enum element_gui_type
 
 };
 
+// Element rectangle boundaries struct for logic like hover and click checks
+struct element_rect_boundaries
+{
+
+    int left_boundary;
+    int right_boundary;
+    int top_boundary;
+    int bottom_boundary;
+
+};
+
+// Element states for rendering logic
+enum element_state
+{
+
+    DEFAULT_ES,
+    HOVERED_ES,
+    CLICKED_ES
+
+};
+
 
 // =========================================================================================== TYPES
 

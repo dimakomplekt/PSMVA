@@ -30,26 +30,6 @@ enum button_access_type
 
 };
 
-
-struct button_rect_boundaries
-{
-
-    int left_boundary;
-    int right_boundary;
-    int top_boundary;
-    int bottom_boundary;
-
-};
-
-enum button_state
-{
-
-    DEFAULT_BS,
-    HOVERED_BS,
-    CLICKED_BS
-
-};
-
 // =========================================================================================== TYPES
 
 
@@ -71,7 +51,7 @@ class My_SDL_button : public My_SDL_element // SDL_Element
         // ===== MAIN LOGIC =====
 
         /**
-         * @brief Updates the button state machine.
+         * @brief Updates the button.
          *
          * - Performs hover detection and updates hover state
          * - Handles click press/release logic
@@ -83,7 +63,7 @@ class My_SDL_button : public My_SDL_element // SDL_Element
          *
          * Must be called every frame inside the main state.update loop.
          */
-        void update() override; // SDL_E                                      
+        void update() override;                                  
 
 
         /**
@@ -118,7 +98,7 @@ class My_SDL_button : public My_SDL_element // SDL_Element
          * Must be set when using external click permission, otherwise
          * click handling will fail.
          */
-        std::function<bool()> extern_click_permission; // SDL_E
+        std::function<bool()> extern_click_permission; 
 
 
         /**
@@ -427,7 +407,7 @@ class My_SDL_button : public My_SDL_element // SDL_Element
         bool push_mode_on;                           // Current push display mode
         int press_offset;                            // Current press offset for push animation
 
-        button_state current_element_state;
+        element_state current_element_state;
 
         // ===== MAIN LOGIC =====
         
@@ -446,7 +426,7 @@ class My_SDL_button : public My_SDL_element // SDL_Element
         unsigned int width_size;                       // Element width
         unsigned int height_size;                      // Element height
 
-        button_rect_boundaries boundaries_points;      // Element rectangle bounds by the button_rect_boundaries struct
+        element_rect_boundaries boundaries_points;      // Element rectangle bounds by the element_rect_boundaries struct
 
         void reset_boundaries_points();                // Element bounds automatic recalculation
 
