@@ -39,4 +39,5 @@ float GI_mouse::get_y() const { return this->y_pos; }
 bool GI_mouse::lb_clicked() const { return this->lb_state; }
 bool GI_mouse::rb_clicked() const { return this->rb_state; }
 
+
 // =========================================================================================== MOUSE

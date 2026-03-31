@@ -26,6 +26,8 @@ bool SDL_app_init(sdl_app_ctx* app, int w, int h, const char* title)
 
     SDL_SetRenderVSync(app->renderer, 1);
 
+    SDL_SetRenderDrawBlendMode(app->renderer, SDL_BLENDMODE_BLEND);
+
     SDL_SetWindowTitle(app->window, title);
 
     app->app_state = SDL_APP_CONTINUE;

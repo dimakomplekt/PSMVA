@@ -99,7 +99,7 @@ void rounded_rectangle_draw_by_color(
 
 )
 {
-    if (width < 3 || height < 3)
+    if (width < 3 || height < 3 || !renderer)
     {
         return;
     }
@@ -112,98 +112,101 @@ void rounded_rectangle_draw_by_color(
 
     SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
 
-    int center_x = x_render_point;
-    int center_y = y_render_point;
+    int cx = x_render_point;
+    int cy = y_render_point;
 
-    int rect_width  = static_cast<int>(width);
-    int rect_height = static_cast<int>(height);
-    int corner_radius = static_cast<int>(radius);
+    int w = static_cast<int>(width);
+    int h = static_cast<int>(height);
+    int r = static_cast<int>(radius);
 
-    // Clamp radius
-    int max_radius = std::min((rect_width - 1) / 2, (rect_height - 1) / 2);
+    int max_r = std::min((w - 1) / 2, (h - 1) / 2);
+    if (r > max_r) r = max_r;
 
-    if (corner_radius > max_radius)
-    {
-        corner_radius = max_radius;
-    }
-
-    int half_width  = rect_width  / 2;
-    int half_height = rect_height / 2;
+    int hw = w / 2;
+    int hh = h / 2;
 
     // ========================= CENTER
-
     SDL_FRect center_rect{
-
-        static_cast<float>(center_x - half_width + corner_radius),
-        static_cast<float>(center_y - half_height),
-        static_cast<float>(rect_width - 2 * corner_radius),
-        static_cast<float>(rect_height)
-
+        (float)(cx - hw + r),
+        (float)(cy - hh),
+        (float)(w - 2 * r),
+        (float)(h)
     };
-
-
     SDL_RenderFillRect(renderer, &center_rect);
 
     // ========================= SIDES
-
     SDL_FRect left_rect{
-
-        static_cast<float>(center_x - half_width),
-        static_cast<float>(center_y - half_height + corner_radius),
-        static_cast<float>(corner_radius),
-        static_cast<float>(rect_height - 2 * corner_radius)
-
+        (float)(cx - hw),
+        (float)(cy - hh + r),
+        (float)(r),
+        (float)(h - 2 * r)
     };
-
     SDL_RenderFillRect(renderer, &left_rect);
 
     SDL_FRect right_rect{
-
-        static_cast<float>(center_x + half_width - corner_radius),
-        static_cast<float>(center_y - half_height + corner_radius),
-        static_cast<float>(corner_radius),
-        static_cast<float>(rect_height - 2 * corner_radius)
-
+        (float)(cx + hw - r),
+        (float)(cy - hh + r),
+        (float)(r),
+        (float)(h - 2 * r)
     };
-
     SDL_RenderFillRect(renderer, &right_rect);
 
-    // ========================= CORNERS
+    // ========================= SMOOTH CORNERS
 
-    int diameter = corner_radius * 2;
+    const int segments = std::max(8, (int)(r * 10.0f));
 
-    for (int x = 0; x < diameter; x++)
+    const float step = (SDL_PI_F * 0.5f) / segments;
+
+
+    SDL_FColor fcolor{
+
+        color.r / 255.0f,
+        color.g / 255.0f,
+        color.b / 255.0f,
+        color.a / 255.0f
+        
+    };
+
+    
+    auto draw_corner = [&](float center_x, float center_y, float start_angle)
     {
-        for (int y = 0; y < diameter; y++)
+        for (int i = 0; i < segments; ++i)
         {
-            int dx = x - corner_radius;
-            int dy = y - corner_radius;
+            float a1 = start_angle + i * step;
+            float a2 = start_angle + (i + 1) * step;
 
-            // 1 full circle in 4 different places
-            if (dx * dx + dy * dy <= corner_radius * corner_radius)
-            {
-                // Left top
-                SDL_RenderPoint(renderer,
-                    static_cast<float>(center_x - half_width + corner_radius + dx),
-                    static_cast<float>(center_y - half_height + corner_radius + dy));
+            SDL_Vertex verts[3];
 
-                // Right top
-                SDL_RenderPoint(renderer,
-                    static_cast<float>(center_x + half_width - corner_radius + dx),
-                    static_cast<float>(center_y - half_height + corner_radius + dy));
+            verts[0].position = { center_x, center_y };
+            verts[0].color = fcolor;
 
-                // Left bottom
-                SDL_RenderPoint(renderer,
-                    static_cast<float>(center_x - half_width + corner_radius + dx),
-                    static_cast<float>(center_y + half_height - corner_radius + dy));
+            verts[1].position = {
+                center_x + r * cosf(a1),
+                center_y + r * sinf(a1)
+            };
+            verts[1].color = fcolor;
 
-                // Right bottom
-                SDL_RenderPoint(renderer,
-                    static_cast<float>(center_x + half_width - corner_radius + dx),
-                    static_cast<float>(center_y + half_height - corner_radius + dy));
-            }
+            verts[2].position = {
+                center_x + r * cosf(a2),
+                center_y + r * sinf(a2)
+            };
+            verts[2].color = fcolor;
+
+            SDL_RenderGeometry(renderer, nullptr, verts, 3, nullptr, 0);
         }
-    }
+    };
+
+    // Left Top
+    draw_corner(cx - hw + r, cy - hh + r, SDL_PI_F);
+
+    // Right Top
+    draw_corner(cx + hw - r, cy - hh + r, -SDL_PI_F * 0.5f);
+
+    // Left Bottom
+    draw_corner(cx - hw + r, cy + hh - r, SDL_PI_F * 0.5f);
+
+    // Right Bottom
+    draw_corner(cx + hw - r, cy + hh - r, 0.0f);
 }
 
 
@@ -321,30 +324,59 @@ void circle_draw_by_color(
     SDL_Renderer* renderer
 )
 {
-    if (radius == 0)
+    if (radius == 0 || !renderer)
     {
         return;
     }
 
-    SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+    const float cx = static_cast<float>(x_render_point);
+    const float cy = static_cast<float>(y_render_point);
+    const float r  = static_cast<float>(radius);
 
-    int center_x = x_render_point;
-    int center_y = y_render_point;
+    // Подбираем количество сегментов
+    const int segments = std::max(12, static_cast<int>(r * 10.0f));
+    const float step = 2.0f * SDL_PI_F / segments;
 
-    int circle_radius = static_cast<int>(radius);
-
-    for (int dx = -circle_radius; dx <= circle_radius; dx++)
+    for (int i = 0; i < segments; ++i)
     {
-        for (int dy = -circle_radius; dy <= circle_radius; dy++)
-        {
-            if (dx * dx + dy * dy <= circle_radius * circle_radius)
-            {
-                SDL_RenderPoint(renderer, static_cast<float>(center_x + dx), static_cast<float>(center_y + dy));
-            }
-        }
+        float a1 = i * step;
+        float a2 = (i + 1) * step;
+
+        float x1 = cx + r * cosf(a1);
+        float y1 = cy + r * sinf(a1);
+
+        float x2 = cx + r * cosf(a2);
+        float y2 = cy + r * sinf(a2);
+
+        SDL_Vertex verts[3];
+
+        SDL_FColor fcolor{
+
+            color.r / 255.0f,
+            color.g / 255.0f,
+            color.b / 255.0f,
+            color.a / 255.0f
+
+        };
+
+        // Центр
+        verts[0].position = { cx, cy };
+        verts[0].color = fcolor;
+        verts[0].tex_coord = { 0.0f, 0.0f };
+
+        // Край 1
+        verts[1].position = { x1, y1 };
+        verts[1].color = fcolor;
+        verts[1].tex_coord = { 0.0f, 0.0f };
+
+        // Край 2
+        verts[2].position = { x2, y2 };
+        verts[2].color = fcolor;
+        verts[2].tex_coord = { 0.0f, 0.0f };
+
+        SDL_RenderGeometry(renderer, nullptr, verts, 3, nullptr, 0);
     }
 }
-
 
 void circle_draw_by_texture(
 
@@ -359,22 +391,52 @@ void circle_draw_by_texture(
 
 )
 {
-    if (!texture || radius == 0) return;
+    if (!texture || radius == 0 || !renderer) return;
 
-    for (int dx = -static_cast<int>(radius); dx <= static_cast<int>(radius); dx++)
+    const float cx = static_cast<float>(x_render_point);
+    const float cy = static_cast<float>(y_render_point);
+    const float r  = static_cast<float>(radius);
+
+    // Количество сегментов (можно тюнить)
+    const int segments = std::max(12, static_cast<int>(r * 10.0f));
+    const float step = 2.0f * SDL_PI_F / segments;
+
+    for (int i = 0; i < segments; ++i)
     {
-        for (int dy = -static_cast<int>(radius); dy <= static_cast<int>(radius); dy++)
-        {
-            if (dx*dx + dy*dy <= static_cast<int>(radius*radius))
-            {
-                SDL_FRect pixel_rect{
-                    static_cast<float>(x_render_point + dx),
-                    static_cast<float>(y_render_point + dy),
-                    1.0f, 1.0f
-                };
-                SDL_RenderTexture(renderer, texture, nullptr, &pixel_rect);
-            }
-        }
+        float a1 = i * step;
+        float a2 = (i + 1) * step;
+
+        float x1 = cx + r * cosf(a1);
+        float y1 = cy + r * sinf(a1);
+
+        float x2 = cx + r * cosf(a2);
+        float y2 = cy + r * sinf(a2);
+
+        SDL_Vertex verts[3];
+
+        // Центр
+        verts[0].position = { cx, cy };
+        verts[0].tex_coord = { 0.5f, 0.5f };
+        verts[0].color = {255.0f, 255.0f, 255.0f, 255.0f};
+
+        // Край 1
+        verts[1].position = { x1, y1 };
+        verts[1].tex_coord = {
+            0.5f + cosf(a1) * 0.5f,
+            0.5f + sinf(a1) * 0.5f
+        };
+        verts[1].color = {255, 255, 255, 255};
+
+        // Край 2
+        verts[2].position = { x2, y2 };
+        verts[2].tex_coord = {
+            0.5f + cosf(a2) * 0.5f,
+            0.5f + sinf(a2) * 0.5f
+        };
+
+        verts[2].color = {255.0f, 255.0f, 255.0f, 255.0f};
+
+        SDL_RenderGeometry(renderer, texture, verts, 3, nullptr, 0);
     }
 }
 

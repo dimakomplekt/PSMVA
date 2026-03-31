@@ -6,15 +6,7 @@
 
 // =========================================================================================== IMPORT
 
-#include <functional>                                   // for std::function
-#include <cmath>                                        // for std::round()
-
-
-#include "../../../engine/engine.h"                     // SDL3 and SDL ttf import
-
-#include "../../GUI_functions/drawing/figures_drawing.h"        // Basic figures
-#include "../../GUI_functions/translators/color_translator.h"           // HEX to SDL_Color 
-
+#include "../my_sdl_element/my_sdl_element.h" // Base class import
 
 // =========================================================================================== IMPORT
 
@@ -38,17 +30,8 @@ enum button_access_type
 
 };
 
-// Button signal type for GUI change logic
-enum button_gui_type
-{
 
-    STATIC_BUTTON_GUI,        // One color pallette
-    DYNAMIC_BUTTON_GUI,       // Different color pallettes for different extern logic
-
-};
-
-
-struct element_rect_boundaries
+struct button_rect_boundaries
 {
 
     int left_boundary;
@@ -72,7 +55,7 @@ enum button_state
 
 // =========================================================================================== My_SDL_button class
 
-class My_SDL_button : public My_SDL_element
+class My_SDL_button : public My_SDL_element // SDL_Element
 {
 
     public:
@@ -100,7 +83,7 @@ class My_SDL_button : public My_SDL_element
          *
          * Must be called every frame inside the main state.update loop.
          */
-        void update(); SDL_E                                      
+        void update() override; // SDL_E                                      
 
 
         /**
@@ -135,7 +118,7 @@ class My_SDL_button : public My_SDL_element
          * Must be set when using external click permission, otherwise
          * click handling will fail.
          */
-        std::function<bool()> extern_click_permission; SDL_E
+        std::function<bool()> extern_click_permission; // SDL_E
 
 
         /**
@@ -171,16 +154,6 @@ class My_SDL_button : public My_SDL_element
 
         // ===== GUI ======
 
-        /**
-         * @brief GUI type setter
-         * 
-         * Choose the gui type (static or dynamic) for the button by the button_gui_type enum values
-         * 
-         * @param new_gui_type one of the two button_gui_type enum values
-         * 
-         */
-        void set_gui_type(button_gui_type new_gui_type); SDL_E
-
 
         /**
          * @brief Callback for dynamic palette selection.
@@ -194,7 +167,7 @@ class My_SDL_button : public My_SDL_element
          *
          * Called during update() to determine the current palette.
          */
-        std::function<unsigned int()> get_required_palette;  SDL_E
+        std::function<unsigned int()> get_required_palette;  // SDL_E
 
 
         /**
@@ -210,7 +183,7 @@ class My_SDL_button : public My_SDL_element
          *
          * Rendering depends on state flags updated in update().
          */
-        void render(SDL_Renderer* renderer); SDL_E
+        void render(SDL_Renderer* renderer) override; // SDL_E
 
 
         // Render point
@@ -226,23 +199,7 @@ class My_SDL_button : public My_SDL_element
          * @param y_cc_rp y coordinate of the center-center render point
          * 
          */
-        void set_render_point(int x_cc_rp, int y_cc_rp); SDL_E
-
-
-        /**
-         * @brief Returns the X coordinate of the button's render center.
-         *
-         * @return X coordinate (center of the button for rendering)
-         */
-        int get_x_render_point() const; SDL_E
-
-
-        /**
-         * @brief Returns the Y coordinate of the button's render center.
-         *
-         * @return Y coordinate (center of the button for rendering)
-         */
-        int get_y_render_point() const; SDL_E
+        void set_render_point(int x_cc_rp, int y_cc_rp) override;
 
 
         // Size - unique logic for every element
@@ -344,7 +301,7 @@ class My_SDL_button : public My_SDL_element
         void set_font_path(const std::string& new_font_path);
 
         
-        std::string My_SDL_button::get_font_path() const;
+        std::string get_font_path() const;
 
 
         /**
@@ -356,17 +313,6 @@ class My_SDL_button : public My_SDL_element
          * @param new_size Font size in points
          */
         void set_font_size(unsigned int new_size);
-
-
-        /**
-         * @brief Sets the element's global opacity.
-         *
-         * Updates the alpha value applied to all button visual elements,
-         * including background, border, shadow, and content.
-         *
-         * @param new_opacity Opacity value (0 = fully transparent, 255 = fully opaque)
-         */
-        void set_opacity(Uint8 new_opacity); SDL_E
 
 
         // Color setters
@@ -488,9 +434,6 @@ class My_SDL_button : public My_SDL_element
 
         // ===== GUI ======
 
-        // GUI type
-        button_gui_type gui_type;
-
         unsigned int current_pallette_number; // 1 or 2
 
         // Pallette switch function - only by the extern logic inside
@@ -498,21 +441,12 @@ class My_SDL_button : public My_SDL_element
         void current_pallette_choose(unsigned int new_pallette_number);
 
 
-        // Render points (center-center)
-
-        // Center-center x-render point
-        int x_render_point;
-
-        // Center-center y-render point
-        int y_render_point;
-
-
         // Sizes
 
         unsigned int width_size;                       // Element width
         unsigned int height_size;                      // Element height
 
-        element_rect_boundaries boundaries_points;     // Element rectangle bounds by the element_rect_boundaries struct
+        button_rect_boundaries boundaries_points;      // Element rectangle bounds by the button_rect_boundaries struct
 
         void reset_boundaries_points();                // Element bounds automatic recalculation
 
@@ -578,12 +512,6 @@ class My_SDL_button : public My_SDL_element
         void update_content_texture(SDL_Renderer* renderer, SDL_Color new_color);
 
 
-        // Button opacity by 
-        // calling of commands like
-        // SDL_SetRenderDrawColor(renderer, background_color.r, background_color.g, background_color.b, alpha);
-        // before rendering
-        Uint8 opacity; // 0 = fully transperent, 255 = fully opaque
-
         // Button basic colors by SDL type  
 
         SDL_Color background_color_1;
@@ -618,6 +546,16 @@ class My_SDL_button : public My_SDL_element
         SDL_Color content_color_clicked_2;
         SDL_Color shadow_color_clicked_2;
 
+
+        // Variables for final rendering
+        SDL_Color render_background_color;
+        SDL_Color render_border_color;
+        SDL_Color render_content_color;
+        SDL_Color render_shadow_color;
+
+
+        // Inner pallette prepare method
+        void button_pallette_prepare();
         
         // ===== GUI ======
 };

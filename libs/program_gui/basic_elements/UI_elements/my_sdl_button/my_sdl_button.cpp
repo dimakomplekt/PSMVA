@@ -18,7 +18,7 @@ My_SDL_button::My_SDL_button()
 
     this->click_access_type  = BUTTON_DEFAULT_CLICK_PERMISSION;
 
-    this->set_gui_type(STATIC_BUTTON_GUI);
+    this->set_gui_type(STATIC_ELEMENT_GUI);
 
 
     // Callbacks nullptr
@@ -43,8 +43,8 @@ My_SDL_button::My_SDL_button()
 
     this->set_size(100, 50);
 
-    this->x_render_point = this->width_size / 2;
-    this->y_render_point = this->height_size / 2;
+    this->x_render_point = this->width_size / 2 + 1;
+    this->y_render_point = this->height_size / 2 + 1;
 
     this->reset_boundaries_points();
     
@@ -52,7 +52,7 @@ My_SDL_button::My_SDL_button()
     this->border_width_size = 5;
     this->border_radius_size = 15;
 
-    this->set_shadow_offset(5, -5);
+    this->set_shadow_offset(3, -2);
     this->shadow_scale_factor = 1.0f;
 
     this->current_form = ROUNDED_RECTANGLE_EF;
@@ -76,39 +76,40 @@ My_SDL_button::My_SDL_button()
 
 
     // Базовые цвета
-    this->set_background_color_1(hex_to_sdl_color("#fd3108", 255)); // #fd3108
+
+    this->set_shadow_color_1(hex_to_sdl_color("#fd3108", 150));
     this->set_border_color_1({23, 23, 23, 255});    // #f0e7d6
+    this->set_background_color_1(hex_to_sdl_color("#fd3108", 255)); // #fd3108
     this->set_content_color_1({23, 23, 23, 255});
-    this->set_shadow_color_1({230, 212, 42, 255});
 
     // Hover (наведение мыши)
-    this->set_background_color_hovered_1({240, 231, 214, 255});
+    this->set_shadow_color_hovered_1({240, 231, 214, 155});
     this->set_border_color_hovered_1({23, 23, 23, 255});
+    this->set_background_color_hovered_1({240, 231, 214, 255});
     this->set_content_color_hovered_1({23, 23, 23, 255});
-    this->set_shadow_color_hovered_1({220, 220, 200, 255});
 
     // Clicked (нажатие)
-    this->set_background_color_clicked_1({150, 120, 180, 255}); 
+    this->set_shadow_color_clicked_1({140, 122, 180, 150});
     this->set_border_color_clicked_1({232, 222, 42, 255});
+    this->set_background_color_clicked_1({150, 120, 180, 255}); 
     this->set_content_color_clicked_1({232, 222, 42, 255});
-    this->set_shadow_color_clicked_1({140, 122, 180, 255});
 
 
     // Nulled 2nd pallette
-    this->set_background_color_2({0, 0, 0, 0});
-    this->set_border_color_2({0, 0, 0, 0});
-    this->set_content_color_2({0, 0, 0, 0});
     this->set_shadow_color_2({0, 0, 0, 0});
+    this->set_border_color_2({0, 0, 0, 0});
+    this->set_background_color_2({0, 0, 0, 0});
+    this->set_content_color_2({0, 0, 0, 0});
 
-    this->set_background_color_hovered_2({0, 0, 0, 0});
-    this->set_border_color_hovered_2({0, 0, 0, 0});
-    this->set_content_color_hovered_2({0, 0, 0, 0});
     this->set_shadow_color_hovered_2({0, 0, 0, 0});
+    this->set_border_color_hovered_2({0, 0, 0, 0});
+    this->set_background_color_hovered_2({0, 0, 0, 0});
+    this->set_content_color_hovered_2({0, 0, 0, 0});
 
-    this->set_background_color_clicked_2({0, 0, 0, 0});
-    this->set_border_color_clicked_2({0, 0, 0, 0});
-    this->set_content_color_clicked_2({0, 0, 0, 0});
     this->set_shadow_color_clicked_2({0, 0, 0, 0});
+    this->set_border_color_clicked_2({0, 0, 0, 0});
+    this->set_background_color_clicked_2({0, 0, 0, 0});
+    this->set_content_color_clicked_2({0, 0, 0, 0});
 
 
     this->current_pallette_number = 1;
@@ -133,7 +134,13 @@ My_SDL_button::~My_SDL_button()
 // =========================================================================================== MAIN LOGIC
 
 void My_SDL_button::update()
-{
+{    
+    // Font initialization
+    if (this->ttf_font_link == nullptr)
+    {
+        if(!this->font_path.empty()) this->set_ttf_font_link(TTF_OpenFont(this->font_path.c_str(), this->font_size));
+    }
+
     // Hover check
     this->hover_check();
 
@@ -239,6 +246,9 @@ void My_SDL_button::update()
         this->clicked_tmp = false;
         this->current_element_state = DEFAULT_BS; 
     }
+
+    // Pallette prepare for rendering
+    this->button_pallette_prepare();  
 }
 
 
@@ -269,7 +279,8 @@ void My_SDL_button::hover_check()
     int curr_x = static_cast<int>(std::round(App_mouse.get_x()));
     int curr_y = static_cast<int>(std::round(App_mouse.get_y()));
 
-    
+
+    // Hover check if mouse inside the window
     if (curr_x >= this->boundaries_points.left_boundary &&
         curr_x <= this->boundaries_points.right_boundary &&
         curr_y <= this->boundaries_points.bottom_boundary &&
@@ -326,99 +337,7 @@ void My_SDL_button::reset_current_form()
 
 void My_SDL_button::render(SDL_Renderer* renderer)
 {
-    // Local color variables for final rendering
-    SDL_Color background_color;
-    SDL_Color border_color;
-    SDL_Color content_color;
-    SDL_Color shadow_color;
-
-
-    // Current pallette define logic
-    
-    if (this->gui_type == STATIC_BUTTON_GUI)
-    {
-        this->current_pallette_number = 1;
-    }
-
-
-    // Pallette switch-case
-    switch (this->current_pallette_number)
-    {
-
-        case 1:
-            // Basic
-            if (this->current_element_state == DEFAULT_BS)
-            {
-                background_color = this->background_color_1;
-                border_color = this->border_color_1;
-                content_color = this->content_color_1;
-                shadow_color = this->shadow_color_1;
-            }
-
-            // Hovered
-            else if (this->current_element_state == HOVERED_BS)
-            {
-                background_color = this->background_color_hovered_1;
-                border_color = this->border_color_hovered_1;
-                content_color = this->content_color_hovered_1;
-                shadow_color = this->shadow_color_hovered_1;
-            }
-
-            // Clicked
-            else if (this->current_element_state == CLICKED_BS)
-            {
-                background_color = this->background_color_clicked_1;
-                border_color = this->border_color_clicked_1;
-                content_color = this->content_color_clicked_1;
-                shadow_color = this->shadow_color_clicked_1;
-            }    
-
-            break;
-
-        case 2:
-            // 2nd pallette
-            if (this->current_element_state == DEFAULT_BS)
-            {
-                background_color = this->background_color_2;
-                border_color = this->border_color_2;
-                content_color = this->content_color_2;
-                shadow_color = this->shadow_color_2;
-            }
-
-            // Hovered
-            else if (this->current_element_state == HOVERED_BS)
-            {
-                background_color = this->background_color_hovered_2;
-                border_color = this->border_color_hovered_2;
-                content_color = this->content_color_hovered_2;
-                shadow_color = this->shadow_color_hovered_2;
-            }
-
-            // Clicked
-            else if (this->current_element_state == CLICKED_BS)
-            {
-                background_color = this->background_color_clicked_2;
-                border_color = this->border_color_clicked_2;
-                content_color = this->content_color_clicked_2;
-                shadow_color = this->shadow_color_clicked_2;
-            }    
-
-            break;
-    
-        default:
-
-            break;
-    }
-    
-
-    // GLOBAL element opacity implementation
-    float opacity_scaler = this->opacity / 255.0f;
-
-    background_color.a = static_cast<uint8_t>(std::round(background_color.a * opacity_scaler));
-    border_color.a = static_cast<uint8_t>(std::round(border_color.a * opacity_scaler));
-    content_color.a = static_cast<uint8_t>(std::round(content_color.a * opacity_scaler));
-    shadow_color.a = static_cast<uint8_t>(std::round(shadow_color.a * opacity_scaler));
-    
+    // Current position and sizes
 
     // Press offset for push simulation
 
@@ -427,8 +346,6 @@ void My_SDL_button::render(SDL_Renderer* renderer)
 
     // Figures to build data calculation
 
-
-    // TODO: CATCH CALCULATION BUG!!!!!!!!!
 
     // Render points
 
@@ -450,16 +367,17 @@ void My_SDL_button::render(SDL_Renderer* renderer)
     unsigned int br_w = this->width_size - this->press_offset; 
     unsigned int br_h = this->height_size - this->press_offset;
 
-    int bg_w_signed = (int)this->width_size - this->press_offset - 2 * (int)this->border_width_size;
-    int bg_h_signed = (int)this->height_size - this->press_offset - 2 * (int)this->border_width_size;
+    int bg_w_signed = (int)this->width_size - 2 * (int)this->border_width_size - static_cast<int>(std::round(static_cast<float>(this->press_offset) / 2));
+    int bg_h_signed = (int)this->height_size - 2 * (int)this->border_width_size - static_cast<int>(std::round(static_cast<float>(this->press_offset) / 2));
     
     unsigned int bg_w = std::max(0, bg_w_signed);
     unsigned int bg_h = std::max(0, bg_h_signed);
 
     unsigned int sw_r = static_cast<unsigned int>(std::round(this->border_radius_size * this->shadow_scale_factor));
-    unsigned int br_r = this->border_radius_size;
+    unsigned int br_r = this->border_radius_size - static_cast<int>(std::round(static_cast<float>(this->press_offset) / 2));
 
-    int bg_r_signed = (int)this->border_radius_size - (int)this->border_width_size;
+
+    int bg_r_signed = (int)this->border_radius_size - (int)this->border_width_size - static_cast<int>(std::round(static_cast<float>(this->press_offset) / 2));
     unsigned int bg_r = std::max(0, bg_r_signed);
 
     
@@ -473,14 +391,17 @@ void My_SDL_button::render(SDL_Renderer* renderer)
 
             if (this->font_size - this->press_offset >= 10)
             {
-                this->set_ttf_font_link(TTF_OpenFont(this->font_path.c_str(), this->font_size - this->press_offset));
+                this->set_ttf_font_link(TTF_OpenFont(this->font_path.c_str(), this->font_size - static_cast<int>(std::round(static_cast<float>(this->press_offset) / 2))));
             }
         }
     }
     else
     {
-        this->press_offset = 0;
-        this->set_ttf_font_link(TTF_OpenFont(this->font_path.c_str(), this->font_size));
+        if (this->push_mode_on && this->press_offset > 0)
+        {
+            this->set_ttf_font_link(TTF_OpenFont(this->font_path.c_str(), this->font_size));
+            this->press_offset = 0;
+        }
     }
 
 
@@ -489,43 +410,44 @@ void My_SDL_button::render(SDL_Renderer* renderer)
     if (this->current_form == RECTANGLE_EF)
     {
         // SHADOW
-        rectangle_draw_by_color(sw_cx, sw_cy, sw_w, sw_h, shadow_color, renderer);
+        rectangle_draw_by_color(sw_cx, sw_cy, sw_w, sw_h, this->render_shadow_color, renderer);
 
         // BORDER
-        rectangle_draw_by_color(br_cx, br_cy, br_w, br_h, border_color, renderer);
+        rectangle_draw_by_color(br_cx, br_cy, br_w, br_h, this->render_border_color, renderer);
 
         // BACKGROUND
-        rectangle_draw_by_color(bd_cx, bd_cy, bg_w, bg_h, background_color, renderer);
+        rectangle_draw_by_color(bd_cx, bd_cy, bg_w, bg_h, this->render_background_color, renderer);
     }
 
     else if (this->current_form == ROUNDED_RECTANGLE_EF)
     {
         // SHADOW
-        rounded_rectangle_draw_by_color(sw_cx, sw_cy, sw_w, sw_h, sw_r, shadow_color, renderer);
+        rounded_rectangle_draw_by_color(sw_cx, sw_cy, sw_w, sw_h, sw_r, this->render_shadow_color, renderer);
 
         // BORDER
-        rounded_rectangle_draw_by_color(br_cx, br_cy, br_w, br_h, br_r, border_color, renderer);
+        rounded_rectangle_draw_by_color(br_cx, br_cy, br_w, br_h, br_r, this->render_border_color, renderer);
 
         // BACKGROUND
-        rounded_rectangle_draw_by_color(bd_cx, bd_cy, bg_w, bg_h, bg_r, background_color, renderer);
+        rounded_rectangle_draw_by_color(bd_cx, bd_cy, bg_w, bg_h, bg_r, this->render_background_color, renderer);
     }
 
     else if (this->current_form == CIRCLE_EF)
     {
         // SHADOW
-        circle_draw_by_color(sw_cx, sw_cy, sw_w / 2, shadow_color, renderer);
+        circle_draw_by_color(sw_cx, sw_cy, sw_w / 2, this->render_shadow_color, renderer);
 
         // BORDER
-        circle_draw_by_color(br_cx, br_cy, br_w / 2, border_color, renderer);
+        circle_draw_by_color(br_cx, br_cy, br_w / 2, this->render_border_color, renderer);
 
         // BACKGROUND
-        circle_draw_by_color(bd_cx, bd_cy, bg_w / 2, background_color, renderer);
+        circle_draw_by_color(bd_cx, bd_cy, bg_w / 2, this->render_background_color, renderer);
     }
 
 
     // Content draw by SDL ttf
 
-    this->update_content_texture(renderer, content_color);
+    // Update content texture if the content_dirty flag us true (or pass the previous texture if not)
+    this->update_content_texture(renderer, this->render_content_color);
 
 
     if (this->content_texture)
@@ -541,6 +463,96 @@ void My_SDL_button::render(SDL_Renderer* renderer)
         SDL_RenderTexture(renderer, content_texture, nullptr, &dst);
     }
 }
+
+void My_SDL_button::button_pallette_prepare()
+{
+    // Current pallette define logic
+    
+    if (this->gui_type == STATIC_ELEMENT_GUI)
+    {
+        this->current_pallette_number = 1;
+    }
+
+
+    // Pallette switch-case
+    switch (this->current_pallette_number)
+    {
+
+        case 1:
+            // Basic
+            if (this->current_element_state == DEFAULT_BS)
+            {
+                this->render_background_color = this->background_color_1;
+                this->render_border_color = this->border_color_1;
+                this->render_content_color = this->content_color_1;
+                this->render_shadow_color = this->shadow_color_1;
+            }
+
+            // Hovered
+            else if (this->current_element_state == HOVERED_BS)
+            {
+                this->render_background_color = this->background_color_hovered_1;
+                this->render_border_color = this->border_color_hovered_1;
+                this->render_content_color = this->content_color_hovered_1;
+                this->render_shadow_color = this->shadow_color_hovered_1;
+            }
+
+            // Clicked
+            else if (this->current_element_state == CLICKED_BS)
+            {
+                this->render_background_color = this->background_color_clicked_1;
+                this->render_border_color = this->border_color_clicked_1;
+                this->render_content_color = this->content_color_clicked_1;
+                this->render_shadow_color = this->shadow_color_clicked_1;
+            }    
+
+            break;
+
+        case 2:
+            // 2nd pallette
+            if (this->current_element_state == DEFAULT_BS)
+            {
+                this->render_background_color = this->background_color_2;
+                this->render_border_color = this->border_color_2;
+                this->render_content_color = this->content_color_2;
+                this->render_shadow_color = this->shadow_color_2;
+            }
+
+            // Hovered
+            else if (this->current_element_state == HOVERED_BS)
+            {
+                this->render_background_color = this->background_color_hovered_2;
+                this->render_border_color = this->border_color_hovered_2;
+                this->render_content_color = this->content_color_hovered_2;
+                this->render_shadow_color = this->shadow_color_hovered_2;
+            }
+
+            // Clicked
+            else if (this->current_element_state == CLICKED_BS)
+            {
+                this->render_background_color = this->background_color_clicked_2;
+                this->render_border_color = this->border_color_clicked_2;
+                this->render_content_color = this->content_color_clicked_2;
+                this->render_shadow_color = this->shadow_color_clicked_2;
+            }    
+
+            break;
+    
+        default:
+
+            break;
+    }
+    
+
+    // GLOBAL element opacity implementation
+    float opacity_scaler = static_cast<float>(this->opacity) / 255.0f;
+
+    this->render_shadow_color.a = static_cast<uint8_t>(std::round(static_cast<float>(this->render_shadow_color.a) * opacity_scaler));
+    this->render_border_color.a = static_cast<uint8_t>(std::round(static_cast<float>(this->render_border_color.a) * opacity_scaler));
+    this->render_background_color.a = static_cast<uint8_t>(std::round(static_cast<float>(this->render_background_color.a) * opacity_scaler));
+    this->render_content_color.a = static_cast<uint8_t>(std::round(static_cast<float>(this->render_content_color.a) * opacity_scaler));
+}
+
 
 
 void My_SDL_button::update_content_texture(SDL_Renderer* renderer, SDL_Color new_color)
@@ -588,22 +600,6 @@ void My_SDL_button::update_content_texture(SDL_Renderer* renderer, SDL_Color new
 }
 
 
-// GUI type setter 
-
-void My_SDL_button::set_gui_type(button_gui_type new_gui_type)
-{
-    // Error handling for invalid GUI type
-    if (new_gui_type != STATIC_BUTTON_GUI && new_gui_type != DYNAMIC_BUTTON_GUI)
-    {
-        std::cerr << "Invalid button GUI type. GUI type not changed." << std::endl;
-        return;
-    }
-
-    // New type setting
-    else this->gui_type = new_gui_type;
-}
-
-
 void My_SDL_button::current_pallette_choose(unsigned int new_pallette_number)
 {
     if (new_pallette_number == 0 || new_pallette_number > PALLETTES_QUANTITY)
@@ -616,7 +612,7 @@ void My_SDL_button::current_pallette_choose(unsigned int new_pallette_number)
 }
 
 
-// Render point setter and getters
+// Render point overrided setter 
 
 void My_SDL_button::set_render_point(int x_cc_rp, int y_cc_rp)
 {
@@ -625,11 +621,6 @@ void My_SDL_button::set_render_point(int x_cc_rp, int y_cc_rp)
 
     this->reset_boundaries_points();
 }
-
-
-int My_SDL_button::get_x_render_point() const { return this->x_render_point; }
-
-int My_SDL_button::get_y_render_point() const { return this->y_render_point; }
 
 
 // Size setters and getters
@@ -730,6 +721,7 @@ void My_SDL_button::set_font_path(const std::string& new_font_path)
     }
 }
 
+
 std::string My_SDL_button::get_font_path() const
 {
     return this->font_path;
@@ -745,13 +737,6 @@ void My_SDL_button::set_font_size(unsigned int new_size)
     }
 
     this->font_size = new_size;
-}
-
-
-
-void My_SDL_button::set_opacity(Uint8 new_opacity) 
-{
-    this->opacity = new_opacity;
 }
 
 
@@ -888,6 +873,9 @@ void My_SDL_button::set_shadow_color_clicked_2(SDL_Color new_color)
 
 void My_SDL_button::set_content_texture(SDL_Texture* new_texture)
 {
+    if (this->content_texture)
+        SDL_DestroyTexture(this->content_texture);
+
     this->content_texture = new_texture;
 }
 

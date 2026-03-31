@@ -1,4 +1,4 @@
-// my_sdl_ui_element.h
+// my_sdl_element.h
 
 
 #pragma once
@@ -10,7 +10,7 @@
 #include <cmath>                                                        // for std::round()
 
 
-#include "../../../engine/engine.h"                                     // SDL3 and SDL ttf import
+#include "../../../../engine/engine.h"                                     // SDL3 and SDL ttf import
 
 #include "../../GUI_functions/drawing/figures_drawing.h"                // Basic figures
 #include "../../GUI_functions/translators/color_translator.h"           // HEX to SDL_Color 
@@ -30,16 +30,6 @@ enum element_gui_type
 };
 
 
-struct element_rect_boundaries
-{
-
-    int left_boundary;
-    int right_boundary;
-    int top_boundary;
-    int bottom_boundary;
-
-};
-
 // =========================================================================================== TYPES
 
 
@@ -51,18 +41,10 @@ class My_SDL_element
 
     public:
 
-        // ===== CONSTRUCTOR AND DESTRUCTOR =====
-
-        virtual My_SDL_element();                            // Element constructor (never calls, only for inheritance)
-        virtual ~My_SDL_element();                           // Element destructor (never calls, only for inheritance)  
-
-        // ===== CONSTRUCTOR AND DESTRUCTOR =====
-
-
         // ===== MAIN LOGIC =====
 
 
-        // Virtual method for inheretence (to do something like: "for (auto& el : elements) el->update();")
+        // Virtual method for inheritance (to do something like: "for (auto& el : elements) el->update();")
         virtual void update() = 0;
 
 
@@ -83,21 +65,6 @@ class My_SDL_element
         void set_gui_type(element_gui_type new_gui_type);
 
 
-        /**
-         * @brief Callback for dynamic palette selection.
-         *
-         * Returns the required palette ID based on external logic.
-         * Allows the elementto adapt its visual appearance depending
-         * on application state (e.g. enabled/disabled, valid/invalid, etc.).
-         *
-         * Can be used to implement context-dependent coloring
-         * (e.g. red for blocked state, green for available state).
-         *
-         * Called during update() to determine the current palette.
-         * 
-         */
-        std::function<unsigned int()> get_required_palette;
-
 
         /**
          * @brief Virtual render method for the UI-element
@@ -117,7 +84,7 @@ class My_SDL_element
          * @param y_cc_rp y coordinate of the center-center render point
          * 
          */
-        void set_render_point(int x_cc_rp, int y_cc_rp);
+        virtual void set_render_point(int x_cc_rp, int y_cc_rp) = 0;
 
 
         /**
@@ -158,11 +125,43 @@ class My_SDL_element
          * @return Opacity value (0 = fully transparent, 255 = fully opaque)
          * 
          */
-        Uint8 get_opacity();
+        Uint8 get_opacity() const;
 
 
         // ===== GUI =====
 
-}
+
+    protected:
+
+            // ===== CONSTRUCTOR AND DESTRUCTOR =====
+
+            My_SDL_element();                            // Element constructor (never calls, only for inheritance)
+            virtual ~My_SDL_element() = default;         // Element destructor (never calls, only for inheritance)  
+
+            // ===== CONSTRUCTOR AND DESTRUCTOR =====
 
 
+
+            // ===== GUI =====
+
+
+            // GUI type
+            element_gui_type gui_type;
+
+            // Render points (center-center)
+
+            // Center-center x-render point
+            int x_render_point;
+
+            // Center-center y-render point
+            int y_render_point;
+
+
+            // Element opacity for SDL rendering with
+            // calling of commands like:
+            // SDL_SetRenderDrawColor(renderer, background_color.r, background_color.g, background_color.b, alpha);
+            // before rendering
+            Uint8 opacity; // 0 = fully transperent, 255 = fully opaque
+            
+            // ===== GUI =====
+};
