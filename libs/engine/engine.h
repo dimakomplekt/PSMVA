@@ -36,4 +36,9 @@
 
 #include "global_inputs/global_inputs.h" 
 
+
+// Absolute path by relative path from .exe folder
+
+#include "special/absolute_by_relative/absolute_by_relative.h"
+
 // =========================================================================================== IMPORT

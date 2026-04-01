@@ -6,8 +6,11 @@ set(CMAKE_CXX_STANDARD 17)
 
 
 file(GLOB_RECURSE PROJECT_SOURCES
+
     "src/*.cpp"
     "libs/**/*.cpp"
+    "libs/engine/special/absolute_by_relative/**/*.cpp"
+    
 )
 
 add_executable(PSMVA ${PROJECT_SOURCES})

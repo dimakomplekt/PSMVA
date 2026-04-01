@@ -218,6 +218,7 @@ class My_SDL_button : public My_SDL_element // SDL_Element
          *
          * Updates the button's border width while ensuring it does not exceed
          * half of the button's width or height, and does not exceed the border radius.
+         * 
          * If an invalid value is passed, the width is not changed and an error is logged.
          *
          * @param new_size New border width in pixels
@@ -230,6 +231,7 @@ class My_SDL_button : public My_SDL_element // SDL_Element
          *
          * Updates the corner radius while ensuring it does not exceed
          * half of the button's width or height.
+         * 
          * If an invalid value is passed, the radius is not changed and an error is logged.
          * Also resets the current form to apply the new radius correctly.
          *
@@ -298,7 +300,7 @@ class My_SDL_button : public My_SDL_element // SDL_Element
         // Color setters
 
         // Pallete 1
-
+s
         // Sets the default background color for palette 1
         void set_background_color_1(SDL_Color new_color);
 
@@ -390,6 +392,8 @@ class My_SDL_button : public My_SDL_element // SDL_Element
 
         // Only onetime click realization in this version
 
+        // Control flags
+
         button_access_type click_access_type;        // Button click access type for click callback logic permission
 
 
@@ -407,7 +411,8 @@ class My_SDL_button : public My_SDL_element // SDL_Element
         bool push_mode_on;                           // Current push display mode
         int press_offset;                            // Current press offset for push animation
 
-        element_state current_element_state;
+
+        element_state current_button_state;
 
         // ===== MAIN LOGIC =====
         
@@ -426,12 +431,12 @@ class My_SDL_button : public My_SDL_element // SDL_Element
         unsigned int width_size;                       // Element width
         unsigned int height_size;                      // Element height
 
-        element_rect_boundaries boundaries_points;      // Element rectangle bounds by the element_rect_boundaries struct
+        unsigned int border_width_size;                // Element border width          
+        unsigned int border_radius_size;               // Element border radius 
 
-        void reset_boundaries_points();                // Element bounds automatic recalculation
+        element_rect_boundaries boundaries_points;     // Element rectangle bounds by the element_rect_boundaries struct
 
-        unsigned int border_width_size;                
-        unsigned int border_radius_size;               
+        void reset_boundaries_points();                // Element bounds automatic recalculation           
 
 
         element_form current_form;                     // Current element form by the element_form enum
@@ -439,8 +444,8 @@ class My_SDL_button : public My_SDL_element // SDL_Element
         void reset_current_form();                     // Automatic current form reset
 
 
-        int shadow_offset_x;    
-        int shadow_offset_y;
+        int shadow_offset_x;                           // Element x-shadow offset            
+        int shadow_offset_y;                           // Element y-shadow offset        
 
         float shadow_scale_factor;                     // Shadow scale factor - multiplies basic element size to get shadow size
 
