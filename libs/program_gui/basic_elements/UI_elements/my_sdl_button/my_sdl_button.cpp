@@ -1,5 +1,6 @@
 // my_sdl_button.cpp
 
+
 // =========================================================================================== IMPORT
 
 #include "my_sdl_button.h"
@@ -36,10 +37,11 @@ My_SDL_button::My_SDL_button()
     this->clicked = false;
     this->clicked_tmp = false;
 
+    this->current_button_state = DEFAULT_ES;
+
     this->push_mode_on = true;
     this->press_offset = 0;
 
-    this->current_button_state = DEFAULT_ES;
 
     this->set_size(100, 50);
 
@@ -77,20 +79,24 @@ My_SDL_button::My_SDL_button()
     this->set_opacity(255);
 
 
-    // Базовые цвета
+    // Basic colors
 
-    this->set_shadow_color_1(hex_to_sdl_color("#fd3108", 150));
-    this->set_border_color_1({23, 23, 23, 255});    // #f0e7d6
-    this->set_background_color_1(hex_to_sdl_color("#fd3108", 255)); // #fd3108
+    this->set_shadow_color_1(hex_to_sdl_color("#fd3108", 150));          // #fd3108
+    this->set_border_color_1({23, 23, 23, 255});                         // #f0e7d6
+    this->set_background_color_1(hex_to_sdl_color("#fd3108", 255));      // #fd3108
     this->set_content_color_1({23, 23, 23, 255});
 
-    // Hover (наведение мыши)
+
+    // Hover colors
+
     this->set_shadow_color_hovered_1({240, 231, 214, 155});
     this->set_border_color_hovered_1({23, 23, 23, 255});
     this->set_background_color_hovered_1({240, 231, 214, 255});
     this->set_content_color_hovered_1({23, 23, 23, 255});
 
-    // Clicked (нажатие)
+
+    // Clicked colors
+
     this->set_shadow_color_clicked_1({140, 122, 180, 150});
     this->set_border_color_clicked_1({232, 222, 42, 255});
     this->set_background_color_clicked_1({150, 120, 180, 255}); 
@@ -98,6 +104,7 @@ My_SDL_button::My_SDL_button()
 
 
     // Nulled 2nd pallette
+
     this->set_shadow_color_2({0, 0, 0, 0});
     this->set_border_color_2({0, 0, 0, 0});
     this->set_background_color_2({0, 0, 0, 0});
@@ -158,7 +165,7 @@ void My_SDL_button::update()
         this->content_dirty = true; // For update
 
         // New click or release check  
-        this->clicked = this->click_check();
+        this->clicked = lb_click_check();
     }
     else
     {
@@ -297,14 +304,6 @@ void My_SDL_button::hover_check()
         this->hovered = false;
 }
 
-
-bool My_SDL_button::click_check()
-{
-    // Click status by GI_mouse singleton
-    return App_mouse.lb_clicked();
-}
-
-
 void My_SDL_button::reset_boundaries_points()
 {
     this->boundaries_points.left_boundary = this->x_render_point - this->width_size / 2 - DELTA_FOR_HOVER_CLICK_CHECKS;
@@ -383,7 +382,7 @@ void My_SDL_button::render(SDL_Renderer* renderer)
     unsigned int bg_r = std::max(0, bg_r_signed);
 
     
-    // Incrementation of the press offset at every render repeat
+    // Increment the press offset at every render repeat
 
     if (this->current_button_state == CLICKED_ES)
     {
@@ -614,7 +613,7 @@ void My_SDL_button::current_pallette_choose(unsigned int new_pallette_number)
 }
 
 
-// Render point overrided setter 
+// Render point setter (override) 
 
 void My_SDL_button::set_render_point(int x_cc_rp, int y_cc_rp)
 {

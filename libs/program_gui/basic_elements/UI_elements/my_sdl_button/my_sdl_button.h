@@ -147,7 +147,7 @@ class My_SDL_button : public My_SDL_element // SDL_Element
          *
          * Called during update() to determine the current palette.
          */
-        std::function<unsigned int()> get_required_palette;  // SDL_E
+        std::function<unsigned int()> get_required_palette; 
 
 
         /**
@@ -299,8 +299,8 @@ class My_SDL_button : public My_SDL_element // SDL_Element
 
         // Color setters
 
-        // Pallete 1
-s
+        // Pallette 1
+        
         // Sets the default background color for palette 1
         void set_background_color_1(SDL_Color new_color);
 
@@ -338,7 +338,7 @@ s
         void set_shadow_color_clicked_1(SDL_Color new_color);
 
 
-        // Pallete 2
+        // Pallette 2
 
         // Sets the default background color for palette 2
         void set_background_color_2(SDL_Color new_color);
@@ -406,7 +406,6 @@ s
 
         bool clicked;                                // Button click state
         bool clicked_tmp;                            // Button click state temp for callback block until the next click
-        bool click_check();                          // Button click check method (to be called in the main loop)
         
         bool push_mode_on;                           // Current push display mode
         int press_offset;                            // Current press offset for push animation
@@ -434,6 +433,14 @@ s
         unsigned int border_width_size;                // Element border width          
         unsigned int border_radius_size;               // Element border radius 
 
+
+        int shadow_offset_x;                           // Element x-shadow offset            
+        int shadow_offset_y;                           // Element y-shadow offset        
+
+        float shadow_scale_factor;                     // Shadow scale factor - multiplies basic element size to get shadow size
+
+        
+
         element_rect_boundaries boundaries_points;     // Element rectangle bounds by the element_rect_boundaries struct
 
         void reset_boundaries_points();                // Element bounds automatic recalculation           
@@ -442,13 +449,6 @@ s
         element_form current_form;                     // Current element form by the element_form enum
 
         void reset_current_form();                     // Automatic current form reset
-
-
-        int shadow_offset_x;                           // Element x-shadow offset            
-        int shadow_offset_y;                           // Element y-shadow offset        
-
-        float shadow_scale_factor;                     // Shadow scale factor - multiplies basic element size to get shadow size
-
 
         // Content
 

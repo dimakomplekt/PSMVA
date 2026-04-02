@@ -40,4 +40,12 @@ bool GI_mouse::lb_clicked() const { return this->lb_state; }
 bool GI_mouse::rb_clicked() const { return this->rb_state; }
 
 
+
+bool lb_click_check()
+{
+    // Click status by GI_mouse singleton
+    return App_mouse.lb_clicked();
+}
+
+
 // =========================================================================================== MOUSE

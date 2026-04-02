@@ -42,9 +42,10 @@ class My_SDL_fader : public My_SDL_element // SDL_Element
         /**
          * @brief Updates the fader
          *
-         * //
-         * //
-         * //
+         * - Performs hover detection with different z for slot and knob and updates hover states
+         * - Handles click press/release logic for both slot and knob with different z before 1st click
+         * - Updates the fader value based on knob position when the knob is clicked, like ((s.x.rp + (s.w - k.w) / 2) - (s.x.rp + (s.w - k.w) / 2) - curr.x)) / (s.w - k.w)
+         * - Prepares the render colors, based on the current states of the slot and knob (hovered, clicked) and the push mode
          * 
          * Must be called every frame inside the main state.update loop.
          */
@@ -64,9 +65,9 @@ class My_SDL_fader : public My_SDL_element // SDL_Element
         /**
          * @brief Renders the fader based on its current state and visual configuration.
          *
-         * //
-         * //
-         * //
+         * - Takes the current fader value 
+         * - Takes the current pallette
+         * - Renders the slot and knob with the appropriate colors, sizes and positions, based on the current states
          *
          * Rendering depends on state flags updated in update().
          */
@@ -144,7 +145,7 @@ class My_SDL_fader : public My_SDL_element // SDL_Element
         unsigned int get_knob_height_size() const;
 
 
-        // Styling
+        // Slot styling
 
         /**
          * @brief Sets the border width of the slot.
@@ -193,6 +194,57 @@ class My_SDL_fader : public My_SDL_element // SDL_Element
          * @param new_scale_factor Shadow scale multiplier (e.g., 1.0 = normal size)
          */
         void set_slot_shadow_scale_factor(float new_scale_factor);
+
+
+        // Knob styling
+
+        /**
+         * @brief Sets the border width of the knob.
+         *
+         * Updates the knob's border width while ensuring it does not exceed
+         * half of the knob's width or height, and does not exceed the border radius.
+         * 
+         * If an invalid value is passed, the width is not changed and an error is logged.
+         *
+         * @param new_size New border width in pixels
+         */
+        void set_knob_border_width_size(unsigned int new_size);
+
+
+        /**
+         * @brief Sets the border radius of the knob.
+         *
+         * Updates the corner radius while ensuring it does not exceed
+         * half of the knob's width or height.
+         * 
+         * If an invalid value is passed, the radius is not changed and an error is logged.
+         * Also resets the current form to apply the new radius correctly.
+         *
+         * @param new_size New border radius in pixels
+         */
+        void set_knob_border_radius(unsigned int new_size);
+
+
+        /**
+         * @brief Sets the shadow offset of the knob.
+         *
+         * Updates the horizontal and vertical displacement of the knob's shadow
+         * relative to the knob's position.
+         *
+         * @param new_x_offset Horizontal shadow offset in pixels
+         * @param new_y_offset Vertical shadow offset in pixels
+         */
+        void set_knob_shadow_offset(int new_x_offset, int new_y_offset);
+        
+
+        /**
+         * @brief Sets the knob's shadow scale factor.
+         *
+         * Adjusts the scaling of the knob's shadow relative to the knob's size.
+         *
+         * @param new_scale_factor Shadow scale multiplier (e.g., 1.0 = normal size)
+         */
+        void set_knob_shadow_scale_factor(float new_scale_factor);
 
 
 
@@ -280,7 +332,6 @@ class My_SDL_fader : public My_SDL_element // SDL_Element
 
         bool slot_clicked;                                // Fader's slot click state
         bool slot_clicked_tmp;                            // Fader's slot click state temp for callback block until the next click
-        bool slot_click_check();                          // Fader's slot click check method (to be called in the main loop)
 
         element_state current_slot_state;                 // Current fader's slot state for rendering logic
 
@@ -290,7 +341,6 @@ class My_SDL_fader : public My_SDL_element // SDL_Element
 
         bool knob_clicked;                                // Fader's knob click state
         bool knob_clicked_tmp;                            // Fader's knob click state temp for callback block until the next click
-        bool knob_click_check();                          // Fader's knob click check method (to be called in the main loop)
     
         element_state current_knob_state;                 // Current fader's knob state for rendering logic
 
@@ -306,31 +356,6 @@ class My_SDL_fader : public My_SDL_element // SDL_Element
 
 
         // ===== GUI ======
-
-        // Render points 
-
-        // Center-center x-render point
-        int knob_x_render_point;
-
-        // Center-center y-render point
-        int knob_y_render_point;
-
-
-        /**
-         * @brief Fader's knob render point inner setter
-         * 
-         * Setup the fader's knob center-center render point for the fader rendering
-         * by the fader_value.
-         * 
-         * Calls automatically in update() after the fader_value update. 
-         * 
-         * 
-         * @param x_cc_rp x coordinate of the center-center render point
-         * @param y_cc_rp y coordinate of the center-center render point
-         * 
-         */
-        void set_render_point(float new_fader_value);
-
 
         // Sizes
 
@@ -348,16 +373,10 @@ class My_SDL_fader : public My_SDL_element // SDL_Element
         unsigned int knob_border_radius_size;               // Knob border radius 
 
 
-        element_form slot_current_form;                     // Current slot form by the element_form enum
-        void reset_slot_current_form();                     // Automatic slot current form reset
-
-
-        element_form knob_current_form;                     // Current knob form by the element_form enum
-        void reset_knob_current_form();                     // Automatic knob current form reset
-
-
         int slot_shadow_offset_x;                           // Slot's x-shadow offset    
         int slot_shadow_offset_y;                           // Slot's y-shadow offset
+
+        void set_slot_shadow_offset(int new_x_offset, int new_y_offset);
 
         float slot_shadow_scale_factor;                     // Slot's shadow scale factor - multiplies basic element size to get shadow size
 
@@ -365,9 +384,54 @@ class My_SDL_fader : public My_SDL_element // SDL_Element
         int knob_shadow_offset_x;                           // Knob's x-shadow offset    
         int knob_shadow_offset_y;                           // Knob's y-shadow offset
 
+        void set_knob_shadow_offset(int new_x_offset, int new_y_offset);
+
         float knob_shadow_scale_factor;                     // Knob's shadow scale factor - multiplies basic element size to get shadow size
 
 
+        element_form slot_current_form;                     // Current slot form by the element_form enum
+        void reset_slot_current_form();                     // Automatic slot current form reset
+
+
+        element_form knob_current_form;                     // Current knob form by the element_form enum
+        void reset_knob_current_form();                     // Automatic knob current form reset
+
+        // Render points 
+
+        // Center-center x-render point
+        int slot_x_render_point;
+
+        // Center-center y-render point
+        int slot_y_render_point;
+
+
+        // Center-center x-render point
+        int knob_x_render_point;
+
+        // Center-center y-render point
+        int knob_y_render_point;
+
+
+        /**
+         * @brief Fader's knob render point inner setter
+         * 
+         * Setup the fader's knob center-center render point for the fader rendering
+         * by the fader_value.
+         * 
+         * Calls automatically in update() after the fader_value update. 
+         * 
+         * 
+         * @param x_cc_rp coordinate of the new fader knob's center position
+         * 
+         */
+        void set_render_point(int x_cc_rp);
+
+
+        // Inner fader value by fader position calculation
+        float fader_value_by_knob_position();
+
+        // Inner fader position by fader value calculation
+        int knob_position_by_fader_value();
 
         // Boarders (+DELTA_FOR_HOVER_CLICK_CHECKS for the hover and click check stability)
 
@@ -386,43 +450,43 @@ class My_SDL_fader : public My_SDL_element // SDL_Element
 
         // Slot basic colors by SDL type  
 
-        SDL_Color slot_background_color;
-        SDL_Color slot_border_color;
         SDL_Color slot_shadow_color;
+        SDL_Color slot_border_color;
+        SDL_Color slot_background_color;
         
-        SDL_Color slot_background_color_hovered;
-        SDL_Color slot_border_color_hovered;
         SDL_Color slot_shadow_color_hovered;
+        SDL_Color slot_border_color_hovered;
+        SDL_Color slot_background_color_hovered;
 
-        SDL_Color slot_background_color_clicked;
-        SDL_Color slot_border_color_clicked;
         SDL_Color slot_shadow_color_clicked;
+        SDL_Color slot_border_color_clicked;
+        SDL_Color slot_background_color_clicked;
 
 
         // Knob basic colors by SDL type  
 
-        SDL_Color knob_background_color;
-        SDL_Color knob_border_color;
         SDL_Color knob_shadow_color;
+        SDL_Color knob_border_color;
+        SDL_Color knob_background_color;
 
-        SDL_Color knob_background_color_hovered;
-        SDL_Color knob_border_color_hovered;
         SDL_Color knob_shadow_color_hovered;
+        SDL_Color knob_border_color_hovered;
+        SDL_Color knob_background_color_hovered;
 
-        SDL_Color knob_background_color_clicked;
-        SDL_Color knob_border_color_clicked;
         SDL_Color knob_shadow_color_clicked;
+        SDL_Color knob_border_color_clicked;
+        SDL_Color knob_background_color_clicked;
 
 
         // Variables for final rendering
 
-        SDL_Color slot_render_background_color;
-        SDL_Color slot_render_border_color;
         SDL_Color slot_render_shadow_color;
+        SDL_Color slot_render_border_color;
+        SDL_Color slot_render_background_color;
 
-        SDL_Color knob_render_background_color;
-        SDL_Color knob_render_border_color;
         SDL_Color knob_render_shadow_color;
+        SDL_Color knob_render_border_color;
+        SDL_Color knob_render_background_color;
 
         // Inner pallette prepare method
         void fader_pallette_prepare();

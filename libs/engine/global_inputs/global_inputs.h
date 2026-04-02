@@ -96,4 +96,9 @@ private:
 // Global singleton instance of GI_mouse for easy access throughout the program
 inline GI_mouse& App_mouse = GI_mouse::Instance();
 
+
+// Returns the current state of the left mouse button click by checking the GI_mouse singleton
+bool lb_click_check();
+
+
 // =========================================================================================== SINGLETONES FOR USE
