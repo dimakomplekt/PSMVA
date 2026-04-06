@@ -488,6 +488,7 @@ class My_SDL_fader : public My_SDL_element // SDL_Element
         SDL_Color knob_render_border_color;
         SDL_Color knob_render_background_color;
 
+        
         // Inner pallette prepare method
         void fader_pallette_prepare();
 

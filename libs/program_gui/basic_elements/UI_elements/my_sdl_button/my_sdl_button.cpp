@@ -159,6 +159,7 @@ void My_SDL_button::update()
         // Hover logic by the callback
         if (this->on_hover) this->on_hover();
 
+        // Block the hover-click GUI conflict
         if (!this->clicked_tmp)
             this->current_button_state = HOVERED_ES;
 
@@ -169,12 +170,12 @@ void My_SDL_button::update()
     }
     else
     {
+        if (!this->clicked_tmp) // Only without press
+            this->current_button_state = DEFAULT_ES;
+
         // Clicked flags reset with hover ending (blocks the click logic without hovering)
         this->clicked = false;
         this->clicked_tmp = false; 
-
-        if (!this->clicked_tmp) // Only without press
-            this->current_button_state = DEFAULT_ES;
     }
 
 
