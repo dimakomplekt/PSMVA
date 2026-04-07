@@ -433,9 +433,6 @@ class My_SDL_fader : public My_SDL_element // SDL_Element
 
         void reset_knob_boundaries_points();                // Element's knob bounds automatic recalculation
 
-
-        void reset_boundaries_points();                     // All element bounds automatic recalculation
-
         // Pallette
 
 

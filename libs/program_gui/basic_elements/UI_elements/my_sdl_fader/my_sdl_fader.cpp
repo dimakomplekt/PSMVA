@@ -306,6 +306,28 @@ void My_SDL_fader::push_mode_switch()
 }
 
 
+float My_SDL_fader::fader_value_by_knob_position()
+{
+    // Fader value calculation by the knob position like ((s.x.rp + (s.w - k.w) / 2) - (s.x.rp + (s.w - k.w) / 2) - curr.x)) / (s.w - k.w) jr
+    float new_fader_value = static_cast<float>(this->knob_x_render_point - (this->slot_x_render_point - (this->slot_width_size - this->knob_width_size) / 2)) / static_cast<float>(this->slot_width_size - this->knob_width_size);
+
+    // Overflow check for the fader value
+    if (new_fader_value < 0.0f) new_fader_value = 0.0f;
+    else if (new_fader_value > 1.0f) new_fader_value = 1.0f;
+
+    return new_fader_value;
+}
+
+
+int My_SDL_fader::knob_position_by_fader_value()
+{
+    // Fader position calculation by the fader value like (s.x.rp + (s.w - k.w) / 2) + fader_value * (s.w - k.w)
+    int new_knob_position = static_cast<int>(std::round((this->slot_x_render_point - (this->slot_width_size - this->knob_width_size) / 2) + this->fader_value * (this->slot_width_size - this->knob_width_size)));
+
+    return new_knob_position;
+}
+
+
 void My_SDL_fader::slot_hover_check()
 {
     this->slot_hovered = hover_check_by_boundaries(this->slot_boundaries_points);
@@ -317,12 +339,321 @@ void My_SDL_fader::knob_hover_check()
     this->knob_hovered = hover_check_by_boundaries(this->knob_boundaries_points);
 }
 
+
 // =========================================================================================== MAIN LOGIC
 
 
 // =========================================================================================== GUI
 
+void My_SDL_fader::render()
+{
+
+}
 
 
+void My_SDL_fader::set_render_point(int x_cc_rp, int y_cc_rp)
+{
+    this->slot_x_render_point = x_cc_rp;
+    this->slot_y_render_point = y_cc_rp;
+
+    this->knob_y_render_point = y_cc_rp;
+
+    this->reset_slot_boundaries_points();
+    this->reset_knob_boundaries_points();
+}
+
+
+void My_SDL_fader::set_slot_size(unsigned int new_width, unsigned int new_height)
+{
+    this->slot_width_size = new_width;
+    this->slot_height_size = new_height;
+
+    this->reset_slot_boundaries_points();
+    this->reset_slot_current_form();
+}
+
+
+unsigned int My_SDL_fader::get_slot_width_size() const
+{
+    return this->slot_width_size;
+}
+
+
+unsigned int My_SDL_fader::get_slot_height_size() const
+{
+    return this->slot_height_size;
+}
+
+
+void My_SDL_fader::set_knob_size(unsigned int new_width, unsigned int new_height)
+{
+    this->knob_width_size = new_width;
+    this->knob_height_size = new_height;
+
+    this->reset_knob_boundaries_points();
+    this->reset_knob_current_form();
+}
+
+
+unsigned int My_SDL_fader::get_knob_width_size() const
+{
+    return this->knob_width_size;
+}
+
+
+unsigned int My_SDL_fader::get_knob_height_size() const
+{
+    return this->knob_height_size;
+}
+
+
+void My_SDL_fader::set_slot_border_width_size(unsigned int new_size)
+{
+    if ((this->slot_border_width_size > this->slot_width_size / 2) || 
+        (this->slot_border_width_size > this->slot_height_size / 2) ||
+        (this->slot_border_radius_size != 0 && this->slot_border_width_size > (this->slot_border_radius_size - 1)))
+    {
+        std::cerr << "Wrong border size value pass! Slot border width size ain't changed" << std::endl;
+        return;
+    }
+
+    this->slot_border_width_size = new_size;
+}
+
+
+void My_SDL_fader::set_slot_border_radius(unsigned int new_size)
+{
+    if ((this->slot_border_radius_size > this->slot_width_size / 2) || (this->slot_border_radius_size > this->slot_height_size / 2))
+    {
+        std::cerr << "Wrong radius size value pass! Slot border radius size ain't changed" << std::endl;
+        return;
+    }
+
+    this->slot_border_radius_size = new_size;
+
+    this->reset_slot_current_form();
+}
+
+
+void My_SDL_fader::set_slot_shadow_offset(int new_x_offset, int new_y_offset)
+{
+    this->slot_shadow_offset_x = new_x_offset;
+    this->slot_shadow_offset_y = new_y_offset;
+}
+
+
+void My_SDL_fader::set_slot_shadow_scale_factor(float new_scale_factor)
+{
+    this->slot_shadow_scale_factor = new_scale_factor;
+}
+
+
+void My_SDL_fader::set_knob_border_width_size(unsigned int new_size)
+{
+    if ((this->knob_border_width_size > this->knob_width_size / 2) || 
+        (this->knob_border_width_size > this->knob_height_size / 2) ||
+        (this->knob_border_radius_size != 0 && this->knob_border_width_size > (this->knob_border_radius_size - 1)))
+    {
+        std::cerr << "Wrong border size value pass! knob border width size ain't changed" << std::endl;
+        return;
+    }
+
+    this->knob_border_width_size = new_size;
+}
+
+
+void My_SDL_fader::set_knob_border_radius(unsigned int new_size)
+{
+    if ((this->knob_border_radius_size > this->knob_width_size / 2) || (this->knob_border_radius_size > this->knob_height_size / 2))
+    {
+        std::cerr << "Wrong radius size value pass! knob border radius size ain't changed" << std::endl;
+        return;
+    }
+
+    this->knob_border_radius_size = new_size;
+
+    this->reset_knob_current_form();
+}
+
+
+void My_SDL_fader::set_knob_shadow_offset(int new_x_offset, int new_y_offset)
+{
+    this->knob_shadow_offset_x = new_x_offset;
+    this->knob_shadow_offset_y = new_y_offset;
+}
+
+
+void My_SDL_fader::set_knob_shadow_scale_factor(float new_scale_factor)
+{
+    this->knob_shadow_scale_factor = new_scale_factor;
+}
+
+
+// Color setters
+
+void My_SDL_fader::set_slot_background_color(SDL_Color new_color)               { this->slot_background_color = new_color; }
+
+void My_SDL_fader::set_slot_border_color(SDL_Color new_color)                   { this->slot_border_color = new_color; }
+
+void My_SDL_fader::set_slot_shadow_color(SDL_Color new_color)                   { this->slot_shadow_color = new_color; }
+
+void My_SDL_fader::set_slot_background_color_hovered(SDL_Color new_color)       { this->slot_background_color_hovered = new_color; }
+
+void My_SDL_fader::set_slot_border_color_hovered(SDL_Color new_color)           { this->slot_border_color_hovered = new_color; }
+
+void My_SDL_fader::set_slot_shadow_color_hovered(SDL_Color new_color)           { this->slot_shadow_color_hovered = new_color; }
+
+void My_SDL_fader::set_knob_background_color(SDL_Color new_color)               { this->knob_background_color = new_color; }
+
+void My_SDL_fader::set_knob_border_color(SDL_Color new_color)                   { this->knob_border_color = new_color; }
+
+void My_SDL_fader::set_knob_shadow_color(SDL_Color new_color)                   { this->knob_shadow_color = new_color; }
+
+void My_SDL_fader::set_knob_background_color_hovered(SDL_Color new_color)       { this->knob_background_color_hovered = new_color; }
+
+void My_SDL_fader::set_knob_border_color_hovered(SDL_Color new_color)           { this->knob_border_color_hovered = new_color; }
+
+void My_SDL_fader::set_knob_shadow_color_hovered(SDL_Color new_color)           { this->knob_shadow_color_hovered = new_color; }
+
+void My_SDL_fader::set_knob_background_color_clicked(SDL_Color new_color)       { this->knob_background_color_clicked = new_color; }
+
+void My_SDL_fader::set_knob_border_color_clicked(SDL_Color new_color)           { this->knob_border_color_clicked = new_color; }
+
+void My_SDL_fader::set_knob_shadow_color_clicked(SDL_Color new_color)           { this->knob_shadow_color_clicked = new_color; }
+
+
+// Knob render point inner setter 
+
+void My_SDL_fader::set_knob_render_point(int x_cc_rp)
+{
+    this->knob_x_render_point = x_cc_rp;
+
+    this->reset_knob_boundaries_points();
+}
+
+
+// Form checkers
+
+void My_SDL_fader::reset_slot_current_form()
+{
+    float half_w = this->slot_width_size / 2.0f;
+    float half_h = this->slot_height_size / 2.0f;
+
+    if (this->slot_border_radius_size >= half_w && this->slot_border_radius_size >= half_h)
+        this->slot_current_form = CIRCLE_EF;         
+
+    else if (this->slot_border_radius_size > 0)
+        this->slot_current_form = ROUNDED_RECTANGLE_EF; 
+         
+    else
+        this->slot_current_form = RECTANGLE_EF;       
+}
+
+
+void My_SDL_fader::reset_knob_current_form()
+{
+    float half_w = this->knob_width_size / 2.0f;
+    float half_h = this->knob_height_size / 2.0f;
+
+    if (this->knob_border_radius_size >= half_w && this->knob_border_radius_size >= half_h)
+        this->knob_current_form = CIRCLE_EF;         
+
+    else if (this->knob_border_radius_size > 0)
+        this->knob_current_form = ROUNDED_RECTANGLE_EF; 
+         
+    else
+        this->knob_current_form = RECTANGLE_EF;       
+}
+
+
+// Boundaries points resetters
+
+void My_SDL_fader::reset_slot_boundaries_points()
+{
+    this->slot_boundaries_points.left_boundary = this->slot_x_render_point - this->slot_width_size / 2 - DELTA_FOR_HOVER_CLICK_CHECKS;
+    this->slot_boundaries_points.right_boundary = this->slot_x_render_point + this->slot_width_size / 2 + DELTA_FOR_HOVER_CLICK_CHECKS;
+    this->slot_boundaries_points.top_boundary = this->slot_y_render_point - this->slot_height_size / 2 - DELTA_FOR_HOVER_CLICK_CHECKS;
+    this->slot_boundaries_points.bottom_boundary = this->slot_y_render_point + this->slot_height_size / 2 + DELTA_FOR_HOVER_CLICK_CHECKS;
+}
+
+
+void My_SDL_fader::reset_knob_boundaries_points()
+{
+    this->knob_boundaries_points.left_boundary = this->knob_x_render_point - this->knob_width_size / 2 - DELTA_FOR_HOVER_CLICK_CHECKS;
+    this->knob_boundaries_points.right_boundary = this->knob_x_render_point + this->knob_width_size / 2 + DELTA_FOR_HOVER_CLICK_CHECKS;
+    this->knob_boundaries_points.top_boundary = this->knob_y_render_point - this->knob_height_size / 2 - DELTA_FOR_HOVER_CLICK_CHECKS;
+    this->knob_boundaries_points.bottom_boundary = this->knob_y_render_point + this->knob_height_size / 2 + DELTA_FOR_HOVER_CLICK_CHECKS;
+}
+
+
+// Pallette preparation for render step (last update() action)
+
+void My_SDL_fader::fader_pallette_prepare()
+{
+    // Slot pallette preparation
+
+    if (this->current_slot_state == DEFAULT_ES)
+    {
+        this->slot_render_shadow_color = this->slot_shadow_color;
+        this->slot_render_border_color = this->slot_border_color;
+        this->slot_render_background_color = this->slot_background_color;
+    }
+
+    // Hovered
+    else if (this->current_slot_state == HOVERED_ES)
+    {
+        this->slot_render_shadow_color = this->slot_shadow_color_hovered;
+        this->slot_render_border_color = this->slot_border_color_hovered;
+        this->slot_render_background_color = this->slot_background_color_hovered;
+    }
+
+    // Fader clicked, so we colorize the knob and reset the slot color to default / hovered
+    else if (this->current_slot_state == CLICKED_ES)
+    {
+        this->slot_render_shadow_color = this->slot_shadow_color;
+        this->slot_render_border_color = this->slot_border_color;
+        this->slot_render_background_color = this->slot_background_color;
+    }    
+
+
+    // Knob pallette preparation
+
+    if (this->current_knob_state == DEFAULT_ES)
+    {
+        this->knob_render_shadow_color = this->knob_shadow_color;
+        this->knob_render_border_color = this->knob_border_color;
+        this->knob_render_background_color = this->knob_background_color;
+    }
+
+    // Hovered
+    else if (this->current_knob_state == HOVERED_ES)
+    {
+        this->knob_render_shadow_color = this->knob_shadow_color_hovered;
+        this->knob_render_border_color = this->knob_border_color_hovered;
+        this->knob_render_background_color = this->knob_background_color_hovered;
+    }
+
+    // Fader clicked, so we colorize the knob and reset the slot color to default / hovered
+    else if (this->current_knob_state == CLICKED_ES)
+    {
+        this->knob_render_shadow_color = this->knob_shadow_color_clicked;
+        this->knob_render_border_color = this->knob_border_color_clicked;
+        this->knob_render_background_color = this->knob_background_color_clicked;
+    }    
+
+
+    // Global opacity scaler for the render pallette
+
+    float opacity_scaler = static_cast<float>(this->opacity) / 255.0f;
+
+    this->slot_render_shadow_color.a = static_cast<uint8_t>(std::round(static_cast<float>(this->slot_render_shadow_color.a) * opacity_scaler));
+    this->slot_render_border_color.a = static_cast<uint8_t>(std::round(static_cast<float>(this->slot_render_border_color.a) * opacity_scaler));
+    this->slot_render_background_color.a = static_cast<uint8_t>(std::round(static_cast<float>(this->slot_render_background_color.a) * opacity_scaler));
+
+
+    this->knob_render_shadow_color.a = static_cast<uint8_t>(std::round(static_cast<float>(this->knob_render_shadow_color.a) * opacity_scaler));
+    this->knob_render_border_color.a = static_cast<uint8_t>(std::round(static_cast<float>(this->knob_render_border_color.a) * opacity_scaler));
+    this->knob_render_background_color.a = static_cast<uint8_t>(std::round(static_cast<float>(this->knob_render_background_color.a) * opacity_scaler));
+}
 
 // =========================================================================================== GUI
