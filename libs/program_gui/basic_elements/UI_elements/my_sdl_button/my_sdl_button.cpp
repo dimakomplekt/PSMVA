@@ -81,9 +81,9 @@ My_SDL_button::My_SDL_button()
 
     // Basic colors
 
-    this->set_shadow_color_1(hex_to_sdl_color("#fd3108", 150));          // #fd3108
-    this->set_border_color_1({23, 23, 23, 255});                         // #f0e7d6
-    this->set_background_color_1(hex_to_sdl_color("#fd3108", 255));      // #fd3108
+    this->set_shadow_color_1(hex_to_sdl_color("#fd3108", 150));      
+    this->set_border_color_1({23, 23, 23, 255});  
+    this->set_background_color_1(hex_to_sdl_color("#fd3108", 255));
     this->set_content_color_1({23, 23, 23, 255});
 
 

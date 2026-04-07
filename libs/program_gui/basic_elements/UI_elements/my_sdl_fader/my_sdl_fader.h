@@ -424,7 +424,7 @@ class My_SDL_fader : public My_SDL_element // SDL_Element
          * @param x_cc_rp coordinate of the new fader knob's center position
          * 
          */
-        void set_render_point(int x_cc_rp);
+        void set_knob_render_point(int x_cc_rp);
 
 
         // Inner fader value by fader position calculation
