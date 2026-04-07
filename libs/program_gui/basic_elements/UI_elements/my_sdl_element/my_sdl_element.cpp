@@ -8,6 +8,33 @@
 // =========================================================================================== IMPORT
 
 
+// =========================================================================================== HELPER-FUNCTIONS
+
+bool hover_check_by_boundaries(const element_rect_boundaries& boundaries)
+{
+    int curr_x = static_cast<int>(std::round(App_mouse.get_x()));
+    int curr_y = static_cast<int>(std::round(App_mouse.get_y()));
+
+
+    if (curr_x >= boundaries.left_boundary &&
+        curr_x <= boundaries.right_boundary &&
+        curr_y <= boundaries.bottom_boundary &&
+        curr_y >= boundaries.top_boundary) 
+        
+        // Mouse inside the element zone 
+        return true;
+    
+    else 
+
+        // Mouse outside the element zone
+        return false;
+}
+
+
+// =========================================================================================== HELPER-FUNCTIONS
+
+
+
 // =========================================================================================== CONSTRUCTOR AND DESTRUCTOR
 
 

@@ -272,16 +272,6 @@ class My_SDL_fader : public My_SDL_element // SDL_Element
         void set_slot_shadow_color_hovered(SDL_Color new_color);
 
 
-        // Sets the clicked background color for the slot
-        void set_slot_background_color_clicked(SDL_Color new_color);
-
-        // Sets the clicked border color for the slot
-        void set_slot_border_color_clicked(SDL_Color new_color);
-
-        // Sets the clicked shadow color for the slot
-        void set_slot_shadow_color_clicked(SDL_Color new_color);
-
-
         // Knob
 
         // Sets the default background color for the knob
@@ -344,6 +334,8 @@ class My_SDL_fader : public My_SDL_element // SDL_Element
     
         element_state current_knob_state;                 // Current fader's knob state for rendering logic
 
+        
+        int delta_x_from_click_to_knob;                   // Delta between the mouse x-coordinate at the moment of click and the knob center x-coordinate for the follow logic when we click on the knob, not the slot   
 
 
         // Push mode control flags
@@ -457,10 +449,6 @@ class My_SDL_fader : public My_SDL_element // SDL_Element
         SDL_Color slot_shadow_color_hovered;
         SDL_Color slot_border_color_hovered;
         SDL_Color slot_background_color_hovered;
-
-        SDL_Color slot_shadow_color_clicked;
-        SDL_Color slot_border_color_clicked;
-        SDL_Color slot_background_color_clicked;
 
 
         // Knob basic colors by SDL type  

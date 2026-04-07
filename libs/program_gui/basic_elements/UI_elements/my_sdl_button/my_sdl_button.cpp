@@ -254,8 +254,13 @@ void My_SDL_button::update()
 
         // Block repeats and reset
         this->clicked_tmp = false;
-        this->current_button_state = DEFAULT_ES; 
+
+        if (this->hovered) this->current_button_state = HOVERED_ES; 
+        else this->current_button_state = DEFAULT_ES;
+
+        this->content_dirty = true; // For update
     }
+
 
     // Pallette prepare for rendering
     this->button_pallette_prepare();  
@@ -284,26 +289,9 @@ void My_SDL_button::set_access_type(button_access_type new_access_type)
 
 void My_SDL_button::hover_check()
 {
-    // Compare element boundaries_points data with GI_mouse singleton current mouse position data
-
-    int curr_x = static_cast<int>(std::round(App_mouse.get_x()));
-    int curr_y = static_cast<int>(std::round(App_mouse.get_y()));
-
-
-    // Hover check if mouse inside the window
-    if (curr_x >= this->boundaries_points.left_boundary &&
-        curr_x <= this->boundaries_points.right_boundary &&
-        curr_y <= this->boundaries_points.bottom_boundary &&
-        curr_y >= this->boundaries_points.top_boundary) 
-        
-        // Mouse inside the element zone 
-        this->hovered = true;
-    
-    else 
-
-        // Mouse outside the element zone
-        this->hovered = false;
+    this->hovered = hover_check_by_boundaries(this->boundaries_points);
 }
+
 
 void My_SDL_button::reset_boundaries_points()
 {

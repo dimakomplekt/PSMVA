@@ -31,6 +31,8 @@ My_SDL_fader::My_SDL_fader()
     this->current_knob_state = DEFAULT_ES;
 
 
+    this->delta_x_from_click_to_knob = 0;
+
     this->push_mode_on = true;
     this->press_offset = 0;
 
@@ -89,11 +91,6 @@ My_SDL_fader::My_SDL_fader()
     this->set_slot_border_color_hovered({23, 23, 23, 255});
     this->set_slot_background_color_hovered({240, 231, 214, 255});
 
-    this->set_slot_shadow_color_clicked({140, 122, 180, 150});
-    this->set_slot_border_color_clicked({232, 222, 42, 255});
-    this->set_slot_background_color_clicked({150, 120, 180, 255});
-
-
 
     this->set_knob_shadow_color(hex_to_sdl_color("#fd3108", 150));
     this->set_knob_border_color({23, 23, 23, 255});                       
@@ -130,6 +127,7 @@ float My_SDL_fader::get_fader_value() const
     return this->fader_value;
 }
 
+
 void My_SDL_fader::update()
 {
     // Slot hover check
@@ -139,28 +137,17 @@ void My_SDL_fader::update()
     this->knob_hover_check();
 
 
-    // Slot hover logic - if slot is hovered and knob not hovered - we set the slot state
-    // as HOVERED and start to check mouse LB-click 
+    // Knob hover logic before slot hover logic - if knob is hovered - we set the both knob
+    // and slot states as HOVERED and start to check the mouse LB-click
 
-    if (this->slot_hovered && !this->knob_hovered)
-    {   
-        // Block the hover-click GUI conflict
-        if(!this->slot_clicked_tmp)
-            this->current_slot_state = HOVERED_ES;
-
-        // New click or release check  
-        this->slot_clicked = lb_click_check();
-    }
-
-    // Knob hover logic - if knob is hovered - we set the both knob and slot states
-    // as HOVERED and start to check the mouse LB-click
-
-    else if (this->knob_hovered)
+    if (this->knob_hovered)
     {
         // Block the hover-click GUI conflict
         if (!this->knob_clicked_tmp)
         {
-            this->current_slot_state = DEFAULT_ES;      // Reset the hover from the slot
+            this->current_slot_state = DEFAULT_ES;      // Reset the hover for the slot
+            this->slot_clicked = false;                 // Reset the click for the slot     
+
             this->current_knob_state = HOVERED_ES;
         }
 
@@ -168,23 +155,46 @@ void My_SDL_fader::update()
         this->knob_clicked = lb_click_check();
     }
 
+    // Slot hover logic - if slot is hovered and knob not hovered - we set the slot state
+    // as HOVERED and start to check mouse LB-click 
+
+    else if (this->slot_hovered && !this->knob_hovered)
+    {   
+        // Block the hover-click GUI conflict
+        if(!this->slot_clicked_tmp) 
+        {
+            this->current_knob_state = DEFAULT_ES;      // Reset the hover for the knob
+            this->knob_clicked = false;                 // Reset the click for the knob   
+
+            this->current_slot_state = HOVERED_ES;  
+        }
+
+        // New click or release check  
+        this->slot_clicked = lb_click_check();
+    }
+
     else
     {
-        if (!this->slot_clicked_tmp) // Only without press
+        // Only without press
+        if (!this->slot_clicked_tmp) 
+        {
             this->current_slot_state = DEFAULT_ES;
+    
+            // Clicked flags reset with hover ending (blocks the click logic without hovering)
+            this->slot_clicked = false; 
+        }
 
-        // Clicked flags reset with hover ending (blocks the click logic without hovering)
-        this->slot_clicked = false;
-        this->slot_clicked_tmp = false; 
 
-
-        if (!this->knob_clicked_tmp) // Only without press
+        // Only without press
+        if (!this->knob_clicked_tmp)
+        {
             this->current_knob_state = DEFAULT_ES;
-
-        // Clicked flags reset with hover ending (blocks the click logic without hovering)
-        this->knob_clicked = false;
-        this->knob_clicked_tmp = false; 
+    
+            // Clicked flags reset with hover ending (blocks the click logic without hovering)
+            this->knob_clicked = false;
+        }
     }
+
 
     // If we click inside the slot zone and then release - just set the new pallette, 
     // then new values, then reset everything to default state. If we click inside the slot
@@ -198,37 +208,113 @@ void My_SDL_fader::update()
     // the knob zone, which was detected with the click - just move the knob with taking
     // of this delta into account!
 
+    // Slot click case
     if (this->slot_clicked && !this->slot_clicked_tmp)
     {   
         this->slot_clicked_tmp = true;
-
         this->current_slot_state = CLICKED_ES;
 
+        // Set the delta for the follow logic
 
-        // If fader clicked - all of fader's parts clicked
-
-        this->knob_clicked = true;
-
-        this->current_knob_state = CLICKED_ES;
-
-
-        // Instantly change the position of the knob by the current mouse x-coordinate
-        // without any follow-logic, because we clicked inside the slot zone, not the knob zone and
-        // set_knob_render_point() method automatically implement limitations for the knob position 
-        // by the slot borders and knob width size
-
-        this->set_knob_render_point(static_cast<int>(std::round(App_mouse.get_x())));
+        this->delta_x_from_click_to_knob = 0;
     }
 
 
+    // Knob click case
+
+    if (this->knob_clicked && !this->knob_clicked_tmp)
+    {
+        // We click inside the knob zone - we must move to the zone where we click and follow the mouse
+        // x-position by the slot center with taking of the delta between current knob center x-coordinate and the x-coordinate inside 
+        // the knob zone, which was detected with the click into account
+
+        this->knob_clicked_tmp = true;
+        this->current_knob_state = CLICKED_ES;
+
+        // Set the delta for the follow logic
+        this->delta_x_from_click_to_knob = static_cast<int>(std::round(App_mouse.get_x())) - this->knob_x_render_point;
+    }
+
+    // Click hold case both for knob and slot, but only with the knob follow logic
+    if ((this->knob_clicked && this->knob_clicked_tmp) || (this->slot_clicked && this->slot_clicked_tmp))
+    {
+        // We must move to the zone where we click and follow the mouse x-position by the slot center
+        // with taking of the delta between current knob center x-coordinate and the x-coordinate inside 
+        // the knob zone, which was detected with the click into account
+
+        int new_knob_center_x = static_cast<int>(std::round(App_mouse.get_x())) - this->delta_x_from_click_to_knob;
 
 
+        // We also must check if we are in the slot borders with the new position, if not - just set the position to the nearest border
+
+        int left_border = this->slot_boundaries_points.left_boundary + (this->knob_width_size / 2);
+        int right_border = this->slot_boundaries_points.right_boundary - (this->knob_width_size / 2);
+
+        // Overflow check for the new knob position
+        if (new_knob_center_x < left_border) new_knob_center_x = left_border;
+        else if (new_knob_center_x > right_border) new_knob_center_x = right_border;
+
+        this->set_knob_render_point(new_knob_center_x);
+
+        // Update fader value by the new knob position
+
+        this->fader_value = this->fader_value_by_knob_position();
+    }
+
+
+    // If we release mouse LB
+    if ((!this->slot_clicked && this->slot_clicked_tmp) || (!this->knob_clicked && this->knob_clicked_tmp)) 
+    {
+        // Block repeats and reset
+        this->slot_clicked_tmp = false;
+        this->knob_clicked_tmp = false;
+
+
+        // Check if we still hover after the release for the correct state setting
+
+        // Basically could not be possible, but anyway XD
+        if (this->slot_hovered && !this->knob_hovered) 
+        {
+            this->current_slot_state = HOVERED_ES;
+            this->current_knob_state = DEFAULT_ES;
+        }
+
+        // Case if we stay on the knob after the release
+        else if (this->knob_hovered)
+        {
+            this->current_slot_state = DEFAULT_ES;
+            this->current_knob_state = HOVERED_ES;
+        }
+
+        // Case if we stay outside after the release
+        else if (!this->slot_hovered && !this->knob_hovered)
+        {
+            this->current_slot_state = DEFAULT_ES; 
+            this->current_knob_state = DEFAULT_ES; 
+        }
+    }
+
+
+    // Prepare the pallette for rendering by the current slot and knob states
+    this->fader_pallette_prepare();
 }
 
 
 void My_SDL_fader::push_mode_switch()
 {
     this->push_mode_on = !this->push_mode_on;
+}
+
+
+void My_SDL_fader::slot_hover_check()
+{
+    this->slot_hovered = hover_check_by_boundaries(this->slot_boundaries_points);
+}
+
+
+void My_SDL_fader::knob_hover_check()
+{
+    this->knob_hovered = hover_check_by_boundaries(this->knob_boundaries_points);
 }
 
 
