@@ -113,8 +113,8 @@ ___
 enum button_access_type
 {
 
-    BUTTON_DEFAULT_CLICK_PERMISSION,        // Always can be clicked
-    BUTTON_CLICK_EXTERN_CLICK_PERMISSION,   // Can be clicked only by the true return of the extern function
+    BUTTON_DEFAULT_CLICK_PERMISSION,        // Always can be button_clicked
+    BUTTON_CLICK_EXTERN_CLICK_PERMISSION,   // Can be button_clicked only by the true return of the extern function
 
 };
 
@@ -158,7 +158,7 @@ class My_SDL_button
 
         // ===== GUI ======
 
-        // Button render with logic by the button state flags (hovered, clicked)
+        // Button render with logic by the button state flags (hovered, button_clicked)
         void render();
 
         // Button size setter
@@ -214,7 +214,7 @@ class My_SDL_button
         // ===== MAIN LOGIC =====
 
         bool hovered;                                // Button hover state
-        bool hover_check();                          // Button hover check method (to be called in the main loop)
+        bool button_hover_check();                          // Button hover check method (to be called in the main loop)
 
 
         // Only onetime click realization in this version
@@ -225,8 +225,8 @@ class My_SDL_button
         bool click_permission;                       // Button click permission flag
 
 
-        bool clicked;                                // Button click state
-        bool clicked_tmp;                            // Button click state temp for callback block until the next click
+        bool button_clicked;                                // Button click state
+        bool button_clicked_tmp;                            // Button click state temp for callback block until the next click
         bool lb_click_check();                        // Button click check method (to be called in the main loop)
         
         // ===== MAIN LOGIC =====

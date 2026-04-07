@@ -314,6 +314,13 @@ class My_SDL_fader : public My_SDL_element // SDL_Element
         float fader_value;
 
 
+        // Inner fader value by fader position calculation
+        float fader_value_by_knob_position();
+
+        // Inner fader position by fader value calculation
+        int knob_position_by_fader_value();
+
+
         // Control flags for the fader's slot and knob
         // Knob z > slot z, so the hover and click checks for the knob are more important
 
@@ -334,7 +341,7 @@ class My_SDL_fader : public My_SDL_element // SDL_Element
     
         element_state current_knob_state;                 // Current fader's knob state for rendering logic
 
-        
+
         int delta_x_from_click_to_knob;                   // Delta between the mouse x-coordinate at the moment of click and the knob center x-coordinate for the follow logic when we click on the knob, not the slot   
 
 
@@ -368,15 +375,11 @@ class My_SDL_fader : public My_SDL_element // SDL_Element
         int slot_shadow_offset_x;                           // Slot's x-shadow offset    
         int slot_shadow_offset_y;                           // Slot's y-shadow offset
 
-        void set_slot_shadow_offset(int new_x_offset, int new_y_offset);
-
         float slot_shadow_scale_factor;                     // Slot's shadow scale factor - multiplies basic element size to get shadow size
 
 
         int knob_shadow_offset_x;                           // Knob's x-shadow offset    
         int knob_shadow_offset_y;                           // Knob's y-shadow offset
-
-        void set_knob_shadow_offset(int new_x_offset, int new_y_offset);
 
         float knob_shadow_scale_factor;                     // Knob's shadow scale factor - multiplies basic element size to get shadow size
 
@@ -387,6 +390,7 @@ class My_SDL_fader : public My_SDL_element // SDL_Element
 
         element_form knob_current_form;                     // Current knob form by the element_form enum
         void reset_knob_current_form();                     // Automatic knob current form reset
+
 
         // Render points 
 
@@ -419,12 +423,6 @@ class My_SDL_fader : public My_SDL_element // SDL_Element
         void set_knob_render_point(int x_cc_rp);
 
 
-        // Inner fader value by fader position calculation
-        float fader_value_by_knob_position();
-
-        // Inner fader position by fader value calculation
-        int knob_position_by_fader_value();
-
         // Boarders (+DELTA_FOR_HOVER_CLICK_CHECKS for the hover and click check stability)
 
         element_rect_boundaries slot_boundaries_points;     // Slot rectangle bounds by the element_rect_boundaries struct
@@ -434,6 +432,7 @@ class My_SDL_fader : public My_SDL_element // SDL_Element
         element_rect_boundaries knob_boundaries_points;     // Knob rectangle bounds by the element_rect_boundaries struct
 
         void reset_knob_boundaries_points();                // Element's knob bounds automatic recalculation
+
 
         void reset_boundaries_points();                     // All element bounds automatic recalculation
 

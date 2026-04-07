@@ -25,8 +25,8 @@ constexpr unsigned int PALLETTES_QUANTITY = 2;
 enum button_access_type
 {
 
-    BUTTON_DEFAULT_CLICK_PERMISSION,        // Always can be clicked
-    BUTTON_EXTERN_CLICK_PERMISSION,         // Can be clicked only by the true return of the extern function for click permission check
+    BUTTON_DEFAULT_CLICK_PERMISSION,        // Always can be button_clicked
+    BUTTON_EXTERN_CLICK_PERMISSION,         // Can be button_clicked only by the true return of the extern function for click permission check
 
 };
 
@@ -58,7 +58,7 @@ class My_SDL_button : public My_SDL_element // SDL_Element
          * - Applies click access control (default or external permission)
          * - Triggers hover and click callbacks when conditions are met
          * - Ensures single-click behavior (prevents repeat while holding)
-         * - Updates visual state (DEFAULT / HOVERED / CLICKED)
+         * - Updates visual state (DEFAULT / HOVERED / button_clicked)
          * - Applies palette change if required
          *
          * Must be called every frame inside the main state.update loop.
@@ -154,7 +154,7 @@ class My_SDL_button : public My_SDL_element // SDL_Element
          * @brief Renders the button based on its current state and visual configuration.
          *
          * - Selects the active palette (static or dynamic)
-         * - Resolves colors for current state (DEFAULT / HOVERED / CLICKED)
+         * - Resolves colors for current state (DEFAULT / HOVERED / button_clicked)
          * - Applies global opacity to all visual components
          * - Calculates geometry for shadow, border, and background
          * - Simulates button press effect using offset (push mode)
@@ -325,16 +325,16 @@ class My_SDL_button : public My_SDL_element // SDL_Element
         // Sets the hovered shadow color for palette 1
         void set_shadow_color_hovered_1(SDL_Color new_color);
 
-        // Sets the clicked background color for palette 1
+        // Sets the button_clicked background color for palette 1
         void set_background_color_clicked_1(SDL_Color new_color);
 
-        // Sets the clicked border color for palette 1
+        // Sets the button_clicked border color for palette 1
         void set_border_color_clicked_1(SDL_Color new_color);
 
-        // Sets the clicked content color for palette 1
+        // Sets the button_clicked content color for palette 1
         void set_content_color_clicked_1(SDL_Color new_color);
 
-        // Sets the clicked shadow color for palette 1
+        // Sets the button_clicked shadow color for palette 1
         void set_shadow_color_clicked_1(SDL_Color new_color);
 
 
@@ -364,16 +364,16 @@ class My_SDL_button : public My_SDL_element // SDL_Element
         // Sets the hovered shadow color for palette 2
         void set_shadow_color_hovered_2(SDL_Color new_color);
 
-        // Sets the clicked background color for palette 2
+        // Sets the button_clicked background color for palette 2
         void set_background_color_clicked_2(SDL_Color new_color);
 
-        // Sets the clicked border color for palette 2
+        // Sets the button_clicked border color for palette 2
         void set_border_color_clicked_2(SDL_Color new_color);
 
-        // Sets the clicked content color for palette 2
+        // Sets the button_clicked content color for palette 2
         void set_content_color_clicked_2(SDL_Color new_color);
 
-        // Sets the clicked shadow color for palette 2
+        // Sets the button_clicked shadow color for palette 2
         void set_shadow_color_clicked_2(SDL_Color new_color);
 
 
@@ -400,12 +400,12 @@ class My_SDL_button : public My_SDL_element // SDL_Element
         bool click_permission;                       // Button click permission flag
 
 
-        bool hovered;                                // Button hover state
-        void hover_check();                          // Button hover check method (to be called in the main loop)
+        bool button_hovered;                         // Button hover state
+        void button_hover_check();                   // Button hover check method (to be called in the main loop)
 
 
-        bool clicked;                                // Button click state
-        bool clicked_tmp;                            // Button click state temp for callback block until the next click
+        bool button_clicked;                         // Button click state
+        bool button_clicked_tmp;                     // Button click state temp for callback block until the next click
         
         bool push_mode_on;                           // Current push display mode
         int press_offset;                            // Current press offset for push animation

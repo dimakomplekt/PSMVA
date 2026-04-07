@@ -317,14 +317,11 @@ void My_SDL_fader::knob_hover_check()
     this->knob_hovered = hover_check_by_boundaries(this->knob_boundaries_points);
 }
 
-
-
 // =========================================================================================== MAIN LOGIC
 
 
-
-
 // =========================================================================================== GUI
+
 
 
 

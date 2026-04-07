@@ -31,11 +31,11 @@ My_SDL_button::My_SDL_button()
 
     // Data
 
-    this->hovered = false;
+    this->button_hovered = false;
 
     this->click_permission = true;
-    this->clicked = false;
-    this->clicked_tmp = false;
+    this->button_clicked = false;
+    this->button_clicked_tmp = false;
 
     this->current_button_state = DEFAULT_ES;
 
@@ -95,7 +95,7 @@ My_SDL_button::My_SDL_button()
     this->set_content_color_hovered_1({23, 23, 23, 255});
 
 
-    // Clicked colors
+    // button_clicked colors
 
     this->set_shadow_color_clicked_1({140, 122, 180, 150});
     this->set_border_color_clicked_1({232, 222, 42, 255});
@@ -151,31 +151,31 @@ void My_SDL_button::update()
     }
 
     // Hover check
-    this->hover_check();
+    this->button_hover_check();
 
     // Hover logic
-    if (this->hovered)
+    if (this->button_hovered)
     {
         // Hover logic by the callback
         if (this->on_hover) this->on_hover();
 
         // Block the hover-click GUI conflict
-        if (!this->clicked_tmp)
+        if (!this->button_clicked_tmp)
             this->current_button_state = HOVERED_ES;
 
         this->content_dirty = true; // For update
 
         // New click or release check  
-        this->clicked = lb_click_check();
+        this->button_clicked = lb_click_check();
     }
     else
     {
-        if (!this->clicked_tmp) // Only without press
+        if (!this->button_clicked_tmp) // Only without press
             this->current_button_state = DEFAULT_ES;
 
-        // Clicked flags reset with hover ending (blocks the click logic without hovering)
-        this->clicked = false;
-        this->clicked_tmp = false; 
+        // button_clicked flags reset with hover ending (blocks the click logic without hovering)
+        this->button_clicked = false;
+        this->button_clicked_tmp = false; 
     }
 
 
@@ -183,10 +183,10 @@ void My_SDL_button::update()
 
 
     if (this->click_access_type == BUTTON_DEFAULT_CLICK_PERMISSION)
-        if (this->hovered && this->clicked)
-            if (!this->clicked_tmp) 
+        if (this->button_hovered && this->button_clicked)
+            if (!this->button_clicked_tmp) 
             {
-                this->clicked_tmp = true;
+                this->button_clicked_tmp = true;
 
                 this->current_button_state = CLICKED_ES;
 
@@ -201,13 +201,13 @@ void My_SDL_button::update()
         {
             this->click_permission = this->extern_click_permission();
 
-            // Clicked logic by the callback if the permission obtained
+            // button_clicked logic by the callback if the permission obtained
             if (this->click_permission)
-                if (this->hovered && this->clicked)
-                    // Clicked logic by the callback
-                    if (!this->clicked_tmp)
+                if (this->button_hovered && this->button_clicked)
+                    // button_clicked logic by the callback
+                    if (!this->button_clicked_tmp)
                     {
-                        this->clicked_tmp = true;
+                        this->button_clicked_tmp = true;
 
                         this->current_button_state = CLICKED_ES;
 
@@ -217,7 +217,7 @@ void My_SDL_button::update()
             else
             {
                 // Block repeats and reset
-                this->clicked_tmp = false;
+                this->button_clicked_tmp = false;
             }
         }
         else 
@@ -242,7 +242,7 @@ void My_SDL_button::update()
     }
 
     // If we press and then release - reset permission
-    if (!this->clicked && this->clicked_tmp) 
+    if (!this->button_clicked && this->button_clicked_tmp) 
     {
         // One callback call after release
         if ((this->click_access_type == BUTTON_DEFAULT_CLICK_PERMISSION || this->click_permission)
@@ -253,9 +253,9 @@ void My_SDL_button::update()
 
 
         // Block repeats and reset
-        this->clicked_tmp = false;
+        this->button_clicked_tmp = false;
 
-        if (this->hovered) this->current_button_state = HOVERED_ES; 
+        if (this->button_hovered) this->current_button_state = HOVERED_ES; 
         else this->current_button_state = DEFAULT_ES;
 
         this->content_dirty = true; // For update
@@ -287,34 +287,9 @@ void My_SDL_button::set_access_type(button_access_type new_access_type)
 }
 
 
-void My_SDL_button::hover_check()
+void My_SDL_button::button_hover_check()
 {
-    this->hovered = hover_check_by_boundaries(this->boundaries_points);
-}
-
-
-void My_SDL_button::reset_boundaries_points()
-{
-    this->boundaries_points.left_boundary = this->x_render_point - this->width_size / 2 - DELTA_FOR_HOVER_CLICK_CHECKS;
-    this->boundaries_points.right_boundary = this->x_render_point + this->width_size / 2 + DELTA_FOR_HOVER_CLICK_CHECKS;
-    this->boundaries_points.top_boundary = this->y_render_point - this->height_size / 2 - DELTA_FOR_HOVER_CLICK_CHECKS;
-    this->boundaries_points.bottom_boundary = this->y_render_point + this->height_size / 2 + DELTA_FOR_HOVER_CLICK_CHECKS;
-}
-
-
-void My_SDL_button::reset_current_form()
-{
-    float half_w = this->width_size / 2.0f;
-    float half_h = this->height_size / 2.0f;
-
-    if (this->border_radius_size >= half_w && this->border_radius_size >= half_h)
-        this->current_form = CIRCLE_EF;         
-
-    else if (this->border_radius_size > 0)
-        this->current_form = ROUNDED_RECTANGLE_EF; 
-         
-    else
-        this->current_form = RECTANGLE_EF;           
+    this->button_hovered = hover_check_by_boundaries(this->boundaries_points);
 }
 
 // =========================================================================================== MAIN LOGIC
@@ -487,7 +462,7 @@ void My_SDL_button::button_pallette_prepare()
                 this->render_shadow_color = this->shadow_color_hovered_1;
             }
 
-            // Clicked
+            // button_clicked
             else if (this->current_button_state == CLICKED_ES)
             {
                 this->render_background_color = this->background_color_clicked_1;
@@ -517,7 +492,7 @@ void My_SDL_button::button_pallette_prepare()
                 this->render_shadow_color = this->shadow_color_hovered_2;
             }
 
-            // Clicked
+            // button_clicked
             else if (this->current_button_state == CLICKED_ES)
             {
                 this->render_background_color = this->background_color_clicked_2;
@@ -542,7 +517,6 @@ void My_SDL_button::button_pallette_prepare()
     this->render_background_color.a = static_cast<uint8_t>(std::round(static_cast<float>(this->render_background_color.a) * opacity_scaler));
     this->render_content_color.a = static_cast<uint8_t>(std::round(static_cast<float>(this->render_content_color.a) * opacity_scaler));
 }
-
 
 
 void My_SDL_button::update_content_texture(SDL_Renderer* renderer, SDL_Color new_color)
@@ -727,6 +701,31 @@ void My_SDL_button::set_font_size(unsigned int new_size)
     }
 
     this->font_size = new_size;
+}
+
+
+void My_SDL_button::reset_boundaries_points()
+{
+    this->boundaries_points.left_boundary = this->x_render_point - this->width_size / 2 - DELTA_FOR_HOVER_CLICK_CHECKS;
+    this->boundaries_points.right_boundary = this->x_render_point + this->width_size / 2 + DELTA_FOR_HOVER_CLICK_CHECKS;
+    this->boundaries_points.top_boundary = this->y_render_point - this->height_size / 2 - DELTA_FOR_HOVER_CLICK_CHECKS;
+    this->boundaries_points.bottom_boundary = this->y_render_point + this->height_size / 2 + DELTA_FOR_HOVER_CLICK_CHECKS;
+}
+
+
+void My_SDL_button::reset_current_form()
+{
+    float half_w = this->width_size / 2.0f;
+    float half_h = this->height_size / 2.0f;
+
+    if (this->border_radius_size >= half_w && this->border_radius_size >= half_h)
+        this->current_form = CIRCLE_EF;         
+
+    else if (this->border_radius_size > 0)
+        this->current_form = ROUNDED_RECTANGLE_EF; 
+         
+    else
+        this->current_form = RECTANGLE_EF;           
 }
 
 
