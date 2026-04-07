@@ -16,10 +16,10 @@ bool hover_check_by_boundaries(const element_rect_boundaries& boundaries)
     int curr_y = static_cast<int>(std::round(App_mouse.get_y()));
 
 
-    if (curr_x >= boundaries.left_boundary &&
-        curr_x <= boundaries.right_boundary &&
-        curr_y <= boundaries.bottom_boundary &&
-        curr_y >= boundaries.top_boundary) 
+    if (curr_x >= boundaries.left_boundary - DELTA_FOR_HOVER_CLICK_CHECKS &&
+        curr_x <= boundaries.right_boundary + DELTA_FOR_HOVER_CLICK_CHECKS &&
+        curr_y <= boundaries.bottom_boundary + DELTA_FOR_HOVER_CLICK_CHECKS &&
+        curr_y >= boundaries.top_boundary - DELTA_FOR_HOVER_CLICK_CHECKS) 
         
         // Mouse inside the element zone 
         return true;

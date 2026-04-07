@@ -7,6 +7,7 @@
 #include <iostream> // for std::cout, std::cerr
 
 #include "../../program_gui/basic_elements/UI_elements/my_sdl_button/my_sdl_button.h"
+#include "../../program_gui/basic_elements/UI_elements/my_sdl_fader/my_sdl_fader.h"
 
 // =========================================================================================== IMPORT
 
@@ -23,9 +24,14 @@
 // Button
 My_SDL_button Button_1;
 
+// Fader
+My_SDL_fader Fader_1;
+
+
 void cout_on_but_1_click()
 {
     std::cout << "Button_1 is clicked... Finally." << std::endl;
+    std::cout << Fader_1.get_fader_value() << std::endl;
 }
 
 
@@ -36,6 +42,8 @@ void start_enter()
     // Button 1 initialization
     Button_1.on_click = cout_on_but_1_click;
     Button_1.set_font_path(Button_1.get_font_path());
+
+    // No need to initialize fader
 }
 
 
@@ -45,12 +53,17 @@ void start_update()
 {
     App_mouse.update();
     Button_1.update();
+    Fader_1.update();
 }
 
 void start_render(SDL_Renderer* renderer)
 {
     // Button 1
     Button_1.render(renderer);
+
+    // Fader 1
+    Fader_1.render(renderer);
+
 
     // Рисуем красный круг для чека работоспособности
     SDL_SetRenderDrawColor(renderer, 255, 100, 50, 255);

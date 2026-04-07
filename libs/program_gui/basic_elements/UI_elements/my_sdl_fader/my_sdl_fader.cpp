@@ -63,7 +63,7 @@ My_SDL_fader::My_SDL_fader()
     // Render points
 
     this->slot_x_render_point = this->slot_width_size / 2 + 1;
-    this->slot_y_render_point = this->slot_height_size / 2 + 1;
+    this->slot_y_render_point = this->slot_height_size / 2 + 1 + 200;   // test value
 
 
     this->knob_x_render_point = this->knob_position_by_fader_value();
@@ -116,6 +116,8 @@ My_SDL_fader::My_SDL_fader()
     this->knob_render_background_color = this->knob_background_color;
 }
 
+
+My_SDL_fader::~My_SDL_fader() = default;
 
 // =========================================================================================== CONSTRUCTOR AND DESTRUCTOR
 
@@ -259,6 +261,11 @@ void My_SDL_fader::update()
         // Update fader value by the new knob position
 
         this->fader_value = this->fader_value_by_knob_position();
+
+
+        // New click / release check, even without hover
+
+        this->knob_clicked = lb_click_check();
     }
 
 
@@ -345,9 +352,158 @@ void My_SDL_fader::knob_hover_check()
 
 // =========================================================================================== GUI
 
-void My_SDL_fader::render()
+void My_SDL_fader::render(SDL_Renderer *renderer)
 {
+    // Press offset for push simulation
 
+    if (this->current_slot_state != CLICKED_ES && this->current_knob_state != CLICKED_ES) this->press_offset = 0;
+
+
+    // Render points
+
+    int slot_sw_cx = this->slot_x_render_point + this->slot_shadow_offset_x;
+    int slot_sw_cy = this->slot_y_render_point + this->slot_shadow_offset_y;
+
+    int slot_br_cx = this->slot_x_render_point;
+    int slot_br_cy = this->slot_y_render_point;
+
+    int slot_bd_cx = this->slot_x_render_point;
+    int slot_bd_cy = this->slot_y_render_point;
+
+
+    int knob_sw_cx = this->knob_x_render_point + this->knob_shadow_offset_x;
+    int knob_sw_cy = this->knob_y_render_point + this->knob_shadow_offset_y;
+
+    int knob_br_cx = this->knob_x_render_point;
+    int knob_br_cy = this->knob_y_render_point;
+
+    int knob_bd_cx = this->knob_x_render_point;
+    int knob_bd_cy = this->knob_y_render_point;
+
+
+    // Sizes
+
+    unsigned int slot_sw_w = static_cast<unsigned int>(std::round((this->slot_width_size - this->press_offset) * this->slot_shadow_scale_factor));
+    unsigned int slot_sw_h = static_cast<unsigned int>(std::round((this->slot_height_size - this->press_offset) * this->slot_shadow_scale_factor));
+
+    unsigned int slot_br_w = this->slot_width_size - this->press_offset; 
+    unsigned int slot_br_h = this->slot_height_size - this->press_offset;
+
+    int slot_bg_w_signed = (int)this->slot_width_size - 2 * (int)this->slot_border_width_size - static_cast<int>(std::round(static_cast<float>(this->press_offset) / 2));
+    int slot_bg_h_signed = (int)this->slot_height_size - 2 * (int)this->slot_border_width_size - static_cast<int>(std::round(static_cast<float>(this->press_offset) / 2));
+    
+    unsigned int slot_bg_w = std::max(0, slot_bg_w_signed);
+    unsigned int slot_bg_h = std::max(0, slot_bg_h_signed);
+
+    unsigned int slot_sw_r = static_cast<unsigned int>(std::round(this->slot_border_radius_size * this->slot_shadow_scale_factor));
+    unsigned int slot_br_r = this->slot_border_radius_size - static_cast<int>(std::round(static_cast<float>(this->press_offset) / 2));
+
+    int slot_bg_r_signed = (int)this->slot_border_radius_size - (int)this->slot_border_width_size - static_cast<int>(std::round(static_cast<float>(this->press_offset) / 2));
+    unsigned int slot_bg_r = std::max(0, slot_bg_r_signed);
+
+
+
+    unsigned int knob_sw_w = static_cast<unsigned int>(std::round((this->knob_width_size - this->press_offset) * this->knob_shadow_scale_factor));
+    unsigned int knob_sw_h = static_cast<unsigned int>(std::round((this->knob_height_size - this->press_offset) * this->knob_shadow_scale_factor));
+
+    unsigned int knob_br_w = this->knob_width_size - this->press_offset; 
+    unsigned int knob_br_h = this->knob_height_size - this->press_offset;
+
+    int knob_bg_w_signed = (int)this->knob_width_size - 2 * (int)this->knob_border_width_size - static_cast<int>(std::round(static_cast<float>(this->press_offset) / 2));
+    int knob_bg_h_signed = (int)this->knob_height_size - 2 * (int)this->knob_border_width_size - static_cast<int>(std::round(static_cast<float>(this->press_offset) / 2));
+
+    unsigned int knob_bg_w = std::max(0, knob_bg_w_signed);
+    unsigned int knob_bg_h = std::max(0, knob_bg_h_signed);
+
+    unsigned int knob_sw_r = static_cast<unsigned int>(std::round(this->knob_border_radius_size * this->knob_shadow_scale_factor));
+    unsigned int knob_br_r = this->knob_border_radius_size - static_cast<int>(std::round(static_cast<float>(this->press_offset) / 2));
+
+    int knob_bg_r_signed = (int)this->knob_border_radius_size - (int)this->knob_border_width_size - static_cast<int>(std::round(static_cast<float>(this->press_offset) / 2));
+    unsigned int knob_bg_r = std::max(0, knob_bg_r_signed);
+
+
+    // Increment the press offset at every render repeat
+    
+    if (this->current_knob_state == CLICKED_ES)
+    {
+        if (this->push_mode_on && this->press_offset <= 5)
+        {
+            this->press_offset += 1;
+        }
+    }
+    else
+    {
+        if (this->push_mode_on && this->press_offset > 0)
+        {
+            this->press_offset = 0;
+        }
+    }
+
+    // Render the slot and knob with the appropriate colors, sizes and positions, based on the current states
+
+    // Slot render
+
+    if (this->slot_current_form == RECTANGLE_EF)
+    {
+        // SHADOW
+        rectangle_draw_by_color(slot_sw_cx, slot_sw_cy, slot_sw_w, slot_sw_h, this->slot_render_shadow_color, renderer);
+
+        // BORDER
+        rectangle_draw_by_color(slot_br_cx, slot_br_cy, slot_br_w, slot_br_h, this->slot_render_border_color, renderer);
+
+        // BACKGROUND
+        rectangle_draw_by_color(slot_bd_cx, slot_bd_cy, slot_bg_w, slot_bg_h, this->slot_render_background_color, renderer);
+    }
+
+    else if (this->slot_current_form == ROUNDED_RECTANGLE_EF)
+    {
+        // SHADOW
+        rounded_rectangle_draw_by_color(slot_sw_cx, slot_sw_cy, slot_sw_w, slot_sw_h, slot_sw_r, this->slot_render_shadow_color, renderer);
+
+        // BORDER
+        rounded_rectangle_draw_by_color(slot_br_cx, slot_br_cy, slot_br_w, slot_br_h, slot_br_r, this->slot_render_border_color, renderer);
+
+        // BACKGROUND
+        rounded_rectangle_draw_by_color(slot_bd_cx, slot_bd_cy, slot_bg_w, slot_bg_h, slot_bg_r, this->slot_render_background_color, renderer);
+    }
+
+    // Knob render
+
+    if (this->knob_current_form == RECTANGLE_EF)
+    {
+        // SHADOW
+        rectangle_draw_by_color(knob_sw_cx, knob_sw_cy, knob_sw_w, knob_sw_h, this->knob_render_shadow_color, renderer);
+
+        // BORDER
+        rectangle_draw_by_color(knob_br_cx, knob_br_cy, knob_br_w, knob_br_h, this->knob_render_border_color, renderer);
+
+        // BACKGROUND
+        rectangle_draw_by_color(knob_bd_cx, knob_bd_cy, knob_bg_w, knob_bg_h, this->knob_render_background_color, renderer);
+    }
+
+    else if (this->knob_current_form == ROUNDED_RECTANGLE_EF)
+    {
+        // SHADOW
+        rounded_rectangle_draw_by_color(knob_sw_cx, knob_sw_cy, knob_sw_w, knob_sw_h, knob_sw_r, this->knob_render_shadow_color, renderer);
+
+        // BORDER
+        rounded_rectangle_draw_by_color(knob_br_cx, knob_br_cy, knob_br_w, knob_br_h, knob_br_r, this->knob_render_border_color, renderer);
+
+        // BACKGROUND
+        rounded_rectangle_draw_by_color(knob_bd_cx, knob_bd_cy, knob_bg_w, knob_bg_h, knob_bg_r, this->knob_render_background_color, renderer);
+    }
+
+    else if (this->knob_current_form == CIRCLE_EF)
+    {
+        // SHADOW
+        circle_draw_by_color(knob_sw_cx, knob_sw_cy, knob_sw_w / 2, this->knob_render_shadow_color, renderer);
+
+        // BORDER
+        circle_draw_by_color(knob_br_cx, knob_br_cy, knob_br_w / 2, this->knob_render_border_color, renderer);
+
+        // BACKGROUND
+        circle_draw_by_color(knob_bd_cx, knob_bd_cy, knob_bg_w / 2, this->knob_render_background_color, renderer);
+    }
 }
 
 
@@ -365,6 +521,16 @@ void My_SDL_fader::set_render_point(int x_cc_rp, int y_cc_rp)
 
 void My_SDL_fader::set_slot_size(unsigned int new_width, unsigned int new_height)
 {
+    // Slot can't be circle
+    if ((new_width < 120 || new_height < 20) || 
+        (this->slot_border_width_size > new_width / 2) || 
+        (this->slot_border_width_size > new_height / 2) || 
+        (this->slot_border_radius_size != 0 && this->slot_border_width_size > (this->slot_border_radius_size - 1)))
+    {
+        std::cerr << "Wrong size value pass! Slot size ain't changed" << std::endl;
+        return;
+    }
+
     this->slot_width_size = new_width;
     this->slot_height_size = new_height;
 
@@ -387,6 +553,16 @@ unsigned int My_SDL_fader::get_slot_height_size() const
 
 void My_SDL_fader::set_knob_size(unsigned int new_width, unsigned int new_height)
 {
+    // (s.w - k.w  > 20px)
+    // k.r < k.w / 2 or k.h / 2
+    if ((this->slot_width_size - new_width <= 20) ||
+        (this->knob_border_radius_size > new_width || this->knob_border_radius_size > new_height)
+    )
+    {
+        std::cerr << "Wrong size value pass! Knob size ain't changed" << std::endl;
+        return;
+    }
+
     this->knob_width_size = new_width;
     this->knob_height_size = new_height;
 
@@ -438,7 +614,7 @@ void My_SDL_fader::set_slot_border_radius(unsigned int new_size)
 void My_SDL_fader::set_slot_shadow_offset(int new_x_offset, int new_y_offset)
 {
     this->slot_shadow_offset_x = new_x_offset;
-    this->slot_shadow_offset_y = new_y_offset;
+    this->slot_shadow_offset_y = -new_y_offset;
 }
 
 
@@ -479,7 +655,7 @@ void My_SDL_fader::set_knob_border_radius(unsigned int new_size)
 void My_SDL_fader::set_knob_shadow_offset(int new_x_offset, int new_y_offset)
 {
     this->knob_shadow_offset_x = new_x_offset;
-    this->knob_shadow_offset_y = new_y_offset;
+    this->knob_shadow_offset_y = -new_y_offset;
 }
 
 
@@ -570,19 +746,19 @@ void My_SDL_fader::reset_knob_current_form()
 
 void My_SDL_fader::reset_slot_boundaries_points()
 {
-    this->slot_boundaries_points.left_boundary = this->slot_x_render_point - this->slot_width_size / 2 - DELTA_FOR_HOVER_CLICK_CHECKS;
-    this->slot_boundaries_points.right_boundary = this->slot_x_render_point + this->slot_width_size / 2 + DELTA_FOR_HOVER_CLICK_CHECKS;
-    this->slot_boundaries_points.top_boundary = this->slot_y_render_point - this->slot_height_size / 2 - DELTA_FOR_HOVER_CLICK_CHECKS;
-    this->slot_boundaries_points.bottom_boundary = this->slot_y_render_point + this->slot_height_size / 2 + DELTA_FOR_HOVER_CLICK_CHECKS;
+    this->slot_boundaries_points.left_boundary = this->slot_x_render_point - this->slot_width_size / 2;
+    this->slot_boundaries_points.right_boundary = this->slot_x_render_point + this->slot_width_size / 2;
+    this->slot_boundaries_points.top_boundary = this->slot_y_render_point - this->slot_height_size / 2;
+    this->slot_boundaries_points.bottom_boundary = this->slot_y_render_point + this->slot_height_size / 2;
 }
 
 
 void My_SDL_fader::reset_knob_boundaries_points()
 {
-    this->knob_boundaries_points.left_boundary = this->knob_x_render_point - this->knob_width_size / 2 - DELTA_FOR_HOVER_CLICK_CHECKS;
-    this->knob_boundaries_points.right_boundary = this->knob_x_render_point + this->knob_width_size / 2 + DELTA_FOR_HOVER_CLICK_CHECKS;
-    this->knob_boundaries_points.top_boundary = this->knob_y_render_point - this->knob_height_size / 2 - DELTA_FOR_HOVER_CLICK_CHECKS;
-    this->knob_boundaries_points.bottom_boundary = this->knob_y_render_point + this->knob_height_size / 2 + DELTA_FOR_HOVER_CLICK_CHECKS;
+    this->knob_boundaries_points.left_boundary = this->knob_x_render_point - this->knob_width_size / 2;
+    this->knob_boundaries_points.right_boundary = this->knob_x_render_point + this->knob_width_size / 2;
+    this->knob_boundaries_points.top_boundary = this->knob_y_render_point - this->knob_height_size / 2;
+    this->knob_boundaries_points.bottom_boundary = this->knob_y_render_point + this->knob_height_size / 2;
 }
 
 

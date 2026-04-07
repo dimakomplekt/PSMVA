@@ -302,8 +302,6 @@ void My_SDL_button::button_hover_check()
 
 void My_SDL_button::render(SDL_Renderer* renderer)
 {
-    // Current position and sizes
-
     // Press offset for push simulation
 
     if (this->current_button_state != CLICKED_ES) this->press_offset = 0;
@@ -314,8 +312,8 @@ void My_SDL_button::render(SDL_Renderer* renderer)
 
     // Render points
 
-    int sw_cx = this->x_render_point + shadow_offset_x;
-    int sw_cy = this->y_render_point + shadow_offset_y;
+    int sw_cx = this->x_render_point + this->shadow_offset_x;
+    int sw_cy = this->y_render_point + this->shadow_offset_y;
 
     int br_cx = this->x_render_point;
     int br_cy = this->y_render_point;
@@ -706,10 +704,10 @@ void My_SDL_button::set_font_size(unsigned int new_size)
 
 void My_SDL_button::reset_boundaries_points()
 {
-    this->boundaries_points.left_boundary = this->x_render_point - this->width_size / 2 - DELTA_FOR_HOVER_CLICK_CHECKS;
-    this->boundaries_points.right_boundary = this->x_render_point + this->width_size / 2 + DELTA_FOR_HOVER_CLICK_CHECKS;
-    this->boundaries_points.top_boundary = this->y_render_point - this->height_size / 2 - DELTA_FOR_HOVER_CLICK_CHECKS;
-    this->boundaries_points.bottom_boundary = this->y_render_point + this->height_size / 2 + DELTA_FOR_HOVER_CLICK_CHECKS;
+    this->boundaries_points.left_boundary = this->x_render_point - this->width_size / 2;
+    this->boundaries_points.right_boundary = this->x_render_point + this->width_size / 2;
+    this->boundaries_points.top_boundary = this->y_render_point - this->height_size / 2;
+    this->boundaries_points.bottom_boundary = this->y_render_point + this->height_size / 2;
 }
 
 
