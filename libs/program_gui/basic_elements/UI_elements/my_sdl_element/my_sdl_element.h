@@ -187,7 +187,10 @@ class My_SDL_element
         int get_y_render_point() const;
 
 
+        // Element anchor points getter function
+        anchor_points get_anchor_points() const;
         
+
         /**
          * @brief Sets the element's global opacity.
          *
@@ -200,7 +203,6 @@ class My_SDL_element
         void set_opacity(Uint8 new_opacity);
 
 
-        
         /**
          * @brief Get the element's global opacity.
          *
@@ -223,7 +225,6 @@ class My_SDL_element
             // ===== CONSTRUCTOR AND DESTRUCTOR =====
 
 
-
             // ===== GUI =====
 
 
@@ -237,6 +238,15 @@ class My_SDL_element
 
             // Center-center y-render point
             int y_render_point;
+
+
+            // Element anchor points - uses for elements positioning by each other
+            anchor_points element_anchor_points;
+
+
+            // Element anchor points reset function - set up the new element_anchor_points struct values
+            // by the current element inheritor type overrided function
+            virtual void anchor_points_reset() = 0; 
 
 
             // Element opacity for SDL rendering with

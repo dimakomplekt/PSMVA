@@ -72,6 +72,14 @@ int My_SDL_element::get_x_render_point() const { return this->x_render_point; }
 int My_SDL_element::get_y_render_point() const { return this->y_render_point; }
 
 
+// Anchor points getter
+
+anchor_points My_SDL_element::get_anchor_points() const
+{
+    return this->anchor_points;
+}
+
+
 // Opacity setter and getter
 
 void My_SDL_element::set_opacity(Uint8 new_opacity) 

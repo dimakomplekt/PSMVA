@@ -449,6 +449,12 @@ class My_SDL_fader : public My_SDL_element // SDL_Element
 
         void reset_knob_boundaries_points();                // Element's knob bounds automatic recalculation
 
+
+        // Fader override for anchor points reset function
+        
+        void anchor_points_reset() override;
+
+
         // Pallette
 
 

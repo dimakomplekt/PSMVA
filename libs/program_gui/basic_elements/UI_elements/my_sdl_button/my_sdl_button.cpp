@@ -31,6 +31,8 @@ My_SDL_button::My_SDL_button()
 
     // Data
 
+    // Control flags
+
     this->button_hovered = false;
 
     this->click_permission = true;
@@ -43,19 +45,29 @@ My_SDL_button::My_SDL_button()
     this->press_offset = 0;
 
 
+    // Sizes
+
     this->set_size(100, 50);
 
+    // Render points
+    
     this->x_render_point = this->width_size / 2 + 1;
     this->y_render_point = this->height_size / 2 + 1;
 
     this->reset_boundaries_points();
-    
 
     this->border_width_size = 5;
     this->border_radius_size = 15;
 
     this->set_shadow_offset(3, -2);
     this->shadow_scale_factor = 1.0f;
+
+
+    // Anchor points
+    this->anchor_points_reset();
+
+
+    // Font 
 
     this->current_form = ROUNDED_RECTANGLE_EF;
 
@@ -559,6 +571,44 @@ void My_SDL_button::update_content_texture(SDL_Renderer* renderer, SDL_Color new
     SDL_DestroySurface(surface);
 
     this->content_dirty = false;
+}
+
+
+void My_SDL_button::anchor_points_reset()
+{
+    // Uses current crop to set the current anchor points
+
+    // Always the same rounding accuracy, because we work with crop map in initial scale and new scalers
+    unsigned int half_w = static_cast<unsigned_int>(std::round(static_cast<float>(this->width_size) * 0.5))
+    unsigned int half_h = static_cast<unsigned_int>(std::round(static_cast<float>(this->height_size) * 0.5))
+
+
+    // Anchors reset
+    
+    /**
+     * 
+     * P P P P P
+     * 1 2 3 4 5
+     * 
+     * center is 3 -> (n + 1) / 2
+     *
+     */
+
+    unsigned int c_w = this->x_render_point;         // Horizontal center
+    unsigned int c_h = this->y_render_point;         // Vertical center
+
+
+    this->anchors.top_left     = { c_w - half_w, c_h + half_h };
+    this->anchors.top_center   = { c_w , c_h + half_h };
+    this->anchors.top_right    = { c_w + half_w, c_h + half_h };
+
+    this->anchors.center_left  = { c_w - half_w, c_h };
+    this->anchors.center_center= { c_w, c_h };
+    this->anchors.center_right = { c_w + half_w, c_h };
+
+    this->anchors.bottom_left  = { c_w - half_w, c_h - half_h  };
+    this->anchors.bottom_center= { c_w, c_h - half_h };
+    this->anchors.bottom_right = { c_w + half_w, c_h - half_h };
 }
 
 

@@ -516,6 +516,11 @@ class My_SDL_button : public My_SDL_element // SDL_Element
         void update_content_texture(SDL_Renderer* renderer, SDL_Color new_color);
 
 
+        // Button override for anchor points reset function
+        
+        void anchor_points_reset() override;
+
+
         // Button basic colors by SDL type  
 
         SDL_Color background_color_1;

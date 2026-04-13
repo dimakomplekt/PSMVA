@@ -76,6 +76,10 @@ My_SDL_fader::My_SDL_fader()
     this->reset_slot_boundaries_points();
 
 
+    // Anchor points
+    this->anchor_points_reset();
+
+
     // Pallette
 
     this->set_opacity(255);
@@ -509,6 +513,9 @@ void My_SDL_fader::render(SDL_Renderer *renderer)
 
 void My_SDL_fader::set_render_point(int x_cc_rp, int y_cc_rp)
 {
+    this->x_render_point = x_cc_rp;
+    this->y_render_point = y_cc_rp;
+
     this->slot_x_render_point = x_cc_rp;
     this->slot_y_render_point = y_cc_rp;
 
@@ -662,6 +669,44 @@ void My_SDL_fader::set_knob_shadow_offset(int new_x_offset, int new_y_offset)
 void My_SDL_fader::set_knob_shadow_scale_factor(float new_scale_factor)
 {
     this->knob_shadow_scale_factor = new_scale_factor;
+}
+
+
+void My_SDL_fader::anchor_points_reset()
+{
+    // Uses current crop to set the current anchor points
+
+    // Always the same rounding accuracy, because we work with crop map in initial scale and new scalers
+    unsigned int half_w = static_cast<unsigned_int>(std::round(static_cast<float>(this->slot_width_size) * 0.5))
+    unsigned int half_h = static_cast<unsigned_int>(std::round(static_cast<float>(this->slot_height_size) * 0.5))
+
+
+    // Anchors reset
+    
+    /**
+     * 
+     * P P P P P
+     * 1 2 3 4 5
+     * 
+     * center is 3 -> (n + 1) / 2
+     *
+     */
+
+    unsigned int c_w = this->slot_x_render_point;         // Horizontal center
+    unsigned int c_h = this->slot_y_render_point;         // Vertical center
+
+
+    this->anchors.top_left     = { c_w - half_w, c_h + half_h };
+    this->anchors.top_center   = { c_w , c_h + half_h };
+    this->anchors.top_right    = { c_w + half_w, c_h + half_h };
+
+    this->anchors.center_left  = { c_w - half_w, c_h };
+    this->anchors.center_center= { c_w, c_h };
+    this->anchors.center_right = { c_w + half_w, c_h };
+
+    this->anchors.bottom_left  = { c_w - half_w, c_h - half_h  };
+    this->anchors.bottom_center= { c_w, c_h - half_h };
+    this->anchors.bottom_right = { c_w + half_w, c_h - half_h };
 }
 
 
