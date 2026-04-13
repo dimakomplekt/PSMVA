@@ -58,6 +58,51 @@ enum element_state
 };
 
 
+// TODO: rewrite x-y devide to desc_c_2D???
+
+// Descartes coordinate for  SDL3 2D space.
+struct desc_c_2D
+{
+
+    unsigned int x;    // Coordinate by x-axes (width).
+    unsigned int y;    // Coordinate by y-axes (height).
+
+};
+
+
+/**
+ * @brief Nine key anchor points of the image in local (not rotated) space.
+ *
+ * These points allow flexible alignment:
+ *
+ * 
+ *  [TL]---[TC]---[TR]
+ * 
+ * 
+ *  [CL]---[CC]---[CR]
+ * 
+ * 
+ *  [BL]---[BC]---[BR]
+ *
+ * 
+ * This is useful for positioning sprites relative to
+ * characters, physics bodies, or UI layout.
+ */
+struct anchor_points {
+
+    desc_c_2D top_left;
+    desc_c_2D top_center;
+    desc_c_2D top_right;
+    desc_c_2D center_left;
+    desc_c_2D center_center;
+    desc_c_2D center_right;
+    desc_c_2D bottom_left;
+    desc_c_2D bottom_center;
+    desc_c_2D bottom_right;
+
+};
+
+
 // =========================================================================================== TYPES
 
 
