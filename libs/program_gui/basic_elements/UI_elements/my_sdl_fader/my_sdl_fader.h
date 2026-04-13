@@ -48,6 +48,7 @@ class My_SDL_fader : public My_SDL_element // SDL_Element
          * - Prepares the render colors, based on the current states of the slot and knob (hovered, clicked) and the push mode
          * 
          * Must be called every frame inside the main state.update loop.
+         * 
          */
         void update() override;      
         
@@ -70,6 +71,7 @@ class My_SDL_fader : public My_SDL_element // SDL_Element
          * - Renders the slot and knob with the appropriate colors, sizes and positions, based on the current states
          *
          * Rendering depends on state flags updated in update().
+         * 
          */
         void render(SDL_Renderer* renderer) override;
 
@@ -106,6 +108,7 @@ class My_SDL_fader : public My_SDL_element // SDL_Element
          * @brief Returns the fader's slot width.
          *
          * @return Width of the fader's slot in pixels
+         * 
          */
         unsigned int get_slot_width_size() const;
 
@@ -114,6 +117,7 @@ class My_SDL_fader : public My_SDL_element // SDL_Element
          * @brief Returns the fader's slot  height.
          *
          * @return Height of the fader's slot in pixels
+         * 
          */
         unsigned int get_slot_height_size() const;
 
@@ -125,6 +129,7 @@ class My_SDL_fader : public My_SDL_element // SDL_Element
          *
          * @param new_width New width of the fader's knob in pixels (s.w - k.w  > 20px)
          * @param new_height New height of the fader's knob in pixels
+         * 
          */
         void set_knob_size(unsigned int new_width, unsigned int new_height);
 
@@ -133,6 +138,7 @@ class My_SDL_fader : public My_SDL_element // SDL_Element
          * @brief Returns the fader's knob width.
          *
          * @return Width of the fader's knob in pixels
+         * 
          */
         unsigned int get_knob_width_size() const;
 
@@ -141,6 +147,7 @@ class My_SDL_fader : public My_SDL_element // SDL_Element
          * @brief Returns the fader's knob height.
          *
          * @return Height of the fader's knob in pixels
+         * 
          */
         unsigned int get_knob_height_size() const;
 
@@ -156,6 +163,7 @@ class My_SDL_fader : public My_SDL_element // SDL_Element
          * If an invalid value is passed, the width is not changed and an error is logged.
          *
          * @param new_size New border width in pixels
+         * 
          */
         void set_slot_border_width_size(unsigned int new_size);
 
@@ -170,6 +178,7 @@ class My_SDL_fader : public My_SDL_element // SDL_Element
          * Also resets the current form to apply the new radius correctly.
          *
          * @param new_size New border radius in pixels
+         * 
          */
         void set_slot_border_radius(unsigned int new_size);
 
@@ -182,6 +191,8 @@ class My_SDL_fader : public My_SDL_element // SDL_Element
          *
          * @param new_x_offset Horizontal shadow offset in pixels
          * @param new_y_offset Vertical shadow offset in pixels
+         * 
+         * 
          */
         void set_slot_shadow_offset(int new_x_offset, int new_y_offset);
         
@@ -192,6 +203,7 @@ class My_SDL_fader : public My_SDL_element // SDL_Element
          * Adjusts the scaling of the slot's shadow relative to the slot's size.
          *
          * @param new_scale_factor Shadow scale multiplier (e.g., 1.0 = normal size)
+         * 
          */
         void set_slot_shadow_scale_factor(float new_scale_factor);
 
@@ -207,6 +219,7 @@ class My_SDL_fader : public My_SDL_element // SDL_Element
          * If an invalid value is passed, the width is not changed and an error is logged.
          *
          * @param new_size New border width in pixels
+         * 
          */
         void set_knob_border_width_size(unsigned int new_size);
 
@@ -221,6 +234,7 @@ class My_SDL_fader : public My_SDL_element // SDL_Element
          * Also resets the current form to apply the new radius correctly.
          *
          * @param new_size New border radius in pixels
+         * 
          */
         void set_knob_border_radius(unsigned int new_size);
 
@@ -233,6 +247,7 @@ class My_SDL_fader : public My_SDL_element // SDL_Element
          *
          * @param new_x_offset Horizontal shadow offset in pixels
          * @param new_y_offset Vertical shadow offset in pixels
+         * 
          */
         void set_knob_shadow_offset(int new_x_offset, int new_y_offset);
         
@@ -243,6 +258,7 @@ class My_SDL_fader : public My_SDL_element // SDL_Element
          * Adjusts the scaling of the knob's shadow relative to the knob's size.
          *
          * @param new_scale_factor Shadow scale multiplier (e.g., 1.0 = normal size)
+         * 
          */
         void set_knob_shadow_scale_factor(float new_scale_factor);
 

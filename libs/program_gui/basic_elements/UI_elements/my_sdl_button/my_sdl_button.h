@@ -62,6 +62,7 @@ class My_SDL_button : public My_SDL_element // SDL_Element
          * - Applies palette change if required
          *
          * Must be called every frame inside the main state.update loop.
+         * 
          */
         void update() override;                                  
 
@@ -97,6 +98,7 @@ class My_SDL_button : public My_SDL_element // SDL_Element
          *
          * Must be set when using external click permission, otherwise
          * click handling will fail.
+         * 
          */
         std::function<bool()> extern_click_permission; 
 
@@ -111,6 +113,7 @@ class My_SDL_button : public My_SDL_element // SDL_Element
          * additional hover-related behavior.
          *
          * Called during update() when the button is in hovered state.
+         * 
          */
         std::function<void()> on_hover;                    
 
@@ -125,6 +128,7 @@ class My_SDL_button : public My_SDL_element // SDL_Element
          * Used to attach custom logic to button activation.
          *
          * Called during update() on click release.
+         * 
          */
         std::function<void()> on_click;     
             
@@ -146,6 +150,7 @@ class My_SDL_button : public My_SDL_element // SDL_Element
          * (e.g. red for blocked state, green for available state).
          *
          * Called during update() to determine the current palette.
+         * 
          */
         std::function<unsigned int()> get_required_palette; 
 
@@ -162,6 +167,7 @@ class My_SDL_button : public My_SDL_element // SDL_Element
          * - Updates and renders content (text/texture) centered inside the button
          *
          * Rendering depends on state flags updated in update().
+         * 
          */
         void render(SDL_Renderer* renderer) override; // SDL_E
 
@@ -178,6 +184,7 @@ class My_SDL_button : public My_SDL_element // SDL_Element
          * @param x_cc_rp x coordinate of the center-center render point
          * @param y_cc_rp y coordinate of the center-center render point
          * 
+         * 
          */
         void set_render_point(int x_cc_rp, int y_cc_rp) override;
 
@@ -191,6 +198,7 @@ class My_SDL_button : public My_SDL_element // SDL_Element
          *
          * @param new_width New width of the button in pixels
          * @param new_height New height of the button in pixels
+         * 
          */
         void set_size(unsigned int new_width, unsigned int new_height);
 
@@ -199,6 +207,7 @@ class My_SDL_button : public My_SDL_element // SDL_Element
          * @brief Returns the button's width.
          *
          * @return Width of the button in pixels
+         * 
          */
         unsigned int get_width_size() const;
 
@@ -207,6 +216,7 @@ class My_SDL_button : public My_SDL_element // SDL_Element
          * @brief Returns the button's height.
          *
          * @return Height of the button in pixels
+         * 
          */
         unsigned int get_height_size() const;
 
@@ -222,6 +232,7 @@ class My_SDL_button : public My_SDL_element // SDL_Element
          * If an invalid value is passed, the width is not changed and an error is logged.
          *
          * @param new_size New border width in pixels
+         * 
          */
         void set_border_width_size(unsigned int new_size);
 
@@ -236,6 +247,7 @@ class My_SDL_button : public My_SDL_element // SDL_Element
          * Also resets the current form to apply the new radius correctly.
          *
          * @param new_size New border radius in pixels
+         * 
          */
         void set_border_radius(unsigned int new_size);
 
@@ -248,6 +260,7 @@ class My_SDL_button : public My_SDL_element // SDL_Element
          *
          * @param new_x_offset Horizontal shadow offset in pixels
          * @param new_y_offset Vertical shadow offset in pixels
+         * 
          */
         void set_shadow_offset(int new_x_offset, int new_y_offset);
         
@@ -258,6 +271,7 @@ class My_SDL_button : public My_SDL_element // SDL_Element
          * Adjusts the scaling of the shadow relative to the button's size.
          *
          * @param new_scale_factor Shadow scale multiplier (e.g., 1.0 = normal size)
+         * 
          */
         void set_shadow_scale_factor(float new_scale_factor);
 
@@ -268,6 +282,7 @@ class My_SDL_button : public My_SDL_element // SDL_Element
          * Updates the button's content string.
          *
          * @param new_text New text to display on the button
+         * 
          */
         void set_content(const std::string& new_text);
 
@@ -279,6 +294,7 @@ class My_SDL_button : public My_SDL_element // SDL_Element
          * If the string is empty, the font path is not set and an error is logged.
          *
          * @param new_font_path Path to the font file
+         * 
          */
         void set_font_path(const std::string& new_font_path);
 
@@ -293,6 +309,7 @@ class My_SDL_button : public My_SDL_element // SDL_Element
          * If zero is passed, the font size is not changed and an error is logged.
          *
          * @param new_size Font size in points
+         * 
          */
         void set_font_size(unsigned int new_size);
 
@@ -470,6 +487,7 @@ class My_SDL_button : public My_SDL_element // SDL_Element
          * If the pointer is null, the font is not set and an error is logged.
          *
          * @param new_ttf_font_link Pointer to a valid TTF_Font
+         * 
          */
         void set_ttf_font_link(TTF_Font* new_ttf_font_link);
 
@@ -493,6 +511,7 @@ class My_SDL_button : public My_SDL_element // SDL_Element
          * Any existing texture is destroyed before creating a new one.
          * The resulting texture dimensions are stored in content_w and content_h.
          * Marks the content as clean (content_dirty = false).
+         * 
          */
         void update_content_texture(SDL_Renderer* renderer, SDL_Color new_color);
 
