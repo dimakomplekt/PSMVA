@@ -696,17 +696,19 @@ void My_SDL_fader::anchor_points_reset()
     unsigned int c_h = this->slot_y_render_point;         // Vertical center
 
 
-    this->anchors.top_left     = { c_w - half_w, c_h + half_h };
-    this->anchors.top_center   = { c_w , c_h + half_h };
-    this->anchors.top_right    = { c_w + half_w, c_h + half_h };
+    // SDL windows points goes from TL(0; 0) to BR(Max_W, Max_H)
+    
+    this->anchors.top_left     = { c_w - half_w, c_h - half_h };
+    this->anchors.top_center   = { c_w , c_h - half_h };
+    this->anchors.top_right    = { c_w + half_w, c_h - half_h };
 
     this->anchors.center_left  = { c_w - half_w, c_h };
     this->anchors.center_center= { c_w, c_h };
     this->anchors.center_right = { c_w + half_w, c_h };
 
-    this->anchors.bottom_left  = { c_w - half_w, c_h - half_h  };
-    this->anchors.bottom_center= { c_w, c_h - half_h };
-    this->anchors.bottom_right = { c_w + half_w, c_h - half_h };
+    this->anchors.bottom_left  = { c_w - half_w, c_h + half_h  };
+    this->anchors.bottom_center= { c_w, c_h + half_h };
+    this->anchors.bottom_right = { c_w + half_w, c_h + half_h };
 }
 
 

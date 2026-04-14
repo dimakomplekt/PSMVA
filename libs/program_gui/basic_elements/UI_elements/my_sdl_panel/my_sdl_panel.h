@@ -6,7 +6,8 @@
 
 // =========================================================================================== IMPORT
 
-#include <vector>                             // For std::vector
+#include <vector>                                   // For std::vector
+#include "../my_sdl_element/my_sdl_element.h"       // Base class import
 
 // =========================================================================================== IMPORT
 
@@ -18,6 +19,7 @@ struct panel_inner_element
 {
 
     My_SDL_element* element_pointer;
+
     int local_x_position;
     int local_y_position;
 
@@ -61,6 +63,36 @@ class My_SDL_panel : public My_SDL_element
 
 
         /**
+         * @brief Adds an element to the panel at specified local coordinates.
+         *
+         * The element's position will be relative to the panel's center.
+         * Call element render position setters by the element type. in dependence
+         * of current panel position
+         *
+         * @param element_pointer Pointer to the element to add
+         * @param local_x Local X position relative to tl-point
+         * @param local_y Local Y position relative to tl-point
+         * 
+         */
+        void add_element(My_SDL_element* element_pointer, int local_x, int local_y);
+
+        /**
+         * @brief Removes an element from the panel.
+         *
+         * @param element_pointer Pointer to the element to remove
+         * 
+         */
+        void remove_element(My_SDL_element* element_pointer);
+
+
+        /**
+         * @brief Clears all elements from the panel.
+         * 
+         */
+        void clear_elements();
+
+
+        /**
          * @brief Sets the panel's render point (center position).
          *
          * Updates the panel's position and adjusts the render points of all inner elements accordingly.
@@ -80,6 +112,7 @@ class My_SDL_panel : public My_SDL_element
          * 
          */
         void set_size(unsigned int new_width, unsigned int new_height);
+
 
         /**
          * @brief Gets the panel's width.
@@ -163,39 +196,6 @@ class My_SDL_panel : public My_SDL_element
 
         // ===== GUI =====
 
-
-        // ===== PANEL SPECIFIC =====
-
-        /**
-         * @brief Adds an element to the panel at specified local coordinates.
-         *
-         * The element's position will be relative to the panel's center.
-         *
-         * @param element_pointer Pointer to the element to add
-         * @param local_x Local X position relative to panel center
-         * @param local_y Local Y position relative to panel center
-         * 
-         */
-        void add_element(My_SDL_element* element_pointer, int local_x, int local_y);
-
-        /**
-         * @brief Removes an element from the panel.
-         *
-         * @param element_pointer Pointer to the element to remove
-         * 
-         */
-        void remove_element(My_SDL_element* element_pointer);
-
-
-        /**
-         * @brief Clears all elements from the panel.
-         * 
-         */
-        void clear_elements();
-
-        // ===== PANEL SPECIFIC =====
-
-
     protected:
 
         // ===== CONSTRUCTOR AND DESTRUCTOR =====
@@ -215,14 +215,33 @@ class My_SDL_panel : public My_SDL_element
         // ===== CONSTRUCTOR AND DESTRUCTOR =====
 
 
+    private:
+
+        // ===== MAIN LOGIC =====
+
+        // Container for inner elements
+        std::vector<panel_inner_element> inner_elements;
+
+        // Inner elements position update (calls with panel coordinates switch)
+        void update_elements_positions();
+
+        // Panel override for anchor points reset function
+
+        void anchor_points_reset() override;
+
+        // ===== MAIN LOGIC =====
+
+
         // ===== GUI =====
 
         // Panel dimensions
+
         unsigned int panel_width_size;
         unsigned int panel_height_size;
 
 
         // Styling attributes
+
         unsigned int border_width_size;
         unsigned int border_radius_size;
 
@@ -239,14 +258,6 @@ class My_SDL_panel : public My_SDL_element
         SDL_Color shadow_color;
 
         // ===== GUI =====
-
-
-        // ===== PANEL SPECIFIC =====
-
-        // Container for inner elements
-        std::vector<panel_inner_element> inner_elements;
-
-        // ===== PANEL SPECIFIC =====
 
 };
 
