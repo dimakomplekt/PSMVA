@@ -23,6 +23,8 @@ struct panel_inner_element
     int local_x_position;
     int local_y_position;
 
+    unsigned int local_z_position;      // Current z for this element inside the panel
+
 };
 
 // =========================================================================================== TYPES
@@ -45,6 +47,63 @@ class My_SDL_panel : public My_SDL_element
          */
         void update() override;
 
+
+        /**
+         * @brief Adds an element to the panel at specified local coordinates.
+         *
+         * The element's position will be relative to the panel's center.
+         * Call element render position setters by the element type. in dependence
+         * of current panel position
+         * 
+         * Setup the parent_panel atribute link inside base class by this-> in implementation
+         * 
+         * Sorts the inner_elements list by the local-z increase inside. 
+         *
+         * @param element_pointer Pointer to the element to add
+         * @param local_x Local X position relative to tl-point
+         * @param local_y Local Y position relative to tl-point
+         * @param local_z Local Z position relative to the current panel
+         * 
+         */
+        void add_element(My_SDL_element* element_pointer, int local_x, int local_y, unsigned int local_z);
+
+
+        /**
+         * @brief Removes an element from the panel and call it's destructor.
+         *
+         * @param element_pointer Pointer to the element to remove
+         * 
+         */
+        void remove_element(My_SDL_element* element_pointer);
+
+
+        /**
+         * @brief Clears all elements from the panel and call their destructors.
+         * 
+         * Just the iterative call of the remove_element(My_SDL_element* element_pointer) by vector
+         * 
+         */
+        void clear_elements();
+
+
+        /**
+         * @brief Change the element coordinates by the new local coordinates inside the panel.
+         *
+         * The element's position will be relative to the panel's center.
+         * Call element render position setters by the element type. in dependence
+         * of current panel position
+         * 
+         * Sorts the inner_elements list by the local-z increase inside. 
+         *
+         * @param element_pointer Pointer to the element to add
+         * @param new_local_x New local X position relative to tl-point
+         * @param new_local_y New local Y position relative to tl-point
+         * @param new_local_z New local Z position relative to the current panel
+         * 
+         */
+        void change_element_local_coordinate(My_SDL_element* element_pointer, int new_local_x, int new_local_y, unsigned int new_local_z);
+
+
         // ===== MAIN LOGIC =====
 
 
@@ -60,36 +119,6 @@ class My_SDL_panel : public My_SDL_element
          * 
          */
         void render(SDL_Renderer* renderer) override;
-
-
-        /**
-         * @brief Adds an element to the panel at specified local coordinates.
-         *
-         * The element's position will be relative to the panel's center.
-         * Call element render position setters by the element type. in dependence
-         * of current panel position
-         *
-         * @param element_pointer Pointer to the element to add
-         * @param local_x Local X position relative to tl-point
-         * @param local_y Local Y position relative to tl-point
-         * 
-         */
-        void add_element(My_SDL_element* element_pointer, int local_x, int local_y);
-
-        /**
-         * @brief Removes an element from the panel.
-         *
-         * @param element_pointer Pointer to the element to remove
-         * 
-         */
-        void remove_element(My_SDL_element* element_pointer);
-
-
-        /**
-         * @brief Clears all elements from the panel.
-         * 
-         */
-        void clear_elements();
 
 
         /**
@@ -170,29 +199,14 @@ class My_SDL_panel : public My_SDL_element
 
         // Color setters
 
-        /**
-         * @brief Sets the background color.
-         *
-         * @param new_color New background color
-         * 
-         */
-        void set_background_color(SDL_Color new_color);
+        // Sets the default background color for the panel.
+        void set_panel_background_color(SDL_Color new_color);
 
-        /**
-         * @brief Sets the border color.
-         *
-         * @param new_color New border color
-         * 
-         */
-        void set_border_color(SDL_Color new_color);
+        // Sets the default border color for the panel.
+        void set_panel_border_color(SDL_Color new_color);
 
-        /**
-         * @brief Sets the shadow color.
-         *
-         * @param new_color New shadow color
-         * 
-         */
-        void set_shadow_color(SDL_Color new_color);
+        // Sets the default shadow color for the panel.
+        void set_panel_shadow_color(SDL_Color new_color);
 
         // ===== GUI =====
 
@@ -219,11 +233,17 @@ class My_SDL_panel : public My_SDL_element
 
         // ===== MAIN LOGIC =====
 
-        // Container for inner elements
+        // Container for inner elements - fills by add_element() and used inside 
+        // the update_elements_positions() and clear elements 
         std::vector<panel_inner_element> inner_elements;
+
+        // Setup the new element position (atribute inside basic class) after operations, which could change them,
+        // like element add inside the panel
+        void update_inner_element_position(My_SDL_element* element_pointer, int local_x, int local_y);
 
         // Inner elements position update (calls with panel coordinates switch)
         void update_elements_positions();
+
 
         // Panel override for anchor points reset function
 

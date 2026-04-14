@@ -118,6 +118,9 @@ bool hover_check_by_boundaries(const element_rect_boundaries& boundaries);
 // =========================================================================================== My_SDL_element class
 
 
+// Predeclare the panel class for the upper_container atribute include
+class My_SDL_panel; 
+
 class My_SDL_element
 {
 
@@ -220,9 +223,42 @@ class My_SDL_element
             // ===== CONSTRUCTOR AND DESTRUCTOR =====
 
             My_SDL_element();                            // Element constructor (never calls, only for inheritance)
-            virtual ~My_SDL_element() = default;         // Element destructor (never calls, only for inheritance)  
+
+
+            virtual ~My_SDL_element() = default;         // Element destructor (never calls, only for inheritance) 
+            
+            // TODO: DESTROY BY FABRIC - i can't just control the destructor cycle - it starts to delete smthing even before 
+            // custom logic inside destructor, so i must wrapped it by some new function and use only it for basic memory clean
+            ////
+            //    void destroy()
+            //    {
+            //        if (is_destroying)
+            //            return;
+
+            //        is_destroying = true;
+
+            //        if (parent_panel)
+            //        {
+                          // Pointers clean
+                          
+            //            auto* p = parent_panel;
+            //            parent_panel = nullptr;
+            //            p->remove_element(this);
+            //            return;
+            //        }
+
+            //        delete this;
+            //    }
 
             // ===== CONSTRUCTOR AND DESTRUCTOR =====
+
+
+            // ===== MAIN LOGIC =====
+
+            My_SDL_panel* parent_panel = nullptr;   // NON-owning
+            bool is_detaching = false;              // Flag fir ownership protection during the delete operations
+
+            // ===== MAIN LOGIC =====
 
 
             // ===== GUI =====

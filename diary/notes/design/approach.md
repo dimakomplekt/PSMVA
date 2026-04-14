@@ -178,7 +178,7 @@ class My_SDL_button
         void set_font_size(unsigned int size);
 
 
-        // Opacity
+        // Opacity setter
         void set_opacity(Uint8 new_opacity);
 
         // Color setters

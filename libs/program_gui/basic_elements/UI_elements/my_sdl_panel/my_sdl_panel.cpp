@@ -4,7 +4,6 @@
 // =========================================================================================== IMPORT
 
 #include "my_sdl_panel.h"
-#include "../../GUI_functions/drawing/figures_drawing.h" // For drawing functions
 #include <algorithm>                                     // For std::remove_if
 
 // =========================================================================================== IMPORT
@@ -13,20 +12,25 @@
 // =========================================================================================== CONSTRUCTOR AND DESTRUCTOR
 
 My_SDL_panel::My_SDL_panel()
-    : My_SDL_element(),
-      panel_width_size(100),
-      panel_height_size(100),
-      border_width_size(1),
-      border_radius_size(0),
-      shadow_offset_x(2),
-      shadow_offset_y(2),
-      shadow_scale_factor(1.0f),
-      background_color({200, 200, 200, 255}),
-      border_color({0, 0, 0, 255}),
-      shadow_color({0, 0, 0, 128}),
-      inner_elements()
 {
     // Basic settings setter
+    this->x_render_point =
+    this->y_render_point = 
+    this->panel_width_size = 100,
+    this->panel_height_size = 100,
+
+    this->border_width_size = 1,
+    this->border_radius_size = 0,
+
+    this->shadow_offset_x = 2,
+    this->shadow_offset_y = 2,
+    this->shadow_scale_factor = 1.0f,
+
+    this->set_panel_background_color(hex_to_sdl_color("#fd3108", 250));
+    this->set_panel_border_color((hex_to_sdl_color("#8af520", 250));
+    this->set_panel_shadow_color((hex_to_sdl_color("#d400ff", 250));
+
+    this->inner_elements()
 }
 
 // =========================================================================================== CONSTRUCTOR AND DESTRUCTOR
@@ -36,7 +40,7 @@ My_SDL_panel::My_SDL_panel()
 
 void My_SDL_panel::update()
 {
-    // Update all inner elements
+    // Just update all inner elements by auto type link and overrided update() methods
     for (auto& inner : inner_elements)
     {
         inner.element_pointer->update();
@@ -93,6 +97,13 @@ void My_SDL_panel::render(SDL_Renderer* renderer)
         inner.element_pointer->set_render_point(absolute_x, absolute_y);
         inner.element_pointer->render(renderer);
     }
+
+    // Render the panel
+
+
+    // Render the elements by the z-order (just gothrough the vector it's already sorted)
+    
+
 }
 
 void My_SDL_panel::set_render_point(int x_cc_rp, int y_cc_rp)

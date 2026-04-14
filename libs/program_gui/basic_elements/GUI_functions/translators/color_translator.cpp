@@ -8,7 +8,7 @@
 // =========================================================================================== IMPORT
 
 
-SDL_Color hex_to_sdl_color(const std::string& hex, unsigned int opacity)
+SDL_Color hex_to_sdl_color(const std::string& hex, Uint8 opacity)
 {
     SDL_Color color;
 
