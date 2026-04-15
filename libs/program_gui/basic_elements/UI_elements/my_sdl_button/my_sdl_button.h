@@ -402,6 +402,14 @@ class My_SDL_button : public My_SDL_element // SDL_Element
 
         // ===== GUI ======
 
+    protected:
+
+        // ===== MAIN LOGIC =====
+
+        void on_destroy() override;
+
+        // ===== MAIN LOGIC =====
+
 
     private:
 

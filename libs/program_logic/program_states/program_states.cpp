@@ -63,23 +63,6 @@ void start_render(SDL_Renderer* renderer)
 
     // Fader 1
     Fader_1.render(renderer);
-
-
-    // Рисуем красный круг для чека работоспособности
-    SDL_SetRenderDrawColor(renderer, 255, 100, 50, 255);
-
-    int cx = 400, cy = 300, r = 50;
-
-    for (int w = 0; w < r * 2; w++)
-    {
-        for (int h = 0; h < r * 2; h++)
-        {
-            int dx = r - w;
-            int dy = r - h;
-
-            if ((dx*dx + dy*dy) <= (r*r)) SDL_RenderPoint(renderer, cx + dx, cy + dy);
-        }
-    }
 }
 
 

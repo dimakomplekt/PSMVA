@@ -228,6 +228,13 @@ class My_SDL_panel : public My_SDL_element
 
         // ===== CONSTRUCTOR AND DESTRUCTOR =====
 
+        protected:
+
+            // ===== MAIN LOGIC =====
+
+            void on_destroy() override;
+
+            // ===== MAIN LOGIC =====
 
     private:
 

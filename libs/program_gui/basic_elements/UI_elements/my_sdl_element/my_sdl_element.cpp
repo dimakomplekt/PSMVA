@@ -43,6 +43,33 @@ My_SDL_element::My_SDL_element() : gui_type(STATIC_ELEMENT_GUI), x_render_point(
     // Default
 }
 
+// Destroy fabric
+
+My_SDL_element::destroy()
+{
+    // Double pass error handler
+    if (this->is_destroying) return;
+
+    this->is_destroying = true;
+
+    // Panel clear logic
+    if (this->parent_panel)
+    {
+        // Pointers clean
+                    
+        auto* p = parent_panel; // Cache ptr
+        
+        this->parent_panel = nullptr;
+
+        p->remove_element(this);
+
+        return;
+    }
+
+    delete this;
+}
+
+
 
 // =========================================================================================== CONSTRUCTOR AND DESTRUCTOR
 
