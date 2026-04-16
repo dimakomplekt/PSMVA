@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 
 
-file(GLOB_RECURSE PROJECT_SOURCES
+file(GLOB_RECURSE PROJECT_SOURCES CONFIGURE_DEPENDS
 
     "src/*.cpp"
     "libs/**/*.cpp"

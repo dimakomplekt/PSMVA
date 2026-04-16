@@ -123,6 +123,13 @@ My_SDL_fader::My_SDL_fader()
 
 My_SDL_fader::~My_SDL_fader() = default;
 
+
+void My_SDL_fader::on_destroy()
+{
+    // что-то или даже пусто
+}
+
+
 // =========================================================================================== CONSTRUCTOR AND DESTRUCTOR
 
 
@@ -677,11 +684,10 @@ void My_SDL_fader::anchor_points_reset()
     // Uses current crop to set the current anchor points
 
     // Always the same rounding accuracy, because we work with crop map in initial scale and new scalers
-    unsigned int half_w = static_cast<unsigned_int>(std::round(static_cast<float>(this->slot_width_size) * 0.5))
-    unsigned int half_h = static_cast<unsigned_int>(std::round(static_cast<float>(this->slot_height_size) * 0.5))
+    unsigned int half_w = static_cast<unsigned int>(std::round(static_cast<float>(this->slot_width_size) * 0.5));
+    unsigned int half_h = static_cast<unsigned int>(std::round(static_cast<float>(this->slot_height_size) * 0.5));
 
-
-    // Anchors reset
+    // element_anchor_points reset
     
     /**
      * 
@@ -698,17 +704,17 @@ void My_SDL_fader::anchor_points_reset()
 
     // SDL windows points goes from TL(0; 0) to BR(Max_W, Max_H)
     
-    this->anchors.top_left     = { c_w - half_w, c_h - half_h };
-    this->anchors.top_center   = { c_w , c_h - half_h };
-    this->anchors.top_right    = { c_w + half_w, c_h - half_h };
+    this->element_anchor_points.top_left     = { c_w - half_w, c_h - half_h };
+    this->element_anchor_points.top_center   = { c_w , c_h - half_h };
+    this->element_anchor_points.top_right    = { c_w + half_w, c_h - half_h };
 
-    this->anchors.center_left  = { c_w - half_w, c_h };
-    this->anchors.center_center= { c_w, c_h };
-    this->anchors.center_right = { c_w + half_w, c_h };
+    this->element_anchor_points.center_left  = { c_w - half_w, c_h };
+    this->element_anchor_points.center_center= { c_w, c_h };
+    this->element_anchor_points.center_right = { c_w + half_w, c_h };
 
-    this->anchors.bottom_left  = { c_w - half_w, c_h + half_h  };
-    this->anchors.bottom_center= { c_w, c_h + half_h };
-    this->anchors.bottom_right = { c_w + half_w, c_h + half_h };
+    this->element_anchor_points.bottom_left  = { c_w - half_w, c_h + half_h  };
+    this->element_anchor_points.bottom_center= { c_w, c_h + half_h };
+    this->element_anchor_points.bottom_right = { c_w + half_w, c_h + half_h };
 }
 
 

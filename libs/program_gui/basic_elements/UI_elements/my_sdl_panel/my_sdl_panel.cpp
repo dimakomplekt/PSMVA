@@ -14,23 +14,30 @@
 My_SDL_panel::My_SDL_panel()
 {
     // Basic settings setter
-    this->x_render_point =
-    this->y_render_point = 
-    this->panel_width_size = 100,
-    this->panel_height_size = 100,
+    this->panel_width_size = 100;
+    this->panel_height_size = 100;
 
-    this->border_width_size = 1,
-    this->border_radius_size = 0,
+    this->x_render_point = panel_width_size / 2 + 1;
+    this->y_render_point = panel_height_size / 2 + 1;
 
-    this->shadow_offset_x = 2,
-    this->shadow_offset_y = 2,
-    this->shadow_scale_factor = 1.0f,
+    this->border_width_size = 1;
+    this->border_radius_size = 0;
+
+    this->shadow_offset_x = 2;
+    this->shadow_offset_y = 2;
+    this->shadow_scale_factor = 1.0f;
 
     this->set_panel_background_color(hex_to_sdl_color("#fd3108", 250));
-    this->set_panel_border_color((hex_to_sdl_color("#8af520", 250));
-    this->set_panel_shadow_color((hex_to_sdl_color("#d400ff", 250));
+    this->set_panel_border_color(hex_to_sdl_color("#8af520", 250));
+    this->set_panel_shadow_color(hex_to_sdl_color("#d400ff", 250));
 
-    this->inner_elements()
+    this->inner_elements.clear();
+}
+
+
+void My_SDL_panel::on_destroy()
+{
+    // что-то или даже пусто
 }
 
 // =========================================================================================== CONSTRUCTOR AND DESTRUCTOR
@@ -54,6 +61,7 @@ void My_SDL_panel::update()
 
 void My_SDL_panel::render(SDL_Renderer* renderer)
 {
+    /*
     // Calculate panel boundaries
     int left_boundary = x_render_point - static_cast<int>(panel_width_size) / 2;
     int right_boundary = x_render_point + static_cast<int>(panel_width_size) / 2;
@@ -102,14 +110,16 @@ void My_SDL_panel::render(SDL_Renderer* renderer)
 
 
     // Render the elements by the z-order (just gothrough the vector it's already sorted)
-    
 
+
+    */
 }
 
 void My_SDL_panel::set_render_point(int x_cc_rp, int y_cc_rp)
 {
     // Set panel position
-    My_SDL_element::set_render_point(x_cc_rp, y_cc_rp);
+    this->x_render_point = x_cc_rp;
+    this->y_render_point = y_cc_rp;
 
     // Update inner elements positions (though they will be set again in render, this ensures consistency)
     for (auto& inner : inner_elements)
@@ -160,31 +170,78 @@ void My_SDL_panel::set_shadow_scale_factor(float new_scale_factor)
 
 // Color setters
 
-void My_SDL_panel::set_background_color(SDL_Color new_color)
+void My_SDL_panel::set_panel_background_color(SDL_Color new_color)
 {
     background_color = new_color;
 }
 
-void My_SDL_panel::set_border_color(SDL_Color new_color)
+void My_SDL_panel::set_panel_border_color(SDL_Color new_color)
 {
     border_color = new_color;
 }
 
-void My_SDL_panel::set_shadow_color(SDL_Color new_color)
+void My_SDL_panel::set_panel_shadow_color(SDL_Color new_color)
 {
     shadow_color = new_color;
 }
+
+
+void My_SDL_panel::anchor_points_reset()
+{
+    
+    /**
+     * 
+     * P P P P P
+     * 1 2 3 4 5
+     * 
+     * center is 3 -> (n + 1) / 2
+     *
+     */
+
+    /*
+
+    // Uses current crop to set the current anchor points
+
+    // Always the same rounding accuracy, because we work with crop map in initial scale and new scalers
+    unsigned int half_w = static_cast<unsigned int>(std::round(static_cast<float>(this->slot_width_size) * 0.5));
+    unsigned int half_h = static_cast<unsigned int>(std::round(static_cast<float>(this->slot_height_size) * 0.5));
+
+    // element_anchor_points reset
+
+
+    unsigned int c_w = this->slot_x_render_point;         // Horizontal center
+    unsigned int c_h = this->slot_y_render_point;         // Vertical center
+
+
+    // SDL windows points goes from TL(0; 0) to BR(Max_W, Max_H)
+    
+    this->element_anchor_points.top_left     = { c_w - half_w, c_h - half_h };
+    this->element_anchor_points.top_center   = { c_w , c_h - half_h };
+    this->element_anchor_points.top_right    = { c_w + half_w, c_h - half_h };
+
+    this->element_anchor_points.center_left  = { c_w - half_w, c_h };
+    this->element_anchor_points.center_center= { c_w, c_h };
+    this->element_anchor_points.center_right = { c_w + half_w, c_h };
+
+    this->element_anchor_points.bottom_left  = { c_w - half_w, c_h + half_h  };
+    this->element_anchor_points.bottom_center= { c_w, c_h + half_h };
+    this->element_anchor_points.bottom_right = { c_w + half_w, c_h + half_h };
+
+    */
+}
+
 
 // =========================================================================================== GUI
 
 
 // =========================================================================================== PANEL SPECIFIC
 
-void My_SDL_panel::add_element(My_SDL_element* element_pointer, int local_x, int local_y)
+void My_SDL_panel::add_element(My_SDL_element* element_pointer, int local_x, int local_y, unsigned int local_z)
 {
     panel_inner_element new_inner = {element_pointer, local_x, local_y};
     inner_elements.push_back(new_inner);
 }
+
 
 void My_SDL_panel::remove_element(My_SDL_element* element_pointer)
 {
@@ -195,6 +252,7 @@ void My_SDL_panel::remove_element(My_SDL_element* element_pointer)
             }),
         inner_elements.end());
 }
+
 
 void My_SDL_panel::clear_elements()
 {

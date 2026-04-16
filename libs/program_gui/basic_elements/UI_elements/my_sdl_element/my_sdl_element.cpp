@@ -5,6 +5,8 @@
 
 #include "my_sdl_element.h"
 
+#include "../my_sdl_panel/my_sdl_panel.h"       // Methods pass
+
 // =========================================================================================== IMPORT
 
 
@@ -43,9 +45,10 @@ My_SDL_element::My_SDL_element() : gui_type(STATIC_ELEMENT_GUI), x_render_point(
     // Default
 }
 
+
 // Destroy fabric
 
-My_SDL_element::destroy()
+void My_SDL_element::destroy()
 {
     // Double pass error handler
     if (this->is_destroying) return;
@@ -103,7 +106,7 @@ int My_SDL_element::get_y_render_point() const { return this->y_render_point; }
 
 anchor_points My_SDL_element::get_anchor_points() const
 {
-    return this->anchor_points;
+    return this->element_anchor_points;
 }
 
 

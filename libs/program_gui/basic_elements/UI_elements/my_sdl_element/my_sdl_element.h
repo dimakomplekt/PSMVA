@@ -270,9 +270,9 @@ class My_SDL_element
 
             // ===== MAIN LOGIC =====
 
-            My_SDL_panel* parent_panel = nullptr;   // NON-owning
+            My_SDL_panel* parent_panel = nullptr;    // NON-owning
 
-            bool is_detaching = false;              // Flag fir ownership protection during the delete operations
+            bool is_destroying = false;              // Flag fir ownership protection during the delete operations
 
             // ===== MAIN LOGIC =====
 

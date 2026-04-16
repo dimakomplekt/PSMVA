@@ -21,4 +21,4 @@
  *
  * @return SDL_Color Resulting color with RGBA components.
  */
-SDL_Color hex_to_sdl_color(const std::string& hex, unsigned int opacity);
+SDL_Color hex_to_sdl_color(const std::string& hex, Uint8 opacity);
