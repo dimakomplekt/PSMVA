@@ -120,6 +120,7 @@ State::~State() = default;
 
 // =========================================================================================== STATE MACHINE
 
+
 bool State_machine::add_state(std::unique_ptr<State> s)
 {
     // Reject if a state with the same ID already exists
@@ -157,6 +158,7 @@ bool State_machine::add_state(std::unique_ptr<State> s)
     return true;
 }
 
+
 bool State_machine::id_exists(const State_ID &id) const
 {
     // Iterate through all states to check if the given ID already exists
@@ -166,6 +168,7 @@ bool State_machine::id_exists(const State_ID &id) const
 }
 
 // Initialization by the smart pointer which will deallocate automatically
+
 
 void State_machine::initiate_state(const State_ID &state_id, const std::string &state_name)
 {
@@ -186,6 +189,7 @@ State *State_machine::get_state(const State_ID &state_id)
 
     return nullptr; // No state by state_id case
 }
+
 
 // Helper-function for recursive removing of the state childrens
 // and nullptring of the deleted state parent children pointer.
@@ -228,6 +232,7 @@ void remove_state_recursive(State *s, std::vector<std::unique_ptr<State>> &state
     if (it != states.end()) states.erase(it); // unique_ptr will call destructor automatically
 }
 
+
 void State_machine::clear_state(const State_ID &id)
 {
     // Find the state pointer
@@ -259,6 +264,7 @@ void State_machine::clear_state(const State_ID &id)
     // Recursive state clear
     remove_state_recursive(target, states);
 }
+
 
 void State_machine::clear_states()
 {
@@ -318,6 +324,63 @@ bool State_machine::go_to(const State_ID &id)
 
     return false;
 }
+
+
+void State_machine::request_state_change(const State_ID& id)
+{
+    std::cout << "Adding state to queue: " << id.string() << "\n" << std::endl;
+    std::cout << "Current state: " << this->current_state->id.string() << std::endl;
+
+    // Safety guard: no current state means we can't compare safely.
+    
+    if (this->current_state->id.string() == "")
+    {
+        std::cerr << "[StateMachine] request_state_change ignored: no current state\n";
+        return;
+    }
+
+    
+    // Ignore redundant transitions.
+    // If we are already in the requested state, there is nothing to do.
+    // This prevents unnecessary exit/enter cycles.
+    
+    if (this->current_state->id == id)
+    {
+        return;
+    }
+
+    
+    // Validate that target state exists in the machine.
+    // Prevents storing invalid transition requests.
+    
+    if (!id_exists(id))
+    {
+        std::cerr << "[StateMachine] request_state_change failed: state not found: "
+                  << id.string() << "\n";
+        return;
+    }
+
+    
+    // Store deferred transition request.
+    // 
+    // Actual transition will be executed later in go_to()
+    // during the controlled update cycle.
+
+    this->state_change.set(id);
+
+    std::cout << "State added to queue: " << this->state_change.next.string() << std::endl;
+}
+
+
+State_ID State_machine::consume_next_state()
+{
+    State_ID tmp = state_change.next;
+
+    state_change.clear();
+    
+    return tmp;
+}
+
 
 
 // Simply return pointer to the currently active state

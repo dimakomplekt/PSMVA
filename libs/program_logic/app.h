@@ -1,10 +1,15 @@
+#pragma once
+
+
 #include "program_states/program_states.h"
 #include "global_data/global_data.h"
 
 
 
 // Single app
-struct sdl_app_ctx {
+
+struct sdl_app_ctx
+{
 
     SDL_AppResult app_state = SDL_APP_CONTINUE;
     
@@ -14,6 +19,9 @@ struct sdl_app_ctx {
     State_machine app_sm;
 
 };
+
+// App initialization
+extern sdl_app_ctx app_test;
 
 // Functions which calls callbacks for current state from state machine
 bool SDL_app_init(sdl_app_ctx* app, int w, int h, const char* title);

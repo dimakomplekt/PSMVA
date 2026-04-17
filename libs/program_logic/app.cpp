@@ -4,6 +4,7 @@
 
 #include <iostream>
 
+sdl_app_ctx app_test;
 
 bool SDL_app_init(sdl_app_ctx* app, int w, int h, const char* title)
 {
@@ -51,6 +52,17 @@ void SDL_app_event(sdl_app_ctx* app, SDL_Event* event)
 
 bool SDL_app_cycle(sdl_app_ctx* app)
 {
+    // State change requests handler
+    if (app->app_sm.check_state_change())
+    {
+        // Perform exit/enter here (with inner state_change.clear() call)
+        app->app_sm.go_to(app->app_sm.consume_next_state());
+
+        // state changed -> skip this frame to avoid mixed execution
+        return app->app_state == SDL_APP_CONTINUE;
+    }
+
+
     // State update
     if (app->app_sm.get_current_state()) app->app_sm.state_update();
 

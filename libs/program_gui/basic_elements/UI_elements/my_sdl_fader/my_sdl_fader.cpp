@@ -38,15 +38,16 @@ My_SDL_fader::My_SDL_fader()
 
     // Sizes
 
-    this->set_slot_size(120, 20);
-
-    this->set_knob_size(20, 40);
-
     this->slot_border_width_size = 2;
     this->slot_border_radius_size = 5;
 
     this->knob_border_width_size = 2;
     this->knob_border_radius_size = 5;
+
+
+    this->set_slot_size(120, 20);
+
+    this->set_knob_size(20, 40);
 
 
     this->set_slot_shadow_offset(3, -2);
@@ -599,9 +600,9 @@ unsigned int My_SDL_fader::get_knob_height_size() const
 
 void My_SDL_fader::set_slot_border_width_size(unsigned int new_size)
 {
-    if ((this->slot_border_width_size > this->slot_width_size / 2) || 
-        (this->slot_border_width_size > this->slot_height_size / 2) ||
-        (this->slot_border_radius_size != 0 && this->slot_border_width_size > (this->slot_border_radius_size - 1)))
+    if ((new_size > this->slot_width_size / 2) ||
+        (new_size > this->slot_height_size / 2) ||
+        (this->slot_border_radius_size != 0 && new_size > (this->slot_border_radius_size - 1)))
     {
         std::cerr << "Wrong border size value pass! Slot border width size ain't changed" << std::endl;
         return;
@@ -613,7 +614,7 @@ void My_SDL_fader::set_slot_border_width_size(unsigned int new_size)
 
 void My_SDL_fader::set_slot_border_radius(unsigned int new_size)
 {
-    if ((this->slot_border_radius_size > this->slot_width_size / 2) || (this->slot_border_radius_size > this->slot_height_size / 2))
+    if ((new_size > this->slot_width_size / 2) || (new_size > this->slot_height_size / 2))
     {
         std::cerr << "Wrong radius size value pass! Slot border radius size ain't changed" << std::endl;
         return;
@@ -640,9 +641,9 @@ void My_SDL_fader::set_slot_shadow_scale_factor(float new_scale_factor)
 
 void My_SDL_fader::set_knob_border_width_size(unsigned int new_size)
 {
-    if ((this->knob_border_width_size > this->knob_width_size / 2) || 
-        (this->knob_border_width_size > this->knob_height_size / 2) ||
-        (this->knob_border_radius_size != 0 && this->knob_border_width_size > (this->knob_border_radius_size - 1)))
+    if ((new_size > this->knob_width_size / 2) || 
+        (new_size > this->knob_height_size / 2) ||
+        (this->knob_border_radius_size != 0 && new_size > (this->knob_border_radius_size - 1)))
     {
         std::cerr << "Wrong border size value pass! knob border width size ain't changed" << std::endl;
         return;
@@ -654,7 +655,7 @@ void My_SDL_fader::set_knob_border_width_size(unsigned int new_size)
 
 void My_SDL_fader::set_knob_border_radius(unsigned int new_size)
 {
-    if ((this->knob_border_radius_size > this->knob_width_size / 2) || (this->knob_border_radius_size > this->knob_height_size / 2))
+    if ((new_size > this->knob_width_size / 2) || (new_size > this->knob_height_size / 2))
     {
         std::cerr << "Wrong radius size value pass! knob border radius size ain't changed" << std::endl;
         return;

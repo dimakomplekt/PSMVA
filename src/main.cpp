@@ -21,8 +21,6 @@ int main()
         SDL_Log("TTF_Init succeeded!");
     }
 
-    // App initialization
-    sdl_app_ctx app_test;
 
     // Initialize SDL application
     if (!SDL_app_init(&app_test, 800, 600, "PSMVA")) 
@@ -30,6 +28,7 @@ int main()
         std::cerr << "Failed to initialize SDL application." << std::endl;
         return -1;
     }
+
 
     // Initialize game states
     init_program_states(app_test.app_sm);
@@ -41,7 +40,12 @@ int main()
         SDL_app_shutdown(&app_test);
         return -1;
     }
-
+    else
+    {
+        std::cout << app_test.app_sm.get_current_state()->id.string() << std::endl;
+    }
+    
+ 
     // Main loop
     SDL_Event event;
 

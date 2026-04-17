@@ -21,48 +21,66 @@
 // Currently, they are simple stubs printing to the console.
 // You can replace the body with more complex logic or calls to other modules.
 
-// Button
-My_SDL_button Button_1;
+// RAII + lifecycle management
+My_SDL_button* Button_1 = nullptr;
+My_SDL_fader*  Fader_1  = nullptr;
 
-// Fader
-My_SDL_fader Fader_1;
 
+// Predeclare
+#include "../app.h"
+// App initialization
 
 void cout_on_but_1_click()
 {
     std::cout << "Button_1 is clicked... Finally." << std::endl;
-    std::cout << Fader_1.get_fader_value() << std::endl;
+    std::cout << Fader_1->get_fader_value() << std::endl;
+
+    app_test.app_sm.request_state_change(PROGRAM_END_ID);
 }
 
 
 void start_enter()
 {
+    Button_1 = new My_SDL_button();
+    Fader_1  = new My_SDL_fader();
+
     std::cout << "Entering START\n";
 
     // Button 1 initialization
-    Button_1.on_click = cout_on_but_1_click;
-    Button_1.set_font_path(Button_1.get_font_path());
+    Button_1->on_click = cout_on_but_1_click;
+    Button_1->set_font_path(Button_1->get_font_path());
 
     // No need to initialize fader
 }
 
 
-void start_exit()          { std::cout << "Exiting START\n"; }
+void start_exit()
+{ 
+    delete Button_1;
+    delete Fader_1;
+
+    Button_1 = nullptr;
+    Fader_1  = nullptr;
+
+
+    std::cout << "Exiting START\n"; 
+}
+
 
 void start_update()
 {
     App_mouse.update();
-    Button_1.update();
-    Fader_1.update();
+    Button_1->update();
+    Fader_1->update();
 }
 
 void start_render(SDL_Renderer* renderer)
 {
     // Button 1
-    Button_1.render(renderer);
+    Button_1->render(renderer);
 
     // Fader 1
-    Fader_1.render(renderer);
+    Fader_1->render(renderer);
 }
 
 
@@ -305,6 +323,21 @@ void program_end_enter()
     // TODO:
     // - Показать сообщение о завершении
     // - Подготовить возврат в MAIN_MENU при нажатии любой кнопки
+    std::cout << "\n";
+    std::cout << "This is the end" << std::endl;
+    std::cout << "Beautiful friend" << std::endl;
+    std::cout << "This is the end" << std::endl;
+    std::cout << "My only friend, the end" << std::endl;
+    std::cout << "Of our elaborate plans, the end" << std::endl;
+    std::cout << "Of everything that stands, the end" << std::endl;
+    std::cout << "No safety or surprise, the end" << std::endl;
+    std::cout << "I'll never look into your eyes again" << std::endl;
+    std::cout << "Can you picture what will be?" << std::endl;
+    std::cout << "So limitless and free" << std::endl;
+    std::cout << "Desperately in need" << std::endl;
+    std::cout << "Of some stranger's hand" << std::endl;
+    std::cout << "In a desperate land" << std::endl;
+    std::cout << "\n";
 }
 
 /**
@@ -316,6 +349,11 @@ void program_end_exit()
 {
     // TODO:
     // - Очистить ресурсы
+}
+
+void program_end_update()
+{
+
 }
 
 /**
@@ -330,6 +368,7 @@ void program_end_render(SDL_Renderer* renderer)
     // TODO:
     // - Отрисовать сообщение "Работа завершена"
     // - Отобразить подсказку для возврата в MAIN_MENU при нажатии любой клавиши
+    rectangle_draw_by_color(300, 300, 100, 50, hex_to_sdl_color("#8af520", 250),renderer);
 }
 
 
@@ -399,16 +438,19 @@ void init_program_states(State_machine& app_state_machine)
     }
 
 
-    // === EXIT_PROGRAM ===
-    app_state_machine.initiate_state(EXIT_PROGRAM_ID, "EXIT_PROGRAM");
-
-    if (auto* s = app_state_machine.get_state(EXIT_PROGRAM_ID))
-    {
-        s->on_enter = exit_program_enter;
-        s->on_exit  = exit_program_exit;
-    }
     */  
     
+    // === EXIT_PROGRAM ===
+    app_state_machine.initiate_state(PROGRAM_END_ID, "PROGRAM END");
+
+    if (auto* s = app_state_machine.get_state(PROGRAM_END_ID))
+    {
+        s->on_enter = program_end_enter;
+        s->on_exit  = program_end_exit;
+        s->state_update = program_end_update;
+        s->state_render = program_end_render;
+    }
+
     // At this point, all states are registered in the state machine.
     // State_machine handles connecting parents and children based on IDs,
     // so hierarchical updates and callback chaining will work automatically.
