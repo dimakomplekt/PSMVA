@@ -8,6 +8,7 @@
 
 #include "../../program_gui/basic_elements/UI_elements/my_sdl_button/my_sdl_button.h"
 #include "../../program_gui/basic_elements/UI_elements/my_sdl_fader/my_sdl_fader.h"
+#include "../../program_gui/basic_elements/UI_elements/my_sdl_panel/my_sdl_panel.h"
 
 // =========================================================================================== IMPORT
 
@@ -23,7 +24,10 @@
 
 // RAII + lifecycle management
 My_SDL_button* Button_1 = nullptr;
+My_SDL_button* Button_2 = nullptr;
+
 My_SDL_fader*  Fader_1  = nullptr;
+My_SDL_panel*  Panel_1  = nullptr;
 
 
 // Predeclare
@@ -42,7 +46,42 @@ void cout_on_but_1_click()
 void start_enter()
 {
     Button_1 = new My_SDL_button();
+    Button_2 = new My_SDL_button();
+
+    std::cout << Button_1->get_x_render_point() << std::endl;
+    std::cout << Button_1->get_y_render_point() << std::endl;
+
     Fader_1  = new My_SDL_fader();
+
+    Panel_1  = new My_SDL_panel();
+
+    Panel_1->add_element(
+
+        Button_1,
+         (Panel_1->get_anchor_points().top_right.x - Panel_1->get_anchor_points().top_left.x) * 0.5,
+          (Panel_1->get_anchor_points().bottom_left.y - Panel_1->get_anchor_points().top_left.y) * 0.75,
+           1
+    );
+
+
+    Panel_1->add_element(
+
+        Button_2,
+         (Panel_1->get_anchor_points().top_right.x - Panel_1->get_anchor_points().top_left.x) * 0.5,
+          (Panel_1->get_anchor_points().bottom_left.y - Panel_1->get_anchor_points().top_left.y) * 0.25,
+           1
+    );
+
+
+
+    std::cout << Panel_1->get_x_render_point() << std::endl;
+    std::cout << Panel_1->get_y_render_point() << std::endl;
+
+    std::cout << Panel_1->get_anchor_points().top_left.x << std::endl;
+    std::cout << Panel_1->get_anchor_points().top_left.y << std::endl;
+
+    std::cout << Button_1->get_x_render_point() << std::endl;
+    std::cout << Button_1->get_y_render_point() << std::endl;
 
     std::cout << "Entering START\n";
 
@@ -56,12 +95,15 @@ void start_enter()
 
 void start_exit()
 { 
-    delete Button_1;
-    delete Fader_1;
+    // Button_1->delete_element();
+    Fader_1->delete_element();
+
+    Panel_1->delete_element();
 
     Button_1 = nullptr;
-    Fader_1  = nullptr;
-
+    Button_2 = nullptr;
+    Fader_1 = nullptr;
+    Panel_1 = nullptr;
 
     std::cout << "Exiting START\n"; 
 }
@@ -70,17 +112,23 @@ void start_exit()
 void start_update()
 {
     App_mouse.update();
-    Button_1->update();
+
+    // Button_1->update();
     Fader_1->update();
+
+    Panel_1->update();
 }
 
 void start_render(SDL_Renderer* renderer)
 {
     // Button 1
-    Button_1->render(renderer);
+    // Button_1->render(renderer);
 
     // Fader 1
     Fader_1->render(renderer);
+
+    // Panel 1
+    Panel_1->render(renderer);
 }
 
 

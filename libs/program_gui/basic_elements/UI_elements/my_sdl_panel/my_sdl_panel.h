@@ -37,6 +37,15 @@ class My_SDL_panel : public My_SDL_element
 
     public:
 
+        // ===== CONSTRUCTOR AND DESTRUCTOR =====
+       
+        My_SDL_panel();                            // Panel constructor.
+        
+        void delete_element() override;            // Panel delete (delete_element call for all links, clear links + destructor call)   
+
+        // ===== CONSTRUCTOR AND DESTRUCTOR =====
+
+
         // ===== MAIN LOGIC =====
 
         /**
@@ -47,6 +56,10 @@ class My_SDL_panel : public My_SDL_element
          */
         void update() override;
 
+        // ===== MAIN LOGIC =====
+
+
+        // ===== PANEL SPECIFIC =====
 
         /**
          * @brief Adds an element to the panel at specified local coordinates.
@@ -103,8 +116,16 @@ class My_SDL_panel : public My_SDL_element
          */
         void change_element_local_coordinate(My_SDL_element* element_pointer, int new_local_x, int new_local_y, unsigned int new_local_z);
 
+        // Inner method for global coordinate change
+        void change_inner_elements_global_coordinates();
 
-        // ===== MAIN LOGIC =====
+        // Global x-coordinate getter
+        int global_x_by_local_x(int local_x);
+
+        // Global y-coordinate getter
+        int global_y_by_local_y(int local_y);
+
+        // ===== PANEL SPECIFIC =====
 
 
         // ===== GUI =====
@@ -210,33 +231,15 @@ class My_SDL_panel : public My_SDL_element
 
         // ===== GUI =====
 
-    protected:
+    private:
 
         // ===== CONSTRUCTOR AND DESTRUCTOR =====
 
-        /**
-         * @brief Constructor for My_SDL_panel.
-         *
-         * Initializes default values for size, colors, and styling.
-         */
-        My_SDL_panel();
-
-        /**
-         * @brief Destructor for My_SDL_panel.
-         */
+        // Destructor for My_SDL_panel.
         ~My_SDL_panel() = default;
 
         // ===== CONSTRUCTOR AND DESTRUCTOR =====
 
-        protected:
-
-            // ===== MAIN LOGIC =====
-
-            void on_destroy() override;
-
-            // ===== MAIN LOGIC =====
-
-    private:
 
         // ===== MAIN LOGIC =====
 
@@ -277,6 +280,9 @@ class My_SDL_panel : public My_SDL_element
 
         float shadow_scale_factor;
 
+        element_form current_form;                     // Current element form by the element_form enum
+
+        void reset_current_form();                     // Automatic current form reset
 
         // Colors
 

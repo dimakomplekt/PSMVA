@@ -14,14 +14,17 @@
 My_SDL_panel::My_SDL_panel()
 {
     // Basic settings setter
-    this->panel_width_size = 100;
-    this->panel_height_size = 100;
+    this->panel_width_size = 300;
+    this->panel_height_size = 150;
 
-    this->x_render_point = panel_width_size / 2 + 1;
-    this->y_render_point = panel_height_size / 2 + 1;
+    this->x_render_point = panel_width_size / 2 + 300;
+    this->y_render_point = panel_height_size / 2 + 300;
 
     this->border_width_size = 1;
     this->border_radius_size = 0;
+
+
+    this->current_form = RECTANGLE_EF;
 
     this->shadow_offset_x = 2;
     this->shadow_offset_y = 2;
@@ -32,12 +35,30 @@ My_SDL_panel::My_SDL_panel()
     this->set_panel_shadow_color(hex_to_sdl_color("#d400ff", 250));
 
     this->inner_elements.clear();
+
+    this->anchor_points_reset();
 }
 
 
-void My_SDL_panel::on_destroy()
+void My_SDL_panel::delete_element()
 {
-    // что-то или даже пусто
+    // Delete all inner elements
+    while (!inner_elements.empty())
+    {
+        auto* el = inner_elements.back().element_pointer;
+        inner_elements.pop_back();
+        delete el;
+    }
+
+    // Delete itself by upper level panel or by itself
+    if (this->element_container != nullptr)
+    {
+        this->element_container->remove_element(this);
+    }
+    else
+    {
+        delete this;
+    }
 }
 
 // =========================================================================================== CONSTRUCTOR AND DESTRUCTOR
@@ -61,59 +82,83 @@ void My_SDL_panel::update()
 
 void My_SDL_panel::render(SDL_Renderer* renderer)
 {
-    /*
     // Calculate panel boundaries
-    int left_boundary = x_render_point - static_cast<int>(panel_width_size) / 2;
-    int right_boundary = x_render_point + static_cast<int>(panel_width_size) / 2;
-    int top_boundary = y_render_point - static_cast<int>(panel_height_size) / 2;
-    int bottom_boundary = y_render_point + static_cast<int>(panel_height_size) / 2;
 
-    // Draw shadow if scale factor > 0
-    if (shadow_scale_factor > 0.0f)
+    // TODO: CREATE STRUCT AND RECALCULATE TO STRUCT ONLY WITH CHANGES
+
+    int sw_cx = this->x_render_point + this->shadow_offset_x;
+    int sw_cy = this->y_render_point + this->shadow_offset_y;
+
+    int br_cx = this->x_render_point;
+    int br_cy = this->y_render_point;
+
+    int bd_cx = this->x_render_point;
+    int bd_cy = this->y_render_point;
+
+
+    unsigned int sw_w = static_cast<unsigned int>(std::round((this->panel_width_size) * this->shadow_scale_factor));
+    unsigned int sw_h = static_cast<unsigned int>(std::round((this->panel_height_size) * this->shadow_scale_factor));
+
+    unsigned int br_w = this->panel_width_size; 
+    unsigned int br_h = this->panel_height_size;
+
+    int bg_w = (int)this->panel_width_size - 2 * (int)this->border_width_size;
+    int bg_h = (int)this->panel_height_size - 2 * (int)this->border_width_size;
+
+    unsigned int sw_r = static_cast<unsigned int>(std::round(this->border_radius_size * this->shadow_scale_factor));
+    unsigned int br_r = this->border_radius_size;
+
+    int bg_r_signed = (int)this->border_radius_size - (int)this->border_width_size;
+    unsigned int bg_r = std::max(0, bg_r_signed);
+
+
+    // Render 3 figures (shadow (border sizes * scaler), border and background (width or hight - 2 * border_width)) 
+    // by their sizes, with use of current colors and render point (center-center)
+    if (this->current_form == RECTANGLE_EF)
     {
-        SDL_Color shadow_color_with_opacity = shadow_color;
-        shadow_color_with_opacity.a = static_cast<Uint8>(shadow_color.a * opacity / 255.0f);
+        // SHADOW
+        rectangle_draw_by_color(sw_cx, sw_cy, sw_w, sw_h, this->shadow_color, renderer);
 
-        int shadow_left = left_boundary + shadow_offset_x;
-        int shadow_top = top_boundary + shadow_offset_y;
-        int shadow_width = panel_width_size;
-        int shadow_height = panel_height_size;
+        // BORDER
+        rectangle_draw_by_color(br_cx, br_cy, br_w, br_h, this->border_color, renderer);
 
-        draw_filled_rounded_rect(renderer, shadow_left, shadow_top, shadow_width, shadow_height, border_radius_size, shadow_color_with_opacity);
+        // BACKGROUND
+        rectangle_draw_by_color(bd_cx, bd_cy, bg_w, bg_h, this->background_color, renderer);
     }
 
-    // Draw background
-    SDL_Color background_color_with_opacity = background_color;
-    background_color_with_opacity.a = static_cast<Uint8>(background_color.a * opacity / 255.0f);
-
-    draw_filled_rounded_rect(renderer, left_boundary, top_boundary, panel_width_size, panel_height_size, border_radius_size, background_color_with_opacity);
-
-    // Draw border if width > 0
-    if (border_width_size > 0)
+    else if (this->current_form == ROUNDED_RECTANGLE_EF)
     {
-        SDL_Color border_color_with_opacity = border_color;
-        border_color_with_opacity.a = static_cast<Uint8>(border_color.a * opacity / 255.0f);
+        // SHADOW
+        rounded_rectangle_draw_by_color(sw_cx, sw_cy, sw_w, sw_h, sw_r, this->shadow_color, renderer);
 
-        draw_rounded_rect(renderer, left_boundary, top_boundary, panel_width_size, panel_height_size, border_radius_size, border_width_size, border_color_with_opacity);
+        // BORDER
+        rounded_rectangle_draw_by_color(br_cx, br_cy, br_w, br_h, br_r, this->border_color, renderer);
+
+        // BACKGROUND
+        rounded_rectangle_draw_by_color(bd_cx, bd_cy, bg_w, bg_h, bg_r, this->background_color, renderer);
     }
 
-    // Render all inner elements with adjusted positions
-    for (auto& inner : inner_elements)
+    else if (this->current_form == CIRCLE_EF)
     {
-        int absolute_x = x_render_point + inner.local_x_position;
-        int absolute_y = y_render_point + inner.local_y_position;
-        inner.element_pointer->set_render_point(absolute_x, absolute_y);
-        inner.element_pointer->render(renderer);
+        // SHADOW
+        circle_draw_by_color(sw_cx, sw_cy, sw_w / 2, this->shadow_color, renderer);
+
+        // BORDER
+        circle_draw_by_color(br_cx, br_cy, br_w / 2, this->border_color, renderer);
+
+        // BACKGROUND
+        circle_draw_by_color(bd_cx, bd_cy, bg_w / 2, this->background_color, renderer);
     }
 
-    // Render the panel
 
-
-    // Render the elements by the z-order (just gothrough the vector it's already sorted)
-
-
-    */
+    // Render the elements by the z-order (just go through the vector it's already sorted)
+    
+    for (auto it = this->inner_elements.begin(); it != this->inner_elements.end(); ++it)
+    {
+        it->element_pointer->render(renderer);
+    }
 }
+
 
 void My_SDL_panel::set_render_point(int x_cc_rp, int y_cc_rp)
 {
@@ -121,13 +166,11 @@ void My_SDL_panel::set_render_point(int x_cc_rp, int y_cc_rp)
     this->x_render_point = x_cc_rp;
     this->y_render_point = y_cc_rp;
 
+    // Reset anchor points
+    this->anchor_points_reset();
+
     // Update inner elements positions (though they will be set again in render, this ensures consistency)
-    for (auto& inner : inner_elements)
-    {
-        int absolute_x = x_render_point + inner.local_x_position;
-        int absolute_y = y_render_point + inner.local_y_position;
-        inner.element_pointer->set_render_point(absolute_x, absolute_y);
-    }
+    this->change_inner_elements_global_coordinates();
 }
 
 
@@ -135,36 +178,65 @@ void My_SDL_panel::set_render_point(int x_cc_rp, int y_cc_rp)
 
 void My_SDL_panel::set_size(unsigned int new_width, unsigned int new_height)
 {
-    panel_width_size = new_width;
-    panel_height_size = new_height;
+    this->panel_width_size = new_width;
+    this->panel_height_size = new_height;
+
+    // New form check
+    this->reset_current_form();
+
+    // Reset anchor points
+    this->anchor_points_reset();
+
+    this->change_inner_elements_global_coordinates();
 }
 
-unsigned int My_SDL_panel::get_width_size() const { return panel_width_size; }
 
-unsigned int My_SDL_panel::get_height_size() const { return panel_height_size; }
+unsigned int My_SDL_panel::get_width_size() const { return this->panel_width_size; }
+
+unsigned int My_SDL_panel::get_height_size() const { return this->panel_height_size; }
 
 
 // Styling setters
 
 void My_SDL_panel::set_border_width_size(unsigned int new_size)
 {
-    border_width_size = new_size;
+    if ((new_size > this->panel_width_size / 2) || 
+        (new_size > this->panel_height_size / 2) ||
+        (this->border_radius_size != 0 && new_size > (this->border_radius_size - 1)))
+    {
+        std::cerr << "Wrong border size value pass! Border width size ain't changed" << std::endl;
+        return;
+    }
+
+    this->border_width_size = new_size;
 }
 
-void My_SDL_panel::set_border_radius_size(unsigned int new_radius_size)
+
+void My_SDL_panel::set_border_radius_size(unsigned int new_size)
 {
-    border_radius_size = new_radius_size;
+
+    if (new_size > this->panel_width_size / 2 || new_size > this->panel_height_size / 2)
+    {
+        std::cerr << "Wrong radius size value pass! Border radius size ain't changed" << std::endl;
+        return;
+    }
+
+    this->border_radius_size = new_size;
+
+    // New form check
+    this->reset_current_form();
 }
+
 
 void My_SDL_panel::set_shadow_offset(int new_x_offset, int new_y_offset)
 {
-    shadow_offset_x = new_x_offset;
-    shadow_offset_y = new_y_offset;
+    this->shadow_offset_x = new_x_offset;
+    this->shadow_offset_y = new_y_offset;
 }
 
 void My_SDL_panel::set_shadow_scale_factor(float new_scale_factor)
 {
-    shadow_scale_factor = new_scale_factor;
+    this->shadow_scale_factor = new_scale_factor;
 }
 
 
@@ -172,17 +244,17 @@ void My_SDL_panel::set_shadow_scale_factor(float new_scale_factor)
 
 void My_SDL_panel::set_panel_background_color(SDL_Color new_color)
 {
-    background_color = new_color;
+    this->background_color = new_color;
 }
 
 void My_SDL_panel::set_panel_border_color(SDL_Color new_color)
 {
-    border_color = new_color;
+    this->border_color = new_color;
 }
 
 void My_SDL_panel::set_panel_shadow_color(SDL_Color new_color)
 {
-    shadow_color = new_color;
+    this->shadow_color = new_color;
 }
 
 
@@ -198,19 +270,18 @@ void My_SDL_panel::anchor_points_reset()
      *
      */
 
-    /*
 
     // Uses current crop to set the current anchor points
 
     // Always the same rounding accuracy, because we work with crop map in initial scale and new scalers
-    unsigned int half_w = static_cast<unsigned int>(std::round(static_cast<float>(this->slot_width_size) * 0.5));
-    unsigned int half_h = static_cast<unsigned int>(std::round(static_cast<float>(this->slot_height_size) * 0.5));
+    int half_w = static_cast<int>(std::round(static_cast<float>(this->panel_width_size) * 0.5));
+    int half_h = static_cast<int>(std::round(static_cast<float>(this->panel_height_size) * 0.5));
 
     // element_anchor_points reset
 
 
-    unsigned int c_w = this->slot_x_render_point;         // Horizontal center
-    unsigned int c_h = this->slot_y_render_point;         // Vertical center
+    int c_w = this->x_render_point;         // Horizontal center
+    int c_h = this->y_render_point;         // Vertical center
 
 
     // SDL windows points goes from TL(0; 0) to BR(Max_W, Max_H)
@@ -227,7 +298,22 @@ void My_SDL_panel::anchor_points_reset()
     this->element_anchor_points.bottom_center= { c_w, c_h + half_h };
     this->element_anchor_points.bottom_right = { c_w + half_w, c_h + half_h };
 
-    */
+}
+
+
+void My_SDL_panel::reset_current_form()
+{
+    float half_w = this->panel_width_size / 2.0f;
+    float half_h = this->panel_height_size / 2.0f;
+
+    if (this->border_radius_size >= half_w && this->border_radius_size >= half_h)
+        this->current_form = CIRCLE_EF;         
+
+    else if (this->border_radius_size > 0)
+        this->current_form = ROUNDED_RECTANGLE_EF; 
+         
+    else
+        this->current_form = RECTANGLE_EF;           
 }
 
 
@@ -238,25 +324,143 @@ void My_SDL_panel::anchor_points_reset()
 
 void My_SDL_panel::add_element(My_SDL_element* element_pointer, int local_x, int local_y, unsigned int local_z)
 {
-    panel_inner_element new_inner = {element_pointer, local_x, local_y};
-    inner_elements.push_back(new_inner);
+    element_pointer->set_render_point(
+        this->global_x_by_local_x(local_x),
+        this->global_y_by_local_y(local_y)
+    );
+
+    panel_inner_element new_inner = {
+        element_pointer,
+        local_x,
+        local_y,
+        local_z
+    };
+
+
+    // Addition by z-order
+
+    auto it = std::lower_bound(
+        inner_elements.begin(),
+        inner_elements.end(),
+        local_z,
+        [](const panel_inner_element& elem, unsigned int z)
+        {
+            return elem.local_z_position < z;
+        }
+    );
+
+    inner_elements.insert(it, new_inner);
 }
 
 
 void My_SDL_panel::remove_element(My_SDL_element* element_pointer)
 {
-    inner_elements.erase(
-        std::remove_if(inner_elements.begin(), inner_elements.end(),
-            [element_pointer](const panel_inner_element& inner) {
-                return inner.element_pointer == element_pointer;
-            }),
-        inner_elements.end());
+    // Find an element inside the list of elements
+    for (auto it = this->inner_elements.begin(); it != this->inner_elements.end(); ++it)
+    {
+        // If element is found
+        if (it->element_pointer == element_pointer)
+        {
+            // 1. Delete the element from the panel inner elements list 
+            this->inner_elements.erase(it);
+
+            // 2. Delete element
+            delete element_pointer;
+
+            return;
+        }
+    }
 }
 
 
 void My_SDL_panel::clear_elements()
 {
-    inner_elements.clear();
+    for (auto it = this->inner_elements.begin(); it != this->inner_elements.end(); )
+    {
+        delete it->element_pointer;
+        it = this->inner_elements.erase(it);
+    }
 }
+
+
+void My_SDL_panel::change_element_local_coordinate(
+
+    My_SDL_element* element_pointer,
+
+    int new_local_x,
+    int new_local_y,
+    unsigned int new_local_z
+
+)
+{
+    // 1. Update render position immediately
+    element_pointer->set_render_point(
+        this->global_x_by_local_x(new_local_x),
+        this->global_y_by_local_y(new_local_y)
+    );
+
+    // 2. Find element in container
+    for (auto it = this->inner_elements.begin(); it != this->inner_elements.end(); ++it)
+    {
+        if (it->element_pointer == element_pointer)
+        {
+            it->local_x_position = new_local_x;
+            it->local_y_position = new_local_y;
+
+            bool z_changed = (it->local_z_position != new_local_z);
+            it->local_z_position = new_local_z;
+
+            // 3. If Z changed → reinsert in correct position
+            if (z_changed)
+            {
+                panel_inner_element updated = *it;
+                inner_elements.erase(it);
+
+                auto insert_it = std::lower_bound(
+                    inner_elements.begin(),
+                    inner_elements.end(),
+                    updated.local_z_position,
+                    [](const panel_inner_element& elem, unsigned int z)
+                    {
+                        return elem.local_z_position < z;
+                    }
+                );
+
+                inner_elements.insert(insert_it, updated);
+            }
+
+            return;
+        }
+    }
+}
+
+void My_SDL_panel::change_inner_elements_global_coordinates()
+{
+    for (auto it = this->inner_elements.begin(); it != this->inner_elements.end(); ++it)
+    {
+        it->element_pointer->set_render_point(this->global_x_by_local_x(it->local_x_position), this->global_y_by_local_y(it->local_y_position));
+    }
+}
+
+
+int My_SDL_panel::global_x_by_local_x(int local_x)
+{
+    // Global panel render points
+    int g_p_r_p_x_0 = this->element_anchor_points.top_left.x;
+
+    // Required global x-coordinate by offset from (0; 0)
+    return g_p_r_p_x_0 + local_x;
+}
+
+
+int My_SDL_panel::global_y_by_local_y(int local_y)
+{
+    // Global panel render points
+    int g_p_r_p_y_0 = this->element_anchor_points.top_left.y;
+
+    // Required global y-coordinate by offset from (0; 0)
+    return g_p_r_p_y_0 + local_y;
+}
+
 
 // =========================================================================================== PANEL SPECIFIC

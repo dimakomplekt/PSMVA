@@ -20,8 +20,9 @@ class My_SDL_fader : public My_SDL_element // SDL_Element
 
         // ===== CONSTRUCTOR AND DESTRUCTOR =====
 
-        My_SDL_fader();                            // Fader constructor (call in state.start)
-        ~My_SDL_fader();                           // Fader destructor  (call in state.exit)  
+        My_SDL_fader();                            // Fader constructor 
+
+        void delete_element() override;            // Fader delete (clear links + destructor call)   
 
         // ===== CONSTRUCTOR AND DESTRUCTOR =====
 
@@ -322,16 +323,15 @@ class My_SDL_fader : public My_SDL_element // SDL_Element
 
         // ===== GUI ======
 
-    protected:
-
-        // ===== MAIN LOGIC =====
-
-        void on_destroy() override;
-
-        // ===== MAIN LOGIC =====
-
 
     private:
+
+        // ===== CONSTRUCTOR AND DESTRUCTOR =====
+
+        ~My_SDL_fader();                           // Fader destructor  (call in state.exit)  
+
+        // ===== CONSTRUCTOR AND DESTRUCTOR =====
+
 
         // ===== MAIN LOGIC =====
         

@@ -42,8 +42,9 @@ class My_SDL_button : public My_SDL_element // SDL_Element
 
         // ===== CONSTRUCTOR AND DESTRUCTOR =====
 
-        My_SDL_button();                            // Button constructor (call in state.start)
-        ~My_SDL_button();                           // Button destructor  (call in state.exit)  
+        My_SDL_button();                            // Button constructor
+
+        void delete_element() override;             // Button delete (clear links + destructor call)   
 
         // ===== CONSTRUCTOR AND DESTRUCTOR =====
 
@@ -402,16 +403,13 @@ class My_SDL_button : public My_SDL_element // SDL_Element
 
         // ===== GUI ======
 
-    protected:
-
-        // ===== MAIN LOGIC =====
-
-        void on_destroy() override;
-
-        // ===== MAIN LOGIC =====
-
-
     private:
+
+        // ===== CONSTRUCTOR AND DESTRUCTOR =====
+
+        ~My_SDL_button();                           // Button destructor  (call in state.exit)  
+
+        // ===== CONSTRUCTOR AND DESTRUCTOR =====
 
         // ===== MAIN LOGIC =====
 
@@ -452,8 +450,8 @@ class My_SDL_button : public My_SDL_element // SDL_Element
 
         // Sizes
 
-        unsigned int width_size;                       // Element width
-        unsigned int height_size;                      // Element height
+        unsigned int button_width_size;                       // Element width
+        unsigned int button_height_size;                      // Element height
 
         unsigned int border_width_size;                // Element border width          
         unsigned int border_radius_size;               // Element border radius 

@@ -5,6 +5,9 @@
 
 #include "my_sdl_fader.h"
 
+// Onetime CPP include for remove_element() method providing
+#include "../my_sdl_panel/my_sdl_panel.h"
+
 // =========================================================================================== IMPORT
 
 
@@ -122,13 +125,20 @@ My_SDL_fader::My_SDL_fader()
 }
 
 
-My_SDL_fader::~My_SDL_fader() = default;
-
-
-void My_SDL_fader::on_destroy()
+void My_SDL_fader::delete_element()
 {
-    // что-то или даже пусто
+    if (this->element_container != nullptr)
+    {
+        this->element_container->remove_element(this);
+    }
+    else
+    {
+        delete this;
+    }
 }
+
+
+My_SDL_fader::~My_SDL_fader() = default;
 
 
 // =========================================================================================== CONSTRUCTOR AND DESTRUCTOR
@@ -368,6 +378,8 @@ void My_SDL_fader::render(SDL_Renderer *renderer)
 {
     // Press offset for push simulation
 
+    // TODO: CREATE STRUCT AND RECALCULATE TO STRUCT ONLY WITH CHANGES
+
     if (this->current_slot_state != CLICKED_ES && this->current_knob_state != CLICKED_ES) this->press_offset = 0;
 
 
@@ -571,7 +583,7 @@ void My_SDL_fader::set_knob_size(unsigned int new_width, unsigned int new_height
     // (s.w - k.w  > 20px)
     // k.r < k.w / 2 or k.h / 2
     if ((this->slot_width_size - new_width <= 20) ||
-        (this->knob_border_radius_size > new_width || this->knob_border_radius_size > new_height)
+        (this->knob_border_radius_size > new_width / 2 || this->knob_border_radius_size > new_height / 2)
     )
     {
         std::cerr << "Wrong size value pass! Knob size ain't changed" << std::endl;
@@ -685,8 +697,8 @@ void My_SDL_fader::anchor_points_reset()
     // Uses current crop to set the current anchor points
 
     // Always the same rounding accuracy, because we work with crop map in initial scale and new scalers
-    unsigned int half_w = static_cast<unsigned int>(std::round(static_cast<float>(this->slot_width_size) * 0.5));
-    unsigned int half_h = static_cast<unsigned int>(std::round(static_cast<float>(this->slot_height_size) * 0.5));
+    int half_w = static_cast<int>(std::round(static_cast<float>(this->slot_width_size) * 0.5));
+    int half_h = static_cast<int>(std::round(static_cast<float>(this->slot_height_size) * 0.5));
 
     // element_anchor_points reset
     
@@ -699,8 +711,8 @@ void My_SDL_fader::anchor_points_reset()
      *
      */
 
-    unsigned int c_w = this->slot_x_render_point;         // Horizontal center
-    unsigned int c_h = this->slot_y_render_point;         // Vertical center
+    int c_w = this->slot_x_render_point;         // Horizontal center
+    int c_h = this->slot_y_render_point;         // Vertical center
 
 
     // SDL windows points goes from TL(0; 0) to BR(Max_W, Max_H)

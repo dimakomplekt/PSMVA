@@ -64,8 +64,8 @@ enum element_state
 struct desc_c_2D
 {
 
-    unsigned int x;    // Coordinate by x-axes (width).
-    unsigned int y;    // Coordinate by y-axes (height).
+    int x;    // Coordinate by x-axes (width).
+    int y;    // Coordinate by y-axes (height).
 
 };
 
@@ -127,46 +127,39 @@ class My_SDL_element
 
     public:
 
-        // ===== MAIN LOGIC =====
-
-
-        // Virtual method for inheritance (to do something like: "for (auto& el : elements) el->update();")
-        virtual void update() = 0;
-
-
+        // ===== CONSTRUCTOR AND DESTRUCTOR =====
+        
         /**
+         * @brief Layered element delete - destructor call with two-way relationships, taking into account
+         * 
          * DESTROY BY FABRIC - i can't just control the destructor cycle - it starts to delete smthing even before 
          * custom logic inside destructor, so i must wrapped it by some new function and use only it for basic memory clean
          * 
          * There is 3 levels of object destruct:
          * 
-         * 1) Logic destruction - clear the element link from all of the lists, which include it (like vector of the inner 
+         * 1) Logic destruction - clears the element link from all of the lists, which include it (like vector of the inner 
          * components in My_SDL_panel class), turn off object iterative logic (like update() and render())
          * 
          * 2) Inner destruction - object must clear it's memory, close it's files / texts / buffers, nullptr it's links
          * 
          * 3) Physical destruction - delete, memory clean and destructor call
          * 
-         * 
-         * There is 2 scenarios of the object destruct:
-         * 
-         * 1) By the panel
-         * 2) By itself
-         * 
-         * In first case: 
-         * 
-         * Just inner method (CAN'T CALL DURING THE UPDATE() LOOP!!!)
-         * 
-         *          void My_SDL_panel::remove_and_delete(My_SDL_element* e)
-         *          {
-         *              remove_element(e);      // Remove from iteration
-         *              delete e;               // Clear the memory
-         *          }
-         * 
-         * 
          */
-        void destroy();
+        virtual void delete_element() = 0;
 
+        virtual ~My_SDL_element() = default;         // Element destructor - never calls - PLS WORK WITH delete_element()
+
+        // ===== CONSTRUCTOR AND DESTRUCTOR =====
+
+
+        // ===== MAIN LOGIC =====
+
+        // Virtual method for inheritance (to do something like: "for (auto& el : elements) el->update();")
+        virtual void update() = 0;
+
+
+        // Container-panel getter
+        My_SDL_panel* element_container_get() const;
 
         // ===== MAIN LOGIC =====
 
@@ -258,21 +251,13 @@ class My_SDL_element
             // ===== CONSTRUCTOR AND DESTRUCTOR =====
 
             My_SDL_element();                            // Element constructor (never calls, only for inheritance)
-
-            virtual ~My_SDL_element() = default;         // Element destructor (never calls, only for inheritance) 
-
-
-            // Method which object will call with object::destroy() call 
-            virtual void on_destroy() {};                
             
             // ===== CONSTRUCTOR AND DESTRUCTOR =====
 
 
             // ===== MAIN LOGIC =====
 
-            My_SDL_panel* parent_panel = nullptr;    // NON-owning
-
-            bool is_destroying = false;              // Flag fir ownership protection during the delete operations
+            My_SDL_panel* element_container = nullptr;    // NON-owning
 
             // ===== MAIN LOGIC =====
 

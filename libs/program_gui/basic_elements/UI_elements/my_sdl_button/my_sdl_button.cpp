@@ -5,6 +5,8 @@
 
 #include "my_sdl_button.h"
 
+// Onetime CPP include for remove_element() method providing
+#include "../my_sdl_panel/my_sdl_panel.h"
 
 // =========================================================================================== IMPORT
 
@@ -49,10 +51,12 @@ My_SDL_button::My_SDL_button()
 
     this->set_size(100, 50);
 
+
     // Render points
-    
-    this->x_render_point = this->width_size / 2 + 1;
-    this->y_render_point = this->height_size / 2 + 1;
+
+    this->x_render_point = this->button_width_size / 2 + 1;
+    this->y_render_point = this->button_height_size / 2 + 1;
+
 
     this->reset_boundaries_points();
 
@@ -139,6 +143,19 @@ My_SDL_button::My_SDL_button()
 }
 
 
+void My_SDL_button::delete_element()
+{
+    if (this->element_container != nullptr)
+    {
+        this->element_container->remove_element(this);
+    }
+    else
+    {
+        delete this;
+    }
+}
+
+
 My_SDL_button::~My_SDL_button()
 {
     // TODO: Realization with panels linked list clear (both side registration) or just siple comment about 
@@ -147,12 +164,6 @@ My_SDL_button::~My_SDL_button()
 
     // Textures destructors
     if (content_texture) SDL_DestroyTexture(content_texture);
-}
-
-
-void My_SDL_button::on_destroy()
-{
-    // что-то или даже пусто
 }
 
 
@@ -321,6 +332,7 @@ void My_SDL_button::button_hover_check()
 
 void My_SDL_button::render(SDL_Renderer* renderer)
 {
+    // TODO: CREATE STRUCT AND RECALCULATE TO STRUCT ONLY WITH CHANGES
     // Press offset for push simulation
 
     if (this->current_button_state != CLICKED_ES) this->press_offset = 0;
@@ -330,7 +342,6 @@ void My_SDL_button::render(SDL_Renderer* renderer)
 
 
     // Render points
-
     int sw_cx = this->x_render_point + this->shadow_offset_x;
     int sw_cy = this->y_render_point + this->shadow_offset_y;
 
@@ -343,14 +354,14 @@ void My_SDL_button::render(SDL_Renderer* renderer)
 
     // Sizes 
 
-    unsigned int sw_w = static_cast<unsigned int>(std::round((this->width_size - this->press_offset) * this->shadow_scale_factor));
-    unsigned int sw_h = static_cast<unsigned int>(std::round((this->height_size - this->press_offset) * this->shadow_scale_factor));
+    unsigned int sw_w = static_cast<unsigned int>(std::round((this->button_width_size - this->press_offset) * this->shadow_scale_factor));
+    unsigned int sw_h = static_cast<unsigned int>(std::round((this->button_height_size - this->press_offset) * this->shadow_scale_factor));
 
-    unsigned int br_w = this->width_size - this->press_offset; 
-    unsigned int br_h = this->height_size - this->press_offset;
+    unsigned int br_w = this->button_width_size - this->press_offset; 
+    unsigned int br_h = this->button_height_size - this->press_offset;
 
-    int bg_w_signed = (int)this->width_size - 2 * (int)this->border_width_size - static_cast<int>(std::round(static_cast<float>(this->press_offset) / 2));
-    int bg_h_signed = (int)this->height_size - 2 * (int)this->border_width_size - static_cast<int>(std::round(static_cast<float>(this->press_offset) / 2));
+    int bg_w_signed = (int)this->button_width_size - 2 * (int)this->border_width_size - static_cast<int>(std::round(static_cast<float>(this->press_offset) / 2));
+    int bg_h_signed = (int)this->button_height_size - 2 * (int)this->border_width_size - static_cast<int>(std::round(static_cast<float>(this->press_offset) / 2));
     
     unsigned int bg_w = std::max(0, bg_w_signed);
     unsigned int bg_h = std::max(0, bg_h_signed);
@@ -586,8 +597,8 @@ void My_SDL_button::anchor_points_reset()
     // Uses current crop to set the current anchor points
 
     // Always the same rounding accuracy, because we work with crop map in initial scale and new scalers
-    unsigned int half_w = static_cast<unsigned int>(std::round(static_cast<float>(this->width_size) * 0.5));
-    unsigned int half_h = static_cast<unsigned int>(std::round(static_cast<float>(this->height_size) * 0.5));
+    int half_w = static_cast<int>(std::round(static_cast<float>(this->button_width_size) * 0.5));
+    int half_h = static_cast<int>(std::round(static_cast<float>(this->button_height_size) * 0.5));
 
 
     // element_anchor_points reset
@@ -601,8 +612,8 @@ void My_SDL_button::anchor_points_reset()
      *
      */
 
-    unsigned int c_w = this->x_render_point;         // Horizontal center
-    unsigned int c_h = this->y_render_point;         // Vertical center
+    int c_w = this->x_render_point;         // Horizontal center
+    int c_h = this->y_render_point;         // Vertical center
 
     // SDL windows points goes from TL(0; 0) to BR(Max_W, Max_H)
     
@@ -647,8 +658,15 @@ void My_SDL_button::set_render_point(int x_cc_rp, int y_cc_rp)
 
 void My_SDL_button::set_size(unsigned int new_width, unsigned int new_height)
 {
-    this->width_size = new_width;
-    this->height_size = new_height;
+    // if (this->border_radius_size > new_width / 2 || this->border_radius_size > new_height / 2)
+    // {
+    //     std::cerr << "Wrong radius size value pass! Border radius size ain't changed" << std::endl;
+    //     return;
+    // }
+
+    
+    this->button_width_size = new_width;
+    this->button_height_size = new_height;
 
     this->reset_boundaries_points();
 
@@ -656,17 +674,17 @@ void My_SDL_button::set_size(unsigned int new_width, unsigned int new_height)
 }
 
 
-unsigned int My_SDL_button::get_width_size() const { return this->width_size; }
+unsigned int My_SDL_button::get_width_size() const { return this->button_width_size; }
 
-unsigned int My_SDL_button::get_height_size() const { return this->height_size; }
+unsigned int My_SDL_button::get_height_size() const { return this->button_height_size; }
 
 
 // Styling setters
 
 void My_SDL_button::set_border_width_size(unsigned int new_size)
 {
-    if (new_size > this->width_size / 2 || 
-        new_size > this->height_size / 2 ||
+    if ((new_size > this->button_width_size / 2) || 
+        (new_size > this->button_height_size / 2) ||
         (this->border_radius_size != 0 && new_size > (this->border_radius_size - 1)))
     {
         std::cerr << "Wrong border size value pass! Border width size ain't changed" << std::endl;
@@ -678,7 +696,7 @@ void My_SDL_button::set_border_width_size(unsigned int new_size)
 
 void My_SDL_button::set_border_radius(unsigned int new_size)
 {
-    if (new_size > this->width_size / 2 || new_size > this->height_size / 2)
+    if (new_size > this->button_width_size / 2 || new_size > this->button_height_size / 2)
     {
         std::cerr << "Wrong radius size value pass! Border radius size ain't changed" << std::endl;
         return;
@@ -762,17 +780,17 @@ void My_SDL_button::set_font_size(unsigned int new_size)
 
 void My_SDL_button::reset_boundaries_points()
 {
-    this->boundaries_points.left_boundary = this->x_render_point - this->width_size / 2;
-    this->boundaries_points.right_boundary = this->x_render_point + this->width_size / 2;
-    this->boundaries_points.top_boundary = this->y_render_point - this->height_size / 2;
-    this->boundaries_points.bottom_boundary = this->y_render_point + this->height_size / 2;
+    this->boundaries_points.left_boundary = this->x_render_point - this->button_width_size / 2;
+    this->boundaries_points.right_boundary = this->x_render_point + this->button_width_size / 2;
+    this->boundaries_points.top_boundary = this->y_render_point - this->button_height_size / 2;
+    this->boundaries_points.bottom_boundary = this->y_render_point + this->button_height_size / 2;
 }
 
 
 void My_SDL_button::reset_current_form()
 {
-    float half_w = this->width_size / 2.0f;
-    float half_h = this->height_size / 2.0f;
+    float half_w = this->button_width_size / 2.0f;
+    float half_h = this->button_height_size / 2.0f;
 
     if (this->border_radius_size >= half_w && this->border_radius_size >= half_h)
         this->current_form = CIRCLE_EF;         
