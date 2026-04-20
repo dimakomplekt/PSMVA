@@ -170,7 +170,7 @@ class My_SDL_button : public My_SDL_element // SDL_Element
          * Rendering depends on state flags updated in update().
          * 
          */
-        void render(SDL_Renderer* renderer) override; // SDL_E
+        void render(SDL_Renderer* renderer) override;
 
 
         // Render point
@@ -403,6 +403,7 @@ class My_SDL_button : public My_SDL_element // SDL_Element
 
         // ===== GUI ======
 
+
     private:
 
         // ===== CONSTRUCTOR AND DESTRUCTOR =====
@@ -410,6 +411,7 @@ class My_SDL_button : public My_SDL_element // SDL_Element
         ~My_SDL_button();                           // Button destructor  (call in state.exit)  
 
         // ===== CONSTRUCTOR AND DESTRUCTOR =====
+
 
         // ===== MAIN LOGIC =====
 
@@ -450,8 +452,8 @@ class My_SDL_button : public My_SDL_element // SDL_Element
 
         // Sizes
 
-        unsigned int button_width_size;                       // Element width
-        unsigned int button_height_size;                      // Element height
+        unsigned int button_width_size;                // Element width
+        unsigned int button_height_size;               // Element height
 
         unsigned int border_width_size;                // Element border width          
         unsigned int border_radius_size;               // Element border radius 
@@ -463,7 +465,6 @@ class My_SDL_button : public My_SDL_element // SDL_Element
         float shadow_scale_factor;                     // Shadow scale factor - multiplies basic element size to get shadow size
 
         
-
         element_rect_boundaries boundaries_points;     // Element rectangle bounds by the element_rect_boundaries struct
 
         void reset_boundaries_points();                // Element bounds automatic recalculation           
@@ -473,8 +474,8 @@ class My_SDL_button : public My_SDL_element // SDL_Element
 
         void reset_current_form();                     // Automatic current form reset
 
-        // Content
 
+        // Content
 
         std::string font_path;                         // Font path for button text
 

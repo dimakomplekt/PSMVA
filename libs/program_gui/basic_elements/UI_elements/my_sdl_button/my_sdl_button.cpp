@@ -84,8 +84,8 @@ My_SDL_button::My_SDL_button()
 
     this->content = "But";
 
-    this->content_w = 0;
-    this->content_h = 0;
+    this->content_w = 0;        // TODO: WTF???
+    this->content_h = 0;        // TODO: WTF???
 
     this->content_dirty = true;
 

@@ -1,6 +1,8 @@
 #pragma once
 
-#include "../program_states/program_states.h"
 
-// Global varible
-// State_ID current_program_state = START_ID;
+// Main window horizontal size
+#define MAIN_WINDOW_H_SIZE 1500 
+
+// Main window vertical size
+#define MAIN_WINDOW_V_SIZE 1000

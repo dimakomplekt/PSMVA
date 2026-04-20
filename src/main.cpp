@@ -23,7 +23,7 @@ int main()
 
 
     // Initialize SDL application
-    if (!SDL_app_init(&app_test, 800, 600, "PSMVA")) 
+    if (!SDL_app_init(&app_test, MAIN_WINDOW_H_SIZE, MAIN_WINDOW_V_SIZE, "PSMVA")) 
     {
         std::cerr << "Failed to initialize SDL application." << std::endl;
         return -1;
