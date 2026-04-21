@@ -20,6 +20,8 @@ class My_SDL_textbox : public My_SDL_element // SDL_Element
 
         My_SDL_textbox();                           // Text constructor
 
+        ~My_SDL_textbox();                          // Text destructor  (call in state.exit)  
+
         void delete_element() override;             // Text delete (clear links + destructor call)   
 
         // ===== CONSTRUCTOR AND DESTRUCTOR =====   
@@ -139,7 +141,7 @@ class My_SDL_textbox : public My_SDL_element // SDL_Element
          * @return Current font size value
          * 
          */
-        unsigned int get_font_size();
+        unsigned int get_font_size() const;
 
 
         // Sets the default content color for palette 1
@@ -207,22 +209,13 @@ class My_SDL_textbox : public My_SDL_element // SDL_Element
         void update_content_texture(SDL_Renderer* renderer, SDL_Color new_color);
 
         // Color for text rendering
-        SDL_Color render_content_color;
+        SDL_Color content_render_color;
 
         // Text drawing inner function
-        void text_draw();
+        void text_draw(SDL_Renderer* renderer);
 
         // ===== GUI ======
 
+};
 
-    private:
-
-        // ===== CONSTRUCTOR AND DESTRUCTOR =====
-
-        ~My_SDL_textbox();                           // Text destructor  (call in state.exit)  
-
-        // ===== CONSTRUCTOR AND DESTRUCTOR =====
-}
-
-
-// =========================================================================================== My_SDL_text class
+// =========================================================================================== My_SDL_textbox class

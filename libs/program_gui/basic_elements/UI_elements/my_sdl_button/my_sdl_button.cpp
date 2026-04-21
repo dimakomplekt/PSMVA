@@ -7,7 +7,6 @@
 
 // Onetime CPP include for remove_element() method providing
 #include "../my_sdl_panel/my_sdl_panel.h"
-#include "../my_sdl_textbox/my_sdl_textbox.h"
 
 // =========================================================================================== IMPORT
 
@@ -49,7 +48,7 @@ My_SDL_button::My_SDL_button()
 
 
     // Textbox setup
-
+    
     this->button_textbox = My_SDL_textbox();
 
 
@@ -436,7 +435,7 @@ void My_SDL_button::render(SDL_Renderer* renderer)
 
     // Content draw by SDL ttf
     // Update content texture if the content_dirty flag us true (or pass the previous textur)e if not
-    this->button_textbox.render();
+    this->button_textbox.render(renderer);
 }
 
 

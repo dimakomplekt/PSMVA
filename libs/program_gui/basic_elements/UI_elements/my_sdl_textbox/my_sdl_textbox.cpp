@@ -1,4 +1,4 @@
-// my_sdl_text.cpp
+// My_SDL_textbox.cpp
 
 
 // =========================================================================================== IMPORT
@@ -13,7 +13,7 @@
 
 // =========================================================================================== CONSTRUCTOR AND DESTRUCTOR
 
-My_SDL_text::My_SDL_textbox()
+My_SDL_textbox::My_SDL_textbox()
 {
     // Basic settings setter
 
@@ -21,13 +21,11 @@ My_SDL_text::My_SDL_textbox()
 
     // Render points
 
-    this->x_render_point = this->button_width_size / 2 + 1;
-    this->y_render_point = this->button_height_size / 2 + 1;
+    this->x_render_point = 300;
+    this->y_render_point = 300;
 
 
     // Font 
-
-    this->current_form = ROUNDED_RECTANGLE_EF;
 
     this->font_size = 12; 
 
@@ -71,11 +69,11 @@ void My_SDL_textbox::delete_element()
 }
 
 
-My_SDL_button::~My_SDL_textbox()
+My_SDL_textbox::~My_SDL_textbox()
 {
     // TODO: Realization with panels linked list clear (both side registration) or just siple comment about 
-    // destructor workflow rules - basic destructor from global space or My_SDL_panel.button_delete method
-    // only for buttons inside panels
+    // destructor workflow rules - basic destructor from global space or My_SDL_panel.textbox_delete method
+    // only for textboxes inside panels
 
     // Textures destructors
     if (this->content_texture) SDL_DestroyTexture(this->content_texture);
@@ -87,7 +85,7 @@ My_SDL_button::~My_SDL_textbox()
 
 
 
-void My_SDL_texbox::update()
+void My_SDL_textbox::update()
 {
     // Just font start initialization
     // SAD TO SAY IT, BUT IT CAN'T BE DONE IN CONSTRUCTOR XD
@@ -107,7 +105,8 @@ void My_SDL_textbox::render(SDL_Renderer* renderer)
     // Render logic
 
     this->update_content_texture(renderer, this->content_render_color);
-    this->text_draw();
+    
+    this->text_draw(renderer);
 }
 
 
@@ -181,7 +180,7 @@ void My_SDL_textbox::set_ttf_font_link(TTF_Font* new_ttf_font_link)
 }
 
 
-void My_SDL_texbox::set_font_path(const std::string& new_font_path)
+void My_SDL_textbox::set_font_path(const std::string& new_font_path)
 {
     // TODO: Error handling for the invalid links
     if (new_font_path.empty())
@@ -201,13 +200,13 @@ void My_SDL_texbox::set_font_path(const std::string& new_font_path)
 }
 
 
-std::string My_SDL_texbox::get_font_path() const
+std::string My_SDL_textbox::get_font_path() const
 {
     return this->font_path;
 }
 
 
-void My_SDL_texbox::set_font_size(unsigned int new_size)
+void My_SDL_textbox::set_font_size(unsigned int new_size)
 {
     if (new_size == 0)
     {
@@ -222,31 +221,31 @@ void My_SDL_texbox::set_font_size(unsigned int new_size)
 }
 
 
-unsigned int My_SDL_texbox::get_font_size()
+unsigned int My_SDL_textbox::get_font_size() const
 {
-    return this->font_size();
+    return this->font_size;
 }
 
 
-void My_SDL_texbox::set_content_color(SDL_Color new_color)
+void My_SDL_textbox::set_content_color(SDL_Color new_color)
 {
     // Safely check of equivalence
-    if (this->render_content_color.r == new_color.r &&
-        this->render_content_color.g == new_color.g &&
-        this->render_content_color.b == new_color.b &&
-        this->render_content_color.a == new_color.a)
+    if (this->content_render_color.r == new_color.r &&
+        this->content_render_color.g == new_color.g &&
+        this->content_render_color.b == new_color.b &&
+        this->content_render_color.a == new_color.a)
     {
         return;     // Return if nothing changed
     }
 
-    this->render_content_color = new_color;
+    this->content_render_color = new_color;
 
     // Content is dirty after reset
     this->content_dirty = true;
 }
 
 
-void My_SDL_texbox::set_content_texture(SDL_Texture* new_texture)
+void My_SDL_textbox::set_content_texture(SDL_Texture* new_texture)
 {
     if (this->content_texture)
         SDL_DestroyTexture(this->content_texture);
@@ -354,7 +353,7 @@ void My_SDL_textbox::update_content_texture(SDL_Renderer* renderer, SDL_Color ne
 }
 
 
-void My_SDL_textbox::text_draw()
+void My_SDL_textbox::text_draw(SDL_Renderer* renderer)
 {
     if (this->content_texture)
     {

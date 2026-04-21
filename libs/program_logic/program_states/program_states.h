@@ -8,7 +8,7 @@
 
 
 #include "../../engine/engine.h"
-#include "global_data/global_data.h"
+#include "../global_data/global_data.h"
 
 // =========================================================================================== IMPORT
 

@@ -6,7 +6,10 @@
 
 // =========================================================================================== IMPORT
 
-#include "../my_sdl_element/my_sdl_element.h" // Base class import
+#include "../my_sdl_element/my_sdl_element.h"   // Base class import
+
+#include "../my_sdl_textbox/my_sdl_textbox.h"   // Textbox import
+
 
 // =========================================================================================== IMPORT
 
@@ -32,8 +35,6 @@ enum button_access_type
 
 // =========================================================================================== TYPES
 
-// Predeclare for textbox include in button
-class My_SDL_textbox;
 
 // =========================================================================================== My_SDL_button class
 
