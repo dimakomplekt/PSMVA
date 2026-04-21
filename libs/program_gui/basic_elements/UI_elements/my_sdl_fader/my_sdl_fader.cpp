@@ -81,7 +81,7 @@ My_SDL_fader::My_SDL_fader()
 
 
     // Anchor points
-    this->anchor_points_reset();
+    this->reset_anchor_points();
 
 
     // Pallette
@@ -542,7 +542,10 @@ void My_SDL_fader::set_render_point(int x_cc_rp, int y_cc_rp)
     this->knob_y_render_point = y_cc_rp;
 
     this->reset_slot_boundaries_points();
+    
     this->reset_knob_boundaries_points();
+
+    this->reset_anchor_points();
 }
 
 
@@ -563,6 +566,8 @@ void My_SDL_fader::set_slot_size(unsigned int new_width, unsigned int new_height
 
     this->reset_slot_boundaries_points();
     this->reset_slot_current_form();
+
+    this->reset_anchor_points();
 }
 
 
@@ -692,12 +697,16 @@ void My_SDL_fader::set_knob_shadow_scale_factor(float new_scale_factor)
 }
 
 
-void My_SDL_fader::anchor_points_reset()
+void My_SDL_fader::reset_anchor_points()
 {
+    // TODO: RESET LOGIC WITH ADD OF THE HORIZONTAL AND VERTICAL VERSIONS OF FADER AND BY THE SIZES OF SLOT AND 
+    // KNOB - F.E., LIKE: IF SLOT.H < KNOB.H => "half_h = static_cast<int>(std::round(static_cast<float>(this->knob_height_size) * 0.5))" ... 
+
     // Uses current crop to set the current anchor points
 
     // Always the same rounding accuracy, because we work with crop map in initial scale and new scalers
     int half_w = static_cast<int>(std::round(static_cast<float>(this->slot_width_size) * 0.5));
+    
     int half_h = static_cast<int>(std::round(static_cast<float>(this->slot_height_size) * 0.5));
 
     // element_anchor_points reset
@@ -717,17 +726,17 @@ void My_SDL_fader::anchor_points_reset()
 
     // SDL windows points goes from TL(0; 0) to BR(Max_W, Max_H)
     
-    this->element_anchor_points.top_left     = { c_w - half_w, c_h - half_h };
-    this->element_anchor_points.top_center   = { c_w , c_h - half_h };
-    this->element_anchor_points.top_right    = { c_w + half_w, c_h - half_h };
+    this->element_anchor_points.top_left         =     { c_w - half_w, c_h - half_h };
+    this->element_anchor_points.top_center       =     { c_w , c_h - half_h };
+    this->element_anchor_points.top_right        =     { c_w + half_w, c_h - half_h };
 
-    this->element_anchor_points.center_left  = { c_w - half_w, c_h };
-    this->element_anchor_points.center_center= { c_w, c_h };
-    this->element_anchor_points.center_right = { c_w + half_w, c_h };
+    this->element_anchor_points.center_left      =     { c_w - half_w, c_h };
+    this->element_anchor_points.center_center    =     { c_w, c_h };
+    this->element_anchor_points.center_right     =     { c_w + half_w, c_h };
 
-    this->element_anchor_points.bottom_left  = { c_w - half_w, c_h + half_h  };
-    this->element_anchor_points.bottom_center= { c_w, c_h + half_h };
-    this->element_anchor_points.bottom_right = { c_w + half_w, c_h + half_h };
+    this->element_anchor_points.bottom_left      =     { c_w - half_w, c_h + half_h  };
+    this->element_anchor_points.bottom_center    =     { c_w, c_h + half_h };
+    this->element_anchor_points.bottom_right     =     { c_w + half_w, c_h + half_h };
 }
 
 

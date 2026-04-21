@@ -38,6 +38,7 @@ void rectangle_draw_by_color(
     int rect_width  = static_cast<int>(width);
     int rect_height = static_cast<int>(height);
 
+    // SDL3 AND SDL2 CONFLICT
     SDL_FRect rect;
 
     // Center-center
@@ -67,6 +68,7 @@ void rectangle_draw_by_texture(
 {
     if (!texture || width < 1 || height < 1) return;
 
+    // SDL3 AND SDL2 CONFLICT
     SDL_FRect rect;
 
     rect.w = static_cast<float>(width);
@@ -127,22 +129,29 @@ void rounded_rectangle_draw_by_color(
     int hh = h / 2;
 
     // ========================= CENTER
+
+    // SDL3 AND SDL2 CONFLICT
+
     SDL_FRect center_rect{
         (float)(cx - hw + r),
         (float)(cy - hh),
         (float)(w - 2 * r),
         (float)(h)
     };
+
     SDL_RenderFillRect(renderer, &center_rect);
 
     // ========================= SIDES
+
     SDL_FRect left_rect{
         (float)(cx - hw),
         (float)(cy - hh + r),
         (float)(r),
         (float)(h - 2 * r)
     };
+
     SDL_RenderFillRect(renderer, &left_rect);
+
 
     SDL_FRect right_rect{
         (float)(cx + hw - r),
@@ -150,6 +159,7 @@ void rounded_rectangle_draw_by_color(
         (float)(r),
         (float)(h - 2 * r)
     };
+
     SDL_RenderFillRect(renderer, &right_rect);
 
     // ========================= SMOOTH CORNERS
@@ -179,18 +189,25 @@ void rounded_rectangle_draw_by_color(
             SDL_Vertex verts[3];
 
             verts[0].position = { center_x, center_y };
+
             verts[0].color = fcolor;
 
             verts[1].position = {
+
                 center_x + r * cosf(a1),
                 center_y + r * sinf(a1)
+
             };
+
             verts[1].color = fcolor;
 
             verts[2].position = {
+
                 center_x + r * cosf(a2),
                 center_y + r * sinf(a2)
+
             };
+
             verts[2].color = fcolor;
 
             SDL_RenderGeometry(renderer, nullptr, verts, 3, nullptr, 0);
@@ -231,17 +248,23 @@ void rounded_rectangle_draw_by_texture(
     // Если радиус 0, просто растягиваем текстуру на весь прямоугольник
     if (radius == 0)
     {
+
+        // SDL3 AND SDL2 CONFLICT
+
         SDL_FRect rect{
+
             static_cast<float>(x_render_point - width / 2),
             static_cast<float>(y_render_point - height / 2),
             static_cast<float>(width),
             static_cast<float>(height)
+            
         };
+
         SDL_RenderTexture(renderer, texture, nullptr, &rect);
         return;
     }
 
-    // ---------------------- Создаём рендер-таргет
+    // ---------------------- Render target creation
 
     SDL_Texture* target = SDL_CreateTexture(
 
@@ -255,7 +278,7 @@ void rounded_rectangle_draw_by_texture(
 
     if (!target) return;
 
-    // Сохраняем старый таргет
+    // Save old target
 
     SDL_Texture* old_target = SDL_GetRenderTarget(renderer);
 
@@ -263,34 +286,46 @@ void rounded_rectangle_draw_by_texture(
 
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
-    // ---------------------- Рендерим текстуру на весь таргет
+    // ---------------------- Render texture by target
+
+    // SDL3 AND SDL2 CONFLICT
+
     SDL_FRect full_rect{0.0f, 0.0f, static_cast<float>(width), static_cast<float>(height)};
     SDL_RenderTexture(renderer, texture, nullptr, &full_rect);
 
-    // ---------------------- Рендерим маску скруглённых углов
-    // Маска: просто затираем прозрачным цветом углы
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0); // прозрачный
+
+    // ---------------------- Render the mask of rounded corners - just fill the corners with 0 opacity color
+
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0); 
+
     int diameter = radius * 2;
+
     for (int dx = 0; dx < diameter; dx++)
     {
         for (int dy = 0; dy < diameter; dy++)
         {
             if (dx*dx + dy*dy > radius*radius)
             {
-                // Левый верхний угол
+                // Top left corner
                 SDL_RenderPoint(renderer, static_cast<float>(dx), static_cast<float>(dy));
-                // Правый верхний угол
+
+                // Top right corner
                 SDL_RenderPoint(renderer, static_cast<float>(width - diameter + dx), static_cast<float>(dy));
-                // Левый нижний угол
+
+                // Bottom left corner
                 SDL_RenderPoint(renderer, static_cast<float>(dx), static_cast<float>(height - diameter + dy));
-                // Правый нижний угол
+
+                // Bottom right corner
                 SDL_RenderPoint(renderer, static_cast<float>(width - diameter + dx), static_cast<float>(height - diameter + dy));
             }
         }
     }
 
-    // ---------------------- Восстанавливаем старый рендер-таргет и выводим в окно
+    
+    // Reset old target and show it in window
     SDL_SetRenderTarget(renderer, old_target);
+
+    // SDL3 AND SDL2 CONFLICT
 
     SDL_FRect dst{
 
@@ -334,8 +369,11 @@ void circle_draw_by_color(
     const float cy = static_cast<float>(y_render_point);
     const float r  = static_cast<float>(radius);
 
-    // Подбираем количество сегментов
+
+    // Segment quantity calculation
+
     const int segments = std::max(12, static_cast<int>(r * 10.0f));
+
     const float step = 2.0f * SDL_PI_F / segments;
 
     for (int i = 0; i < segments; ++i)
@@ -360,17 +398,17 @@ void circle_draw_by_color(
 
         };
 
-        // Центр
+        // Center
         verts[0].position = { cx, cy };
         verts[0].color = fcolor;
         verts[0].tex_coord = { 0.0f, 0.0f };
 
-        // Край 1
+        // Edge 1
         verts[1].position = { x1, y1 };
         verts[1].color = fcolor;
         verts[1].tex_coord = { 0.0f, 0.0f };
 
-        // Край 2
+        // Edge 2
         verts[2].position = { x2, y2 };
         verts[2].color = fcolor;
         verts[2].tex_coord = { 0.0f, 0.0f };
@@ -398,7 +436,7 @@ void circle_draw_by_texture(
     const float cy = static_cast<float>(y_render_point);
     const float r  = static_cast<float>(radius);
 
-    // Количество сегментов (можно тюнить)
+    // Segments quantity calculation
     const int segments = std::max(12, static_cast<int>(r * 10.0f));
     const float step = 2.0f * SDL_PI_F / segments;
 
@@ -415,24 +453,35 @@ void circle_draw_by_texture(
 
         SDL_Vertex verts[3];
 
-        // Центр
+        // Center
         verts[0].position = { cx, cy };
+
         verts[0].tex_coord = { 0.5f, 0.5f };
+
         verts[0].color = {255.0f, 255.0f, 255.0f, 255.0f};
 
-        // Край 1
+
+        // Edge 1
         verts[1].position = { x1, y1 };
+
         verts[1].tex_coord = {
+
             0.5f + cosf(a1) * 0.5f,
             0.5f + sinf(a1) * 0.5f
+
         };
+
         verts[1].color = {255, 255, 255, 255};
 
-        // Край 2
+
+        // Edge 2
         verts[2].position = { x2, y2 };
+
         verts[2].tex_coord = {
+
             0.5f + cosf(a2) * 0.5f,
             0.5f + sinf(a2) * 0.5f
+
         };
 
         verts[2].color = {255.0f, 255.0f, 255.0f, 255.0f};

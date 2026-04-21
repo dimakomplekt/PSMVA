@@ -283,7 +283,7 @@ class My_SDL_element
 
             // Element anchor points reset function - set up the new element_anchor_points struct values
             // by the current element inheritor type overrided function
-            virtual void anchor_points_reset() = 0; 
+            virtual void reset_anchor_points() = 0; 
 
 
             // Element opacity for SDL rendering with

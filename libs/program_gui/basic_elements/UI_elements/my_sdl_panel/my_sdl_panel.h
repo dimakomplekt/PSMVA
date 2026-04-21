@@ -257,7 +257,7 @@ class My_SDL_panel : public My_SDL_element
 
         // Panel override for anchor points reset function
 
-        void anchor_points_reset() override;
+        void reset_anchor_points() override;
 
         // ===== MAIN LOGIC =====
 

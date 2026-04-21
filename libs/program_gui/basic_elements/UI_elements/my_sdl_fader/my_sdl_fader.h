@@ -53,7 +53,6 @@ class My_SDL_fader : public My_SDL_element // SDL_Element
          */
         void update() override;      
         
-        
 
         // Toggles the push mode flag (affects pressed-state rendering behavior)
         void push_mode_switch();
@@ -461,7 +460,7 @@ class My_SDL_fader : public My_SDL_element // SDL_Element
 
         // Fader override for anchor points reset function
         
-        void anchor_points_reset() override;
+        void reset_anchor_points() override;
 
 
         // Pallette

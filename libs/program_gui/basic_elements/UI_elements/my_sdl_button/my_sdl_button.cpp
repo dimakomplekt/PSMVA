@@ -7,6 +7,7 @@
 
 // Onetime CPP include for remove_element() method providing
 #include "../my_sdl_panel/my_sdl_panel.h"
+#include "../my_sdl_textbox/my_sdl_textbox.h"
 
 // =========================================================================================== IMPORT
 
@@ -47,6 +48,18 @@ My_SDL_button::My_SDL_button()
     this->press_offset = 0;
 
 
+    // Textbox setup
+
+    this->button_textbox = My_SDL_textbox();
+
+
+    this->button_textbox.set_font_path(absolute_by_relative_from_exe("../../libs/program_gui/basic_elements/content/ttf_fonts/Amiga_forever_pro.ttf"));
+    
+    this->button_textbox.set_font_size(12);
+
+    this->button_textbox.set_content("But");
+
+
     // Sizes
 
     this->set_size(100, 50);
@@ -56,6 +69,9 @@ My_SDL_button::My_SDL_button()
 
     this->x_render_point = this->button_width_size / 2 + 1;
     this->y_render_point = this->button_height_size / 2 + 1;
+
+    // Textbox render point reset
+    this->button_textbox.set_render_point(this->x_render_point, this->y_render_point);
 
 
     this->reset_boundaries_points();
@@ -68,26 +84,9 @@ My_SDL_button::My_SDL_button()
 
 
     // Anchor points
-    this->anchor_points_reset();
-
-
-    // Font 
+    this->reset_anchor_points();
 
     this->current_form = ROUNDED_RECTANGLE_EF;
-
-    this->font_size = 12; 
-
-    // Relative path to the font file from the executable (can be changed by the setter for the font path)
-    this->font_path = absolute_by_relative_from_exe("../../libs/program_gui/basic_elements/content/ttf_fonts/Amiga_forever_pro.ttf");
-    
-    this->ttf_font_link = nullptr;
-
-    this->content = "But";
-
-    this->content_w = 0;        // TODO: WTF???
-    this->content_h = 0;        // TODO: WTF???
-
-    this->content_dirty = true;
 
 
     // ===== Default pallette =====
@@ -138,13 +137,14 @@ My_SDL_button::My_SDL_button()
 
 
     this->current_pallette_number = 1;
-
-    content_texture = nullptr;
 }
 
 
 void My_SDL_button::delete_element()
 {
+    // Textbox delete
+    this->button_textbox.delete_element();
+
     if (this->element_container != nullptr)
     {
         this->element_container->remove_element(this);
@@ -158,12 +158,7 @@ void My_SDL_button::delete_element()
 
 My_SDL_button::~My_SDL_button()
 {
-    // TODO: Realization with panels linked list clear (both side registration) or just siple comment about 
-    // destructor workflow rules - basic destructor from global space or My_SDL_panel.button_delete method
-    // only for buttons inside panels
-
-    // Textures destructors
-    if (content_texture) SDL_DestroyTexture(content_texture);
+    // default
 }
 
 
@@ -174,11 +169,9 @@ My_SDL_button::~My_SDL_button()
 
 void My_SDL_button::update()
 {    
-    // Font initialization
-    if (this->ttf_font_link == nullptr)
-    {
-        if(!this->font_path.empty()) this->set_ttf_font_link(TTF_OpenFont(this->font_path.c_str(), this->font_size));
-    }
+    // Onetime initialization of the font
+    this->button_textbox.update();
+
 
     // Hover check
     this->button_hover_check();
@@ -192,8 +185,6 @@ void My_SDL_button::update()
         // Block the hover-click GUI conflict
         if (!this->button_clicked_tmp)
             this->current_button_state = HOVERED_ES;
-
-        this->content_dirty = true; // For update
 
         // New click or release check  
         this->button_clicked = lb_click_check();
@@ -219,8 +210,6 @@ void My_SDL_button::update()
                 this->button_clicked_tmp = true;
 
                 this->current_button_state = CLICKED_ES;
-
-                this->content_dirty = true; // For update
             }
 
     // There can not be anything instead of BUTTON_EXTERN_CLICK_PERMISSION
@@ -231,17 +220,16 @@ void My_SDL_button::update()
         {
             this->click_permission = this->extern_click_permission();
 
-            // button_clicked logic by the callback if the permission obtained
+            // Button_clicked logic by the callback if the permission obtained
             if (this->click_permission)
                 if (this->button_hovered && this->button_clicked)
-                    // button_clicked logic by the callback
+
+                    // Button_clicked logic by the callback
                     if (!this->button_clicked_tmp)
                     {
                         this->button_clicked_tmp = true;
 
                         this->current_button_state = CLICKED_ES;
-
-                        this->content_dirty = true; // For update
                     }
 
             else
@@ -266,8 +254,6 @@ void My_SDL_button::update()
         if (new_pallette_number != this->current_pallette_number)
         {
             this->current_pallette_choose(new_pallette_number);
-
-            this->content_dirty = true; // For update
         }
     }
 
@@ -281,14 +267,11 @@ void My_SDL_button::update()
             this->on_click();
         }
 
-
         // Block repeats and reset
         this->button_clicked_tmp = false;
 
         if (this->button_hovered) this->current_button_state = HOVERED_ES; 
         else this->current_button_state = DEFAULT_ES;
-
-        this->content_dirty = true; // For update
     }
 
 
@@ -382,9 +365,16 @@ void My_SDL_button::render(SDL_Renderer* renderer)
         {
             this->press_offset += 1;
 
-            if (this->font_size - this->press_offset >= 10)
+            // Set the new text size by current offset
+            if (this->button_textbox.get_font_size() - this->press_offset >= 10)
             {
-                this->set_ttf_font_link(TTF_OpenFont(this->font_path.c_str(), this->font_size - static_cast<int>(std::round(static_cast<float>(this->press_offset) / 2))));
+                this->button_textbox.set_ttf_font_link(TTF_OpenFont(
+
+              this->button_textbox.get_font_path().c_str(), 
+            this->button_textbox.get_font_size() - static_cast<int>(std::round(static_cast<float>(this->press_offset) / 2)))
+
+                );
+
             }
         }
     }
@@ -392,7 +382,14 @@ void My_SDL_button::render(SDL_Renderer* renderer)
     {
         if (this->push_mode_on && this->press_offset > 0)
         {
-            this->set_ttf_font_link(TTF_OpenFont(this->font_path.c_str(), this->font_size));
+            // Reset size of text to default value
+            this->button_textbox.set_ttf_font_link((TTF_OpenFont(
+
+            this->button_textbox.get_font_path().c_str(),
+          this->button_textbox.get_font_size()))
+
+            );
+
             this->press_offset = 0;
         }
     }
@@ -438,24 +435,10 @@ void My_SDL_button::render(SDL_Renderer* renderer)
 
 
     // Content draw by SDL ttf
-
-    // Update content texture if the content_dirty flag us true (or pass the previous texture if not)
-    this->update_content_texture(renderer, this->render_content_color);
-
-
-    if (this->content_texture)
-    {
-        SDL_FRect dst;
-
-        dst.w = this->content_w;
-        dst.h = this->content_h;
-
-        dst.x = this->x_render_point - dst.w / 2.0f;
-        dst.y = this->y_render_point - dst.h / 2.0f;
-
-        SDL_RenderTexture(renderer, content_texture, nullptr, &dst);
-    }
+    // Update content texture if the content_dirty flag us true (or pass the previous textur)e if not
+    this->button_textbox.render();
 }
+
 
 void My_SDL_button::button_pallette_prepare()
 {
@@ -544,55 +527,15 @@ void My_SDL_button::button_pallette_prepare()
     this->render_border_color.a = static_cast<uint8_t>(std::round(static_cast<float>(this->render_border_color.a) * opacity_scaler));
     this->render_background_color.a = static_cast<uint8_t>(std::round(static_cast<float>(this->render_background_color.a) * opacity_scaler));
     this->render_content_color.a = static_cast<uint8_t>(std::round(static_cast<float>(this->render_content_color.a) * opacity_scaler));
+
+
+    // Onetime update render color for the textbox with content_dirty flag status change
+    this->button_textbox.set_content_color(this->render_content_color);
 }
 
 
-void My_SDL_button::update_content_texture(SDL_Renderer* renderer, SDL_Color new_color)
-{
-    // SDL ttf workflow
 
-    if (!this->content_dirty) return;
-
-
-    if (!this->ttf_font_link) 
-    {
-        std::cerr << "Font load error!" << SDL_GetError() << std::endl;
-        return;
-    }
-
-    if (this->content.empty()) return;
-
-    // Old texture clear
-    if (this->content_texture)
-    {
-        SDL_DestroyTexture(this->content_texture);
-        this->content_texture = nullptr;
-    }
-
-
-    SDL_Color color = new_color; // By passed pallette 
-
-    SDL_Surface* surface = TTF_RenderText_Blended(
-        this->ttf_font_link,
-        this->content.c_str(),
-        0,
-        color
-    );
-
-    if (!surface) return;
-
-    this->content_texture = SDL_CreateTextureFromSurface(renderer, surface);
-
-    this->content_w = surface->w;
-    this->content_h = surface->h;
-
-    SDL_DestroySurface(surface);
-
-    this->content_dirty = false;
-}
-
-
-void My_SDL_button::anchor_points_reset()
+void My_SDL_button::reset_anchor_points()
 {
     // Uses current crop to set the current anchor points
 
@@ -601,7 +544,7 @@ void My_SDL_button::anchor_points_reset()
     int half_h = static_cast<int>(std::round(static_cast<float>(this->button_height_size) * 0.5));
 
 
-    // element_anchor_points reset
+    // Element_anchor_points reset
     
     /**
      * 
@@ -617,17 +560,18 @@ void My_SDL_button::anchor_points_reset()
 
     // SDL windows points goes from TL(0; 0) to BR(Max_W, Max_H)
     
-    this->element_anchor_points.top_left     = { c_w - half_w, c_h - half_h };
-    this->element_anchor_points.top_center   = { c_w , c_h - half_h };
-    this->element_anchor_points.top_right    = { c_w + half_w, c_h - half_h };
+    this->element_anchor_points.top_left         =     { c_w - half_w, c_h - half_h };
+    this->element_anchor_points.top_center       =     { c_w , c_h - half_h };
+    this->element_anchor_points.top_right        =     { c_w + half_w, c_h - half_h };
 
-    this->element_anchor_points.center_left  = { c_w - half_w, c_h };
-    this->element_anchor_points.center_center= { c_w, c_h };
-    this->element_anchor_points.center_right = { c_w + half_w, c_h };
+    this->element_anchor_points.center_left      =     { c_w - half_w, c_h };
+    this->element_anchor_points.center_center    =     { c_w, c_h };
+    this->element_anchor_points.center_right     =     { c_w + half_w, c_h };
 
-    this->element_anchor_points.bottom_left  = { c_w - half_w, c_h + half_h  };
-    this->element_anchor_points.bottom_center= { c_w, c_h + half_h };
-    this->element_anchor_points.bottom_right = { c_w + half_w, c_h + half_h };
+    this->element_anchor_points.bottom_left      =     { c_w - half_w, c_h + half_h  };
+    this->element_anchor_points.bottom_center    =     { c_w, c_h + half_h };
+    this->element_anchor_points.bottom_right     =     { c_w + half_w, c_h + half_h };
+    
 }
 
 
@@ -650,7 +594,13 @@ void My_SDL_button::set_render_point(int x_cc_rp, int y_cc_rp)
     this->x_render_point = x_cc_rp;
     this->y_render_point = y_cc_rp;
 
+    // Button textbox render point reset
+    this->button_textbox.set_render_point(x_cc_rp, y_cc_rp);
+
+
     this->reset_boundaries_points();
+
+    this->reset_anchor_points();
 }
 
 
@@ -671,6 +621,8 @@ void My_SDL_button::set_size(unsigned int new_width, unsigned int new_height)
     this->reset_boundaries_points();
 
     this->reset_current_form();
+
+    this->reset_anchor_points();
 }
 
 
@@ -717,64 +669,6 @@ void My_SDL_button::set_shadow_offset(int new_x_offset, int new_y_offset)
 void My_SDL_button::set_shadow_scale_factor(float new_scale_factor)
 { 
     this->shadow_scale_factor = new_scale_factor;
-}
-
-
-
-void My_SDL_button::set_content(const std::string& new_text) 
-{
-    this->content = new_text;
-}
-
-
-void My_SDL_button::set_ttf_font_link(TTF_Font* new_ttf_font_link) 
-{
-    // TODO: Error handling for the invalid links
-    if (!new_ttf_font_link)
-    {
-        std::cerr << "Invalid TTF_Font pointer! Font link not set!" << std::endl;
-        return;
-    }
-
-    this->ttf_font_link = new_ttf_font_link;
-}
-
-
-void My_SDL_button::set_font_path(const std::string& new_font_path) 
-{
-    // TODO: Error handling for the invalid links
-    if (new_font_path.empty())
-    {
-        std::cerr << "Invalid font path! Font path not set!" << std::endl;
-        return;
-    }
-
-    this->font_path = new_font_path;
-
-    this->set_ttf_font_link(TTF_OpenFont(this->font_path.c_str(), this->font_size));
-
-    if (!this->ttf_font_link)
-    {
-        SDL_Log("TTF_OpenFont failed: %s", SDL_GetError());
-    }
-}
-
-
-std::string My_SDL_button::get_font_path() const
-{
-    return this->font_path;
-}
-
-
-void My_SDL_button::set_font_size(unsigned int new_size) 
-{
-    if (new_size == 0)
-    {
-        std::cerr << "Invalid font size! Font size not set!" << std::endl;
-        return;
-    }
-
-    this->font_size = new_size;
 }
 
 
@@ -928,18 +822,6 @@ void My_SDL_button::set_content_color_clicked_2(SDL_Color new_color)
 void My_SDL_button::set_shadow_color_clicked_2(SDL_Color new_color)
 {
     this->shadow_color_clicked_2 = new_color;
-}
-
-
-// Textures
-
-
-void My_SDL_button::set_content_texture(SDL_Texture* new_texture)
-{
-    if (this->content_texture)
-        SDL_DestroyTexture(this->content_texture);
-
-    this->content_texture = new_texture;
 }
 
 // =========================================================================================== GUI

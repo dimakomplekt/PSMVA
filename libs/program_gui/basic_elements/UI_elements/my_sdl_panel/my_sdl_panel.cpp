@@ -36,7 +36,7 @@ My_SDL_panel::My_SDL_panel()
 
     this->inner_elements.clear();
 
-    this->anchor_points_reset();
+    this->reset_anchor_points();
 }
 
 
@@ -167,7 +167,7 @@ void My_SDL_panel::set_render_point(int x_cc_rp, int y_cc_rp)
     this->y_render_point = y_cc_rp;
 
     // Reset anchor points
-    this->anchor_points_reset();
+    this->reset_anchor_points();
 
     // Update inner elements positions (though they will be set again in render, this ensures consistency)
     this->change_inner_elements_global_coordinates();
@@ -185,7 +185,7 @@ void My_SDL_panel::set_size(unsigned int new_width, unsigned int new_height)
     this->reset_current_form();
 
     // Reset anchor points
-    this->anchor_points_reset();
+    this->reset_anchor_points();
 
     this->change_inner_elements_global_coordinates();
 }
@@ -258,7 +258,7 @@ void My_SDL_panel::set_panel_shadow_color(SDL_Color new_color)
 }
 
 
-void My_SDL_panel::anchor_points_reset()
+void My_SDL_panel::reset_anchor_points()
 {
     
     /**
@@ -277,7 +277,7 @@ void My_SDL_panel::anchor_points_reset()
     int half_w = static_cast<int>(std::round(static_cast<float>(this->panel_width_size) * 0.5));
     int half_h = static_cast<int>(std::round(static_cast<float>(this->panel_height_size) * 0.5));
 
-    // element_anchor_points reset
+    // Element_anchor_points reset
 
 
     int c_w = this->x_render_point;         // Horizontal center
@@ -286,17 +286,17 @@ void My_SDL_panel::anchor_points_reset()
 
     // SDL windows points goes from TL(0; 0) to BR(Max_W, Max_H)
     
-    this->element_anchor_points.top_left     = { c_w - half_w, c_h - half_h };
-    this->element_anchor_points.top_center   = { c_w , c_h - half_h };
-    this->element_anchor_points.top_right    = { c_w + half_w, c_h - half_h };
+    this->element_anchor_points.top_left         =     { c_w - half_w, c_h - half_h };
+    this->element_anchor_points.top_center       =     { c_w , c_h - half_h };
+    this->element_anchor_points.top_right        =     { c_w + half_w, c_h - half_h };
 
-    this->element_anchor_points.center_left  = { c_w - half_w, c_h };
-    this->element_anchor_points.center_center= { c_w, c_h };
-    this->element_anchor_points.center_right = { c_w + half_w, c_h };
+    this->element_anchor_points.center_left      =     { c_w - half_w, c_h };
+    this->element_anchor_points.center_center    =     { c_w, c_h };
+    this->element_anchor_points.center_right     =     { c_w + half_w, c_h };
 
-    this->element_anchor_points.bottom_left  = { c_w - half_w, c_h + half_h  };
-    this->element_anchor_points.bottom_center= { c_w, c_h + half_h };
-    this->element_anchor_points.bottom_right = { c_w + half_w, c_h + half_h };
+    this->element_anchor_points.bottom_left      =     { c_w - half_w, c_h + half_h  };
+    this->element_anchor_points.bottom_center    =     { c_w, c_h + half_h };
+    this->element_anchor_points.bottom_right     =     { c_w + half_w, c_h + half_h };
 
 }
 

@@ -1,4 +1,4 @@
-// my_sdl_text.h
+// my_sdl_textbox.h
 
 
 #pragma once
@@ -18,12 +18,18 @@ class My_SDL_textbox : public My_SDL_element // SDL_Element
 
         // ===== CONSTRUCTOR AND DESTRUCTOR =====
 
-        My_SDL_textbox();                              // Text constructor
+        My_SDL_textbox();                           // Text constructor
 
         void delete_element() override;             // Text delete (clear links + destructor call)   
 
         // ===== CONSTRUCTOR AND DESTRUCTOR =====   
 
+
+        // ===== MAIN LOGIC =====
+
+        void update() override;
+
+        // ===== MAIN LOGIC =====
 
 
         // ===== GUI ======
@@ -44,6 +50,8 @@ class My_SDL_textbox : public My_SDL_element // SDL_Element
          * 
          * Setup the text center-center render point for the text rendering
          * by the coordinate system of the WINDOW, which contains the element 
+         * 
+         * After that - reset anchor points.
          * 
          * 
          * @param x_cc_rp x coordinate of the center-center render point
@@ -75,7 +83,8 @@ class My_SDL_textbox : public My_SDL_element // SDL_Element
         /**
          * @brief Sets the text displayed on the text.
          *
-         * Updates the text's content string.
+         * Updates the text's content string and reset content sizes, then calls the
+         * anchor points reset
          *
          * @param new_text New text to display on the text
          * 
@@ -94,8 +103,20 @@ class My_SDL_textbox : public My_SDL_element // SDL_Element
          */
         void set_font_path(const std::string& new_font_path);
 
-        
+        // Font path getter function
         std::string get_font_path() const;
+
+
+        /**
+         * @brief Sets the TTF font link for the text.
+         *
+         * Assigns a pointer to a TTF_Font used for rendering text.
+         * If the pointer is null, the font is not set and an error is logged.
+         *
+         * @param new_ttf_font_link Pointer to a valid TTF_Font
+         * 
+         */
+        void set_ttf_font_link(TTF_Font* new_ttf_font_link);
 
 
         /**
@@ -110,10 +131,19 @@ class My_SDL_textbox : public My_SDL_element // SDL_Element
         void set_font_size(unsigned int new_size);
 
 
+        /**
+         * @brief Font size getter.
+         *
+         * Returns the font size value.
+         *
+         * @return Current font size value
+         * 
+         */
+        unsigned int get_font_size();
+
 
         // Sets the default content color for palette 1
         void set_content_color(SDL_Color new_color);
-
 
         
         // Texture setters
@@ -124,14 +154,8 @@ class My_SDL_textbox : public My_SDL_element // SDL_Element
         // ===== GUI ======
 
 
-    private:
-
-        // ===== CONSTRUCTOR AND DESTRUCTOR =====
-
-        ~My_SDL_textbox();                           // Text destructor  (call in state.exit)  
-
-        // ===== CONSTRUCTOR AND DESTRUCTOR =====
-
+    // Friend classes access permission (for example - change something by call from )
+    protected:
 
         // ===== GUI ======
 
@@ -149,32 +173,15 @@ class My_SDL_textbox : public My_SDL_element // SDL_Element
         std::string content;                           // Text
 
 
-        /**
-         * @brief Sets the TTF font link for the text.
-         *
-         * Assigns a pointer to a TTF_Font used for rendering text.
-         * If the pointer is null, the font is not set and an error is logged.
-         *
-         * @param new_ttf_font_link Pointer to a valid TTF_Font
-         * 
-         */
-        void set_ttf_font_link(TTF_Font* new_ttf_font_link);
-
-
         // Variables for rendering with autoset 
         
-        int content_w;  
-        int content_h;
-
-
-        element_rect_boundaries boundaries_points;     // Element rectangle bounds by the element_rect_boundaries struct
-
-        void reset_boundaries_points();                // Element bounds automatic recalculation    
+        int content_width_size;  
+        int content_height_size;
 
 
         // Text's override for anchor points reset function
         
-        void anchor_points_reset() override;
+        void reset_anchor_points() override;
 
 
         // Flag for render recalculation after new content or new content settings set
@@ -188,10 +195,12 @@ class My_SDL_textbox : public My_SDL_element // SDL_Element
         /**
          * @brief Updates the text texture.
          * 
+         * Calls inside render
+         * 
          * Creates a new SDL_Texture from the current content string, font, and specified color.
          * If the content is unchanged or no font/text is set, the function does nothing.
          * Any existing texture is destroyed before creating a new one.
-         * The resulting texture dimensions are stored in content_w and content_h.
+         * The resulting texture dimensions are stored in content_width_size and content_height_size.
          * Marks the content as clean (content_dirty = false).
          * 
          */
@@ -200,7 +209,19 @@ class My_SDL_textbox : public My_SDL_element // SDL_Element
         // Color for text rendering
         SDL_Color render_content_color;
 
+        // Text drawing inner function
+        void text_draw();
+
         // ===== GUI ======
+
+
+    private:
+
+        // ===== CONSTRUCTOR AND DESTRUCTOR =====
+
+        ~My_SDL_textbox();                           // Text destructor  (call in state.exit)  
+
+        // ===== CONSTRUCTOR AND DESTRUCTOR =====
 }
 
 
