@@ -11,6 +11,45 @@
 // =========================================================================================== IMPORT
 
 
+// =========================================================================================== TYPES
+
+struct fader_render_data
+{
+    // ===== SLOT =====
+
+    // Centers
+    int slot_sw_cx, slot_sw_cy;     // Shadow
+    int slot_br_cx, slot_br_cy;     // Boarder
+    int slot_bd_cx, slot_bd_cy;     // Background
+
+    // Sizes
+    unsigned int slot_sw_w, slot_sw_h;
+    unsigned int slot_br_w, slot_br_h;
+    unsigned int slot_bg_w, slot_bg_h;
+
+    // Radiuses
+    unsigned int slot_sw_r, slot_br_r, slot_bg_r;
+
+
+    // ===== KNOB =====
+
+    // Centers
+    int knob_sw_cx, knob_sw_cy;
+    int knob_br_cx, knob_br_cy;
+    int knob_bd_cx, knob_bd_cy;
+
+    // Sizes
+    unsigned int knob_sw_w, knob_sw_h;
+    unsigned int knob_br_w, knob_br_h;
+    unsigned int knob_bg_w, knob_bg_h;
+
+    // Radiuses
+    unsigned int knob_sw_r, knob_br_r, knob_bg_r;
+};
+
+// =========================================================================================== TYPES
+
+
 // =========================================================================================== My_SDL_fader class
 
 class My_SDL_fader : public My_SDL_element // SDL_Element
@@ -507,6 +546,10 @@ class My_SDL_fader : public My_SDL_element // SDL_Element
         void fader_pallette_prepare();
 
 
+        fader_render_data render_data;
+
+        void render_data_recalculation();
+        
         // ===== GUI ======
 
 };

@@ -33,6 +33,23 @@ enum button_access_type
 
 };
 
+struct button_render_data
+{
+    // Centers
+    int sw_cx, sw_cy;   // shadow
+    int br_cx, br_cy;   // boarder
+    int bd_cx, bd_cy;   // background
+
+    // Sizes
+    unsigned int sw_w, sw_h;
+    unsigned int br_w, br_h;
+    unsigned int bg_w, bg_h;
+
+    // Radiuses
+    unsigned int sw_r, br_r, bg_r;
+
+};
+
 // =========================================================================================== TYPES
 
 
@@ -487,6 +504,12 @@ class My_SDL_button : public My_SDL_element // SDL_Element
         // Inner pallette prepare method
         void button_pallette_prepare();
         
+
+        button_render_data render_data;
+
+
+        void render_data_recalculation();
+
         // ===== GUI ======
 };
 

@@ -276,6 +276,9 @@ void My_SDL_button::update()
 
     // Pallette prepare for rendering
     this->button_pallette_prepare();  
+
+
+    this->render_data_recalculation();
 }
 
 
@@ -314,127 +317,48 @@ void My_SDL_button::button_hover_check()
 
 void My_SDL_button::render(SDL_Renderer* renderer)
 {
-    // TODO: CREATE STRUCT AND RECALCULATE TO STRUCT ONLY WITH CHANGES
-    // Press offset for push simulation
-
-    if (this->current_button_state != CLICKED_ES) this->press_offset = 0;
-
-
-    // Figures to build data calculation
-
-
-    // Render points
-    int sw_cx = this->x_render_point + this->shadow_offset_x;
-    int sw_cy = this->y_render_point + this->shadow_offset_y;
-
-    int br_cx = this->x_render_point;
-    int br_cy = this->y_render_point;
-
-    int bd_cx = this->x_render_point;
-    int bd_cy = this->y_render_point;
-
-
-    // Sizes 
-
-    unsigned int sw_w = static_cast<unsigned int>(std::round((this->button_width_size - this->press_offset) * this->shadow_scale_factor));
-    unsigned int sw_h = static_cast<unsigned int>(std::round((this->button_height_size - this->press_offset) * this->shadow_scale_factor));
-
-    unsigned int br_w = this->button_width_size - this->press_offset; 
-    unsigned int br_h = this->button_height_size - this->press_offset;
-
-    int bg_w_signed = (int)this->button_width_size - 2 * (int)this->border_width_size - static_cast<int>(std::round(static_cast<float>(this->press_offset) / 2));
-    int bg_h_signed = (int)this->button_height_size - 2 * (int)this->border_width_size - static_cast<int>(std::round(static_cast<float>(this->press_offset) / 2));
-    
-    unsigned int bg_w = std::max(0, bg_w_signed);
-    unsigned int bg_h = std::max(0, bg_h_signed);
-
-    unsigned int sw_r = static_cast<unsigned int>(std::round(this->border_radius_size * this->shadow_scale_factor));
-    unsigned int br_r = this->border_radius_size - static_cast<int>(std::round(static_cast<float>(this->press_offset) / 2));
-
-
-    int bg_r_signed = (int)this->border_radius_size - (int)this->border_width_size - static_cast<int>(std::round(static_cast<float>(this->press_offset) / 2));
-    unsigned int bg_r = std::max(0, bg_r_signed);
-
-    
-    // Increment the press offset at every render repeat
-
-    if (this->current_button_state == CLICKED_ES)
-    {
-        if (this->push_mode_on && this->press_offset <= 5)
-        {
-            this->press_offset += 1;
-
-            // Set the new text size by current offset
-            if (this->button_textbox.get_font_size() - this->press_offset >= 10)
-            {
-                this->button_textbox.set_ttf_font_link(TTF_OpenFont(
-
-              this->button_textbox.get_font_path().c_str(), 
-            this->button_textbox.get_font_size() - static_cast<int>(std::round(static_cast<float>(this->press_offset) / 2)))
-
-                );
-
-            }
-        }
-    }
-    else
-    {
-        if (this->push_mode_on && this->press_offset > 0)
-        {
-            // Reset size of text to default value
-            this->button_textbox.set_ttf_font_link((TTF_OpenFont(
-
-            this->button_textbox.get_font_path().c_str(),
-          this->button_textbox.get_font_size()))
-
-            );
-
-            this->press_offset = 0;
-        }
-    }
-
 
     // Render 3 figures (shadow (border sizes * scaler), border and background (width or hight - 2 * border_width)) 
     // by their sizes, with use of current colors and render point (center-center)
     if (this->current_form == RECTANGLE_EF)
     {
         // SHADOW
-        rectangle_draw_by_color(sw_cx, sw_cy, sw_w, sw_h, this->render_shadow_color, renderer);
+        rectangle_draw_by_color(this->render_data.sw_cx, this->render_data.sw_cy, this->render_data.sw_w, this->render_data.sw_h, this->render_shadow_color, renderer);
 
         // BORDER
-        rectangle_draw_by_color(br_cx, br_cy, br_w, br_h, this->render_border_color, renderer);
+        rectangle_draw_by_color(this->render_data.br_cx, this->render_data.br_cy, this->render_data.br_w, this->render_data.br_h, this->render_border_color, renderer);
 
         // BACKGROUND
-        rectangle_draw_by_color(bd_cx, bd_cy, bg_w, bg_h, this->render_background_color, renderer);
+        rectangle_draw_by_color(this->render_data.bd_cx, this->render_data.bd_cy, this->render_data.bg_w, this->render_data.bg_h, this->render_background_color, renderer);
     }
 
     else if (this->current_form == ROUNDED_RECTANGLE_EF)
     {
         // SHADOW
-        rounded_rectangle_draw_by_color(sw_cx, sw_cy, sw_w, sw_h, sw_r, this->render_shadow_color, renderer);
+        rounded_rectangle_draw_by_color(this->render_data.sw_cx, this->render_data.sw_cy, this->render_data.sw_w, this->render_data.sw_h, this->render_data.sw_r, this->render_shadow_color, renderer);
 
         // BORDER
-        rounded_rectangle_draw_by_color(br_cx, br_cy, br_w, br_h, br_r, this->render_border_color, renderer);
+        rounded_rectangle_draw_by_color(this->render_data.br_cx, this->render_data.br_cy, this->render_data.br_w, this->render_data.br_h, this->render_data.br_r, this->render_border_color, renderer);
 
         // BACKGROUND
-        rounded_rectangle_draw_by_color(bd_cx, bd_cy, bg_w, bg_h, bg_r, this->render_background_color, renderer);
+        rounded_rectangle_draw_by_color(this->render_data.bd_cx, this->render_data.bd_cy, this->render_data.bg_w, this->render_data.bg_h, this->render_data.bg_r, this->render_background_color, renderer);
     }
 
     else if (this->current_form == CIRCLE_EF)
     {
         // SHADOW
-        circle_draw_by_color(sw_cx, sw_cy, sw_w / 2, this->render_shadow_color, renderer);
+        circle_draw_by_color(this->render_data.sw_cx, this->render_data.sw_cy, this->render_data.sw_w / 2, this->render_shadow_color, renderer);
 
         // BORDER
-        circle_draw_by_color(br_cx, br_cy, br_w / 2, this->render_border_color, renderer);
+        circle_draw_by_color(this->render_data.br_cx, this->render_data.br_cy, this->render_data.br_w / 2, this->render_border_color, renderer);
 
         // BACKGROUND
-        circle_draw_by_color(bd_cx, bd_cy, bg_w / 2, this->render_background_color, renderer);
+        circle_draw_by_color(this->render_data.bd_cx, this->render_data.bd_cy, this->render_data.bg_w / 2, this->render_background_color, renderer);
     }
 
 
     // Content draw by SDL ttf
-    // Update content texture if the content_dirty flag us true (or pass the previous textur)e if not
+    // Update content texture if the content_dirty flag us true (or pass the previous texture if not)
     this->button_textbox.render(renderer);
 }
 
@@ -531,7 +455,6 @@ void My_SDL_button::button_pallette_prepare()
     // Onetime update render color for the textbox with content_dirty flag status change
     this->button_textbox.set_content_color(this->render_content_color);
 }
-
 
 
 void My_SDL_button::reset_anchor_points()
@@ -822,5 +745,87 @@ void My_SDL_button::set_shadow_color_clicked_2(SDL_Color new_color)
 {
     this->shadow_color_clicked_2 = new_color;
 }
+
+
+void My_SDL_button::render_data_recalculation()
+{
+    if (this->current_button_state != CLICKED_ES) this->press_offset = 0;
+
+
+    // Figures to build data calculation
+
+
+    // Render points
+    this->render_data.sw_cx = this->x_render_point + this->shadow_offset_x;
+    this->render_data.sw_cy = this->y_render_point + this->shadow_offset_y;
+
+    this->render_data.br_cx = this->x_render_point;
+    this->render_data.br_cy = this->y_render_point;
+
+    this->render_data.bd_cx = this->x_render_point;
+    this->render_data.bd_cy = this->y_render_point;
+
+
+    // Sizes 
+
+    this->render_data.sw_w = static_cast<unsigned int>(std::round((this->button_width_size - this->press_offset) * this->shadow_scale_factor));
+    this->render_data.sw_h = static_cast<unsigned int>(std::round((this->button_height_size - this->press_offset) * this->shadow_scale_factor));
+
+    this->render_data.br_w = this->button_width_size - this->press_offset; 
+    this->render_data.br_h = this->button_height_size - this->press_offset;
+
+    int bg_w_signed = (int)this->button_width_size - 2 * (int)this->border_width_size - static_cast<int>(std::round(static_cast<float>(this->press_offset) / 2));
+    int bg_h_signed = (int)this->button_height_size - 2 * (int)this->border_width_size - static_cast<int>(std::round(static_cast<float>(this->press_offset) / 2));
+    
+    this->render_data.bg_w = std::max(0, bg_w_signed);
+    this->render_data.bg_h = std::max(0, bg_h_signed);
+
+    this->render_data.sw_r = static_cast<unsigned int>(std::round(this->border_radius_size * this->shadow_scale_factor));
+    this->render_data.br_r = this->border_radius_size - static_cast<int>(std::round(static_cast<float>(this->press_offset) / 2));
+
+
+    int bg_r_signed = (int)this->border_radius_size - (int)this->border_width_size - static_cast<int>(std::round(static_cast<float>(this->press_offset) / 2));
+
+    this->render_data.bg_r = std::max(0, bg_r_signed);
+
+    
+    // Increment the press offset at every render repeat
+
+    if (this->current_button_state == CLICKED_ES)
+    {
+        if (this->push_mode_on && this->press_offset <= 5)
+        {
+            this->press_offset += 1;
+
+            // Set the new text size by current offset
+            if (this->button_textbox.get_font_size() - this->press_offset >= 10)
+            {
+                this->button_textbox.set_ttf_font_link(TTF_OpenFont(
+
+              this->button_textbox.get_font_path().c_str(), 
+            this->button_textbox.get_font_size() - static_cast<int>(std::round(static_cast<float>(this->press_offset) / 2)))
+
+                );
+
+            }
+        }
+    }
+    else
+    {
+        if (this->push_mode_on && this->press_offset > 0)
+        {
+            // Reset size of text to default value
+            this->button_textbox.set_ttf_font_link((TTF_OpenFont(
+
+            this->button_textbox.get_font_path().c_str(),
+          this->button_textbox.get_font_size()))
+
+            );
+
+            this->press_offset = 0;
+        }
+    }
+}
+
 
 // =========================================================================================== GUI
