@@ -10,6 +10,17 @@
 #include "../../engine/engine.h"
 #include "../global_data/global_data.h"
 
+
+// States import
+
+#include "states_logic/0.0_START/0.0_START.h"
+// #include "states_logic/1.0_MAIN_MENU/1.0_MAIN_MENU.h"
+// #include "states_logic/1.1_FILE_CHOOSE/1.1_FILE_CHOOSE.h"
+// #include "states_logic/1.2_MASKS_SETUP/1.2_MASKS_SETUP.h"
+// #include "states_logic/1.3_FLOW_PARAMETERS_CALCULATION/1.3_FLOW_PARAMETERS_CALCULATION.h"
+// #include "states_logic/1.4_REPORT_FORMING/1.4_REPORT_FORMING.h"
+// #include "states_logic/2.0_PROGRAM_END/2.0_PROGRAM_END.h"
+
 // =========================================================================================== IMPORT
 
 
