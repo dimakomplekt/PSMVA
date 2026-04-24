@@ -61,7 +61,7 @@ void start_update()
 
 void start_render(SDL_Renderer* renderer)
 {
-    Start_textbox->render();
+    Start_textbox->render(renderer);
 }
 
 
@@ -83,7 +83,6 @@ void start_elements_setup()
     Start_textbox->set_font_size(24);
 
     Start_textbox->set_content(str_by_dictionary(gd_press_any_key));
-
 
 }
 

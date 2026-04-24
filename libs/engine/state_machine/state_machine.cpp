@@ -63,9 +63,9 @@ bool State_ID::is_parent_of(const State_ID &child) const
 
 State_ID State_ID::child(int i) const
 {
-    State_ID curr = *this;    // Copy current
-    curr.levels.push_back(i); // Add new child level
-    return curr;              // Return new object
+    State_ID current = *this;    // Copy current
+    current.levels.push_back(i); // Add new child level
+    return current;              // Return new object
 }
 
 

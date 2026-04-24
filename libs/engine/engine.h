@@ -10,7 +10,8 @@
 // and program dictionary object)
 
 #include "lang_state/lang_state.h"
-
+#include "lang_state/lang_utils.h"
+#include "lang_state/program_dictionary.h"
 
 // Current platform by preprocessor directives
 

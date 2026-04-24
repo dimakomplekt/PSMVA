@@ -21,7 +21,7 @@ Lang_state& Lang_state::Instance()
 
 
 Lang_state::Lang_state()
-    : Curr_lang(DEFAULT_LANG) // Initialize the current language to default (EN)
+    : current_lang(DEFAULT_LANG) // Initialize the current language to default (EN)
 {
     // Constructor is private and only called once by Instance().
     // No dynamic memory allocation needed here.
@@ -30,7 +30,7 @@ Lang_state::Lang_state()
 
 Lang_list Lang_state::Get_lang() const
 {
-    return Curr_lang; // Simply return the currently active language
+    return current_lang; // Simply return the currently active language
 }
 
 
@@ -44,11 +44,11 @@ bool Lang_state::Set_lang(Lang_list language)
     switch (language)
     {
         case Lang_list::EN:
-            Curr_lang = Lang_list::EN;
+            current_lang = Lang_list::EN;
             break;
 
         case Lang_list::RU:
-            Curr_lang = Lang_list::RU;
+            current_lang = Lang_list::RU;
             break;
 
         // Defensive fallback, should never hit because of validation above

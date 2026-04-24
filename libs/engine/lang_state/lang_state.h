@@ -4,35 +4,9 @@
 
 // =========================================================================================== IMPORT
 
-#include <map>
-#include <string>
-
-
-#include "program_dictionary.h"
+#include "lang_types.h"
 
 // =========================================================================================== IMPORT
-
-
-// =========================================================================================== LANGUAGE ENUM
-
-/**
- * @brief Enum for all supported languages in the application.
- *
- * Each value represents a language option. The LIMIT value is used
- * to indicate the total number of languages and can help in validation.
- */
-enum class Lang_list : unsigned int
-{
-    EN = 0,  // English
-    RU = 1,  // Russian
-    LIMIT = 2 // Sentinel for number of languages
-};
-
-// Default language if none is explicitly set
-#define DEFAULT_LANG Lang_list::EN
-
-// =========================================================================================== LANGUAGE ENUM
-
 
 // =========================================================================================== LANG_STATE SINGLETON
 
@@ -94,7 +68,16 @@ private:
     Lang_state& operator=(const Lang_state&) = delete;
 
     // Currently active language
-    Lang_list Curr_lang;
+    Lang_list current_lang;
 };
 
 // =========================================================================================== LANG_STATE SINGLETON
+
+
+// =========================================================================================== SINGLETONES FOR USE
+
+// Global singleton instance of GI_mouse for easy access throughout the program
+inline Lang_state& App_lang = Lang_state::Instance();
+
+
+// =========================================================================================== SINGLETONES FOR USE
