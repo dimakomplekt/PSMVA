@@ -71,6 +71,7 @@ class My_SDL_button : public My_SDL_element // SDL_Element
 
         // ===== MAIN LOGIC =====
 
+
         /**
          * @brief Updates the button.
          *

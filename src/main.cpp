@@ -51,6 +51,8 @@ int main()
 
     while (app_test.app_state == SDL_APP_CONTINUE)
     {
+        SDL_PumpEvents();
+        
         // Handle events
         while (SDL_PollEvent(&event))
         {

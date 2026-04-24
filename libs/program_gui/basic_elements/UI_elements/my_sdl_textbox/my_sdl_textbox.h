@@ -156,7 +156,10 @@ class My_SDL_textbox : public My_SDL_element // SDL_Element
         // ===== GUI ======
 
 
-    // Friend classes access permission (for example - change something by call from )
+        // Friend classes access permission (for example - change something by call from button)
+        
+        friend class My_SDL_button;
+
     protected:
 
         // ===== GUI ======
