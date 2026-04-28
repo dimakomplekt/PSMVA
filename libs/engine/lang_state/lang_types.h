@@ -37,6 +37,6 @@ enum class Lang_list : unsigned int
 
 // =========================================================================================== DICTIONARY ARRAY
 
-using Lang_string = std::array<std::string, static_cast<size_t>(Lang_list::LIMIT)>;
+using Lang_string_type = std::array<std::string, static_cast<size_t>(Lang_list::LIMIT)>;
 
 // =========================================================================================== DICTIONARY ARRAY

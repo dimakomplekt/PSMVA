@@ -7,11 +7,11 @@
 // =========================================================================================== IMPORT
 
 // Language state management (library contains links to language choose methods
-// and program dictionary object)
+// for program dictionary workflow)
 
 #include "lang_state/lang_state.h"
 #include "lang_state/lang_utils.h"
-#include "lang_state/program_dictionary.h"
+
 
 // Current platform by preprocessor directives
 

@@ -44,10 +44,12 @@ bool Lang_state::Set_lang(Lang_list language)
     switch (language)
     {
         case Lang_list::EN:
+
             current_lang = Lang_list::EN;
             break;
 
         case Lang_list::RU:
+        
             current_lang = Lang_list::RU;
             break;
 

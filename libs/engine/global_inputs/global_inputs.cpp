@@ -164,7 +164,7 @@ bool GI_input_manager::is_held(Key_actions action) const
     const auto& kb = App_keyboard;
 
     for (auto key : it->second)
-        if (kb.held(key))
+        if (kb.is_held(key))
             return true;
 
     return false;

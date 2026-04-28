@@ -147,7 +147,9 @@ class My_SDL_element
          */
         virtual void delete_element() = 0;
 
-        virtual ~My_SDL_element() = default;         // Element destructor - never calls - PLS WORK WITH delete_element()
+        
+         // Element destructor - NEVER CALLS - PLS WORK WITH delete_element()
+        virtual ~My_SDL_element() = default;
 
         // ===== CONSTRUCTOR AND DESTRUCTOR =====
 
