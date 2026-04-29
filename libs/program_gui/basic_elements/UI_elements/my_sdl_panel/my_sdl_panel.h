@@ -303,6 +303,16 @@ class My_SDL_panel : public My_SDL_element
         SDL_Color border_color;
         SDL_Color shadow_color;
 
+
+        SDL_Color render_background_color;
+        SDL_Color render_border_color;
+        SDL_Color render_shadow_color;
+
+
+        // Pallette prepare for rendering
+        void panel_pallette_prepare();  
+
+
         // ===== GUI =====
 
 };

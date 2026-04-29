@@ -133,6 +133,7 @@ enum class Key_actions
     Menu_back,
     Confirm,
     Decline,
+    Special_1,
 
     COUNT
 

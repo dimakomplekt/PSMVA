@@ -266,6 +266,8 @@ class My_SDL_element
         // ===== GUI =====
 
 
+    friend class My_SDL_panel;
+
     protected:
 
             // ===== CONSTRUCTOR AND DESTRUCTOR =====

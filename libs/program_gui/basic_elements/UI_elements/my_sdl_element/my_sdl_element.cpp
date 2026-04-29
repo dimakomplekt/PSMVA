@@ -123,10 +123,22 @@ void My_SDL_element::set_opacity(Uint8 new_opacity)
 
 void My_SDL_element::recalculate_opacity_by_container()
 {
-    // Change the render opacity by basic opacity of the current element and render opacity of the current container
-    
-    this->opacity = static_cast<Uint8>(std::round(this->basic_opacity * this->get_element_container()->get_opacity() / 255));
+    My_SDL_panel* container = this->get_element_container();
 
+    if (!container)
+    {
+        this->opacity = this->basic_opacity;
+        return;
+    }
+
+    float result =
+        static_cast<float>(this->basic_opacity) *
+        static_cast<float>(container->get_opacity()) / 255.0f;
+
+    if (result < 0.0f) result = 0.0f;
+    if (result > 255.0f) result = 255.0f;
+
+    this->opacity = static_cast<Uint8>(std::lround(result));
 }
  
 

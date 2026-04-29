@@ -40,10 +40,12 @@ My_SDL_texture::~My_SDL_texture()
 
 void My_SDL_texture::delete_element()
 {
+    My_SDL_panel* container = this->get_element_container();
+
     // Delete itself by upper level panel or by itself
-    if (this->element_container != nullptr)
+    if (container)
     {
-        this->element_container->remove_element(this);
+        container->remove_element(this);
     }
     else
     {

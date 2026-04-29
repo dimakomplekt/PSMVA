@@ -59,9 +59,12 @@ My_SDL_textbox::My_SDL_textbox()
 
 void My_SDL_textbox::delete_element()
 {
-    if (this->element_container != nullptr)
+    My_SDL_panel* container = this->get_element_container();
+
+    // Delete itself by upper level panel or by itself
+    if (container)
     {
-        this->element_container->remove_element(this);
+        container->remove_element(this);
     }
     else
     {
@@ -77,8 +80,18 @@ My_SDL_textbox::~My_SDL_textbox()
     // only for textboxes inside panels
 
     // Textures destructors
-    if (this->content_texture) SDL_DestroyTexture(this->content_texture);
+    this->cleanup();
+}
 
+
+void My_SDL_textbox::cleanup()
+{
+    // Texture delete
+    if (this->content_texture)
+    {
+        SDL_DestroyTexture(this->content_texture);
+        this->content_texture = nullptr;
+    }
 }
 
 

@@ -141,12 +141,14 @@ My_SDL_button::My_SDL_button()
 
 void My_SDL_button::delete_element()
 {
-    // Textbox delete
-    this->button_textbox.delete_element();
+    My_SDL_panel* container = this->get_element_container();
 
-    if (this->element_container != nullptr)
+    // Textbox clean before destruction
+    // this->button_textbox.cleanup(); - Did automatically in the My_SDL_textbox destructor, so no need to call it here
+
+    if (container)
     {
-        this->element_container->remove_element(this);
+        container->remove_element(this);
     }
     else
     {

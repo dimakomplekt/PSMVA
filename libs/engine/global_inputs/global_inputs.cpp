@@ -116,6 +116,8 @@ GI_input_manager& GI_input_manager::Instance()
 
         instance.bind(Key_actions::Decline, SDL_SCANCODE_ESCAPE);
 
+        instance.bind(Key_actions::Special_1, SDL_SCANCODE_SPACE);
+
         initialized = true;
     }
 

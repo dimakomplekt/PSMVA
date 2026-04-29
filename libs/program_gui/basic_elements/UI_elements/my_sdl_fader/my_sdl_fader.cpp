@@ -127,9 +127,12 @@ My_SDL_fader::My_SDL_fader()
 
 void My_SDL_fader::delete_element()
 {
-    if (this->element_container != nullptr)
+    My_SDL_panel* container = this->get_element_container();
+
+    
+    if (container)
     {
-        this->element_container->remove_element(this);
+        container->remove_element(this);
     }
     else
     {

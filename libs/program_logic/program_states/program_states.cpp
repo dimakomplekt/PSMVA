@@ -55,6 +55,9 @@ void cout_on_but_1_click()
 void start_enter()
 {
     Button_1 = new My_SDL_button();
+    Button_1->set_opacity(150);
+
+
     Button_2 = new My_SDL_button();
 
     std::cout << Button_1->get_x_render_point() << std::endl;
@@ -153,15 +156,31 @@ void start_update()
 
     Panel_1->update();
 
-    if (App_inputs.is_just_released(Key_actions::Menu_forward))
+
+    if (App_inputs.is_just_released(Key_actions::Special_1))
     {
-        app_test.app_sm.request_state_change(PROGRAM_END_ID);
+        // Test
+
+        int new_opacity = Panel_1->get_basic_opacity() - 20;
+
+        new_opacity = std::max(0, new_opacity); // Ensure opacity doesn't go below 0
+
+        Panel_1->set_opacity(new_opacity);
+
+        std::cout << "Panel_1 opacity: " << static_cast<int>(Panel_1->get_opacity()) << std::endl;
+        std::cout << "Panel_1 basic opacity: " << static_cast<int>(Panel_1->get_basic_opacity()) << std::endl;
     }
 
 
     if (App_inputs.is_just_released(Key_actions::Confirm))
     {
         std::cout << Fader_1->get_fader_value() << std::endl;
+    }
+
+
+    if (App_inputs.is_just_released(Key_actions::Menu_forward))
+    {
+        app_test.app_sm.request_state_change(PROGRAM_END_ID);
     }
 }
 

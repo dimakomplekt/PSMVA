@@ -34,24 +34,32 @@ My_SDL_panel::My_SDL_panel()
     this->set_panel_border_color(hex_to_sdl_color("#8af520", 250));
     this->set_panel_shadow_color(hex_to_sdl_color("#d400ff", 250));
 
+    this->render_background_color = this->background_color;
+    this->render_border_color = this->border_color;
+    this->render_shadow_color = this->shadow_color;
+
+
     this->inner_elements.clear();
 
     this->reset_anchor_points();
+
+
+    this->set_opacity(255);
 }
 
 
 void My_SDL_panel::delete_element()
 {
     // Delete all inner elements
-    while (!inner_elements.empty())
-    {
-        this->clear_elements();
-    }
+    this->clear_elements();
+
+
+    My_SDL_panel* container = this->get_element_container();
 
     // Delete itself by upper level panel or by itself
-    if (this->element_container != nullptr)
+    if (container)
     {
-        this->element_container->remove_element(this);
+        container->remove_element(this);
     }
     else
     {
@@ -89,6 +97,8 @@ void My_SDL_panel::set_opacity(Uint8 new_opacity)
         this->opacity = new_opacity;
     }
 
+    // Change colors by the new opacity for the panel
+
 
     // Change the opacity for all inner elements by the new container opacity
     for (auto& inner : inner_elements)
@@ -96,8 +106,21 @@ void My_SDL_panel::set_opacity(Uint8 new_opacity)
 
         inner.element_pointer->set_opacity(inner.element_pointer->get_basic_opacity());
     }
+
+
+    this->panel_pallette_prepare();
 }
 
+
+void My_SDL_panel::panel_pallette_prepare()
+{
+    // GLOBAL element opacity implementation
+    float opacity_scaler = static_cast<float>(this->opacity) / 255.0f;
+
+    this->render_shadow_color.a = static_cast<uint8_t>(std::round(static_cast<float>(this->render_shadow_color.a) * opacity_scaler));
+    this->render_border_color.a = static_cast<uint8_t>(std::round(static_cast<float>(this->render_border_color.a) * opacity_scaler));
+    this->render_background_color.a = static_cast<uint8_t>(std::round(static_cast<float>(this->render_background_color.a) * opacity_scaler));
+}
 
 // =========================================================================================== MAIN LOGIC
 
@@ -141,37 +164,37 @@ void My_SDL_panel::render(SDL_Renderer* renderer)
     if (this->current_form == RECTANGLE_EF)
     {
         // SHADOW
-        rectangle_draw_by_color(sw_cx, sw_cy, sw_w, sw_h, this->shadow_color, renderer);
+        rectangle_draw_by_color(sw_cx, sw_cy, sw_w, sw_h, this->render_shadow_color, renderer);
 
         // BORDER
-        rectangle_draw_by_color(br_cx, br_cy, br_w, br_h, this->border_color, renderer);
+        rectangle_draw_by_color(br_cx, br_cy, br_w, br_h, this->render_border_color, renderer);
 
         // BACKGROUND
-        rectangle_draw_by_color(bd_cx, bd_cy, bg_w, bg_h, this->background_color, renderer);
+        rectangle_draw_by_color(bd_cx, bd_cy, bg_w, bg_h, this->render_background_color, renderer);
     }
 
     else if (this->current_form == ROUNDED_RECTANGLE_EF)
     {
         // SHADOW
-        rounded_rectangle_draw_by_color(sw_cx, sw_cy, sw_w, sw_h, sw_r, this->shadow_color, renderer);
+        rounded_rectangle_draw_by_color(sw_cx, sw_cy, sw_w, sw_h, sw_r, this->render_shadow_color, renderer);
 
         // BORDER
-        rounded_rectangle_draw_by_color(br_cx, br_cy, br_w, br_h, br_r, this->border_color, renderer);
+        rounded_rectangle_draw_by_color(br_cx, br_cy, br_w, br_h, br_r, this->render_border_color, renderer);
 
         // BACKGROUND
-        rounded_rectangle_draw_by_color(bd_cx, bd_cy, bg_w, bg_h, bg_r, this->background_color, renderer);
+        rounded_rectangle_draw_by_color(bd_cx, bd_cy, bg_w, bg_h, bg_r, this->render_background_color, renderer);
     }
 
     else if (this->current_form == CIRCLE_EF)
     {
         // SHADOW
-        circle_draw_by_color(sw_cx, sw_cy, sw_w / 2, this->shadow_color, renderer);
+        circle_draw_by_color(sw_cx, sw_cy, sw_w / 2, this->render_shadow_color, renderer);
 
         // BORDER
-        circle_draw_by_color(br_cx, br_cy, br_w / 2, this->border_color, renderer);
+        circle_draw_by_color(br_cx, br_cy, br_w / 2, this->render_border_color, renderer);
 
         // BACKGROUND
-        circle_draw_by_color(bd_cx, bd_cy, bg_w / 2, this->background_color, renderer);
+        circle_draw_by_color(bd_cx, bd_cy, bg_w / 2, this->render_background_color, renderer);
     }
 
 
@@ -411,7 +434,8 @@ void My_SDL_panel::clear_elements()
 {
     for (auto it = this->inner_elements.begin(); it != this->inner_elements.end(); )
     {
-        it->delete_element();
+        // Always delete the first element until the list is empty, because after deletion the iterator will be invalidated
+        inner_elements.front().element_pointer->delete_element();
     }
 }
 

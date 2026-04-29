@@ -24,6 +24,8 @@ class My_SDL_textbox : public My_SDL_element // SDL_Element
 
         void delete_element() override;             // Text delete (clear links + destructor call)   
 
+        void cleanup();                             // Text cleanup (clear links + destructor call) for textboxes inside buttons (call in button.remove_element())  
+
         // ===== CONSTRUCTOR AND DESTRUCTOR =====   
 
 
