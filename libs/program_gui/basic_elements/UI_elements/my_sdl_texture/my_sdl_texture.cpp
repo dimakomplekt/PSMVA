@@ -4,6 +4,9 @@
 
 #include "my_sdl_texture.h"
 
+// Onetime CPP include for remove_element() method providing
+#include "../my_sdl_panel/my_sdl_panel.h"
+
 // =========================================================================================== IMPORT
 
 
@@ -54,10 +57,10 @@ void My_SDL_texture::delete_element()
 
 // =========================================================================================== MAIN LOGIC
 
-// void My_SDL_texture::update()
-// {
-//     // Nothing now
-// }
+void My_SDL_texture::update()
+{
+    // Nothing now
+}
 
 // =========================================================================================== MAIN LOGIC
 

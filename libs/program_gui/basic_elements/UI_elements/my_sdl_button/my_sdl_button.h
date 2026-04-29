@@ -451,7 +451,7 @@ class My_SDL_button : public My_SDL_element // SDL_Element
         void reset_current_form();                     // Automatic current form reset
 
 
-        // Content
+        // Content (composition)
         My_SDL_textbox button_textbox;
 
 

@@ -30,7 +30,7 @@ enum class Lang_list : unsigned int
 
 
 // Default language if none is explicitly set
-#define DEFAULT_LANG Lang_list::EN
+#define DEFAULT_LANG Lang_list::RU
 
 // =========================================================================================== LANGUAGE ENUM
 

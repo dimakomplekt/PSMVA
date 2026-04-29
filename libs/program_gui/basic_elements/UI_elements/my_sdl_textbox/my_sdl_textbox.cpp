@@ -30,10 +30,11 @@ My_SDL_textbox::My_SDL_textbox()
     this->font_size = 12; 
 
     // Relative path to the font file from the executable (can be changed by the setter for the font path)
-    this->font_path = absolute_by_relative_from_exe("../../libs/program_gui/basic_elements/content/ttf_fonts/Amiga_forever_pro.ttf");
+    this->font_path = absolute_by_relative_from_exe("../../libs/program_gui/basic_elements/content/ttf_fonts/basis33.ttf");
     
     this->ttf_font_link = nullptr;
 
+    if (!ttf_font_link) this->update();
 
     // Content and sizes set with anchor points reset
     this->set_content("Text");
@@ -88,7 +89,6 @@ My_SDL_textbox::~My_SDL_textbox()
 void My_SDL_textbox::update()
 {
     // Just font start initialization
-    // SAD TO SAY IT, BUT IT CAN'T BE DONE IN CONSTRUCTOR XD
     if (this->ttf_font_link == nullptr)
     {
         if(!this->font_path.empty()) this->set_ttf_font_link(TTF_OpenFont(this->font_path.c_str(), this->font_size));

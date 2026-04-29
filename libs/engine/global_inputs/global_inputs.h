@@ -239,7 +239,7 @@ class GI_input_manager
 
         // ===== Main logic =====
 
-        // With mouse update and keyboard update
+        // Mouse update and keyboard update (by singletones instances)
         void update();
 
 

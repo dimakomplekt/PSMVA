@@ -29,7 +29,7 @@ class My_SDL_texture : public My_SDL_element // SDL_Element
 
         // ===== MAIN LOGIC =====
 
-        // void update() override;  // Nothing now
+        void update() override;  // Nothing now
 
         // ===== MAIN LOGIC =====
 

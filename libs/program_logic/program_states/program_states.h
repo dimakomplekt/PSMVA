@@ -15,7 +15,7 @@
 
 // States import
 
-#include "states_logic/0.0_START/0.0_START.h"
+// #include "states_logic/0.0_START/0.0_START.h"
 // #include "states_logic/1.0_MAIN_MENU/1.0_MAIN_MENU.h"
 // #include "states_logic/1.1_FILE_CHOOSE/1.1_FILE_CHOOSE.h"
 // #include "states_logic/1.2_MASKS_SETUP/1.2_MASKS_SETUP.h"

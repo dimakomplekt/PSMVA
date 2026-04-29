@@ -52,7 +52,7 @@ My_SDL_button::My_SDL_button()
     this->button_textbox = My_SDL_textbox();
 
 
-    this->button_textbox.set_font_path(absolute_by_relative_from_exe("../../libs/program_gui/basic_elements/content/ttf_fonts/Amiga_forever_pro.ttf"));
+    this->button_textbox.set_font_path(absolute_by_relative_from_exe("../../libs/program_gui/basic_elements/content/ttf_fonts/basis33.ttf"));
     
     this->button_textbox.set_font_size(12);
 

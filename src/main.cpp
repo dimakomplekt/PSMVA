@@ -51,19 +51,21 @@ int main()
 
     while (app_test.app_state == SDL_APP_CONTINUE)
     {
+        frame_start = SDL_GetTicks();
+    
         SDL_PumpEvents();
-        
-        // Handle events
+    
         while (SDL_PollEvent(&event))
-        {
             SDL_app_event(&app_test, &event);
-        }
-
-        // Update and render
-        if (!SDL_app_cycle(&app_test))
+    
+        SDL_app_cycle(&app_test);
+    
+        frame_end = SDL_GetTicks();
+        frame_duration = frame_end - frame_start;
+    
+        if (frame_duration < FRAME_TIME_MS)
         {
-            app_test.app_sm.get_current_state()->on_exit();
-            break;
+            SDL_Delay(FRAME_TIME_MS - frame_duration);
         }
     }
 

@@ -10,6 +10,7 @@
 #include "../../program_gui/basic_elements/UI_elements/my_sdl_button/my_sdl_button.h"
 #include "../../program_gui/basic_elements/UI_elements/my_sdl_fader/my_sdl_fader.h"
 #include "../../program_gui/basic_elements/UI_elements/my_sdl_panel/my_sdl_panel.h"
+#include "../../program_gui/basic_elements/UI_elements/my_sdl_texture/my_sdl_texture.h"
 
 // =========================================================================================== IMPORT
 
@@ -27,8 +28,15 @@
 My_SDL_button* Button_1 = nullptr;
 My_SDL_button* Button_2 = nullptr;
 
+My_SDL_textbox* Textbox_1 = nullptr;
+
 My_SDL_fader*  Fader_1  = nullptr;
 My_SDL_panel*  Panel_1  = nullptr;
+
+
+
+My_SDL_texture* Blue_texture_test = nullptr;
+bool Blue_texture_test_init = false;
 
 
 // Predeclare
@@ -52,9 +60,9 @@ void start_enter()
     std::cout << Button_1->get_x_render_point() << std::endl;
     std::cout << Button_1->get_y_render_point() << std::endl;
 
-    Fader_1  = new My_SDL_fader();
+    Fader_1 = new My_SDL_fader();
 
-    Panel_1  = new My_SDL_panel();
+    Panel_1 = new My_SDL_panel();
 
     Panel_1->add_element(
 
@@ -90,21 +98,47 @@ void start_enter()
     Button_1->on_click = cout_on_but_1_click;
     // Button_1->set_font_path(Button_1->get_font_path());
 
-    // No need to initialize fader
+    // Textbox check
+
+    Textbox_1 = new My_SDL_textbox();
+
+    Textbox_1->set_content(str_by_dictionary(gd_press_any_key));
+
+    Textbox_1->set_render_point(1000, 800);
+
+
+
+
+    // Texture test
+
+    Blue_texture_test = new My_SDL_texture();
+    Blue_texture_test->set_render_point(1200, 500);
+    
 }
 
 
 void start_exit()
 { 
+    // Delete 
+
     // Button_1->delete_element();
     Fader_1->delete_element();
 
     Panel_1->delete_element();
 
+    Textbox_1->delete_element();
+
+    Blue_texture_test->delete_element();
+    Blue_texture_test_init = false;
+
+    // Nullptr
+
     Button_1 = nullptr;
     Button_2 = nullptr;
     Fader_1 = nullptr;
     Panel_1 = nullptr;
+    Textbox_1 = nullptr;
+    Blue_texture_test = nullptr;
 
     std::cout << "Exiting START\n"; 
 }
@@ -112,12 +146,23 @@ void start_exit()
 
 void start_update()
 {
-    App_mouse.update();
+    App_inputs.update();
 
     // Button_1->update();
     Fader_1->update();
 
     Panel_1->update();
+
+    if (App_inputs.is_just_released(Key_actions::Menu_forward))
+    {
+        app_test.app_sm.request_state_change(PROGRAM_END_ID);
+    }
+
+
+    if (App_inputs.is_just_released(Key_actions::Confirm))
+    {
+        std::cout << Fader_1->get_fader_value() << std::endl;
+    }
 }
 
 void start_render(SDL_Renderer* renderer)
@@ -130,6 +175,40 @@ void start_render(SDL_Renderer* renderer)
 
     // Panel 1
     Panel_1->render(renderer);
+
+    // Textbox 1
+    Textbox_1->render(renderer);
+
+
+    // Texture test
+    if (!Blue_texture_test_init)
+    {
+        // 1. создаём texture target
+        SDL_Texture* raw = SDL_CreateTexture(
+            renderer,
+            SDL_PIXELFORMAT_RGBA8888,
+            SDL_TEXTUREACCESS_TARGET,
+            200,
+            120
+        );
+
+        // 2. рисуем в неё
+        SDL_SetRenderTarget(renderer, raw);
+
+        SDL_SetRenderDrawColor(renderer, 80, 180, 255, 255); // голубой
+        SDL_RenderClear(renderer);
+
+        // вернуть обратно
+        SDL_SetRenderTarget(renderer, nullptr);
+
+        // 3. оборачиваем
+        
+        Blue_texture_test->set_texture(raw);
+
+        Blue_texture_test_init = true;
+    }
+
+    Blue_texture_test->render(renderer);
 }
 
 
@@ -402,7 +481,12 @@ void program_end_exit()
 
 void program_end_update()
 {
+    App_inputs.update();
 
+    if (App_inputs.is_just_released(Key_actions::Menu_back))
+    {
+        app_test.app_sm.request_state_change(START_ID);
+    }
 }
 
 /**

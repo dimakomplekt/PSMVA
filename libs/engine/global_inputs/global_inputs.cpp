@@ -108,10 +108,11 @@ GI_input_manager& GI_input_manager::Instance()
 
     if (!initialized)
     {
+        // Actions initialization zone
         instance.bind(Key_actions::Menu_forward, SDL_SCANCODE_RIGHT);
         instance.bind(Key_actions::Menu_back, SDL_SCANCODE_LEFT);
 
-        instance.bind(Key_actions::Confirm, SDL_SCANCODE_SPACE);
+        instance.bind(Key_actions::Confirm, SDL_SCANCODE_RETURN);
 
         instance.bind(Key_actions::Decline, SDL_SCANCODE_ESCAPE);
 
