@@ -45,9 +45,7 @@ void My_SDL_panel::delete_element()
     // Delete all inner elements
     while (!inner_elements.empty())
     {
-        auto* el = inner_elements.back().element_pointer;
-        inner_elements.pop_back();
-        delete el;
+        this->clear_elements();
     }
 
     // Delete itself by upper level panel or by itself
@@ -74,6 +72,32 @@ void My_SDL_panel::update()
         inner.element_pointer->update();
     }
 }
+
+
+void My_SDL_panel::set_opacity(Uint8 new_opacity)
+{
+    this->basic_opacity = new_opacity;
+    
+    // In case where we got the container
+    if (this->element_container != nullptr)
+    {
+        this->recalculate_opacity_by_container();
+    }
+    else
+    {
+        // Equal opacity in case without container
+        this->opacity = new_opacity;
+    }
+
+
+    // Change the opacity for all inner elements by the new container opacity
+    for (auto& inner : inner_elements)
+    {
+
+        inner.element_pointer->set_opacity(inner.element_pointer->get_basic_opacity());
+    }
+}
+
 
 // =========================================================================================== MAIN LOGIC
 
@@ -324,16 +348,21 @@ void My_SDL_panel::reset_current_form()
 
 void My_SDL_panel::add_element(My_SDL_element* element_pointer, int local_x, int local_y, unsigned int local_z)
 {
+    if (!element_pointer) return;
+    if (element_pointer->get_element_container() != nullptr) return;
+
     element_pointer->set_render_point(
         this->global_x_by_local_x(local_x),
         this->global_y_by_local_y(local_y)
     );
 
     panel_inner_element new_inner = {
+
         element_pointer,
         local_x,
         local_y,
         local_z
+
     };
 
 
@@ -350,6 +379,11 @@ void My_SDL_panel::add_element(My_SDL_element* element_pointer, int local_x, int
     );
 
     inner_elements.insert(it, new_inner);
+
+
+    element_pointer->element_container = this;
+
+    element_pointer->set_opacity(element_pointer->get_basic_opacity());
 }
 
 
@@ -361,11 +395,11 @@ void My_SDL_panel::remove_element(My_SDL_element* element_pointer)
         // If element is found
         if (it->element_pointer == element_pointer)
         {
-            // 1. Delete the element from the panel inner elements list 
+            // 1. Delete the element from the panel inner elements list
             this->inner_elements.erase(it);
 
-            // 2. Delete element
-            delete element_pointer;
+            // 2. Delete element 
+            delete element_pointer; 
 
             return;
         }
@@ -377,8 +411,7 @@ void My_SDL_panel::clear_elements()
 {
     for (auto it = this->inner_elements.begin(); it != this->inner_elements.end(); )
     {
-        delete it->element_pointer;
-        it = this->inner_elements.erase(it);
+        it->delete_element();
     }
 }
 

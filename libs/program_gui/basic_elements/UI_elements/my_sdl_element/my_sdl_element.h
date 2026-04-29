@@ -161,7 +161,7 @@ class My_SDL_element
 
 
         // Container-panel getter
-        My_SDL_panel* element_container_get() const;
+        My_SDL_panel* get_element_container() const;
 
         // ===== MAIN LOGIC =====
 
@@ -229,11 +229,16 @@ class My_SDL_element
          *
          * Updates the alpha value applied to all button visual elements,
          * including background, border, shadow, and content.
+         * 
+         * virtual - for logic change for the panel element (will call set_opacity(basic_opacity) 
+         * for all inner elements - and in case if we got panel in panel it will become recursive setting)
+         * and for the other elements, which can have some specific logic 
+         * of the opacity change
          *
          * @param new_opacity Opacity value (0 = fully transparent, 255 = fully opaque)
          * 
          */
-        void set_opacity(Uint8 new_opacity);
+        virtual void set_opacity(Uint8 new_opacity);
 
 
         /**
@@ -244,6 +249,19 @@ class My_SDL_element
          */
         Uint8 get_opacity() const;
 
+
+        /**
+         * @brief Get the element's basic opacity.
+         *
+         * @return Opacity value (0 = fully transparent, 255 = fully opaque)
+         * 
+         */
+        Uint8 get_basic_opacity() const;
+
+
+        // Onetime autoset of the opacity inside the update() loops of element
+        // and inside the set_opacity() method
+        void recalculate_opacity_by_container();
 
         // ===== GUI =====
 
@@ -291,8 +309,12 @@ class My_SDL_element
             // Element opacity for SDL rendering with
             // calling of commands like:
             // SDL_SetRenderDrawColor(renderer, background_color.r, background_color.g, background_color.b, alpha);
-            // before rendering
+            // Calculates differently by cases - fully equal to basic opacity if element ain't got container and
+            // equal to (basic_opacity * container_opacity / 255)
             Uint8 opacity; // 0 = fully transperent, 255 = fully opaque
+
+            // Opacity, passed to element by the set_opacity()
+            Uint8 basic_opacity;
             
             // ===== GUI =====
 };

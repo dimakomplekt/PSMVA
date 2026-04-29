@@ -323,7 +323,7 @@ void My_SDL_fader::update()
         }
     }
 
-
+    
     // Prepare the pallette for rendering by the current slot and knob states
     this->fader_pallette_prepare();
 

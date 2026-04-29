@@ -273,10 +273,8 @@ void My_SDL_button::update()
         else this->current_button_state = DEFAULT_ES;
     }
 
-
     // Pallette prepare for rendering
     this->button_pallette_prepare();  
-
 
     this->render_data_recalculation();
 }

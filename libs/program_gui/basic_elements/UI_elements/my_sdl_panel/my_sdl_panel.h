@@ -56,6 +56,19 @@ class My_SDL_panel : public My_SDL_element
          */
         void update() override;
 
+
+        /**
+         * @brief Sets the panel's global opacity and change the elements opacity by it.
+         *
+         * Updates the alpha value applied to all button visual elements,
+         * including background, border, shadow, and content.
+         *
+         * @param new_opacity Opacity value (0 = fully transparent, 255 = fully opaque)
+         * 
+         */
+        void set_opacity(Uint8 new_opacity) override;
+
+
         // ===== MAIN LOGIC =====
 
 

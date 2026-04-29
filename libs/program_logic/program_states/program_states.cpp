@@ -185,11 +185,13 @@ void start_render(SDL_Renderer* renderer)
     {
         // 1. создаём texture target
         SDL_Texture* raw = SDL_CreateTexture(
+
             renderer,
             SDL_PIXELFORMAT_RGBA8888,
             SDL_TEXTUREACCESS_TARGET,
             200,
             120
+            
         );
 
         // 2. рисуем в неё

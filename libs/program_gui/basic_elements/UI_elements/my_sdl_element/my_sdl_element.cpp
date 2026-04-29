@@ -40,9 +40,19 @@ bool hover_check_by_boundaries(const element_rect_boundaries& boundaries)
 // =========================================================================================== CONSTRUCTOR AND DESTRUCTOR
 
 
-My_SDL_element::My_SDL_element() : gui_type(STATIC_ELEMENT_GUI), x_render_point(0), y_render_point(0), opacity(255)
+My_SDL_element::My_SDL_element()
 {
-    // Default
+    // Default settings
+
+    this->gui_type = STATIC_ELEMENT_GUI;
+
+
+    this->x_render_point = 0;
+    this->y_render_point = 0;
+
+
+    this->opacity = 255;
+    this->basic_opacity = 255;
 }
 
 
@@ -51,7 +61,7 @@ My_SDL_element::My_SDL_element() : gui_type(STATIC_ELEMENT_GUI), x_render_point(
 
 // =========================================================================================== MAIN LOGIC
 
-My_SDL_panel* My_SDL_element::element_container_get() const
+My_SDL_panel* My_SDL_element::get_element_container() const
 {
     return this->element_container;
 }
@@ -96,13 +106,41 @@ anchor_points My_SDL_element::get_anchor_points() const
 
 void My_SDL_element::set_opacity(Uint8 new_opacity) 
 {
-    this->opacity = new_opacity;
+    this->basic_opacity = new_opacity;
+    
+    // In case where we got the container
+    if (this->element_container != nullptr)
+    {
+        this->recalculate_opacity_by_container();
+    }
+    else
+    {
+        // Equal opacity in case without container
+        this->opacity = new_opacity;
+    }
 }
+
+
+void My_SDL_element::recalculate_opacity_by_container()
+{
+    // Change the render opacity by basic opacity of the current element and render opacity of the current container
+    
+    this->opacity = static_cast<Uint8>(std::round(this->basic_opacity * this->get_element_container()->get_opacity() / 255));
+
+}
+ 
 
 
 Uint8 My_SDL_element::get_opacity() const 
 {
     return this->opacity;
 }
+
+
+Uint8 My_SDL_element::get_basic_opacity() const 
+{
+    return this->basic_opacity;
+}
+
 
 // =========================================================================================== GUI
