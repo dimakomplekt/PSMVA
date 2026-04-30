@@ -286,7 +286,7 @@ struct state_change_request
      *
      * Main application loop:
      *
-     *      bool SDL_app_cycle(sdl_app_ctx* app)
+     *      bool SDL_app_cycle(SDL_app_ctx* app)
      *      {
      *          State_machine& sm = app->app_sm;
      *

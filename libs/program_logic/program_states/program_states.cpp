@@ -48,7 +48,7 @@ void cout_on_but_1_click()
     std::cout << "Button_1 is clicked... Finally." << std::endl;
     std::cout << Fader_1->get_fader_value() << std::endl;
 
-    app_test.app_sm.request_state_change(PROGRAM_END_ID);
+    this_app.app_sm.request_state_change(PROGRAM_END_ID);
 }
 
 
@@ -180,7 +180,7 @@ void start_update()
 
     if (App_inputs.is_just_released(Key_actions::Menu_forward))
     {
-        app_test.app_sm.request_state_change(PROGRAM_END_ID);
+        this_app.app_sm.request_state_change(PROGRAM_END_ID);
     }
 }
 
@@ -506,7 +506,7 @@ void program_end_update()
 
     if (App_inputs.is_just_released(Key_actions::Menu_back))
     {
-        app_test.app_sm.request_state_change(START_ID);
+        this_app.app_sm.request_state_change(START_ID);
     }
 }
 

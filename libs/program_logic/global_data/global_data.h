@@ -11,6 +11,21 @@
 // =========================================================================================== IMPORT
 
 
+// =========================================================================================== APP SETTINGS
+
+/**
+ * @brief Default application name.
+ *
+ * Used as the main window title and as the base identifier
+ * for the running program instance.
+ * 
+ */
+const std::string THIS_APP_NAME = "PSMVA"; 
+
+
+// =========================================================================================== APP SETTINGS
+
+
 // =========================================================================================== GLOBAL WINDOW SETTINGS
 
 // Main window horizontal size
@@ -19,6 +34,7 @@
 // Main window vertical size
 #define MAIN_WINDOW_V_SIZE 1000
 
+const SDL_WindowFlags THIS_APP_WINDOW_FLAG = SDL_WINDOW_RESIZABLE; // | SDL_WINDOW_ALLOW_HIGHDPI
 
 // =========================================================================================== GLOBAL WINDOW SETTINGS
 

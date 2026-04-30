@@ -172,7 +172,7 @@ extern "C" {
  *
  * \since This hint is available since SDL 3.2.0.
  */
-#define SDL_HINT_APP_NAME "SDL_APP_NAME"
+#define SDL_HINT_THIS_APP_NAME "SDL_THIS_APP_NAME"
 
 /**
  * A variable controlling whether controllers used with the Apple TV generate
