@@ -105,8 +105,6 @@ void start_enter()
 
     Textbox_1 = new My_SDL_textbox();
 
-    Textbox_1->set_content(str_by_dictionary(gd_press_any_key));
-
     Textbox_1->set_render_point(1000, 800);
 
 
@@ -182,6 +180,8 @@ void start_update()
             Panel_1->get_y_render_point() + 20
             
         );  
+
+        App_lang.set_lang(Lang_list::EN);
     }
 
 
@@ -189,6 +189,10 @@ void start_update()
     {
         this_app.app_sm.request_state_change(PROGRAM_END_ID);
     }
+
+
+    if (App_lang.get_lang_reset_flag())
+        Textbox_1->set_content(str_by_dictionary(gd_press_any_key));
 }
 
 void start_render(SDL_Renderer* renderer)

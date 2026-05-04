@@ -61,7 +61,6 @@ class My_SDL_textbox : public My_SDL_element // SDL_Element
          * @param x_cc_rp x coordinate of the center-center render point
          * @param y_cc_rp y coordinate of the center-center render point
          * 
-         * 
          */
         void set_render_point(int x_cc_rp, int y_cc_rp) override;
 

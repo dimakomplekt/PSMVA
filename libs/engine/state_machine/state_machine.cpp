@@ -4,6 +4,8 @@
 
 #include "state_machine.h"
 
+#include "../lang_state/lang_state.h"   // For language reset on state change
+
 #include <algorithm> // For "std::find_if" and "std::remove"
 
 // =========================================================================================== IMPORT
@@ -369,6 +371,10 @@ void State_machine::request_state_change(const State_ID& id)
     this->state_change.set(id);
 
     std::cout << "State added to queue: " << this->state_change.next.string() << std::endl;
+
+
+    // Lang state reset
+    App_lang.set_lang(App_lang.get_lang());
 }
 
 

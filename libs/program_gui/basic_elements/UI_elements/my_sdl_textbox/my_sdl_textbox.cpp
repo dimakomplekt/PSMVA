@@ -92,6 +92,8 @@ void My_SDL_textbox::cleanup()
         SDL_DestroyTexture(this->content_texture);
         this->content_texture = nullptr;
     }
+
+    this->set_content("");
 }
 
 
@@ -106,6 +108,7 @@ void My_SDL_textbox::update()
     {
         if(!this->font_path.empty()) this->set_ttf_font_link(TTF_OpenFont(this->font_path.c_str(), this->font_size));
     }
+
 
 }
 

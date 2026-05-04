@@ -18,8 +18,8 @@
  *
  * Usage:
  * @code
- * Lang_state::Instance().Set_lang(Lang_list::RU);
- * auto current = Lang_state::Instance().Get_lang();
+ * Lang_state::Instance().set_lang(Lang_list::RU);
+ * auto current = Lang_state::Instance().get_lang();
  * @endcode
  */
 class Lang_state
@@ -40,7 +40,7 @@ public:
      *
      * @return Currently set language as Lang_list.
      */
-    Lang_list Get_lang() const;
+    Lang_list get_lang() const;
 
 
     /**
@@ -49,8 +49,16 @@ public:
      * @param lang New language to set.
      * @return true if the language was changed successfully, false if invalid.
      */
-    bool Set_lang(Lang_list lang);
+    bool set_lang(Lang_list lang);
 
+    // ===== Language reset =====
+
+    bool get_lang_reset_flag() const;
+
+    // Function, called inside the main loop, before state loop
+    // sets lang_reset_flag to false after 2 loops, to avoid constant resettings.
+    // Called inside SDL_app_cycle(SDL_app_ctx* app) in app.cpp
+    void lang_reset_flag_state_loop_update();
 
 private:
 
@@ -69,6 +77,12 @@ private:
 
     // Currently active language
     Lang_list current_lang;
+
+    // Flag to indicate if the language has been reset (for UI updates, etc.)
+    bool lang_reset_flag;
+
+    // Counter to track how many loops have passed since the language reset flag was set
+    unsigned int lang_reset_flag_loops_counter;
 };
 
 // =========================================================================================== LANG_STATE SINGLETON

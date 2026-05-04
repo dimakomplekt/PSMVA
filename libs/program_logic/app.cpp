@@ -11,6 +11,10 @@
 
 // =========================================================================================== APP MAIN LOOP
 
+SDL_app_ctx this_app;
+SDL_Event event;
+
+
 int SDL_app_init_and_run()
 {
     // ===== Initialization =====
@@ -123,6 +127,7 @@ bool SDL_app_init(SDL_app_ctx* app, int w, int h, const char* title)
 
 bool this_app_loop()
 {
+
     while (this_app.app_state == SDL_APP_CONTINUE)
     {
         // FPS control [1]
@@ -181,6 +186,11 @@ bool SDL_app_cycle(SDL_app_ctx* app)
         // state changed -> skip this frame to avoid mixed execution
         return app->app_state == SDL_APP_CONTINUE;
     }
+
+
+    
+    // Counter and flag update for language reset in dictionary-oriented textboxes
+    App_lang.lang_reset_flag_state_loop_update();
 
 
     // State update
