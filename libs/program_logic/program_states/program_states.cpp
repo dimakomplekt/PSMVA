@@ -175,6 +175,13 @@ void start_update()
     if (App_inputs.is_just_released(Key_actions::Confirm))
     {
         std::cout << Fader_1->get_fader_value() << std::endl;
+
+        Panel_1->set_render_point(
+
+            Panel_1->get_x_render_point() + 20,
+            Panel_1->get_y_render_point() + 20
+            
+        );  
     }
 
 
