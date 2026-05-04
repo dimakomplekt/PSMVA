@@ -66,7 +66,7 @@ ___
 
 ``` cpp 
 
-bool SDL_app_cycle(sdl_app_ctx* app)
+bool SDL_app_cycle(SDL_app_ctx* app)
 {
     // State update
     if (app->app_sm.get_current_state()) app->app_sm.state_update();
