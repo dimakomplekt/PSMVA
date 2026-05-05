@@ -20,6 +20,10 @@ My_SDL_texture::My_SDL_texture()
     this->width_size = 0;
     this->height_size = 0;
 
+    this->basic_width_size = 0;  
+    this->basic_height_size = 0;
+
+
     this->x_render_point = 0;
     this->y_render_point = 0;
 
@@ -64,6 +68,67 @@ void My_SDL_texture::update()
     // Nothing now
 }
 
+
+void My_SDL_texture::set_texture(SDL_Texture* new_texture)
+{
+    // Texture link repeat - just reset size to basic and return
+    if (this->texture == new_texture)
+    {
+        this->new_texture = false;
+
+        this->width_size = this->base_width_size;
+        this->height_size = this->base_height_size;
+
+        return;
+    } 
+
+
+    // New texture link case
+
+    // Delete old before set
+    if (this->texture != nullptr)
+    {
+        SDL_DestroyTexture(this->texture);
+        this->texture = nullptr;
+    }
+
+
+    this->texture = new_texture;
+
+    // Error handler for nullptr pass (could be possible on different workflows)
+    if (this->texture == nullptr)
+    {
+        this->width_size = 0;
+        this->height_size = 0;
+        this->reset_anchor_points();
+
+        return;
+    }
+
+
+    // Sizes recalculation for not empty (nullptr) texture
+
+    float w = 0.0f;
+    float h = 0.0f;
+
+    SDL_GetTextureSize(this->texture, &w, &h);
+
+
+    if (this->new_texture)
+    {
+        // Reset basic sizes
+        this->base_width_size = static_cast<int>(std::round(w));
+        this->base_height_size = static_cast<int>(std::round(h));
+
+        // Set the new current sizes by basic sizes on texture pass
+        this->width_size = this->base_width_size;
+        this->height_size = this->base_height_size;
+    }
+
+    
+    this->reset_anchor_points();
+}
+
 // =========================================================================================== MAIN LOGIC
 
 
@@ -89,6 +154,7 @@ void My_SDL_texture::render(SDL_Renderer* renderer)
 }
 
 
+
 void My_SDL_texture::set_render_point(int x_cc_rp, int y_cc_rp)
 {
     this->x_render_point = x_cc_rp;
@@ -99,48 +165,127 @@ void My_SDL_texture::set_render_point(int x_cc_rp, int y_cc_rp)
 }
 
 
-unsigned int My_SDL_texture::get_width_size() const
+int My_SDL_texture::get_basic_width_size() const
+{
+    return this->basic_width_size;
+}
+
+
+int My_SDL_texture::get_basic_height_size() const
+{
+    return this->basic_height_size;
+}
+
+
+
+int My_SDL_texture::get_width_size() const
 {
     return this->width_size;
 }
 
 
-unsigned int My_SDL_texture::get_height_size() const
+int My_SDL_texture::get_height_size() const
 {
     return this->height_size;
 }
 
 
-void My_SDL_texture::set_texture(SDL_Texture* new_texture)
+void My_SDL_texture::set_x_scaler(float new_x_scaler)
 {
-    if (this->texture != nullptr)
-    {
-        SDL_DestroyTexture(this->texture);
-        this->texture = nullptr;
-    }
+    if (new_x_scaler <= 0.0f) return;
 
-    this->texture = new_texture;
+    this->x_scaler = new_x_scaler;
 
-    // Error handler
-    if (this->texture == nullptr)
-    {
-        this->width_size = 0;
-        this->height_size = 0;
-        this->reset_anchor_points();
-        return;
-    }
+    this->width_size = static_cast<int>(std::round(this->basic_width_size * this->x_scaler));
 
-    // Sizes recalculation 
+    this->reset_anchor_points();
+}
 
-    float w = 0.0f;
-    float h = 0.0f;
 
-    SDL_GetTextureSize(this->texture, &w, &h);
+void My_SDL_texture::set_y_scaler(float new_y_scaler)
+{
+    if (new_y_scaler <= 0.0f) return;
 
-    this->width_size = static_cast<int>(std::round(w));
-    this->height_size = static_cast<int>(std::round(h));
+    this->y_scaler = new_y_scaler;
 
-    
+    this->height_size = static_cast<int>(std::round(this->basic_height_size * this->y_scaler));
+
+    this->reset_anchor_points();
+}
+
+
+void My_SDL_texture::set_scalers(float new_x_scaler, float new_y_scaler)
+{
+    if (new_x_scaler <= 0.0f || new_y_scaler <= 0.0f)) return;
+
+    this->x_scaler = new_x_scaler;
+    this->y_scaler = new_y_scaler;
+
+    this->width_size = static_cast<int>(std::round(this->basic_width_size * this->x_scaler));
+    this->height_size = static_cast<int>(std::round(this->basic_height_size * this->y_scaler));
+
+    this->reset_anchor_points();
+}
+
+
+
+float My_SDL_texture::get_x_scaler() const
+{
+    return this->x_scaler;
+}
+
+float My_SDL_texture::get_y_scaler() const
+{
+    return this->y_scaler;
+}
+
+
+void My_SDL_texture::set_width(int new_width)
+{
+    if (new_width <= 0) return;
+
+    this->width_size = new_width;
+
+    this->x_scaler = static_cast<float>(this->width_size) / static_cast<float>(this->basic_width_size);
+
+    this->reset_anchor_points();
+}
+
+
+void My_SDL_texture::set_height(int new_height)
+{
+    if (new_height <= 0) return;
+
+    this->height_size = new_height;
+
+    this->y_scaler = static_cast<float>(this->height_size) / static_cast<float>(this->basic_height_size);
+
+    this->reset_anchor_points();
+}
+
+
+void My_SDL_texture::set_size(unsigned int new_width, unsigned int new_height)
+{
+    if (new_width <= 0 || new_height <= 0) return;
+
+    this->width_size = new_width;
+    this->height_size = new_height;
+
+    this->x_scaler = static_cast<float>(this->width_size) / static_cast<float>(this->basic_width_size);
+    this->y_scaler = static_cast<float>(this->height_size) / static_cast<float>(this->basic_height_size);
+
+    this->reset_anchor_points();
+}
+
+
+void My_SDL_texture::reset_size()
+{
+    this->width_size = this->basic_width_size;
+    this->height_size = this->basic_height_size;
+
+    this->x_scaler = 1.0f;
+    this->y_scaler = 1.0f;
+
     this->reset_anchor_points();
 }
 
