@@ -10,7 +10,6 @@
 // =========================================================================================== IMPORT
 
 
-
 // =========================================================================================== CONSTRUCTOR AND DESTRUCTOR
 
 My_SDL_texture::My_SDL_texture()
@@ -74,10 +73,8 @@ void My_SDL_texture::set_texture(SDL_Texture* new_texture)
     // Texture link repeat - just reset size to basic and return
     if (this->texture == new_texture)
     {
-        this->new_texture = false;
-
-        this->width_size = this->base_width_size;
-        this->height_size = this->base_height_size;
+        this->width_size = this->basic_width_size;
+        this->height_size = this->basic_height_size;
 
         return;
     } 
@@ -114,16 +111,13 @@ void My_SDL_texture::set_texture(SDL_Texture* new_texture)
     SDL_GetTextureSize(this->texture, &w, &h);
 
 
-    if (this->new_texture)
-    {
-        // Reset basic sizes
-        this->base_width_size = static_cast<int>(std::round(w));
-        this->base_height_size = static_cast<int>(std::round(h));
+    // Reset basic sizes
+    this->basic_width_size = static_cast<int>(std::round(w));
+    this->basic_height_size = static_cast<int>(std::round(h));
 
-        // Set the new current sizes by basic sizes on texture pass
-        this->width_size = this->base_width_size;
-        this->height_size = this->base_height_size;
-    }
+    // Set the new current sizes by basic sizes on texture pass
+    this->width_size = this->basic_width_size;
+    this->height_size = this->basic_height_size;
 
     
     this->reset_anchor_points();
@@ -147,7 +141,7 @@ void My_SDL_texture::render(SDL_Renderer* renderer)
     dst.x = static_cast<float>(this->x_render_point) - dst.w / 2.0f;
     dst.y = static_cast<float>(this->y_render_point) - dst.h / 2.0f;
 
-    // TODO: check double opacity change in panel
+
     SDL_SetTextureAlphaMod(this->texture, this->opacity);
 
     SDL_RenderTexture(renderer, this->texture, nullptr, &dst);
@@ -216,7 +210,7 @@ void My_SDL_texture::set_y_scaler(float new_y_scaler)
 
 void My_SDL_texture::set_scalers(float new_x_scaler, float new_y_scaler)
 {
-    if (new_x_scaler <= 0.0f || new_y_scaler <= 0.0f)) return;
+    if (new_x_scaler <= 0.0f || new_y_scaler <= 0.0f) return;
 
     this->x_scaler = new_x_scaler;
     this->y_scaler = new_y_scaler;

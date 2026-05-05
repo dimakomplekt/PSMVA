@@ -8,6 +8,10 @@
 
 // =========================================================================================== IMPORT
 
+
+// =========================================================================================== MY_SDL_TEXTURE
+
+
 class My_SDL_texture : public My_SDL_element // SDL_Element
 {
     public:
@@ -148,7 +152,7 @@ class My_SDL_texture : public My_SDL_element // SDL_Element
          * @brief Sets the texture size, recalculate scalers and reset anchor points.
          *
          * @param new_width New width of the texture in pixels
-         * @param new_heigth New height of the texture in pixels
+         * @param new_height New height of the texture in pixels
          * 
          */
         void set_width(int new_width);
@@ -156,7 +160,7 @@ class My_SDL_texture : public My_SDL_element // SDL_Element
         /**
          * @brief Sets the texture size, recalculate scalers and reset anchor points.
          *
-         * @param new_heigth New height of the texture in pixels
+         * @param new_height New height of the texture in pixels
          * 
          */
         void set_height(int new_height);
@@ -165,7 +169,7 @@ class My_SDL_texture : public My_SDL_element // SDL_Element
          * @brief Sets the texture size, recalculate scalers and reset anchor points.
          *
          * @param new_width New width of the texture in pixels
-         * @param new_heigth New height of the texture in pixels
+         * @param new_height New height of the texture in pixels
          * 
          */
         void set_size(unsigned int new_width, unsigned int new_height);
@@ -206,3 +210,5 @@ class My_SDL_texture : public My_SDL_element // SDL_Element
         // ===== GUI ======
 
 };
+
+// =========================================================================================== MY_SDL_TEXTURE

@@ -114,7 +114,32 @@ void start_enter()
 
     Blue_texture_test = new My_SDL_texture();
     Blue_texture_test->set_render_point(1200, 500);
+
+
+    // 1. создаём texture target
+
+    SDL_Texture* raw = SDL_CreateTexture(
+
+        this_app.renderer,
+        SDL_PIXELFORMAT_RGBA8888,
+        SDL_TEXTUREACCESS_TARGET,
+        200,
+        120
+        
+    );
+
+    // 2. рисуем в неё
+    SDL_SetRenderTarget(this_app.renderer, raw);
+
+    SDL_SetRenderDrawColor(this_app.renderer, 80, 180, 255, 255);
+    SDL_RenderClear(this_app.renderer);
+
+    // вернуть обратно
+    SDL_SetRenderTarget(this_app.renderer, nullptr);
+
+    // 3. оборачиваем
     
+    Blue_texture_test->set_texture(raw);
 }
 
 
@@ -145,6 +170,9 @@ void start_exit()
 }
 
 
+
+unsigned int counter_1 = 0;
+
 void start_update()
 {
     App_inputs.update();
@@ -167,6 +195,75 @@ void start_update()
 
         std::cout << "Panel_1 opacity: " << static_cast<int>(Panel_1->get_opacity()) << std::endl;
         std::cout << "Panel_1 basic opacity: " << static_cast<int>(Panel_1->get_basic_opacity()) << std::endl;
+    }
+
+
+    if (App_inputs.is_just_released(Key_actions::Decline))
+    {
+        // Test of the texture sizes reset
+        switch (counter_1)
+        {
+            case 0:
+
+                Blue_texture_test->set_x_scaler(2);
+
+                counter_1++;
+
+                break;
+
+            case 1:
+
+                Blue_texture_test->set_y_scaler(2);
+
+                counter_1++;
+
+                break;
+ 
+            case 2:
+
+                Blue_texture_test->set_scalers(3, 1);
+
+                counter_1++;
+
+                break;
+
+            case 3:
+
+                Blue_texture_test->set_height(500);
+
+                counter_1++;
+
+                break;
+
+
+            case 4:
+
+                Blue_texture_test->set_width(500);
+
+                counter_1++;
+
+                break;
+ 
+            case 5:
+
+                Blue_texture_test->set_size(360, 370);
+
+                counter_1++;
+
+                break;
+
+            case 6:
+
+                Blue_texture_test->reset_size();
+
+                counter_1 = 0;
+
+                break;
+
+
+            default:
+                break;
+        }
     }
 
 
@@ -211,35 +308,6 @@ void start_render(SDL_Renderer* renderer)
 
 
     // Texture test
-    if (!Blue_texture_test_init)
-    {
-        // 1. создаём texture target
-        SDL_Texture* raw = SDL_CreateTexture(
-
-            renderer,
-            SDL_PIXELFORMAT_RGBA8888,
-            SDL_TEXTUREACCESS_TARGET,
-            200,
-            120
-            
-        );
-
-        // 2. рисуем в неё
-        SDL_SetRenderTarget(renderer, raw);
-
-        SDL_SetRenderDrawColor(renderer, 80, 180, 255, 255); // голубой
-        SDL_RenderClear(renderer);
-
-        // вернуть обратно
-        SDL_SetRenderTarget(renderer, nullptr);
-
-        // 3. оборачиваем
-        
-        Blue_texture_test->set_texture(raw);
-
-        Blue_texture_test_init = true;
-    }
-
     Blue_texture_test->render(renderer);
 }
 
