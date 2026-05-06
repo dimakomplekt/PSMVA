@@ -377,6 +377,9 @@ class My_SDL_button : public My_SDL_element // SDL_Element
         void set_shadow_color_clicked_2(SDL_Color new_color);
 
 
+
+        void renew_colors_if_pallette_switched() override;
+
         // ===== GUI ======
 
 

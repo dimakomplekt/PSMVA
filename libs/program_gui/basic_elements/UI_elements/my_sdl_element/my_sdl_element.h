@@ -10,10 +10,11 @@
 #include <cmath>                                                        // for std::round()
 
 
-#include "../../../../engine/engine.h"                                     // SDL3 and SDL ttf import
+#include "../../../../engine/engine.h"                                  // SDL3 and SDL ttf import
 
 #include "../../GUI_functions/drawing/figures_drawing.h"                // Basic figures
-#include "../../GUI_functions/translators/color_translator.h"           // HEX to SDL_Color 
+
+#include "../../global_pallette/global_pallette.h"                      // Global pallette for the default colors and HEX to SDL_Color translator
 
 // =========================================================================================== IMPORT
 
@@ -167,18 +168,6 @@ class My_SDL_element
 
 
         // ===== GUI =====
-        
-
-        /**
-         * @brief GUI type setter
-         * 
-         * Choose the gui type (static or dynamic) for the elementby the element_gui_type enum values
-         * 
-         * @param new_gui_type one of the two element_gui_type enum values
-         * 
-         */
-        void set_gui_type(element_gui_type new_gui_type);
-
 
 
         /**
@@ -263,6 +252,28 @@ class My_SDL_element
         // and inside the set_opacity() method
         void recalculate_opacity_by_container();
 
+
+        /**
+         * @brief GUI type setter
+         * 
+         * Choose the gui type (static or dynamic) for the elementby the element_gui_type enum values
+         * 
+         * @param new_gui_type one of the two element_gui_type enum values
+         * 
+         */
+        void set_gui_type(element_gui_type new_gui_type);
+
+
+        // passed_by_pallette flag switcher for the basic GUI elements color settings
+        void switch_passed_by_pallette_flag(bool new_status);
+
+
+        // Virtual method for the color reset of the basic GUI elements, 
+        // which colors are set by the pallette, in case of the pallette switch,
+        // called inside the update() method of the element, if the pallette_reset_flag
+        // of the App_pallette singleton is true and the element passed_by_pallette flag is true
+        virtual void renew_colors_if_pallette_switched() = 0;
+
         // ===== GUI =====
 
 
@@ -317,6 +328,11 @@ class My_SDL_element
 
             // Opacity, passed to element by the set_opacity()
             Uint8 basic_opacity;
+
+
+            // Flag for the basic GUI elements color settings by the pallette (true 
+            // if element colors are set by the pallette, false if not)
+            bool passed_by_pallette;
             
             // ===== GUI =====
 };

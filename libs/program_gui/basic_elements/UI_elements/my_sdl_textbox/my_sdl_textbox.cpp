@@ -164,11 +164,14 @@ void My_SDL_textbox::set_content(const std::string& new_text)
 
     // SDL3 AND SDL2 CONFLICT
     if (!TTF_GetStringSize(
+
             this->ttf_font_link,
             this->content.c_str(),
             this->content.length(),
             &w,
-            &h))
+            &h
+
+    ))
     {
         std::cerr << "TTF_GetStringSize failed: " << SDL_GetError() << std::endl;
         return;
@@ -271,6 +274,15 @@ void My_SDL_textbox::set_content_texture(SDL_Texture* new_texture)
     // Content is dirty after reset
     this->content_dirty = true;
 }
+
+
+
+void My_SDL_textbox::renew_colors_if_pallette_switched()
+{
+
+}
+
+
 
 
 void My_SDL_textbox::reset_anchor_points()

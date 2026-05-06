@@ -17,7 +17,7 @@
 // App pallette structure, which contains all basic colors for basic UI
 struct app_pallette_ctx
 {
-    // Global bacground
+    // Global background
     SDL_Color global_background_color;
 
     // Basic background colors (for UI elements - buttons, textboxes, faders)
@@ -75,14 +75,6 @@ struct app_pallette_ctx
 };
 
 // =========================================================================================== PALLETTE STRUCT
-
-
-// =========================================================================================== PALLETTES DECLARATION
-
-app_pallette_ctx app_pallette_1;
-app_pallette_ctx app_pallette_2;
-
-// =========================================================================================== PALLETTES DECLARATION
 
 
 // =========================================================================================== APP PALLETTE SINGLETON CLASS
@@ -191,7 +183,7 @@ class Global_pallette
 
     private:
 
-        // ===== Constructor and Destuctor =====
+        // ===== Constructor and Destructor =====
         
         // Private constructor ensures no external instances can be created.
         Global_pallette();
@@ -205,7 +197,7 @@ class Global_pallette
         // Assignment operator is deleted to prevent copying the singleton.
         Global_pallette& operator=(const Global_pallette&) = delete;
 
-        // ===== Constructor and Destuctor =====
+        // ===== Constructor and Destructor =====
 
         
         // ===== Pallettes =====

@@ -51,6 +51,13 @@ void cout_on_but_1_click()
     this_app.app_sm.request_state_change(PROGRAM_END_ID);
 }
 
+void switch_pallette_on_but_2_click()
+{
+    std::cout << "Button_2 is clicked... Finally." << std::endl;
+
+    App_pallette.switch_to_the_next_pallette();
+}
+
 
 void start_enter()
 {
@@ -99,6 +106,9 @@ void start_enter()
 
     // Button 1 initialization
     Button_1->on_click = cout_on_but_1_click;
+
+    Button_2->on_click = switch_pallette_on_but_2_click;
+
     // Button_1->set_font_path(Button_1->get_font_path());
 
     // Textbox check
@@ -290,6 +300,24 @@ void start_update()
 
     if (App_lang.get_lang_reset_flag())
         Textbox_1->set_content(str_by_dictionary(gd_press_any_key));
+
+
+    // Switch button_1 color by fader
+    if (Button_1)
+    {
+        SDL_Color color_to_switch = App_pallette.get_current_pallette().basic_background_color;
+
+        SDL_Color new_color = {
+
+            static_cast<Uint8>(color_to_switch.r * Fader_1->get_fader_value()),
+            static_cast<Uint8>(color_to_switch.g * Fader_1->get_fader_value()),
+            static_cast<Uint8>(color_to_switch.b * Fader_1->get_fader_value()),
+            255
+
+        };
+
+        Button_1->set_background_color_1(new_color);
+    }
 }
 
 void start_render(SDL_Renderer* renderer)

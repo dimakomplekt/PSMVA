@@ -692,6 +692,15 @@ void My_SDL_fader::set_knob_border_color_clicked(SDL_Color new_color)           
 void My_SDL_fader::set_knob_shadow_color_clicked(SDL_Color new_color)           { this->knob_shadow_color_clicked = new_color; }
 
 
+
+void My_SDL_fader::renew_colors_if_pallette_switched()
+{
+
+}
+
+
+
+
 // Knob render point inner setter 
 
 void My_SDL_fader::set_knob_render_point(int x_cc_rp)

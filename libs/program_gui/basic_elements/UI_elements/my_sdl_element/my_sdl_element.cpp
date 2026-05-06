@@ -53,6 +53,10 @@ My_SDL_element::My_SDL_element()
 
     this->opacity = 255;
     this->basic_opacity = 255;
+
+
+    // Basic GUI elements colors setted by pallette (default)
+    this->passed_by_pallette = true;
 }
 
 
@@ -70,22 +74,6 @@ My_SDL_panel* My_SDL_element::get_element_container() const
 
 
 // =========================================================================================== GUI
-
-// GUI type setter 
-
-void My_SDL_element::set_gui_type(element_gui_type new_gui_type)
-{
-    // Error handling for invalid GUI type
-    if (new_gui_type != STATIC_ELEMENT_GUI && new_gui_type != DYNAMIC_ELEMENT_GUI)
-    {
-        std::cerr << "Invalid element GUI type. GUI type not changed." << std::endl;
-        return;
-    }
-
-    // New type setting
-    else this->gui_type = new_gui_type;
-}
-
 
 // Render point getters 
 
@@ -154,5 +142,26 @@ Uint8 My_SDL_element::get_basic_opacity() const
     return this->basic_opacity;
 }
 
+
+// GUI type setter 
+
+void My_SDL_element::set_gui_type(element_gui_type new_gui_type)
+{
+    // Error handling for invalid GUI type
+    if (new_gui_type != STATIC_ELEMENT_GUI && new_gui_type != DYNAMIC_ELEMENT_GUI)
+    {
+        std::cerr << "Invalid element GUI type. GUI type not changed." << std::endl;
+        return;
+    }
+
+    // New type setting
+    else this->gui_type = new_gui_type;
+}
+
+
+void My_SDL_element::switch_passed_by_pallette_flag(bool new_status)
+{
+    this->passed_by_pallette = new_status;
+}
 
 // =========================================================================================== GUI

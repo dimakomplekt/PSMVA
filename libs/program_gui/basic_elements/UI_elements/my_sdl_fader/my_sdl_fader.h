@@ -359,6 +359,9 @@ class My_SDL_fader : public My_SDL_element // SDL_Element
         void set_knob_shadow_color_clicked(SDL_Color new_color);
 
 
+
+        void renew_colors_if_pallette_switched() override;
+
         // ===== GUI ======
 
 

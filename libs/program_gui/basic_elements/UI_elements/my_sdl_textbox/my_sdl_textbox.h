@@ -154,6 +154,9 @@ class My_SDL_textbox : public My_SDL_element // SDL_Element
         // Sets the content texture of the text (replaces content color or text rendering)
         void set_content_texture(SDL_Texture* new_texture);
 
+
+        void renew_colors_if_pallette_switched() override;
+
         // ===== GUI ======
 
 

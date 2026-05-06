@@ -747,6 +747,17 @@ void My_SDL_button::set_shadow_color_clicked_2(SDL_Color new_color)
 }
 
 
+
+
+void My_SDL_button::renew_colors_if_pallette_switched()
+{
+
+}
+
+
+
+
+
 void My_SDL_button::render_data_recalculation()
 {
     if (this->current_button_state != CLICKED_ES) this->press_offset = 0;

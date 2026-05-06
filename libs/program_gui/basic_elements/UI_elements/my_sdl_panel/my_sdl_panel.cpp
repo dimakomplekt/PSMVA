@@ -30,10 +30,13 @@ My_SDL_panel::My_SDL_panel()
     this->shadow_offset_y = 2;
     this->shadow_scale_factor = 1.0f;
 
-    this->set_panel_background_color(hex_to_sdl_color("#fd3108", 250));
-    this->set_panel_border_color(hex_to_sdl_color("#8af520", 250));
-    this->set_panel_shadow_color(hex_to_sdl_color("#d400ff", 250));
 
+    // Basic color pass by the current pallette
+
+    this->background_color = App_pallette.get_current_pallette().basic_background_color;
+    this->border_color = App_pallette.get_current_pallette().basic_border_color;
+    this->shadow_color = App_pallette.get_current_pallette().basic_shadow_color;
+    
     this->render_background_color = this->background_color;
     this->render_border_color = this->border_color;
     this->render_shadow_color = this->shadow_color;
@@ -43,8 +46,9 @@ My_SDL_panel::My_SDL_panel()
 
     this->reset_anchor_points();
 
-
     this->set_opacity(255);
+
+    this->render_data_reset();
 }
 
 
@@ -74,6 +78,10 @@ void My_SDL_panel::delete_element()
 
 void My_SDL_panel::update()
 {
+    // Check if the pallette was switched and update the colors by the new pallette if it was
+    this->renew_colors_if_pallette_switched();
+
+    
     // Just update all inner elements by auto type link and overrided update() methods
     for (auto& inner : inner_elements)
     {
@@ -129,72 +137,45 @@ void My_SDL_panel::panel_pallette_prepare()
 
 void My_SDL_panel::render(SDL_Renderer* renderer)
 {
-    // Calculate panel boundaries
-
-    // TODO: CREATE STRUCT AND RECALCULATE TO STRUCT ONLY WITH CHANGES
-
-    int sw_cx = this->x_render_point + this->shadow_offset_x;
-    int sw_cy = this->y_render_point + this->shadow_offset_y;
-
-    int br_cx = this->x_render_point;
-    int br_cy = this->y_render_point;
-
-    int bd_cx = this->x_render_point;
-    int bd_cy = this->y_render_point;
-
-
-    unsigned int sw_w = static_cast<unsigned int>(std::round((this->panel_width_size) * this->shadow_scale_factor));
-    unsigned int sw_h = static_cast<unsigned int>(std::round((this->panel_height_size) * this->shadow_scale_factor));
-
-    unsigned int br_w = this->panel_width_size; 
-    unsigned int br_h = this->panel_height_size;
-
-    int bg_w = (int)this->panel_width_size - 2 * (int)this->border_width_size;
-    int bg_h = (int)this->panel_height_size - 2 * (int)this->border_width_size;
-
-    unsigned int sw_r = static_cast<unsigned int>(std::round(this->border_radius_size * this->shadow_scale_factor));
-    unsigned int br_r = this->border_radius_size;
-
-    int bg_r_signed = (int)this->border_radius_size - (int)this->border_width_size;
-    unsigned int bg_r = std::max(0, bg_r_signed);
-
-
     // Render 3 figures (shadow (border sizes * scaler), border and background (width or hight - 2 * border_width)) 
     // by their sizes, with use of current colors and render point (center-center)
+
+    panel_render_data dataset = this->current_render_data;
+
     if (this->current_form == RECTANGLE_EF)
     {
         // SHADOW
-        rectangle_draw_by_color(sw_cx, sw_cy, sw_w, sw_h, this->render_shadow_color, renderer);
+        rectangle_draw_by_color(dataset.sw_cx, dataset.sw_cy, dataset.sw_w, dataset.sw_h, this->render_shadow_color, renderer);
 
         // BORDER
-        rectangle_draw_by_color(br_cx, br_cy, br_w, br_h, this->render_border_color, renderer);
+        rectangle_draw_by_color(dataset.br_cx, dataset.br_cy, dataset.br_w, dataset.br_h, this->render_border_color, renderer);
 
         // BACKGROUND
-        rectangle_draw_by_color(bd_cx, bd_cy, bg_w, bg_h, this->render_background_color, renderer);
+        rectangle_draw_by_color(dataset.bd_cx, dataset.bd_cy, dataset.bg_w, dataset.bg_h, this->render_background_color, renderer);
     }
 
     else if (this->current_form == ROUNDED_RECTANGLE_EF)
     {
         // SHADOW
-        rounded_rectangle_draw_by_color(sw_cx, sw_cy, sw_w, sw_h, sw_r, this->render_shadow_color, renderer);
+        rounded_rectangle_draw_by_color(dataset.sw_cx, dataset.sw_cy, dataset.sw_w, dataset.sw_h, dataset.sw_r, this->render_shadow_color, renderer);
 
         // BORDER
-        rounded_rectangle_draw_by_color(br_cx, br_cy, br_w, br_h, br_r, this->render_border_color, renderer);
+        rounded_rectangle_draw_by_color(dataset.br_cx, dataset.br_cy, dataset.br_w, dataset.br_h, dataset.br_r, this->render_border_color, renderer);
 
         // BACKGROUND
-        rounded_rectangle_draw_by_color(bd_cx, bd_cy, bg_w, bg_h, bg_r, this->render_background_color, renderer);
+        rounded_rectangle_draw_by_color(dataset.bd_cx, dataset.bd_cy, dataset.bg_w, dataset.bg_h, dataset.bg_r, this->render_background_color, renderer);
     }
 
     else if (this->current_form == CIRCLE_EF)
     {
         // SHADOW
-        circle_draw_by_color(sw_cx, sw_cy, sw_w / 2, this->render_shadow_color, renderer);
+        circle_draw_by_color(dataset.sw_cx, dataset.sw_cy, dataset.sw_w / 2, this->render_shadow_color, renderer);
 
         // BORDER
-        circle_draw_by_color(br_cx, br_cy, br_w / 2, this->render_border_color, renderer);
+        circle_draw_by_color(dataset.br_cx, dataset.br_cy, dataset.br_w / 2, this->render_border_color, renderer);
 
         // BACKGROUND
-        circle_draw_by_color(bd_cx, bd_cy, bg_w / 2, this->render_background_color, renderer);
+        circle_draw_by_color(dataset.bd_cx, dataset.bd_cy, dataset.bg_w / 2, this->render_background_color, renderer);
     }
 
 
@@ -216,6 +197,8 @@ void My_SDL_panel::set_render_point(int x_cc_rp, int y_cc_rp)
     // Reset anchor points
     this->reset_anchor_points();
 
+    this->render_data_reset();
+
     // Update inner elements positions (though they will be set again in render, this ensures consistency)
     this->change_inner_elements_global_coordinates();
 }
@@ -234,7 +217,10 @@ void My_SDL_panel::set_size(unsigned int new_width, unsigned int new_height)
     // Reset anchor points
     this->reset_anchor_points();
 
+    this->render_data_reset();
+
     this->change_inner_elements_global_coordinates();
+
 }
 
 
@@ -256,6 +242,8 @@ void My_SDL_panel::set_border_width_size(unsigned int new_size)
     }
 
     this->border_width_size = new_size;
+
+    this->render_data_reset();
 }
 
 
@@ -272,6 +260,8 @@ void My_SDL_panel::set_border_radius_size(unsigned int new_size)
 
     // New form check
     this->reset_current_form();
+
+    this->render_data_reset();
 }
 
 
@@ -279,11 +269,15 @@ void My_SDL_panel::set_shadow_offset(int new_x_offset, int new_y_offset)
 {
     this->shadow_offset_x = new_x_offset;
     this->shadow_offset_y = new_y_offset;
+
+    this->render_data_reset();
 }
 
 void My_SDL_panel::set_shadow_scale_factor(float new_scale_factor)
 {
     this->shadow_scale_factor = new_scale_factor;
+
+    this->render_data_reset();
 }
 
 
@@ -292,17 +286,43 @@ void My_SDL_panel::set_shadow_scale_factor(float new_scale_factor)
 void My_SDL_panel::set_panel_background_color(SDL_Color new_color)
 {
     this->background_color = new_color;
+    this->render_background_color = new_color;
 }
 
 void My_SDL_panel::set_panel_border_color(SDL_Color new_color)
 {
     this->border_color = new_color;
+    this->render_border_color = new_color;
 }
 
 void My_SDL_panel::set_panel_shadow_color(SDL_Color new_color)
 {
     this->shadow_color = new_color;
+    this->render_shadow_color = new_color;
 }
+
+
+
+void My_SDL_panel::renew_colors_if_pallette_switched()
+{
+    // Pass case
+
+    if (!this->passed_by_pallette || !App_pallette.get_pallette_reset_flag()) return;
+
+    // Renew case
+
+    this->background_color = App_pallette.get_current_pallette().basic_background_color;
+    this->border_color = App_pallette.get_current_pallette().basic_border_color;
+    this->shadow_color = App_pallette.get_current_pallette().basic_shadow_color;
+    
+    this->render_background_color = this->background_color;
+    this->render_border_color = this->border_color;
+    this->render_shadow_color = this->shadow_color;
+
+    
+    panel_pallette_prepare();
+}
+
 
 
 void My_SDL_panel::reset_anchor_points()
@@ -363,6 +383,36 @@ void My_SDL_panel::reset_current_form()
         this->current_form = RECTANGLE_EF;           
 }
 
+
+void My_SDL_panel::render_data_reset()
+{
+    this->current_render_data.sw_cx = this->x_render_point + this->shadow_offset_x;
+    this->current_render_data.sw_cy = this->y_render_point + this->shadow_offset_y;
+
+    this->current_render_data.br_cx = this->x_render_point;
+    this->current_render_data.br_cy = this->y_render_point;
+
+    this->current_render_data.bd_cx = this->x_render_point;
+    this->current_render_data.bd_cy = this->y_render_point;
+
+
+    this->current_render_data.sw_w = static_cast<unsigned int>(std::round((this->panel_width_size) * this->shadow_scale_factor));
+    this->current_render_data.sw_h = static_cast<unsigned int>(std::round((this->panel_height_size) * this->shadow_scale_factor));
+
+    this->current_render_data.br_w = this->panel_width_size; 
+    this->current_render_data.br_h = this->panel_height_size;
+
+    this->current_render_data.bg_w = (int)this->panel_width_size - 2 * (int)this->border_width_size;
+    this->current_render_data.bg_h = (int)this->panel_height_size - 2 * (int)this->border_width_size;
+
+    this->current_render_data.sw_r = static_cast<unsigned int>(std::round(this->border_radius_size * this->shadow_scale_factor));
+    this->current_render_data.br_r = this->border_radius_size;
+
+
+    int bg_r_signed =  static_cast<int>(this->border_radius_size) -  static_cast<int>(this->border_width_size);
+
+    this->current_render_data.bg_r = std::max(0, bg_r_signed);
+}
 
 // =========================================================================================== GUI
 
@@ -452,8 +502,10 @@ void My_SDL_panel::change_element_local_coordinate(
 {
     // 1. Update render position immediately
     element_pointer->set_render_point(
+
         this->global_x_by_local_x(new_local_x),
         this->global_y_by_local_y(new_local_y)
+
     );
 
     // 2. Find element in container

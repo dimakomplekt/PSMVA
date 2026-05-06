@@ -27,6 +27,35 @@ struct panel_inner_element
 
 };
 
+
+struct panel_render_data
+{
+
+    // Shadow render data
+    int sw_cx;
+    int sw_cy;
+    unsigned int sw_w;
+    unsigned int sw_h;
+    unsigned int sw_r;
+
+    // Border render data
+    int br_cx;
+    int br_cy;
+    unsigned int br_w;
+    unsigned int br_h;
+    unsigned int br_r;
+
+    // Background render data
+    int bd_cx;
+    int bd_cy;
+
+    unsigned int bg_w;
+    unsigned int bg_h;
+    unsigned int bg_r;
+
+};
+
+
 // =========================================================================================== TYPES
 
 
@@ -242,6 +271,9 @@ class My_SDL_panel : public My_SDL_element
         // Sets the default shadow color for the panel.
         void set_panel_shadow_color(SDL_Color new_color);
 
+
+        void renew_colors_if_pallette_switched() override;
+
         // ===== GUI =====
 
     private:
@@ -296,6 +328,11 @@ class My_SDL_panel : public My_SDL_element
         element_form current_form;                     // Current element form by the element_form enum
 
         void reset_current_form();                     // Automatic current form reset
+
+        
+        panel_render_data current_render_data;         // Current render data struct for the panel, which fills inside the render() method and uses for the panel rendering
+        
+        void render_data_reset();                      // Render data reset for the new render cycle
 
         // Colors
 
