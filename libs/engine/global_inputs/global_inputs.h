@@ -21,13 +21,13 @@
 
 // =========================================================================================== MOUSE
 
-// Singletone class for mouse input state tracking - API wrapper for SDL mouse state functions and event 
+// SINGLETON class for mouse input state tracking - API wrapper for SDL mouse state functions and event 
 // handling for mouse data and logic centralization
 class GI_mouse
 {
     public:
 
-        // ===== SINGLETONE CREATE =====
+        // ===== SINGLETON CREATE =====
 
         /**
          * @brief Returns the singleton instance.
@@ -36,7 +36,7 @@ class GI_mouse
          */
         static GI_mouse& Instance();
         
-        // ===== SINGLETONE CREATE =====
+        // ===== SINGLETON CREATE =====
 
 
         // ===== Basic getters =====
@@ -141,6 +141,7 @@ enum class Key_actions
 
 static constexpr size_t KEY_ACTION_COUNT = static_cast<size_t>(Key_actions::COUNT);
 
+
 struct Key_action_hash
 {
     size_t operator()(Key_actions a) const
@@ -150,14 +151,14 @@ struct Key_action_hash
 };
 
 
-// Singletone class for mouse input state tracking - API wrapper for SDL keyboard state functions and event 
+// SINGLETON class for mouse input state tracking - API wrapper for SDL keyboard state functions and event 
 // handling for keyboard data and logic centralization
 class GI_keyboard
 {
 
     public:
 
-        // ===== SINGLETONE CREATE =====
+        // ===== SINGLETON CREATE =====
 
         /**
          * @brief Returns the singleton instance.
@@ -166,7 +167,7 @@ class GI_keyboard
          */
         static GI_keyboard& Instance();
 
-        // ===== SINGLETONE CREATE =====
+        // ===== SINGLETON CREATE =====
 
 
         // ===== Keyboard getters ===== 
@@ -231,16 +232,16 @@ class GI_input_manager
 
     public:
 
-        // ===== SINGLETONE CREATE =====
+        // ===== SINGLETON CREATE =====
 
         static GI_input_manager& Instance();
 
-        // ===== SINGLETONE CREATE =====
+        // ===== SINGLETON CREATE =====
 
 
         // ===== Main logic =====
 
-        // Mouse update and keyboard update (by singletones instances)
+        // Mouse update and keyboard update (by SINGLETONs instances)
         void update();
 
 
@@ -289,7 +290,7 @@ class GI_input_manager
 // =========================================================================================== GLOBAL INPUTS
 
 
-// =========================================================================================== SINGLETONES FOR USE
+// =========================================================================================== SINGLETONS FOR USE
 
 // Global singleton instance of GI_mouse for easy access throughout the program
 inline GI_mouse& App_mouse = GI_mouse::Instance();
@@ -304,4 +305,4 @@ inline GI_keyboard& App_keyboard = GI_keyboard::Instance();
 inline GI_input_manager& App_inputs = GI_input_manager::Instance();
 
 
-// =========================================================================================== SINGLETONES FOR USE
+// =========================================================================================== SINGLETONS FOR USE

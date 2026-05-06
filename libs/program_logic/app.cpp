@@ -4,6 +4,8 @@
 
 #include "app.h"
 
+
+
 #include <iostream>
 
 // =========================================================================================== IMPORT
@@ -188,10 +190,11 @@ bool SDL_app_cycle(SDL_app_ctx* app)
     }
 
 
-    
+    // Counter and flag update for pallette reset in pallette-oriented elements
+    App_pallette.pallette_reset_flag_state_loop_update();
+
     // Counter and flag update for language reset in dictionary-oriented textboxes
     App_lang.lang_reset_flag_state_loop_update();
-
 
     // State update
     if (app->app_sm.get_current_state()) app->app_sm.state_update();
