@@ -144,8 +144,15 @@ class My_SDL_textbox : public My_SDL_element // SDL_Element
          */
         unsigned int get_font_size() const;
 
-
-        // Sets the default content color for palette 1
+        /**
+         * Content color setter
+         *                       
+         * For elements with dynamic content color textboxes should                       
+         * call switch_passed_by_palette_flag(false) for inner textbox               
+         * and switch content color by the pallet or not by the palette by themselves
+         * for double calls protection   
+         *           
+         */                                  
         void set_content_color(SDL_Color new_color);
 
         
@@ -154,8 +161,17 @@ class My_SDL_textbox : public My_SDL_element // SDL_Element
         // Sets the content texture of the text (replaces content color or text rendering)
         void set_content_texture(SDL_Texture* new_texture);
 
-
-        void renew_colors_if_pallette_switched() override;
+        
+        /**
+         * Content color autoset by app palette
+         *                       
+         * Elements with dynamic content color  textboxes (like buttons) should                       
+         * call switch_passed_by_palette_flag(false) for inner textbox               
+         * and switch content color by the pallet or not by the palette by themselves
+         * for double calls protection   
+         *           
+         */       
+        void reset_colors_if_palette_switched() override;
 
         // ===== GUI ======
 
@@ -168,7 +184,7 @@ class My_SDL_textbox : public My_SDL_element // SDL_Element
 
         // ===== GUI ======
 
-        // Only one stroke realization in this version (Time isn't on my side... No it isn't! (c))
+        // Only one string realization in this version (Time isn't on my side... No it isn't! (c))
 
         // Content
 

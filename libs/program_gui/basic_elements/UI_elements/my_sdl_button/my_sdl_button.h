@@ -15,13 +15,6 @@
 
 
 
-// =========================================================================================== DEFINES
-
-constexpr unsigned int PALLETTES_QUANTITY = 2;
-
-// =========================================================================================== DEFINES
-
-
 // =========================================================================================== TYPES
 
 // Button access type for click callback logic permission
@@ -37,7 +30,7 @@ struct button_render_data
 {
     // Centers
     int sw_cx, sw_cy;   // shadow
-    int br_cx, br_cy;   // boarder
+    int br_cx, br_cy;   // border
     int bd_cx, bd_cy;   // background
 
     // Sizes
@@ -159,23 +152,6 @@ class My_SDL_button : public My_SDL_element // SDL_Element
 
 
         // ===== GUI ======
-
-
-        /**
-         * @brief Callback for dynamic palette selection.
-         *
-         * Returns the required palette ID based on external logic.
-         * Allows the button to adapt its visual appearance depending
-         * on application state (e.g. enabled/disabled, valid/invalid, etc.).
-         *
-         * Can be used to implement context-dependent coloring
-         * (e.g. red for blocked state, green for available state).
-         *
-         * Called during update() to determine the current palette.
-         * 
-         */
-        std::function<unsigned int()> get_required_palette; 
-
 
         /**
          * @brief Renders the button based on its current state and visual configuration.
@@ -299,86 +275,100 @@ class My_SDL_button : public My_SDL_element // SDL_Element
 
         // Color setters
 
-        // Pallette 1
+        // Palette 1 - basic button
         
         // Sets the default background color for palette 1
-        void set_background_color_1(SDL_Color new_color);
+        void set_basic_background_color(SDL_Color new_color);
 
         // Sets the default border color for palette 1
-        void set_border_color_1(SDL_Color new_color);
+        void set_basic_border_color(SDL_Color new_color);
 
         // Sets the default content color for palette 1
-        void set_content_color_1(SDL_Color new_color);
+        void set_basic_content_color(SDL_Color new_color);
 
         // Sets the default shadow color for palette 1
-        void set_shadow_color_1(SDL_Color new_color);
+        void set_basic_shadow_color(SDL_Color new_color);
 
         // Sets the hovered background color for palette 1
-        void set_background_color_hovered_1(SDL_Color new_color);
+        void set_hover_background_color(SDL_Color new_color);
 
         // Sets the hovered border color for palette 1
-        void set_border_color_hovered_1(SDL_Color new_color);
+        void set_hover_border_color(SDL_Color new_color);
 
         // Sets the hovered content color for palette 1
-        void set_content_color_hovered_1(SDL_Color new_color);
+        void set_hover_content_color(SDL_Color new_color);
 
         // Sets the hovered shadow color for palette 1
-        void set_shadow_color_hovered_1(SDL_Color new_color);
+        void set_hover_shadow_color(SDL_Color new_color);
 
         // Sets the button_clicked background color for palette 1
-        void set_background_color_clicked_1(SDL_Color new_color);
+        void set_click_background_color(SDL_Color new_color);
 
         // Sets the button_clicked border color for palette 1
-        void set_border_color_clicked_1(SDL_Color new_color);
+        void set_click_border_color(SDL_Color new_color);
 
         // Sets the button_clicked content color for palette 1
-        void set_content_color_clicked_1(SDL_Color new_color);
+        void set_click_content_color(SDL_Color new_color);
 
         // Sets the button_clicked shadow color for palette 1
-        void set_shadow_color_clicked_1(SDL_Color new_color);
-
-
-        // Pallette 2
-
-        // Sets the default background color for palette 2
-        void set_background_color_2(SDL_Color new_color);
-
-        // Sets the default border color for palette 2
-        void set_border_color_2(SDL_Color new_color);
-
-        // Sets the default content color for palette 2
-        void set_content_color_2(SDL_Color new_color);
-
-        // Sets the default shadow color for palette 2
-        void set_shadow_color_2(SDL_Color new_color);
-
-        // Sets the hovered background color for palette 2
-        void set_background_color_hovered_2(SDL_Color new_color);
-
-        // Sets the hovered border color for palette 2
-        void set_border_color_hovered_2(SDL_Color new_color);
-
-        // Sets the hovered content color for palette 2
-        void set_content_color_hovered_2(SDL_Color new_color);
-
-        // Sets the hovered shadow color for palette 2
-        void set_shadow_color_hovered_2(SDL_Color new_color);
-
-        // Sets the button_clicked background color for palette 2
-        void set_background_color_clicked_2(SDL_Color new_color);
-
-        // Sets the button_clicked border color for palette 2
-        void set_border_color_clicked_2(SDL_Color new_color);
-
-        // Sets the button_clicked content color for palette 2
-        void set_content_color_clicked_2(SDL_Color new_color);
-
-        // Sets the button_clicked shadow color for palette 2
-        void set_shadow_color_clicked_2(SDL_Color new_color);
+        void set_click_shadow_color(SDL_Color new_color);
 
 
 
-        void renew_colors_if_pallette_switched() override;
+        // Palette 2 - controlled access 
+
+        // Sets the access denied default background color for palette 2
+        void set_access_denied_background_color(SDL_color new_color);
+
+        // Sets the access denied default border color for palette 2
+        void set_access_denied_border_color(SDL_color new_color);
+
+        // Sets the access denied default content color for palette 2
+        void set_access_denied_content_color(SDL_color new_color);
+
+        // Sets the access denied default shadow color for palette 2
+        void set_access_denied_shadow_color(SDL_color new_color);
+
+
+        // Sets the access permitted default background color for palette 2
+        void set_access_permitted_background_color(SDL_Color new_color);
+
+        // Sets the access permitted default border color for palette 2
+        void set_access_permitted_border_color(SDL_Color new_color);
+
+        // Sets the access permitted default content color for palette 2
+        void set_access_permitted_content_color(SDL_Color new_color);
+
+        // Sets the access permitted default shadow color for palette 2
+        void set_access_permitted_shadow_color(SDL_Color new_color);
+
+        // Sets the access permitted hovered background color for palette 2
+        void set_access_permitted_hover_background_color(SDL_Color new_color);
+
+        // Sets the access permitted hovered border color for palette 2
+        void set_access_permitted_hover_border_color(SDL_Color new_color);
+
+        // Sets the access permitted hovered content color for palette 2
+        void set_access_permitted_hover_content_color(SDL_Color new_color);
+
+        // Sets the access permitted hovered shadow color for palette 2
+        void set_access_permitted_hover_shadow_color(SDL_Color new_color);
+
+        // Sets the access permitted button_clicked background color for palette 2
+        void set_access_permitted_click_background_color(SDL_Color new_color);
+
+        // Sets the access permitted button_clicked border color for palette 2
+        void set_access_permitted_click_border_color(SDL_Color new_color);
+
+        // Sets the access permitted button_clicked content color for palette 2
+        void set_access_permitted_click_content_color(SDL_Color new_color);
+
+        // Sets the access permitted button_clicked shadow color for palette 2
+        void set_access_permitted_click_shadow_color(SDL_Color new_color);
+
+
+
+        void reset_colors_if_palette_switched() override;
 
         // ===== GUI ======
 
@@ -422,11 +412,7 @@ class My_SDL_button : public My_SDL_element // SDL_Element
 
         // ===== GUI ======
 
-        unsigned int current_pallette_number; // 1 or 2
-
-        // Pallette switch function - only by the extern logic inside
-        // std::function<void()> pallette_switch_need_check;  
-        void current_pallette_choose(unsigned int new_pallette_number);
+        unsigned int current_palette_number; // 1 or 2
 
 
         // Sizes
@@ -465,37 +451,44 @@ class My_SDL_button : public My_SDL_element // SDL_Element
 
         // Button basic colors by SDL type  
 
-        SDL_Color background_color_1;
-        SDL_Color border_color_1;
-        SDL_Color content_color_1;
-        SDL_Color shadow_color_1;
+        SDL_Color basic_background_color;
+        SDL_Color basic_border_color;
+        SDL_Color basic_content_color;
+        SDL_Color basic_shadow_color;
         
-        SDL_Color background_color_hovered_1;
-        SDL_Color border_color_hovered_1;
-        SDL_Color content_color_hovered_1;
-        SDL_Color shadow_color_hovered_1;
+        SDL_Color hover_background_color;
+        SDL_Color hover_border_color;
+        SDL_Color hover_content_color;
+        SDL_Color hover_shadow_color;
 
-        SDL_Color background_color_clicked_1;
-        SDL_Color border_color_clicked_1;
-        SDL_Color content_color_clicked_1;
-        SDL_Color shadow_color_clicked_1;
+        SDL_Color click_background_color;
+        SDL_Color click_border_color;
+        SDL_Color click_content_color;
+        SDL_Color click_shadow_color;
 
-        // Button additional colors for different states
 
-        SDL_Color background_color_2;
-        SDL_Color border_color_2;
-        SDL_Color content_color_2;
-        SDL_Color shadow_color_2;
+        // Button additional colors for different access states
+
+        SDL_Color access_denied_background_color;
+        SDL_Color access_denied_border_color;
+        SDL_Color access_denied_content_color;
+        SDL_Color access_denied_shadow_color;
+
+
+        SDL_Color access_permitted_background_color;
+        SDL_Color access_permitted_border_color;
+        SDL_Color access_permitted_content_color;
+        SDL_Color access_permitted_shadow_color;
         
-        SDL_Color background_color_hovered_2;
-        SDL_Color border_color_hovered_2;
-        SDL_Color content_color_hovered_2;
-        SDL_Color shadow_color_hovered_2;
+        SDL_Color access_permitted_hover_background_color;
+        SDL_Color access_permitted_hover_border_color;
+        SDL_Color access_permitted_hover_content_color;
+        SDL_Color access_permitted_hover_shadow_color;
 
-        SDL_Color background_color_clicked_2;
-        SDL_Color border_color_clicked_2;
-        SDL_Color content_color_clicked_2;
-        SDL_Color shadow_color_clicked_2;
+        SDL_Color access_permitted_click_background_color;
+        SDL_Color access_permitted_click_border_color;
+        SDL_Color access_permitted_click_content_color;
+        SDL_Color access_permitted_click_shadow_color;
 
 
         // Variables for final rendering
@@ -505,8 +498,8 @@ class My_SDL_button : public My_SDL_element // SDL_Element
         SDL_Color render_shadow_color;
 
 
-        // Inner pallette prepare method
-        void button_pallette_prepare();
+        // Inner palette prepare method
+        void button_palette_prepare();
         
 
         button_render_data render_data;

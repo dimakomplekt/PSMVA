@@ -10,7 +10,7 @@
 
 
 #include "../../engine/engine.h"
-#include "../../program_gui/basic_elements/global_pallette/global_pallette.h"
+#include "../../program_gui/basic_elements/global_palette/global_palette.h"
 #include "../global_data/global_data.h"
 
 // States import

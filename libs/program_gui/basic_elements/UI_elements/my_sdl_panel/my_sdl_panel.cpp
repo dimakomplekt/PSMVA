@@ -31,11 +31,11 @@ My_SDL_panel::My_SDL_panel()
     this->shadow_scale_factor = 1.0f;
 
 
-    // Basic color pass by the current pallette
+    // Basic color pass by the current palette
 
-    this->background_color = App_pallette.get_current_pallette().basic_background_color;
-    this->border_color = App_pallette.get_current_pallette().basic_border_color;
-    this->shadow_color = App_pallette.get_current_pallette().basic_shadow_color;
+    this->background_color = App_palette.get_current_palette().basic_background_color;
+    this->border_color = App_palette.get_current_palette().basic_border_color;
+    this->shadow_color = App_palette.get_current_palette().basic_shadow_color;
     
     this->render_background_color = this->background_color;
     this->render_border_color = this->border_color;
@@ -78,8 +78,8 @@ void My_SDL_panel::delete_element()
 
 void My_SDL_panel::update()
 {
-    // Check if the pallette was switched and update the colors by the new pallette if it was
-    this->renew_colors_if_pallette_switched();
+    // Check if the palette was switched and update the colors by the new palette if it was
+    this->reset_colors_if_palette_switched();
 
     
     // Just update all inner elements by auto type link and overrided update() methods
@@ -116,11 +116,11 @@ void My_SDL_panel::set_opacity(Uint8 new_opacity)
     }
 
 
-    this->panel_pallette_prepare();
+    this->panel_palette_prepare();
 }
 
 
-void My_SDL_panel::panel_pallette_prepare()
+void My_SDL_panel::panel_palette_prepare()
 {
     // GLOBAL element opacity implementation
     float opacity_scaler = static_cast<float>(this->opacity) / 255.0f;
@@ -303,24 +303,24 @@ void My_SDL_panel::set_panel_shadow_color(SDL_Color new_color)
 
 
 
-void My_SDL_panel::renew_colors_if_pallette_switched()
+void My_SDL_panel::reset_colors_if_palette_switched()
 {
     // Pass case
 
-    if (!this->passed_by_pallette || !App_pallette.get_pallette_reset_flag()) return;
+    if (!this->passed_by_palette || !App_palette.get_palette_reset_flag()) return;
 
     // Renew case
 
-    this->background_color = App_pallette.get_current_pallette().basic_background_color;
-    this->border_color = App_pallette.get_current_pallette().basic_border_color;
-    this->shadow_color = App_pallette.get_current_pallette().basic_shadow_color;
+    this->background_color = App_palette.get_current_palette().basic_background_color;
+    this->border_color = App_palette.get_current_palette().basic_border_color;
+    this->shadow_color = App_palette.get_current_palette().basic_shadow_color;
     
     this->render_background_color = this->background_color;
     this->render_border_color = this->border_color;
     this->render_shadow_color = this->shadow_color;
 
     
-    panel_pallette_prepare();
+    panel_palette_prepare();
 }
 
 

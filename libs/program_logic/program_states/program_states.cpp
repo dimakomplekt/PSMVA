@@ -51,11 +51,11 @@ void cout_on_but_1_click()
     this_app.app_sm.request_state_change(PROGRAM_END_ID);
 }
 
-void switch_pallette_on_but_2_click()
+void switch_palette_on_but_2_click()
 {
     std::cout << "Button_2 is clicked... Finally." << std::endl;
 
-    App_pallette.switch_to_the_next_pallette();
+    App_palette.switch_to_the_next_palette();
 }
 
 
@@ -107,7 +107,7 @@ void start_enter()
     // Button 1 initialization
     Button_1->on_click = cout_on_but_1_click;
 
-    Button_2->on_click = switch_pallette_on_but_2_click;
+    Button_2->on_click = switch_palette_on_but_2_click;
 
     // Button_1->set_font_path(Button_1->get_font_path());
 
@@ -305,7 +305,7 @@ void start_update()
     // Switch button_1 color by fader
     if (Button_1)
     {
-        SDL_Color color_to_switch = App_pallette.get_current_pallette().basic_background_color;
+        SDL_Color color_to_switch = App_palette.get_current_palette().basic_background_color;
 
         SDL_Color new_color = {
 
@@ -316,7 +316,7 @@ void start_update()
 
         };
 
-        Button_1->set_background_color_1(new_color);
+        Button_1->set_basic_background_color(new_color);
     }
 }
 

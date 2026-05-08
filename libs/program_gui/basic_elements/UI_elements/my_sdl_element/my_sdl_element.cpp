@@ -55,8 +55,8 @@ My_SDL_element::My_SDL_element()
     this->basic_opacity = 255;
 
 
-    // Basic GUI elements colors setted by pallette (default)
-    this->passed_by_pallette = true;
+    // Basic GUI elements colors setted by palette (default)
+    this->passed_by_palette = true;
 }
 
 
@@ -159,9 +159,9 @@ void My_SDL_element::set_gui_type(element_gui_type new_gui_type)
 }
 
 
-void My_SDL_element::switch_passed_by_pallette_flag(bool new_status)
+void My_SDL_element::switch_passed_by_palette_flag(bool new_status)
 {
-    this->passed_by_pallette = new_status;
+    this->passed_by_palette = new_status;
 }
 
 // =========================================================================================== GUI

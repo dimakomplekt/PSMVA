@@ -273,7 +273,7 @@ void My_SDL_texture::set_size(unsigned int new_width, unsigned int new_height)
 
 
 
-void My_SDL_texture::renew_colors_if_pallette_switched()
+void My_SDL_texture::reset_colors_if_palette_switched()
 {
 
 }

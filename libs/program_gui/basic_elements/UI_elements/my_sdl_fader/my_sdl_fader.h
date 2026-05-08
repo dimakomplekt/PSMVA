@@ -19,7 +19,7 @@ struct fader_render_data
 
     // Centers
     int slot_sw_cx, slot_sw_cy;     // Shadow
-    int slot_br_cx, slot_br_cy;     // Boarder
+    int slot_br_cx, slot_br_cy;     // border
     int slot_bd_cx, slot_bd_cy;     // Background
 
     // Sizes
@@ -106,7 +106,7 @@ class My_SDL_fader : public My_SDL_element // SDL_Element
          * @brief Renders the fader based on its current state and visual configuration.
          *
          * - Takes the current fader value 
-         * - Takes the current pallette
+         * - Takes the current palette
          * - Renders the slot and knob with the appropriate colors, sizes and positions, based on the current states
          *
          * Rendering depends on state flags updated in update().
@@ -303,7 +303,7 @@ class My_SDL_fader : public My_SDL_element // SDL_Element
 
 
 
-        // Pallette setters
+        // Palette setters
 
         // Slot 
 
@@ -360,7 +360,7 @@ class My_SDL_fader : public My_SDL_element // SDL_Element
 
 
 
-        void renew_colors_if_pallette_switched() override;
+        void reset_colors_if_palette_switched() override;
 
         // ===== GUI ======
 
@@ -489,7 +489,7 @@ class My_SDL_fader : public My_SDL_element // SDL_Element
         void set_knob_render_point(int x_cc_rp);
 
 
-        // Boarders (+DELTA_FOR_HOVER_CLICK_CHECKS for the hover and click check stability)
+        // borders (+DELTA_FOR_HOVER_CLICK_CHECKS for the hover and click check stability)
 
         element_rect_boundaries slot_boundaries_points;     // Slot rectangle bounds by the element_rect_boundaries struct
 
@@ -505,7 +505,7 @@ class My_SDL_fader : public My_SDL_element // SDL_Element
         void reset_anchor_points() override;
 
 
-        // Pallette
+        // Palette
 
 
         // Slot basic colors by SDL type  
@@ -545,8 +545,8 @@ class My_SDL_fader : public My_SDL_element // SDL_Element
         SDL_Color knob_render_background_color;
 
         
-        // Inner pallette prepare method
-        void fader_pallette_prepare();
+        // Inner palette prepare method
+        void fader_palette_prepare();
 
 
         fader_render_data render_data;

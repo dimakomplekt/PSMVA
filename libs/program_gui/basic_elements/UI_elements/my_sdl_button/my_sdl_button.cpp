@@ -29,7 +29,7 @@ My_SDL_button::My_SDL_button()
     this->extern_click_permission = {};
     this->on_hover = {};
     this->on_click = {};
-    this->get_required_palette = {};
+
 
     // Data
 
@@ -57,6 +57,9 @@ My_SDL_button::My_SDL_button()
     this->button_textbox.set_font_size(12);
 
     this->button_textbox.set_content("But");
+
+    // Now the button content color controlled only by button itself 
+    this->button_textbox.switch_passed_by_palette_flag(false);
 
 
     // Sizes
@@ -88,54 +91,59 @@ My_SDL_button::My_SDL_button()
     this->current_form = ROUNDED_RECTANGLE_EF;
 
 
-    // ===== Default pallette =====
+    // ===== Default palette =====
 
     this->set_opacity(255);
 
 
     // Basic colors
 
-    this->set_shadow_color_1(hex_to_sdl_color("#fd3108", 150));      
-    this->set_border_color_1({23, 23, 23, 255});  
-    this->set_background_color_1(hex_to_sdl_color("#fd3108", 255));
-    this->set_content_color_1({23, 23, 23, 255});
-
+    this->basic_background_color = App_palette.get_current_palette().basic_background_color;
+    this->basic_border_color = App_palette.get_current_palette().basic_border_color;
+    this->basic_content_color = App_palette.get_current_palette().basic_content_color;
+    this->basic_shadow_color = App_palette.get_current_palette().basic_shadow_color;
 
     // Hover colors
 
-    this->set_shadow_color_hovered_1({240, 231, 214, 155});
-    this->set_border_color_hovered_1({23, 23, 23, 255});
-    this->set_background_color_hovered_1({240, 231, 214, 255});
-    this->set_content_color_hovered_1({23, 23, 23, 255});
+    this->hover_background_color = App_palette.get_current_palette().hover_background_color;
+    this->hover_border_color = App_palette.get_current_palette().hover_border_color;
+    this->hover_content_color = App_palette.get_current_palette().hover_content_color;
+    this->hover_shadow_color = App_palette.get_current_palette().hover_shadow_color;
 
 
     // button_clicked colors
 
-    this->set_shadow_color_clicked_1({140, 122, 180, 150});
-    this->set_border_color_clicked_1({232, 222, 42, 255});
-    this->set_background_color_clicked_1({150, 120, 180, 255}); 
-    this->set_content_color_clicked_1({232, 222, 42, 255});
+    this->click_background_color = App_palette.get_current_palette().click_background_color;
+    this->click_border_color = App_palette.get_current_palette().click_border_color;
+    this->click_content_color = App_palette.get_current_palette().click_content_color;
+    this->click_shadow_color = App_palette.get_current_palette().click_shadow_color;
 
 
-    // Nulled 2nd pallette
+    // 2nd palette
 
-    this->set_shadow_color_2({0, 0, 0, 0});
-    this->set_border_color_2({0, 0, 0, 0});
-    this->set_background_color_2({0, 0, 0, 0});
-    this->set_content_color_2({0, 0, 0, 0});
-
-    this->set_shadow_color_hovered_2({0, 0, 0, 0});
-    this->set_border_color_hovered_2({0, 0, 0, 0});
-    this->set_background_color_hovered_2({0, 0, 0, 0});
-    this->set_content_color_hovered_2({0, 0, 0, 0});
-
-    this->set_shadow_color_clicked_2({0, 0, 0, 0});
-    this->set_border_color_clicked_2({0, 0, 0, 0});
-    this->set_background_color_clicked_2({0, 0, 0, 0});
-    this->set_content_color_clicked_2({0, 0, 0, 0});
+    this->access_denied_background_color = App_palette.get_current_palette().access_denied_background_color;
+    this->access_denied_border_color = App_palette.get_current_palette().access_denied_border_color;
+    this->access_denied_content_color = App_palette.get_current_palette().access_denied_content_color;;
+    this->access_denied_shadow_color = App_palette.get_current_palette().access_denied_shadow_color;
 
 
-    this->current_pallette_number = 1;
+    this->access_permitted_background_color = App_palette.get_current_palette().access_permitted_background_color;
+    this->access_permitted_border_color = App_palette.get_current_palette().access_permitted_border_color;
+    this->access_permitted_content_color = App_palette.get_current_palette().access_permitted_content_color;
+    this->access_permitted_shadow_color = App_palette.get_current_palette().access_permitted_shadow_color;
+
+    this->access_permitted_hover_background_color = App_palette.get_current_palette().access_permitted_hover_background_color;
+    this->access_permitted_hover_border_color = App_palette.get_current_palette().access_permitted_hover_border_color;
+    this->access_permitted_hover_content_color = App_palette.get_current_palette().access_permitted_hover_content_color;
+    this->access_permitted_hover_shadow_color = App_palette.get_current_palette().access_permitted_hover_shadow_color;
+
+    this->access_permitted_click_background_color = App_palette.get_current_palette().access_permitted_click_background_color;
+    this->access_permitted_click_border_color = App_palette.get_current_palette().access_permitted_click_border_color;
+    this->access_permitted_click_content_color = App_palette.get_current_palette().access_permitted_click_content_color;
+    this->access_permitted_click_shadow_color = App_palette.get_current_palette().access_permitted_click_shadow_color;
+
+
+    this->current_palette_number = 1;
 }
 
 
@@ -172,7 +180,6 @@ void My_SDL_button::update()
 {    
     // Onetime initialization of the font
     this->button_textbox.update();
-
 
     // Hover check
     this->button_hover_check();
@@ -247,16 +254,6 @@ void My_SDL_button::update()
         }
     }
 
-    // Pallette check callback 
-    if (get_required_palette)
-    {
-        int new_pallette_number = get_required_palette();
-            
-        if (new_pallette_number != this->current_pallette_number)
-        {
-            this->current_pallette_choose(new_pallette_number);
-        }
-    }
 
     // If we press and then release - reset permission
     if (!this->button_clicked && this->button_clicked_tmp) 
@@ -275,8 +272,11 @@ void My_SDL_button::update()
         else this->current_button_state = DEFAULT_ES;
     }
 
-    // Pallette prepare for rendering
-    this->button_pallette_prepare();  
+    // Check if the palette was switched and update the colors by the new palette if it was
+    this->reset_colors_if_palette_switched();
+
+    // Palette prepare for rendering
+    this->button_palette_prepare();  
 
     this->render_data_recalculation();
 }
@@ -363,76 +363,102 @@ void My_SDL_button::render(SDL_Renderer* renderer)
 }
 
 
-void My_SDL_button::button_pallette_prepare()
+void My_SDL_button::button_palette_prepare()
 {
-    // Current pallette define logic
+    // Current palette define logic
     
     if (this->gui_type == STATIC_ELEMENT_GUI)
     {
-        this->current_pallette_number = 1;
+        // Basic
+        this->current_palette_number = 1;
     }
 
+    else if (this->gui_type == DYNAMIC_ELEMENT_GUI && this->extern_click_permission) 
+    {
+        // Access denied
+        if (!this->extern_click_permission()) this->current_palette_number = 2;
 
-    // Pallette switch-case
-    switch (this->current_pallette_number)
+        // Access permitted
+        else this->current_palette_number = 3;
+    }
+
+    // Access denied coloring in base case before callback extern_click_permission setup in loop
+    else current_palette_number = 2;
+
+
+    // Palette switch-case
+    switch (this->current_palette_number)
     {
 
         case 1:
             // Basic
             if (this->current_button_state == DEFAULT_ES)
             {
-                this->render_background_color = this->background_color_1;
-                this->render_border_color = this->border_color_1;
-                this->render_content_color = this->content_color_1;
-                this->render_shadow_color = this->shadow_color_1;
+                this->render_background_color = this->basic_background_color;
+                this->render_border_color = this->basic_border_color;
+                this->render_content_color = this->basic_content_color;
+                this->render_shadow_color = this->basic_shadow_color;
             }
 
             // Hovered
             else if (this->current_button_state == HOVERED_ES)
             {
-                this->render_background_color = this->background_color_hovered_1;
-                this->render_border_color = this->border_color_hovered_1;
-                this->render_content_color = this->content_color_hovered_1;
-                this->render_shadow_color = this->shadow_color_hovered_1;
+                this->render_background_color = this->hover_background_color;
+                this->render_border_color = this->hover_border_color;
+                this->render_content_color = this->hover_content_color;
+                this->render_shadow_color = this->hover_shadow_color;
             }
 
             // button_clicked
             else if (this->current_button_state == CLICKED_ES)
             {
-                this->render_background_color = this->background_color_clicked_1;
-                this->render_border_color = this->border_color_clicked_1;
-                this->render_content_color = this->content_color_clicked_1;
-                this->render_shadow_color = this->shadow_color_clicked_1;
+                this->render_background_color = this->click_background_color;
+                this->render_border_color = this->click_border_color;
+                this->render_content_color = this->click_content_color;
+                this->render_shadow_color = this->click_shadow_color;
             }    
 
             break;
 
+
         case 2:
-            // 2nd pallette
+
+                // In any condition - just accept denied coloring
+                this->render_background_color = this->access_denied_background_color;
+                this->render_border_color = this->access_denied_border_color;
+                this->render_content_color = this->access_denied_content_color;
+                this->render_shadow_color = this->access_denied_shadow_color;
+               
+
+            break;
+
+
+        case 3:
+            // 2nd palette
             if (this->current_button_state == DEFAULT_ES)
             {
-                this->render_background_color = this->background_color_2;
-                this->render_border_color = this->border_color_2;
-                this->render_content_color = this->content_color_2;
-                this->render_shadow_color = this->shadow_color_2;
+                this->render_background_color = this->access_permitted_background_color;
+                this->render_border_color = this->access_permitted_border_color;
+                this->render_content_color = this->access_permitted_content_color;
+                this->render_shadow_color = this->access_permitted_shadow_color;
             }
 
             // Hovered
             else if (this->current_button_state == HOVERED_ES)
             {
-                this->render_background_color = this->background_color_hovered_2;
-                this->render_border_color = this->border_color_hovered_2;
-                this->render_content_color = this->content_color_hovered_2;
-                this->render_shadow_color = this->shadow_color_hovered_2;
+                this->render_background_color = this->access_permitted_hover_background_color;
+                this->render_border_color = this->access_permitted_hover_border_color;
+                this->render_content_color = this->access_permitted_hover_content_color;
+                this->render_shadow_color = this->access_permitted_hover_shadow_color;
             }
 
             // button_clicked
             else if (this->current_button_state == CLICKED_ES)
             {
-                this->render_background_color = this->background_color_clicked_2;
-                this->render_border_color = this->border_color_clicked_2;
-                this->render_content_color = this->content_color_clicked_2;
-                this->render_shadow_color = this->shadow_color_clicked_2;
+                this->render_background_color = this->access_permitted_click_background_color;
+                this->render_border_color = this->access_permitted_click_border_color;
+                this->render_content_color = this->access_permitted_click_content_color;
+                this->render_shadow_color = this->access_permitted_click_shadow_color;
             }    
 
             break;
@@ -494,18 +520,6 @@ void My_SDL_button::reset_anchor_points()
     this->element_anchor_points.bottom_center    =     { c_w, c_h + half_h };
     this->element_anchor_points.bottom_right     =     { c_w + half_w, c_h + half_h };
     
-}
-
-
-void My_SDL_button::current_pallette_choose(unsigned int new_pallette_number)
-{
-    if (new_pallette_number == 0 || new_pallette_number > PALLETTES_QUANTITY)
-    {
-        std::cerr << "Invalid pallette number. Element pallette ain' changed." << std::endl;
-        return;
-    }
-
-    this->current_pallette_number = new_pallette_number;
 }
 
 
@@ -621,141 +635,211 @@ void My_SDL_button::reset_current_form()
 
 // Color setters
 
-// Pallette 1
+// Palette 1
 
-void My_SDL_button::set_background_color_1(SDL_Color new_color)
+void My_SDL_button::set_basic_background_color(SDL_Color new_color)
 {
-    this->background_color_1 = new_color;
+    this->basic_background_color = new_color;
 }
 
-void My_SDL_button::set_border_color_1(SDL_Color new_color)
+void My_SDL_button::set_basic_border_color(SDL_Color new_color)
 {
-    this->border_color_1 = new_color;
+    this->basic_border_color = new_color;
 }
 
-void My_SDL_button::set_content_color_1(SDL_Color new_color)
+void My_SDL_button::set_basic_content_color(SDL_Color new_color)
 {
-    this->content_color_1 = new_color;
+    this->basic_content_color = new_color;
 }
 
-void My_SDL_button::set_shadow_color_1(SDL_Color new_color)
+void My_SDL_button::set_basic_shadow_color(SDL_Color new_color)
 {
-    this->shadow_color_1 = new_color;
+    this->basic_shadow_color = new_color;
 }
 
-void My_SDL_button::set_background_color_hovered_1(SDL_Color new_color)
+void My_SDL_button::set_hover_background_color(SDL_Color new_color)
 {
-    this->background_color_hovered_1 = new_color;
+    this->hover_background_color = new_color;
 }
 
-void My_SDL_button::set_border_color_hovered_1(SDL_Color new_color)
+void My_SDL_button::set_hover_border_color(SDL_Color new_color)
 {
-    this->border_color_hovered_1 = new_color;
+    this->hover_border_color = new_color;
 }
 
-void My_SDL_button::set_content_color_hovered_1(SDL_Color new_color)
+void My_SDL_button::set_hover_content_color(SDL_Color new_color)
 {
-    this->content_color_hovered_1 = new_color;
+    this->hover_content_color = new_color;
 }
 
-void My_SDL_button::set_shadow_color_hovered_1(SDL_Color new_color)
+void My_SDL_button::set_hover_shadow_color(SDL_Color new_color)
 {
-    this->shadow_color_hovered_1 = new_color;
+    this->hover_shadow_color = new_color;
 }
 
-void My_SDL_button::set_background_color_clicked_1(SDL_Color new_color)
+void My_SDL_button::set_click_background_color(SDL_Color new_color)
 {
-    this->background_color_clicked_1 = new_color;
+    this->click_background_color = new_color;
 }
 
-void My_SDL_button::set_border_color_clicked_1(SDL_Color new_color)
+void My_SDL_button::set_click_border_color(SDL_Color new_color)
 {
-    this->border_color_clicked_1 = new_color;
+    this->click_border_color = new_color;
 }
 
-void My_SDL_button::set_content_color_clicked_1(SDL_Color new_color)
+void My_SDL_button::set_click_content_color(SDL_Color new_color)
 {
-    this->content_color_clicked_1 = new_color;
+    this->click_content_color = new_color;
 }
 
-void My_SDL_button::set_shadow_color_clicked_1(SDL_Color new_color)
+void My_SDL_button::set_click_shadow_color(SDL_Color new_color)
 {
-    this->shadow_color_clicked_1 = new_color;
-}
-
-
-// Pallette 2
-
-void My_SDL_button::set_background_color_2(SDL_Color new_color)
-{
-    this->background_color_2 = new_color;
-}
-
-void My_SDL_button::set_border_color_2(SDL_Color new_color)
-{
-    this->border_color_2 = new_color;
-}
-
-void My_SDL_button::set_content_color_2(SDL_Color new_color)
-{
-    this->content_color_2 = new_color;
-}
-
-void My_SDL_button::set_shadow_color_2(SDL_Color new_color)
-{
-    this->shadow_color_2 = new_color;
-}
-
-void My_SDL_button::set_background_color_hovered_2(SDL_Color new_color)
-{
-    this->background_color_hovered_2 = new_color;
-}
-
-void My_SDL_button::set_border_color_hovered_2(SDL_Color new_color)
-{
-    this->border_color_hovered_2 = new_color;
-}
-
-void My_SDL_button::set_content_color_hovered_2(SDL_Color new_color)
-{
-    this->content_color_hovered_2 = new_color;
-}
-
-void My_SDL_button::set_shadow_color_hovered_2(SDL_Color new_color)
-{
-    this->shadow_color_hovered_2 = new_color;
-}
-
-void My_SDL_button::set_background_color_clicked_2(SDL_Color new_color)
-{
-    this->background_color_clicked_2 = new_color;
-}
-
-void My_SDL_button::set_border_color_clicked_2(SDL_Color new_color)
-{
-    this->border_color_clicked_2 = new_color;
-}
-
-void My_SDL_button::set_content_color_clicked_2(SDL_Color new_color)
-{
-    this->content_color_clicked_2 = new_color;
-}
-
-void My_SDL_button::set_shadow_color_clicked_2(SDL_Color new_color)
-{
-    this->shadow_color_clicked_2 = new_color;
+    this->click_shadow_color = new_color;
 }
 
 
+// Palette 2
 
-
-void My_SDL_button::renew_colors_if_pallette_switched()
+void My_SDL_button::set_access_denied_background_color(SDL_color new_color)
 {
+    this->access_denied_background_color = new_color;
+}
 
+void My_SDL_button::set_access_denied_border_color(SDL_color new_color)
+{
+    this->access_denied_border_color = new_color;
+}
+
+void My_SDL_button::set_access_denied_content_color(SDL_color new_color)
+{
+    this->access_denied_content_color = new_color;
+}
+
+void My_SDL_button::set_access_denied_shadow_color(SDL_color new_color)
+{
+    this->access_denied_shadow_color = new_color;
+}
+
+
+void My_SDL_button::set_access_permitted_background_color(SDL_Color new_color)
+{
+    this->access_permitted_background_color = new_color;
+}
+
+void My_SDL_button::set_access_permitted_border_color(SDL_Color new_color)
+{
+    this->access_permitted_border_color = new_color;
+}
+
+void My_SDL_button::set_access_permitted_content_color(SDL_Color new_color)
+{
+    this->access_permitted_content_color = new_color;
+}
+
+void My_SDL_button::set_access_permitted_shadow_color(SDL_Color new_color)
+{
+    this->access_permitted_shadow_color = new_color;
+}
+
+void My_SDL_button::set_access_permitted_hover_background_color(SDL_Color new_color)
+{
+    this->access_permitted_hover_background_color = new_color;
+}
+
+void My_SDL_button::set_access_permitted_hover_border_color(SDL_Color new_color)
+{
+    this->access_permitted_hover_border_color = new_color;
+}
+
+void My_SDL_button::set_access_permitted_hover_content_color(SDL_Color new_color)
+{
+    this->access_permitted_hover_content_color = new_color;
+}
+
+void My_SDL_button::set_access_permitted_hover_shadow_color(SDL_Color new_color)
+{
+    this->access_permitted_hover_shadow_color = new_color;
+}
+
+void My_SDL_button::set_access_permitted_click_background_color(SDL_Color new_color)
+{
+    this->access_permitted_click_background_color = new_color;
+}
+
+void My_SDL_button::set_access_permitted_click_border_color(SDL_Color new_color)
+{
+    this->access_permitted_click_border_color = new_color;
+}
+
+void My_SDL_button::set_access_permitted_click_content_color(SDL_Color new_color)
+{
+    this->access_permitted_click_content_color = new_color;
+}
+
+void My_SDL_button::set_access_permitted_click_shadow_color(SDL_Color new_color)
+{
+    this->access_permitted_click_shadow_color = new_color;
 }
 
 
 
+
+void My_SDL_button::reset_colors_if_palette_switched()
+{
+    // Pass case
+
+    if (!this->passed_by_palette || !App_palette.get_palette_reset_flag()) return;
+
+
+    // Renew case
+
+    // Basic colors
+
+    this->basic_background_color = App_palette.get_current_palette().basic_background_color;
+    this->basic_border_color = App_palette.get_current_palette().basic_border_color;
+    this->basic_content_color = App_palette.get_current_palette().basic_content_color;
+    this->basic_shadow_color = App_palette.get_current_palette().basic_shadow_color;
+
+    // Hover colors
+
+    this->hover_background_color = App_palette.get_current_palette().hover_background_color;
+    this->hover_border_color = App_palette.get_current_palette().hover_border_color;
+    this->hover_content_color = App_palette.get_current_palette().hover_content_color;
+    this->hover_shadow_color = App_palette.get_current_palette().hover_shadow_color;
+
+
+    // button_clicked colors
+
+    this->click_background_color = App_palette.get_current_palette().click_background_color;
+    this->click_border_color = App_palette.get_current_palette().click_border_color;
+    this->click_content_color = App_palette.get_current_palette().click_content_color;
+    this->click_shadow_color = App_palette.get_current_palette().click_shadow_color;
+
+
+    // 2nd palette
+
+    this->access_denied_background_color = App_palette.get_current_palette().access_denied_background_color;
+    this->access_denied_border_color = App_palette.get_current_palette().access_denied_border_color;
+    this->access_denied_content_color = App_palette.get_current_palette().access_denied_content_color;;
+    this->access_denied_shadow_color = App_palette.get_current_palette().access_denied_shadow_color;
+
+
+    this->access_permitted_background_color = App_palette.get_current_palette().access_permitted_background_color;
+    this->access_permitted_border_color = App_palette.get_current_palette().access_permitted_border_color;
+    this->access_permitted_content_color = App_palette.get_current_palette().access_permitted_content_color;
+    this->access_permitted_shadow_color = App_palette.get_current_palette().access_permitted_shadow_color;
+
+    this->access_permitted_hover_background_color = App_palette.get_current_palette().access_permitted_hover_background_color;
+    this->access_permitted_hover_border_color = App_palette.get_current_palette().access_permitted_hover_border_color;
+    this->access_permitted_hover_content_color = App_palette.get_current_palette().access_permitted_hover_content_color;
+    this->access_permitted_hover_shadow_color = App_palette.get_current_palette().access_permitted_hover_shadow_color;
+
+    this->access_permitted_click_background_color = App_palette.get_current_palette().access_permitted_click_background_color;
+    this->access_permitted_click_border_color = App_palette.get_current_palette().access_permitted_click_border_color;
+    this->access_permitted_click_content_color = App_palette.get_current_palette().access_permitted_click_content_color;
+    this->access_permitted_click_shadow_color = App_palette.get_current_palette().access_permitted_click_shadow_color;
+
+}
 
 
 void My_SDL_button::render_data_recalculation()

@@ -40,14 +40,14 @@ My_SDL_textbox::My_SDL_textbox()
     this->set_content("Text");
 
 
-    // ===== Default pallette =====
+    // ===== Default palette =====
 
     this->set_opacity(255);
 
 
-    // Basic text colors
+    // Basic text color by palette
 
-    this->set_content_color(hex_to_sdl_color("#4af109", 255));
+    set_content_color(App_palette.get_current_palette().basic_content_color);
 
 
     this->content_texture = nullptr;
@@ -109,7 +109,8 @@ void My_SDL_textbox::update()
         if(!this->font_path.empty()) this->set_ttf_font_link(TTF_OpenFont(this->font_path.c_str(), this->font_size));
     }
 
-
+    // Check if the palette was switched and update the colors by the new palette if it was
+    this->reset_colors_if_palette_switched();
 }
 
 //
@@ -277,9 +278,20 @@ void My_SDL_textbox::set_content_texture(SDL_Texture* new_texture)
 
 
 
-void My_SDL_textbox::renew_colors_if_pallette_switched()
+void My_SDL_textbox::reset_colors_if_palette_switched()
 {
+    // Pass case
 
+    if (!this->passed_by_palette || !App_palette.get_palette_reset_flag()) return;
+
+    // Renew case 
+    
+    //     !!!    Elements with dynamic content color textboxes  (like buttons) should          !!!
+    //     !!!    call switch_passed_by_palette_flag(false) for inner textbox                  !!!
+    //     !!!    and switch content color by the pallet or not by the palette by themselves   !!!
+    //     !!!    for double calls protection                                                   !!!
+
+    set_content_color(App_palette.get_current_palette().basic_content_color);
 }
 
 
@@ -359,7 +371,7 @@ void My_SDL_textbox::update_content_texture(SDL_Renderer* renderer, SDL_Color ne
     }
 
 
-    SDL_Color color = new_color; // By passed pallette 
+    SDL_Color color = new_color; // By passed palette 
 
     SDL_Surface* surface = TTF_RenderText_Blended(
         this->ttf_font_link,

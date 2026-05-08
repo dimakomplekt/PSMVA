@@ -272,7 +272,7 @@ class My_SDL_panel : public My_SDL_element
         void set_panel_shadow_color(SDL_Color new_color);
 
 
-        void renew_colors_if_pallette_switched() override;
+        void reset_colors_if_palette_switched() override;
 
         // ===== GUI =====
 
@@ -346,8 +346,8 @@ class My_SDL_panel : public My_SDL_element
         SDL_Color render_shadow_color;
 
 
-        // Pallette prepare for rendering
-        void panel_pallette_prepare();  
+        // Palette prepare for rendering
+        void panel_palette_prepare();  
 
 
         // ===== GUI =====

@@ -74,7 +74,7 @@ My_SDL_fader::My_SDL_fader()
     this->knob_y_render_point = this->slot_y_render_point;
 
 
-    // Boarders
+    // borders
 
     this->reset_knob_boundaries_points();
     this->reset_slot_boundaries_points();
@@ -84,36 +84,36 @@ My_SDL_fader::My_SDL_fader()
     this->reset_anchor_points();
 
 
-    // Pallette
+    // Palette
 
     this->set_opacity(255);
 
 
-    // Basic colors
+    // Basic colors by palette
 
-    this->set_slot_shadow_color(hex_to_sdl_color("#d85d44", 150));
-    this->set_slot_border_color({23, 23, 23, 255});
-    this->set_slot_background_color(hex_to_sdl_color("#05f111", 255));
+    this->slot_background_color = App_palette.get_current_palette().basic_background_color; 
+    this->slot_border_color = App_palette.get_current_palette().basic_border_color; 
+    this->slot_shadow_color = App_palette.get_current_palette().basic_shadow_color; 
 
-    this->set_slot_shadow_color_hovered({240, 231, 214, 155});
-    this->set_slot_border_color_hovered({23, 23, 23, 255});
-    this->set_slot_background_color_hovered({240, 231, 214, 255});
-
-
-    this->set_knob_shadow_color(hex_to_sdl_color("#fd3108", 150));
-    this->set_knob_border_color({23, 23, 23, 255});                       
-    this->set_knob_background_color(hex_to_sdl_color("#fd3108", 255));
-
-    this->set_knob_shadow_color_hovered({240, 231, 214, 155});
-    this->set_knob_border_color_hovered({23, 23, 23, 255});
-    this->set_knob_background_color_hovered({240, 231, 214, 255});
-    
-    this->set_knob_shadow_color_clicked({140, 122, 180, 150});
-    this->set_knob_border_color_clicked({232, 222, 42, 255});
-    this->set_knob_background_color_clicked({150, 120, 180, 255});
+    this->slot_background_color_hovered = App_palette.get_current_palette().hover_background_color;
+    this->slot_border_color_hovered = App_palette.get_current_palette().hover_border_color;
+    this->slot_shadow_color_hovered = App_palette.get_current_palette().hover_shadow_color;
 
 
-    // Initial render pallette setup
+    this->knob_background_color = App_palette.get_current_palette().basic_background_color;
+    this->knob_border_color = App_palette.get_current_palette().basic_border_color;
+    this->knob_shadow_color = App_palette.get_current_palette().basic_shadow_color;
+
+    this->knob_background_color_hovered = App_palette.get_current_palette().hover_background_color;
+    this->knob_border_color_hovered = App_palette.get_current_palette().hover_border_color;
+    this->knob_shadow_color_hovered = App_palette.get_current_palette().hover_shadow_color;
+
+    this->knob_background_color_clicked = App_palette.get_current_palette().click_background_color;
+    this->knob_border_color_clicked = App_palette.get_current_palette().click_border_color;
+    this->knob_shadow_color_clicked = App_palette.get_current_palette().click_shadow_color;
+
+
+    // Initial render palette setup
 
     this->slot_render_shadow_color = this->slot_shadow_color;
     this->slot_render_border_color = this->slot_border_color;
@@ -157,6 +157,9 @@ float My_SDL_fader::get_fader_value() const
 
 void My_SDL_fader::update()
 {
+    // Check if the palette was switched and update the colors by the new palette if it was
+    this->reset_colors_if_palette_switched();
+
     // Slot hover check
     this->slot_hover_check();
 
@@ -223,7 +226,7 @@ void My_SDL_fader::update()
     }
 
 
-    // If we click inside the slot zone and then release - just set the new pallette, 
+    // If we click inside the slot zone and then release - just set the new palette, 
     // then new values, then reset everything to default state. If we click inside the slot
     // zone and then hold - we must move to the zone where we click and follow the mouse
     // x-position by the slot center. So the logic of 2 cases could be mixed only 
@@ -327,8 +330,8 @@ void My_SDL_fader::update()
     }
 
     
-    // Prepare the pallette for rendering by the current slot and knob states
-    this->fader_pallette_prepare();
+    // Prepare the palette for rendering by the current slot and knob states
+    this->fader_palette_prepare();
 
     // Update render data
     this->render_data_recalculation();
@@ -693,8 +696,34 @@ void My_SDL_fader::set_knob_shadow_color_clicked(SDL_Color new_color)           
 
 
 
-void My_SDL_fader::renew_colors_if_pallette_switched()
+void My_SDL_fader::reset_colors_if_palette_switched()
 {
+    // Pass case
+
+    if (!this->passed_by_palette || !App_palette.get_palette_reset_flag()) return;
+
+    // Renew case 
+
+    this->slot_background_color = App_palette.get_current_palette().basic_background_color; 
+    this->slot_border_color = App_palette.get_current_palette().basic_border_color; 
+    this->slot_shadow_color = App_palette.get_current_palette().basic_shadow_color; 
+
+    this->slot_background_color_hovered = App_palette.get_current_palette().hover_background_color;
+    this->slot_border_color_hovered = App_palette.get_current_palette().hover_border_color;
+    this->slot_shadow_color_hovered = App_palette.get_current_palette().hover_shadow_color;
+
+
+    this->knob_background_color = App_palette.get_current_palette().basic_background_color;
+    this->knob_border_color = App_palette.get_current_palette().basic_border_color;
+    this->knob_shadow_color = App_palette.get_current_palette().basic_shadow_color;
+
+    this->knob_background_color_hovered = App_palette.get_current_palette().hover_background_color;
+    this->knob_border_color_hovered = App_palette.get_current_palette().hover_border_color;
+    this->knob_shadow_color_hovered = App_palette.get_current_palette().hover_shadow_color;
+
+    this->knob_background_color_clicked = App_palette.get_current_palette().click_background_color;
+    this->knob_border_color_clicked = App_palette.get_current_palette().click_border_color;
+    this->knob_shadow_color_clicked = App_palette.get_current_palette().click_shadow_color;
 
 }
 
@@ -765,11 +794,11 @@ void My_SDL_fader::reset_knob_boundaries_points()
 }
 
 
-// Pallette preparation for render step (last update() action)
+// Palette preparation for render step (last update() action)
 
-void My_SDL_fader::fader_pallette_prepare()
+void My_SDL_fader::fader_palette_prepare()
 {
-    // Slot pallette preparation
+    // Slot palette preparation
 
     if (this->current_slot_state == DEFAULT_ES)
     {
@@ -795,7 +824,7 @@ void My_SDL_fader::fader_pallette_prepare()
     }    
 
 
-    // Knob pallette preparation
+    // Knob palette preparation
 
     if (this->current_knob_state == DEFAULT_ES)
     {
@@ -821,7 +850,7 @@ void My_SDL_fader::fader_pallette_prepare()
     }    
 
 
-    // Global opacity scaler for the render pallette
+    // Global opacity scaler for the render palette
 
     float opacity_scaler = static_cast<float>(this->opacity) / 255.0f;
 

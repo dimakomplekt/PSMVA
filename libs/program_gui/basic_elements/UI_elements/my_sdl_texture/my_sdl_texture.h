@@ -179,7 +179,7 @@ class My_SDL_texture : public My_SDL_element // SDL_Element
         void reset_size();
 
 
-        void renew_colors_if_pallette_switched() override;
+        void reset_colors_if_palette_switched() override;
 
         // ===== GUI ======
 
