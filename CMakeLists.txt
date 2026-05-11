@@ -42,7 +42,7 @@ target_link_libraries(PSMVA PRIVATE
 )
 
 
-# dll copying for SDL
+# ---------------- dll copying for SDL ----------------
 
 add_custom_command(TARGET PSMVA POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
@@ -54,6 +54,14 @@ add_custom_command(TARGET PSMVA POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "${CMAKE_SOURCE_DIR}/libs/engine/SDL3_ttf-3.1.0/lib/x64/SDL3_ttf.dll"
         "$<TARGET_FILE_DIR:PSMVA>"
+)
+
+# ---------------- CONTENT COPYING ----------------
+
+add_custom_command(TARGET PSMVA POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${CMAKE_SOURCE_DIR}/libs/program_gui/basic_elements/content"
+        "$<TARGET_FILE_DIR:PSMVA>/content"
 )
 
 # ---------------- OpenCV ----------------

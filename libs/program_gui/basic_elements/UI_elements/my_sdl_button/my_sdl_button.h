@@ -318,16 +318,16 @@ class My_SDL_button : public My_SDL_element // SDL_Element
         // Palette 2 - controlled access 
 
         // Sets the access denied default background color for palette 2
-        void set_access_denied_background_color(SDL_color new_color);
+        void set_access_denied_background_color(SDL_Color new_color);
 
         // Sets the access denied default border color for palette 2
-        void set_access_denied_border_color(SDL_color new_color);
+        void set_access_denied_border_color(SDL_Color new_color);
 
         // Sets the access denied default content color for palette 2
-        void set_access_denied_content_color(SDL_color new_color);
+        void set_access_denied_content_color(SDL_Color new_color);
 
         // Sets the access denied default shadow color for palette 2
-        void set_access_denied_shadow_color(SDL_color new_color);
+        void set_access_denied_shadow_color(SDL_Color new_color);
 
 
         // Sets the access permitted default background color for palette 2
@@ -370,7 +370,14 @@ class My_SDL_button : public My_SDL_element // SDL_Element
 
         void reset_colors_if_palette_switched() override;
 
-        // ===== GUI ======
+        // Resets the button textbox if the font palette switched, to update the font link and path 
+        // if they are setted by the font palette
+        void reset_button_textbox_if_font_palette_switched(); 
+
+        // Switch the flag for showing that the button textbox font path and ttf_font_link setted by the font palette
+        void button_textbox_font_passed_by_font_palette_flag_switch(bool new_flag);
+
+        // ===== GUI ======s
 
 
     private:
@@ -443,7 +450,10 @@ class My_SDL_button : public My_SDL_element // SDL_Element
         // Content (composition)
         My_SDL_textbox button_textbox;
 
+        // Flag for showing that the button textbox font path and ttf_font_link setted by the font palette
+        bool button_textbox_font_passed_by_font_palette;
 
+        
         // Button override for anchor points reset function
         
         void reset_anchor_points() override;

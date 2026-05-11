@@ -7,7 +7,7 @@
 // =========================================================================================== IMPORT
 
 
-// =========================================================================================== APP PALLETES
+// =========================================================================================== APP PALETTES
 
 
 /*
@@ -34,10 +34,10 @@ static app_palette_ctx make_palette_1()
     palette.basic_content_color = hex_to_sdl_color("#171717", 255);
     palette.basic_shadow_color = hex_to_sdl_color("#d6cf17", 180);
     
-    palette.inverted_basic_background_color = hex_to_sdl_color("#171717", 255);
-    palette.inverted_basic_border_color = hex_to_sdl_color("#f5f219", 255);
-    palette.inverted_basic_content_color = hex_to_sdl_color("#f5f219", 255);
-    palette.inverted_basic_shadow_color = hex_to_sdl_color("#0f0f0f", 180);
+    palette.inverted_basic_background_color = hex_to_sdl_color("#f5f219", 255);
+    palette.inverted_basic_border_color = hex_to_sdl_color("#d6cf17", 180);
+    palette.inverted_basic_content_color = hex_to_sdl_color("#171717", 255);
+    palette.inverted_basic_shadow_color = hex_to_sdl_color("#171717", 255);
     
     palette.hover_background_color = hex_to_sdl_color("#E8DE2A", 255);
     palette.hover_border_color = hex_to_sdl_color("#171717", 255);
@@ -90,10 +90,10 @@ static app_palette_ctx make_palette_2()
     palette.basic_content_color = hex_to_sdl_color("#171717", 255);
     palette.basic_shadow_color = hex_to_sdl_color("#c9441c", 180);
     
-    palette.inverted_basic_background_color = hex_to_sdl_color("#171717", 255);
-    palette.inverted_basic_border_color = hex_to_sdl_color("#f25623", 255);
-    palette.inverted_basic_content_color = hex_to_sdl_color("#f25623", 255);
-    palette.inverted_basic_shadow_color = hex_to_sdl_color("#0f0f0f", 180);
+    palette.inverted_basic_background_color = hex_to_sdl_color("#f25623", 255);
+    palette.inverted_basic_border_color = hex_to_sdl_color("#c9441c", 180);
+    palette.inverted_basic_content_color = hex_to_sdl_color("#171717", 255);
+    palette.inverted_basic_shadow_color = hex_to_sdl_color("#171717", 255);
     
     palette.hover_background_color = hex_to_sdl_color("#ff6a2e", 255);
     palette.hover_border_color = hex_to_sdl_color("#171717", 255);
@@ -145,10 +145,10 @@ static app_palette_ctx make_palette_3()
     palette.basic_content_color = hex_to_sdl_color("#171717", 255);
     palette.basic_shadow_color = hex_to_sdl_color("#6f00cc", 180);
     
-    palette.inverted_basic_background_color = hex_to_sdl_color("#171717", 255);
-    palette.inverted_basic_border_color = hex_to_sdl_color("#8f00ff", 255);
-    palette.inverted_basic_content_color = hex_to_sdl_color("#8f00ff", 255);
-    palette.inverted_basic_shadow_color = hex_to_sdl_color("#0f0f0f", 180);
+    palette.inverted_basic_background_color = hex_to_sdl_color("#8f00ff", 255);
+    palette.inverted_basic_border_color = hex_to_sdl_color("#6f00cc", 180);
+    palette.inverted_basic_content_color = hex_to_sdl_color("#171717", 255);
+    palette.inverted_basic_shadow_color = hex_to_sdl_color("#171717", 255);
     
     palette.hover_background_color = hex_to_sdl_color("#a020ff", 255);
     palette.hover_border_color = hex_to_sdl_color("#171717", 255);
@@ -188,12 +188,10 @@ static app_palette_ctx make_palette_3()
 // ===== Palette 3 =====
 
 
-// =========================================================================================== APP PALLETES
+// =========================================================================================== APP PALETTES
 
 
-// =========================================================================================== APP PALLETE SINGLETON
-
-
+// =========================================================================================== APP PALETTE SINGLETON
 
 Global_palette& Global_palette::Instance()
 {
@@ -217,7 +215,7 @@ Global_palette& Global_palette::Instance()
 
 Global_palette::Global_palette()
 {
-    this->current_palette_id = 0;
+    this->current_palette_id = 2;
 
     this->palette_reset_flag = true;
     this->palette_reset_flag_loops_counter = 0;

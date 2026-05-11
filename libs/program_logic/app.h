@@ -6,7 +6,6 @@
 // =========================================================================================== IMPORT
 
 #include "program_states/program_states.h"
-#include "global_data/global_data.h"
 
 #include <string>
 

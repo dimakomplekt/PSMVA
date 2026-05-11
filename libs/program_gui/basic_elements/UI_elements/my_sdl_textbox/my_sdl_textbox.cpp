@@ -30,11 +30,26 @@ My_SDL_textbox::My_SDL_textbox()
     this->font_size = 12; 
 
     // Relative path to the font file from the executable (can be changed by the setter for the font path)
-    this->font_path = absolute_by_relative_from_exe("../../libs/program_gui/basic_elements/content/ttf_fonts/basis33.ttf");
+    this->font_path = App_fonts.get_current_fonts_palette().ordinary_text_font.font_path;
     
-    this->ttf_font_link = nullptr;
+    if (App_fonts.get_current_fonts_palette().ordinary_text_font.ttf_font_link != nullptr)
+    {
+        this->ttf_font_link = App_fonts.get_current_fonts_palette().ordinary_text_font.ttf_font_link;
+    }
+     else
+    {
+        this->ttf_font_link = TTF_OpenFont(this->font_path.c_str(), this->font_size);
 
-    if (!ttf_font_link) this->update();
+        if (!this->ttf_font_link)
+        {
+            SDL_Log("TTF_OpenFont failed: %s", SDL_GetError());
+        }
+    }
+
+    this->passed_by_font_palette = true;
+
+
+    // if (!ttf_font_link) this->update();
 
     // Content and sizes set with anchor points reset
     this->set_content("Text");
@@ -46,7 +61,7 @@ My_SDL_textbox::My_SDL_textbox()
 
 
     // Basic text color by palette
-
+    // flag for showing that the color setted by the pallet, automatically set to true inside the basic class constructor
     set_content_color(App_palette.get_current_palette().basic_content_color);
 
 
@@ -104,9 +119,30 @@ void My_SDL_textbox::cleanup()
 void My_SDL_textbox::update()
 {
     // Just font start initialization
-    if (this->ttf_font_link == nullptr)
+    if (this->ttf_font_link == nullptr && !this->passed_by_font_palette)
     {
         if(!this->font_path.empty()) this->set_ttf_font_link(TTF_OpenFont(this->font_path.c_str(), this->font_size));
+    }
+
+    // Reset the font if current font palette was switched and the font was set by the font palette,
+    // to update the font by the new palette
+    if (this->passed_by_font_palette && App_fonts.get_fonts_palette_reset_flag())
+    {
+        this->font_path = App_fonts.get_current_fonts_palette().ordinary_text_font.font_path;
+    
+        if (App_fonts.get_current_fonts_palette().ordinary_text_font.ttf_font_link != nullptr)
+        {
+            this->ttf_font_link = App_fonts.get_current_fonts_palette().ordinary_text_font.ttf_font_link;
+        }
+         else
+        {
+            this->ttf_font_link = TTF_OpenFont(this->font_path.c_str(), this->font_size);
+    
+            if (!this->ttf_font_link)
+            {
+                SDL_Log("TTF_OpenFont failed: %s", SDL_GetError());
+            }
+        }
     }
 
     // Check if the palette was switched and update the colors by the new palette if it was
@@ -184,6 +220,17 @@ void My_SDL_textbox::set_content(const std::string& new_text)
     this->reset_anchor_points();
 
     this->content_dirty = true;
+}
+
+
+void My_SDL_textbox::switch_passed_by_font_palette_flag(bool new_flag)
+{
+    this->passed_by_font_palette = new_flag;
+}
+
+bool My_SDL_textbox::get_passed_by_font_palette_flag() const
+{
+    return this->passed_by_font_palette;
 }
 
 

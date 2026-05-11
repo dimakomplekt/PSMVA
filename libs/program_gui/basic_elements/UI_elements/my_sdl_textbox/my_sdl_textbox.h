@@ -95,6 +95,15 @@ class My_SDL_textbox : public My_SDL_element // SDL_Element
         void set_content(const std::string& new_text);
 
 
+
+        // Switches the flag for showing that the font path and ttf_font_link setted by the font palette, 
+        // automatically set to true inside the class constructor
+        void switch_passed_by_font_palette_flag(bool new_flag);
+
+        // Returns passed by font palette status
+        bool get_passed_by_font_palette_flag() const;
+
+
         /**
          * @brief Sets the font file path for the text.
          *
@@ -105,6 +114,7 @@ class My_SDL_textbox : public My_SDL_element // SDL_Element
          * 
          */
         void set_font_path(const std::string& new_font_path);
+
 
         // Font path getter function
         std::string get_font_path() const;
@@ -191,6 +201,8 @@ class My_SDL_textbox : public My_SDL_element // SDL_Element
         std::string font_path;                         // Font path for text
 
         TTF_Font* ttf_font_link = nullptr;             // TTF Font pointer
+        
+        bool passed_by_font_palette;                      // Flag for showing that the font path and ttf_font_link setted by the font palette, automatically set to true inside the basic class constructor
 
         unsigned int font_size;                        // Content size
 

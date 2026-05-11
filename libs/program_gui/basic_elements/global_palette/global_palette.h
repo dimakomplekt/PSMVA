@@ -12,7 +12,7 @@
 // =========================================================================================== IMPORT
 
 
-// =========================================================================================== Palette STRUCT
+// =========================================================================================== PALETTE STRUCT
 
 // App palette structure, which contains all basic colors for basic UI
 struct app_palette_ctx
@@ -74,10 +74,10 @@ struct app_palette_ctx
 
 };
 
-// =========================================================================================== Palette STRUCT
+// =========================================================================================== PALETTE STRUCT
 
 
-// =========================================================================================== APP Palette SINGLETON CLASS
+// =========================================================================================== APP PALETTE SINGLETON CLASS
 
 
 /**
@@ -117,6 +117,7 @@ class Global_palette
          *
          * Palette is copied into internal std::vector storage.
          * No dynamic allocation or ownership transfer is involved.
+         *
          */
         void add_palette(const app_palette_ctx& new_palette);
 
@@ -133,6 +134,9 @@ class Global_palette
          * NOTE:
          * Reference remains valid as long as palettes_list
          * is not structurally modified (no push_back / reallocation).
+         * So the list should be filled at the start of the program 
+         * and not modified after that.
+         * 
          */
         const app_palette_ctx& get_current_palette() const;
 
@@ -144,6 +148,7 @@ class Global_palette
          * Wraps to the first palette when the end is reached.
          *
          * Also sets reset flag to notify UI about palette change.
+         * 
          */
         void switch_to_the_next_palette();
 
@@ -157,6 +162,7 @@ class Global_palette
          * Preferred over pointer-based access to avoid invalid memory references.
          *
          * Also sets reset flag to notify UI about palette change.
+         * 
          */
         void switch_to_the_palette(unsigned int palette_id);
 
@@ -223,12 +229,12 @@ class Global_palette
         // ===== Reset logic =====
 };
 
-// =========================================================================================== APP Palette SINGLETON CLASS
+// =========================================================================================== APP PALETTE SINGLETON CLASS
 
 
-// =========================================================================================== APP Palette SINGLETON FOR USE
+// =========================================================================================== APP PALETTE SINGLETON FOR USE
 
 // Global singleton instance of app palette for easy access throughout the program
 inline Global_palette& App_palette = Global_palette::Instance();
 
-// =========================================================================================== APP Palette SINGLETON FOR USE
+// =========================================================================================== APP PALETTE SINGLETON FOR USE

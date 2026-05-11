@@ -189,12 +189,20 @@ bool SDL_app_cycle(SDL_app_ctx* app)
         return app->app_state == SDL_APP_CONTINUE;
     }
 
+    
+    // ===== GLOBAL GUI ELEMENTS UPDATES =====
+
+    // Counter and flag update for language reset in dictionary-oriented textboxes
+    App_lang.lang_reset_flag_state_loop_update();
 
     // Counter and flag update for palette reset in palette-oriented elements
     App_palette.palette_reset_flag_state_loop_update();
 
-    // Counter and flag update for language reset in dictionary-oriented textboxes
-    App_lang.lang_reset_flag_state_loop_update();
+    // Font initialization in case of palette reset, to avoid constant reinitialization and related performance issues
+    App_fonts.fonts_init_in_update_loop();
+
+    // ===== GLOBAL GUI ELEMENTS UPDATES =====
+
 
     // State update
     if (app->app_sm.get_current_state()) app->app_sm.state_update();

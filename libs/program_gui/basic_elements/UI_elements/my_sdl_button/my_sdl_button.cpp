@@ -51,16 +51,21 @@ My_SDL_button::My_SDL_button()
     
     this->button_textbox = My_SDL_textbox();
 
-
-    this->button_textbox.set_font_path(absolute_by_relative_from_exe("../../libs/program_gui/basic_elements/content/ttf_fonts/basis33.ttf"));
-    
-    this->button_textbox.set_font_size(12);
-
-    this->button_textbox.set_content("But");
-
     // Now the button content color controlled only by button itself 
     this->button_textbox.switch_passed_by_palette_flag(false);
 
+    // Now the button content font controlled only by button itself 
+    this->button_textbox.switch_passed_by_font_palette_flag(false);
+
+    this->button_textbox_font_passed_by_font_palette = true;
+
+    this->button_textbox.set_font_path(App_fonts.get_current_fonts_palette().button_text_font.font_path);
+    this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().button_text_font.ttf_font_link);
+
+
+    this->button_textbox.set_font_size(12);
+
+    this->button_textbox.set_content("But");
 
     // Sizes
 
@@ -274,6 +279,10 @@ void My_SDL_button::update()
 
     // Check if the palette was switched and update the colors by the new palette if it was
     this->reset_colors_if_palette_switched();
+
+    // Check if the font palette was switched and reset the button textbox if it was,
+    // to update the font link and path if they are setted by the font palette
+    this->reset_button_textbox_if_font_palette_switched();
 
     // Palette prepare for rendering
     this->button_palette_prepare();  
@@ -700,22 +709,22 @@ void My_SDL_button::set_click_shadow_color(SDL_Color new_color)
 
 // Palette 2
 
-void My_SDL_button::set_access_denied_background_color(SDL_color new_color)
+void My_SDL_button::set_access_denied_background_color(SDL_Color new_color)
 {
     this->access_denied_background_color = new_color;
 }
 
-void My_SDL_button::set_access_denied_border_color(SDL_color new_color)
+void My_SDL_button::set_access_denied_border_color(SDL_Color new_color)
 {
     this->access_denied_border_color = new_color;
 }
 
-void My_SDL_button::set_access_denied_content_color(SDL_color new_color)
+void My_SDL_button::set_access_denied_content_color(SDL_Color new_color)
 {
     this->access_denied_content_color = new_color;
 }
 
-void My_SDL_button::set_access_denied_shadow_color(SDL_color new_color)
+void My_SDL_button::set_access_denied_shadow_color(SDL_Color new_color)
 {
     this->access_denied_shadow_color = new_color;
 }
@@ -839,6 +848,27 @@ void My_SDL_button::reset_colors_if_palette_switched()
     this->access_permitted_click_content_color = App_palette.get_current_palette().access_permitted_click_content_color;
     this->access_permitted_click_shadow_color = App_palette.get_current_palette().access_permitted_click_shadow_color;
 
+}
+
+
+void My_SDL_button::reset_button_textbox_if_font_palette_switched()
+{
+
+    if (this->button_textbox_font_passed_by_font_palette && App_fonts.get_fonts_palette_reset_flag())
+    {
+
+        // Now the button content font controlled only by button itself 
+        this->button_textbox.switch_passed_by_font_palette_flag(false);
+
+        this->button_textbox.set_font_path(App_fonts.get_current_fonts_palette().button_text_font.font_path);
+        this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().button_text_font.ttf_font_link);
+
+    }
+}
+
+void My_SDL_button::button_textbox_font_passed_by_font_palette_flag_switch(bool new_flag)
+{
+    this->button_textbox_font_passed_by_font_palette = new_flag;
 }
 
 

@@ -14,7 +14,9 @@
 
 #include "../../GUI_functions/drawing/figures_drawing.h"                // Basic figures
 
-#include "../../global_palette/global_palette.h"                      // Global palette for the default colors and HEX to SDL_Color translator
+#include "../../global_palette/global_palette.h"                        // Global palette for the default colors and HEX to SDL_Color translator
+
+#include "../../global_fonts/global_fonts.h"                            // Global fonts for the default fonts and font path getters
 
 // =========================================================================================== IMPORT
 

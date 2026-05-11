@@ -33,9 +33,9 @@ My_SDL_panel::My_SDL_panel()
 
     // Basic color pass by the current palette
 
-    this->background_color = App_palette.get_current_palette().basic_background_color;
-    this->border_color = App_palette.get_current_palette().basic_border_color;
-    this->shadow_color = App_palette.get_current_palette().basic_shadow_color;
+    this->background_color = App_palette.get_current_palette().inverted_basic_background_color;
+    this->border_color = App_palette.get_current_palette().inverted_basic_border_color;
+    this->shadow_color = App_palette.get_current_palette().inverted_basic_shadow_color;
     
     this->render_background_color = this->background_color;
     this->render_border_color = this->border_color;
@@ -311,9 +311,9 @@ void My_SDL_panel::reset_colors_if_palette_switched()
 
     // Renew case
 
-    this->background_color = App_palette.get_current_palette().basic_background_color;
-    this->border_color = App_palette.get_current_palette().basic_border_color;
-    this->shadow_color = App_palette.get_current_palette().basic_shadow_color;
+    this->background_color = App_palette.get_current_palette().inverted_basic_background_color;
+    this->border_color = App_palette.get_current_palette().inverted_basic_border_color;
+    this->shadow_color = App_palette.get_current_palette().inverted_basic_shadow_color;
     
     this->render_background_color = this->background_color;
     this->render_border_color = this->border_color;
