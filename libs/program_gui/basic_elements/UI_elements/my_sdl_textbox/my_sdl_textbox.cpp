@@ -69,6 +69,29 @@ My_SDL_textbox::My_SDL_textbox()
 
     // Reset flag for the next update in render
     this->content_dirty = true; 
+
+
+    // Blinking mode setup
+
+    // Turn off by default 
+
+    this->blinking_mode_context.blinking_mode_on = false;
+
+
+    this->blinking_mode_context.blinking_period = 2000;
+    this->blinking_mode_context.blinking_duty = 0.5;
+
+    this->blinking_mode_context.active_time = static_cast<Uint64>(std::round(
+
+        this->blinking_mode_context.blinking_period * 
+        this->blinking_mode_context.blinking_duty
+        
+    ));
+
+    this->blinking_mode_context.phase = 0;
+
+    // Start with inactive condition (constantly switch inside the 1st update)
+    this->blinking_mode_context.active_now = true;
 }
 
 
@@ -114,7 +137,8 @@ void My_SDL_textbox::cleanup()
 
 // =========================================================================================== CONSTRUCTOR AND DESTRUCTOR
 
-
+// Helper-function predeclare
+void blinking_mode_control(blinkig_textbox_ctx &blinking_ctx);
 
 void My_SDL_textbox::update()
 {
@@ -149,7 +173,25 @@ void My_SDL_textbox::update()
     this->reset_colors_if_palette_switched();
 }
 
-//
+// Helper-function for blinking mode parameters calculation
+void blinking_mode_control(blinkig_textbox_ctx &blinking_ctx)
+{
+    if (!blinking_ctx.blinking_mode_on)
+    {
+        blinking_ctx.active_now = true;
+        return;
+    }
+
+    // Current time
+    Uint64 t = SDL_GetTicks();
+
+    // 1. Phase inside cycle
+    blinking_ctx.phase = t % blinking_ctx.blinking_period;
+
+    // 2. Condition
+    blinking_ctx.active_now = (blinking_ctx.phase < blinking_ctx.active_time);
+}
+
 
 // =========================================================================================== GUI
 
@@ -159,7 +201,14 @@ void My_SDL_textbox::render(SDL_Renderer* renderer)
 
     this->update_content_texture(renderer, this->content_render_color);
     
-    this->text_draw(renderer);
+    // Basic draw if blinking mode is off
+    if (!this->blinking_mode_context.blinking_mode_on) this->text_draw(renderer);
+
+    else
+    {
+        // Draw only if the drawing is active
+        if (this->blinking_mode_context.active_now) this->text_draw(renderer);
+    }
 }
 
 
@@ -334,14 +383,102 @@ void My_SDL_textbox::reset_colors_if_palette_switched()
     // Renew case 
     
     //     !!!    Elements with dynamic content color textboxes  (like buttons) should          !!!
-    //     !!!    call switch_passed_by_palette_flag(false) for inner textbox                  !!!
-    //     !!!    and switch content color by the pallet or not by the palette by themselves   !!!
+    //     !!!    call switch_passed_by_palette_flag(false) for inner textbox                   !!!
+    //     !!!    and switch content color by the pallet or not by the palette by themselves    !!!
     //     !!!    for double calls protection                                                   !!!
 
     set_content_color(App_palette.get_current_palette().basic_content_color);
 }
 
 
+
+void My_SDL_textbox::switch_blinking_mode_flag(bool new_flag)
+{
+    if (this->blinking_mode_context.blinking_mode_on)
+    {
+        if (new_flag) return;
+        else
+        {
+            // Reset values to basic
+            this->blinking_mode_context.active_now = true;
+        }
+    }
+
+    this->blinking_mode_context.blinking_mode_on = new_flag;
+}
+
+
+
+void My_SDL_textbox::set_blinking_period(Uint64 new_blinking_period)
+{
+    bool tmp_mode_on_flag;
+
+
+    if (this->blinking_mode_context.blinking_mode_on) tmp_mode_on_flag = true;
+
+    else tmp_mode_on_flag = false;
+
+
+    // Stop anyway and reset values to default
+    this->blinking_mode_context.blinking_mode_on = false;
+
+
+    this->blinking_mode_context.active_now = true;
+
+
+    // Set new value
+    this->blinking_mode_context.blinking_period = new_blinking_period;
+
+    // Recalculate active time value
+    this->blinking_mode_context.active_time = static_cast<Uint64>(std::round(
+
+        this->blinking_mode_context.blinking_period * 
+        this->blinking_mode_context.blinking_duty
+
+    ));
+
+    // Phase reset
+    this->blinking_mode_context.phase = 0;
+
+    // Set temped flag value
+    this->blinking_mode_context.blinking_mode_on = tmp_mode_on_flag;
+}
+
+
+void My_SDL_textbox::set_blinking_duty(float new_blinking_duty)
+{
+    bool tmp_mode_on_flag;
+
+
+    if (this->blinking_mode_context.blinking_mode_on) tmp_mode_on_flag = true;
+
+    else tmp_mode_on_flag = false;
+
+
+    // Stop anyway and reset values to default
+    this->blinking_mode_context.blinking_mode_on = false;
+
+
+    this->blinking_mode_context.active_now = true;
+
+
+    // Set new value
+    this->blinking_mode_context.blinking_duty = new_blinking_duty;
+
+    // Recalculate active time value
+    this->blinking_mode_context.active_time = static_cast<Uint64>(std::round(
+
+        this->blinking_mode_context.blinking_period * 
+        this->blinking_mode_context.blinking_duty
+
+    ));
+
+    // Phase reset
+    this->blinking_mode_context.phase = 0;
+
+    // Set temped flag value
+    this->blinking_mode_context.blinking_mode_on = tmp_mode_on_flag;
+}
 
 
 void My_SDL_textbox::reset_anchor_points()
@@ -353,7 +490,7 @@ void My_SDL_textbox::reset_anchor_points()
     int half_h = static_cast<int>(std::round(static_cast<float>(this->content_height_size) * 0.5));
 
 
-    // element_anchor_points reset
+    // Element_anchor_points reset
     
     /**
      * 

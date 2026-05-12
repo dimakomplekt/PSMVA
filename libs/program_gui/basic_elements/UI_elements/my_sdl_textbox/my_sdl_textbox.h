@@ -11,6 +11,28 @@
 // =========================================================================================== IMPORT
 
 
+// =========================================================================================== TYPES
+
+// Stucture for blinking element implimentation
+struct blinkig_textbox_ctx
+{
+
+    bool blinking_mode_on;
+
+    Uint64 blinking_period;
+    float blinking_duty;
+
+    Uint64 active_time;
+    Uint64 phase;
+
+    bool active_now;
+
+};
+
+// =========================================================================================== TYPES
+
+
+// =========================================================================================== My_SDL_textbox class
 
 class My_SDL_textbox : public My_SDL_element // SDL_Element
 {
@@ -183,6 +205,38 @@ class My_SDL_textbox : public My_SDL_element // SDL_Element
          */       
         void reset_colors_if_palette_switched() override;
 
+
+        /**
+         * @brief Blinking textbox status setter
+         * 
+         * Setup the textbox as blinking or not blinking
+         * at the renderer
+         * 
+         */
+        void switch_blinking_mode_flag(bool new_flag);
+
+
+        /**
+         * @brief Blinking period setter
+         * 
+         * Setup the textbox blinking period time
+         * 
+         * @param new_blinking_period Time of the blinking cycle in ms
+         * 
+         */
+        void set_blinking_period(Uint64 new_blinking_period);
+
+        /**
+         * 
+         * @brief Blinking duty percentage setter
+         * 
+         * Setup the textbox blinking duty cycle percentage
+         * 
+         * @param new_blinking_duty % / 100 - (value from 0 to 1) of active time 
+         * 
+         */
+        void set_blinking_duty(float new_blinking_duty);
+
         // ===== GUI ======
 
 
@@ -248,6 +302,11 @@ class My_SDL_textbox : public My_SDL_element // SDL_Element
 
         // Text drawing inner function
         void text_draw(SDL_Renderer* renderer);
+
+
+        // Blinking mode context
+        blinkig_textbox_ctx blinking_mode_context;
+
 
         // ===== GUI ======
 
