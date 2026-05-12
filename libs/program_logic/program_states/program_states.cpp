@@ -117,8 +117,11 @@ void start_enter()
 
     Textbox_1->set_render_point(1000, 800);
 
+    Textbox_1->switch_passed_by_palette_flag(false);
+    
+    Textbox_1->set_content_color(hex_to_sdl_color("#ffcf40", 255));
 
-
+    Textbox_1->switch_blinking_mode_flag(true);
 
     // Texture test
 
@@ -176,12 +179,14 @@ void start_exit()
     Textbox_1 = nullptr;
     Blue_texture_test = nullptr;
 
+
     std::cout << "Exiting START\n"; 
 }
 
 
 
 unsigned int counter_1 = 0;
+
 
 void start_update()
 {
@@ -191,6 +196,8 @@ void start_update()
     Fader_1->update();
 
     Panel_1->update();
+
+    Textbox_1->update();
 
 
     if (App_inputs.is_just_released(Key_actions::Special_1))

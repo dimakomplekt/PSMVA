@@ -78,8 +78,8 @@ My_SDL_textbox::My_SDL_textbox()
     this->blinking_mode_context.blinking_mode_on = false;
 
 
-    this->blinking_mode_context.blinking_period = 2000;
-    this->blinking_mode_context.blinking_duty = 0.5;
+    this->blinking_mode_context.blinking_period = 1400;
+    this->blinking_mode_context.blinking_duty = 0.4;
 
     this->blinking_mode_context.active_time = static_cast<Uint64>(std::round(
 
@@ -142,6 +142,9 @@ void blinking_mode_control(blinkig_textbox_ctx &blinking_ctx);
 
 void My_SDL_textbox::update()
 {
+    // Control blinking if it's needed
+    blinking_mode_control(this->blinking_mode_context);
+
     // Just font start initialization
     if (this->ttf_font_link == nullptr && !this->passed_by_font_palette)
     {
