@@ -3,7 +3,7 @@ $env:PATH += ";C:\opencv\build\x64\vc16\bin"
 
 # Если папки build нет — создаём и конфигурируем проект
 if (-not (Test-Path "build")) {
-    Write-Host "build отсуствует  — создаем и запускаем сборку."
+    Write-Host "build отсуствует - создаем и запускаем сборку."
     mkdir build
     cd build
     cmake ..

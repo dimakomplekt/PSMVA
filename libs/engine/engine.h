@@ -7,9 +7,10 @@
 // =========================================================================================== IMPORT
 
 // Language state management (library contains links to language choose methods
-// and program dictionary object)
+// for program dictionary workflow)
 
 #include "lang_state/lang_state.h"
+#include "lang_state/lang_utils.h"
 
 
 // Current platform by preprocessor directives
@@ -26,5 +27,19 @@
 // to both SDL3 and OpenCV2)
 
 #include "special/opencv_to_sdl/opencv_to_sdl.h"
+
+// SDL ttf include
+
+#include "SDL3_ttf-3.1.0/include/SDL3_ttf/SDL_ttf.h"
+
+
+// Mouse and keyboard read
+
+#include "global_inputs/global_inputs.h" 
+
+
+// Absolute path by relative path from .exe folder
+
+#include "special/absolute_by_relative/absolute_by_relative.h"
 
 // =========================================================================================== IMPORT

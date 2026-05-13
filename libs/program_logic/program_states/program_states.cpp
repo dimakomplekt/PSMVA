@@ -4,7 +4,13 @@
 // =========================================================================================== IMPORT
 
 #include "program_states.h"
+
 #include <iostream> // for std::cout, std::cerr
+
+#include "../../program_gui/basic_elements/UI_elements/my_sdl_button/my_sdl_button.h"
+#include "../../program_gui/basic_elements/UI_elements/my_sdl_fader/my_sdl_fader.h"
+#include "../../program_gui/basic_elements/UI_elements/my_sdl_panel/my_sdl_panel.h"
+#include "../../program_gui/basic_elements/UI_elements/my_sdl_texture/my_sdl_texture.h"
 
 // =========================================================================================== IMPORT
 
@@ -18,29 +24,326 @@
 // Currently, they are simple stubs printing to the console.
 // You can replace the body with more complex logic or calls to other modules.
 
+// RAII + lifecycle management
+My_SDL_button* Button_1 = nullptr;
+My_SDL_button* Button_2 = nullptr;
 
-void start_enter()         { std::cout << "Entering START\n"; }
-void start_exit()          { std::cout << "Exiting START\n"; }
+My_SDL_textbox* Textbox_1 = nullptr;
+
+My_SDL_fader*  Fader_1  = nullptr;
+My_SDL_panel*  Panel_1  = nullptr;
+
+
+
+My_SDL_texture* Blue_texture_test = nullptr;
+bool Blue_texture_test_init = false;
+
+
+// Predeclare
+#include "../app.h"
+// App initialization
+
+void cout_on_but_1_click()
+{
+    std::cout << "Button_1 is clicked... Finally." << std::endl;
+    std::cout << Fader_1->get_fader_value() << std::endl;
+
+    this_app.app_sm.request_state_change(PROGRAM_END_ID);
+}
+
+void switch_palette_on_but_2_click()
+{
+    std::cout << "Button_2 is clicked... Finally." << std::endl;
+
+    App_palette.switch_to_the_next_palette();
+}
+
+
+void start_enter()
+{
+    Button_1 = new My_SDL_button();
+    Button_1->set_opacity(150);
+
+
+    Button_2 = new My_SDL_button();
+
+    std::cout << Button_1->get_x_render_point() << std::endl;
+    std::cout << Button_1->get_y_render_point() << std::endl;
+
+    Fader_1 = new My_SDL_fader();
+
+    Panel_1 = new My_SDL_panel();
+
+    Panel_1->add_element(
+
+        Button_1,
+         (Panel_1->get_anchor_points().top_right.x - Panel_1->get_anchor_points().top_left.x) * 0.5,
+          (Panel_1->get_anchor_points().bottom_left.y - Panel_1->get_anchor_points().top_left.y) * 0.75,
+           1
+    );
+
+
+    Panel_1->add_element(
+
+        Button_2,
+         (Panel_1->get_anchor_points().top_right.x - Panel_1->get_anchor_points().top_left.x) * 0.5,
+          (Panel_1->get_anchor_points().bottom_left.y - Panel_1->get_anchor_points().top_left.y) * 0.25,
+           1
+    );
+
+
+
+    std::cout << Panel_1->get_x_render_point() << std::endl;
+    std::cout << Panel_1->get_y_render_point() << std::endl;
+
+    std::cout << Panel_1->get_anchor_points().top_left.x << std::endl;
+    std::cout << Panel_1->get_anchor_points().top_left.y << std::endl;
+
+    std::cout << Button_1->get_x_render_point() << std::endl;
+    std::cout << Button_1->get_y_render_point() << std::endl;
+
+    std::cout << "Entering START\n";
+
+    // Button 1 initialization
+    Button_1->on_click = cout_on_but_1_click;
+
+    Button_2->on_click = switch_palette_on_but_2_click;
+
+    // Button_1->set_font_path(Button_1->get_font_path());
+
+    // Textbox check
+
+    Textbox_1 = new My_SDL_textbox();
+
+    Textbox_1->set_render_point(1000, 800);
+
+    Textbox_1->switch_passed_by_palette_flag(false);
+    
+    Textbox_1->set_content_color(hex_to_sdl_color("#ffcf40", 255));
+
+    Textbox_1->switch_blinking_mode_flag(true);
+
+    // Texture test
+
+    Blue_texture_test = new My_SDL_texture();
+    Blue_texture_test->set_render_point(1200, 500);
+
+
+    // 1. создаём texture target
+
+    SDL_Texture* raw = SDL_CreateTexture(
+
+        this_app.renderer,
+        SDL_PIXELFORMAT_RGBA8888,
+        SDL_TEXTUREACCESS_TARGET,
+        200,
+        120
+        
+    );
+
+    // 2. рисуем в неё
+    SDL_SetRenderTarget(this_app.renderer, raw);
+
+    SDL_SetRenderDrawColor(this_app.renderer, 80, 180, 255, 255);
+    SDL_RenderClear(this_app.renderer);
+
+    // вернуть обратно
+    SDL_SetRenderTarget(this_app.renderer, nullptr);
+
+    // 3. оборачиваем
+    
+    Blue_texture_test->set_texture(raw);
+}
+
+
+void start_exit()
+{ 
+    // Delete 
+
+    // Button_1->delete_element();
+    Fader_1->delete_element();
+
+    Panel_1->delete_element();
+
+    Textbox_1->delete_element();
+
+    Blue_texture_test->delete_element();
+    Blue_texture_test_init = false;
+
+    // Nullptr
+
+    Button_1 = nullptr;
+    Button_2 = nullptr;
+    Fader_1 = nullptr;
+    Panel_1 = nullptr;
+    Textbox_1 = nullptr;
+    Blue_texture_test = nullptr;
+
+
+    std::cout << "Exiting START\n"; 
+}
+
+
+
+unsigned int counter_1 = 0;
+
+
+void start_update()
+{
+    App_inputs.update();
+
+    // Button_1->update();
+    Fader_1->update();
+
+    Panel_1->update();
+
+    Textbox_1->update();
+
+
+    if (App_inputs.is_just_released(Key_actions::Special_1))
+    {
+        // Test
+
+        int new_opacity = Panel_1->get_basic_opacity() - 20;
+
+        new_opacity = std::max(0, new_opacity); // Ensure opacity doesn't go below 0
+
+        Panel_1->set_opacity(new_opacity);
+
+        std::cout << "Panel_1 opacity: " << static_cast<int>(Panel_1->get_opacity()) << std::endl;
+        std::cout << "Panel_1 basic opacity: " << static_cast<int>(Panel_1->get_basic_opacity()) << std::endl;
+    }
+
+
+    if (App_inputs.is_just_released(Key_actions::Decline))
+    {
+        // Test of the texture sizes reset
+        switch (counter_1)
+        {
+            case 0:
+
+                Blue_texture_test->set_x_scaler(2);
+
+                counter_1++;
+
+                break;
+
+            case 1:
+
+                Blue_texture_test->set_y_scaler(2);
+
+                counter_1++;
+
+                break;
+ 
+            case 2:
+
+                Blue_texture_test->set_scalers(3, 1);
+
+                counter_1++;
+
+                break;
+
+            case 3:
+
+                Blue_texture_test->set_height(500);
+
+                counter_1++;
+
+                break;
+
+
+            case 4:
+
+                Blue_texture_test->set_width(500);
+
+                counter_1++;
+
+                break;
+ 
+            case 5:
+
+                Blue_texture_test->set_size(360, 370);
+
+                counter_1++;
+
+                break;
+
+            case 6:
+
+                Blue_texture_test->reset_size();
+
+                counter_1 = 0;
+
+                break;
+
+
+            default:
+                break;
+        }
+    }
+
+
+    if (App_inputs.is_just_released(Key_actions::Confirm))
+    {
+        std::cout << Fader_1->get_fader_value() << std::endl;
+
+        Panel_1->set_render_point(
+
+            Panel_1->get_x_render_point() + 20,
+            Panel_1->get_y_render_point() + 20
+            
+        );  
+
+        App_lang.set_lang(Lang_list::EN);
+    }
+
+
+    if (App_inputs.is_just_released(Key_actions::Menu_forward))
+    {
+        this_app.app_sm.request_state_change(PROGRAM_END_ID);
+    }
+
+
+    if (App_lang.get_lang_reset_flag())
+        Textbox_1->set_content(str_by_dictionary(gd_press_any_key));
+
+
+    // Switch button_1 color by fader
+    if (Button_1)
+    {
+        SDL_Color color_to_switch = App_palette.get_current_palette().basic_background_color;
+
+        SDL_Color new_color = {
+
+            static_cast<Uint8>(color_to_switch.r * Fader_1->get_fader_value()),
+            static_cast<Uint8>(color_to_switch.g * Fader_1->get_fader_value()),
+            static_cast<Uint8>(color_to_switch.b * Fader_1->get_fader_value()),
+            255
+
+        };
+
+        Button_1->set_basic_background_color(new_color);
+    }
+}
 
 void start_render(SDL_Renderer* renderer)
 {
+    // Button 1
+    // Button_1->render(renderer);
+
+    // Fader 1
+    Fader_1->render(renderer);
+
+    // Panel 1
+    Panel_1->render(renderer);
+
+    // Textbox 1
+    Textbox_1->render(renderer);
 
 
-    // Рисуем красный круг для чека работоспособности
-    SDL_SetRenderDrawColor(renderer, 255, 100, 50, 255);
-
-    int cx = 400, cy = 300, r = 50;
-
-    for (int w = 0; w < r * 2; w++)
-    {
-        for (int h = 0; h < r * 2; h++)
-        {
-            int dx = r - w;
-            int dy = r - h;
-
-            if ((dx*dx + dy*dy) <= (r*r)) SDL_RenderPoint(renderer, cx + dx, cy + dy);
-        }
-    }
+    // Texture test
+    Blue_texture_test->render(renderer);
 }
 
 
@@ -283,6 +586,21 @@ void program_end_enter()
     // TODO:
     // - Показать сообщение о завершении
     // - Подготовить возврат в MAIN_MENU при нажатии любой кнопки
+    std::cout << "\n";
+    std::cout << "This is the end" << std::endl;
+    std::cout << "Beautiful friend" << std::endl;
+    std::cout << "This is the end" << std::endl;
+    std::cout << "My only friend, the end" << std::endl;
+    std::cout << "Of our elaborate plans, the end" << std::endl;
+    std::cout << "Of everything that stands, the end" << std::endl;
+    std::cout << "No safety or surprise, the end" << std::endl;
+    std::cout << "I'll never look into your eyes again" << std::endl;
+    std::cout << "Can you picture what will be?" << std::endl;
+    std::cout << "So limitless and free" << std::endl;
+    std::cout << "Desperately in need" << std::endl;
+    std::cout << "Of some stranger's hand" << std::endl;
+    std::cout << "In a desperate land" << std::endl;
+    std::cout << "\n";
 }
 
 /**
@@ -294,6 +612,16 @@ void program_end_exit()
 {
     // TODO:
     // - Очистить ресурсы
+}
+
+void program_end_update()
+{
+    App_inputs.update();
+
+    if (App_inputs.is_just_released(Key_actions::Menu_back))
+    {
+        this_app.app_sm.request_state_change(START_ID);
+    }
 }
 
 /**
@@ -308,6 +636,7 @@ void program_end_render(SDL_Renderer* renderer)
     // TODO:
     // - Отрисовать сообщение "Работа завершена"
     // - Отобразить подсказку для возврата в MAIN_MENU при нажатии любой клавиши
+    rectangle_draw_by_color(300, 300, 100, 50, hex_to_sdl_color("#8af520", 250),renderer);
 }
 
 
@@ -316,7 +645,7 @@ void program_end_render(SDL_Renderer* renderer)
 
 // =========================================================================================== INITIALIZATION
 
-void init_game_states(State_machine& app_state_machine)
+void init_program_states(State_machine& app_state_machine)
 {
     // Each block below creates a State object, assigns its enter/exit callbacks,
     // and adds it to the state machine. The hierarchy linking is handled
@@ -332,6 +661,7 @@ void init_game_states(State_machine& app_state_machine)
     {
         s->on_enter = start_enter;          // Actions on the state entering 
         s->on_exit  = start_exit;           // Actions on the state exit
+        s->state_update = start_update;
         s->state_render = start_render;     // Rendering for the state
     }
 
@@ -376,16 +706,19 @@ void init_game_states(State_machine& app_state_machine)
     }
 
 
-    // === EXIT_PROGRAM ===
-    app_state_machine.initiate_state(EXIT_PROGRAM_ID, "EXIT_PROGRAM");
-
-    if (auto* s = app_state_machine.get_state(EXIT_PROGRAM_ID))
-    {
-        s->on_enter = exit_program_enter;
-        s->on_exit  = exit_program_exit;
-    }
     */  
     
+    // === EXIT_PROGRAM ===
+    app_state_machine.initiate_state(PROGRAM_END_ID, "PROGRAM END");
+
+    if (auto* s = app_state_machine.get_state(PROGRAM_END_ID))
+    {
+        s->on_enter = program_end_enter;
+        s->on_exit  = program_end_exit;
+        s->state_update = program_end_update;
+        s->state_render = program_end_render;
+    }
+
     // At this point, all states are registered in the state machine.
     // State_machine handles connecting parents and children based on IDs,
     // so hierarchical updates and callback chaining will work automatically.

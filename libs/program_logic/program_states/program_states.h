@@ -1,3 +1,5 @@
+// program_states.h
+
 #pragma once
 
 // =========================================================================================== IMPORT
@@ -8,7 +10,19 @@
 
 
 #include "../../engine/engine.h"
+#include "../../program_gui/basic_elements/global_palette/global_palette.h"
+#include "../../program_gui/basic_elements/global_fonts/global_fonts.h"
+#include "../global_data/global_data.h"
 
+// States import
+
+// #include "states_logic/0.0_START/0.0_START.h"
+// #include "states_logic/1.0_MAIN_MENU/1.0_MAIN_MENU.h"
+// #include "states_logic/1.1_FILE_CHOOSE/1.1_FILE_CHOOSE.h"
+// #include "states_logic/1.2_MASKS_SETUP/1.2_MASKS_SETUP.h"
+// #include "states_logic/1.3_FLOW_PARAMETERS_CALCULATION/1.3_FLOW_PARAMETERS_CALCULATION.h"
+// #include "states_logic/1.4_REPORT_FORMING/1.4_REPORT_FORMING.h"
+// #include "states_logic/2.0_PROGRAM_END/2.0_PROGRAM_END.h"
 
 // =========================================================================================== IMPORT
 
@@ -22,6 +36,7 @@
  * This makes it easy to determine parent-child relationships and manage
  * nested states.
  */
+
 const State_ID START_ID                             = {0};           // Initial boot/start state
 const State_ID MAIN_MENU_ID                         = {1};           // Main functions basic state
 const State_ID FILE_CHOOSE_ID                       = {1, 1};        // File choose state
@@ -109,6 +124,6 @@ void program_end_render(SDL_Renderer* renderer);
  *
  * @param app_state_machine Reference to the State_machine to populate.
  */
-void init_game_states(State_machine& app_state_machine);
+void init_program_states(State_machine& app_state_machine);
 
 // =========================================================================================== INITIALIZATION
