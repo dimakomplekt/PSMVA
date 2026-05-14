@@ -14,16 +14,6 @@
 #include "../../program_gui/basic_elements/global_fonts/global_fonts.h"
 #include "../global_data/global_data.h"
 
-// States import
-
-// #include "states_logic/0.0_START/0.0_START.h"
-// #include "states_logic/1.0_MAIN_MENU/1.0_MAIN_MENU.h"
-// #include "states_logic/1.1_FILE_CHOOSE/1.1_FILE_CHOOSE.h"
-// #include "states_logic/1.2_MASKS_SETUP/1.2_MASKS_SETUP.h"
-// #include "states_logic/1.3_FLOW_PARAMETERS_CALCULATION/1.3_FLOW_PARAMETERS_CALCULATION.h"
-// #include "states_logic/1.4_REPORT_FORMING/1.4_REPORT_FORMING.h"
-// #include "states_logic/2.0_PROGRAM_END/2.0_PROGRAM_END.h"
-
 // =========================================================================================== IMPORT
 
 
@@ -68,47 +58,6 @@ const std::vector<std::pair<State_ID, std::string>> state_defs = {
 
 // =========================================================================================== CALLBACKS
 
-/**
- * Functions called when entering or exiting a specific state.
- *
- * These are assigned to the `on_enter` and `on_exit` callbacks of the
- * corresponding State objects in the state machine.
- *
- * Example:
- * 
- * app_state_machine.add_state(std::make_unique<State>(START_ID, "START"));
- * state->on_enter = start_enter;
- * 
- */
-
-void start_enter();
-void start_exit();
-void start_render(SDL_Renderer* renderer);
-
-void main_menu_enter();
-void main_menu_exit();
-void main_menu_render(SDL_Renderer* renderer);
-
-void file_choose_enter();
-void file_choose_exit();
-void file_choose_render(SDL_Renderer* renderer);
-
-void masks_setup_enter();
-void masks_setup_exit();
-void masks_setup_render(SDL_Renderer* renderer);
-
-void flow_parameters_calculation_enter();
-void flow_parameters_calculation_exit();
-void flow_parameters_calculation_render(SDL_Renderer* renderer);
-
-void report_forming_enter();
-void report_forming_exit();
-void report_forming_render(SDL_Renderer* renderer);
-
-
-void program_end_enter();
-void program_end_exit();
-void program_end_render(SDL_Renderer* renderer);
 
 // =========================================================================================== CALLBACKS
 

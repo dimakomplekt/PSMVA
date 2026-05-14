@@ -335,7 +335,26 @@ void My_SDL_textbox::set_font_size(unsigned int new_size)
 
     this->font_size = new_size;
 
-    // Content is dirty after reset
+    // close old font
+    if (this->ttf_font_link)
+    {
+        TTF_CloseFont(this->ttf_font_link);
+        this->ttf_font_link = nullptr;
+    }
+
+    // open new font
+    this->ttf_font_link = TTF_OpenFont(this->font_path.c_str(), this->font_size);
+
+    if (!this->ttf_font_link)
+    {
+        SDL_Log("TTF_OpenFont failed: %s", SDL_GetError());
+        return;
+    }
+
+    // rebuild geometry
+    this->set_content(this->content);
+
+    // force texture rebuild
     this->content_dirty = true;
 }
 

@@ -34,7 +34,7 @@ const std::string THIS_APP_NAME = "PSMVA";
 // Main window vertical size
 #define MAIN_WINDOW_V_SIZE 1000
 
-const SDL_WindowFlags THIS_APP_WINDOW_FLAG = SDL_WINDOW_RESIZABLE; // | SDL_WINDOW_ALLOW_HIGHDPI
+const SDL_WindowFlags THIS_APP_WINDOW_FLAG = 0; // | SDL_WINDOW_ALLOW_HIGHDPI
 
 // =========================================================================================== GLOBAL WINDOW SETTINGS
 

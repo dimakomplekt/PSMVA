@@ -1,7 +1,5 @@
 // 0.0_START.cpp
 
-/*
-
 
 // =========================================================================================== IMPORT
 
@@ -9,7 +7,15 @@
 
 
 #include "../../../../program_gui/basic_elements/UI_elements/my_sdl_textbox/my_sdl_textbox.h"
+#include "../../../../program_gui/basic_elements/UI_elements/my_sdl_panel/my_sdl_panel.h"
 
+// Predeclare for switching states
+#include "../../program_states.h"
+
+#include "../../../app.h"
+
+// Log
+#include <iostream>
 
 // =========================================================================================== IMPORT
 
@@ -17,9 +23,29 @@
 // =========================================================================================== STATE DATA
 
 // RAII + lifecycle management
+
+My_SDL_panel* Start_panel = nullptr;
+
 My_SDL_textbox* Start_textbox = nullptr;
 
 // =========================================================================================== STATE DATA
+
+
+// =========================================================================================== STATE INNER FUNCTIONS PREDECLARATION
+
+void start_elements_create();
+
+void start_elements_setup();
+
+void start_elements_free_and_nullptr();
+
+void start_elements_update();
+
+void start_actions();
+
+void start_elements_render(SDL_Renderer* renderer);
+
+// =========================================================================================== STATE INNER FUNCTIONS PREDECLARATION
 
 
 // =========================================================================================== MAIN STATE API
@@ -27,43 +53,54 @@ My_SDL_textbox* Start_textbox = nullptr;
 
 void start_enter()
 {
+    // Log the enter in console
+    std::cout << "Entering START\n"; 
+
     // ===== State allocation =====
 
-    Start_textbox = new My_SDL_textbox();
+    start_elements_create();
 
     // ===== State allocation =====
+
+
+    // Elements setup
 
     start_elements_setup();
 
-    
 }
 
 
 
 void start_exit()
 {
+    // ===== State deallocation =====
+
+    start_elements_free_and_nullptr();
 
     // ===== State deallocation =====
 
-    Start_textbox->delete_element();
-    Start_textbox = nullptr;
 
-    // ===== State deallocation =====
+    // Log the exit in console
 
-
+    std::cout << "Exiting START\n"; 
 
 }
 
 
 void start_update()
 {
-    // If user press any button, except EXIT: go to the next state
+    // Update inputs
+    App_inputs.update();
+
+    start_elements_update();
+
+    start_actions();
 }
 
 
 void start_render(SDL_Renderer* renderer)
 {
-    Start_textbox->render(renderer);
+    start_elements_render(renderer);
 }
 
 
@@ -76,18 +113,98 @@ void start_render(SDL_Renderer* renderer)
 
 // =========================================================================================== INNER STATE FUNCTIONS
 
+
+// =========================================================================================== STATE INNER FUNCTIONS REALIZATION
+
+void start_elements_create()
+{
+    // Start panel create
+    Start_panel = new My_SDL_panel();
+
+    // Start textbox create
+    Start_textbox = new My_SDL_textbox();
+}
+
+
 void start_elements_setup()
 {
+    // Start panel setup
+
+    Start_panel->set_render_point(MAIN_WINDOW_H_SIZE / 2, MAIN_WINDOW_V_SIZE / 2);
+    Start_panel->set_size(MAIN_WINDOW_H_SIZE, MAIN_WINDOW_V_SIZE);
+
     // Start textbox setup
+    Start_textbox->switch_passed_by_font_palette_flag(false);
 
-    Start_textbox->set_render_point(MAIN_WINDOW_H_SIZE / 2, MAIN_WINDOW_V_SIZE / 2);
+    Start_textbox->set_font_size(40);
 
-    Start_textbox->set_font_size(24);
+    Start_textbox->set_font_path(absolute_by_relative_from_exe("content/ttf_fonts/basis33.ttf"));
 
     Start_textbox->set_content(str_by_dictionary(gd_press_any_key));
 
+    Start_textbox->switch_blinking_mode_flag(true);
+
+
+    // Put the texture inside the middle of the panel
+
+    Start_panel->add_element(
+
+        Start_textbox,
+         (Start_panel->get_width_size()) * 0.5,
+          (Start_panel->get_height_size()) * 0.5,
+           1
+    );
+
 }
 
-// =========================================================================================== INNER STATE FUNCTIONS
 
-*/
+void start_elements_free_and_nullptr()
+{
+    // Free all elements
+
+    Start_panel->delete_element();
+
+    // Nullptr the pointers
+
+    Start_panel = nullptr;
+    Start_textbox = nullptr;
+}
+
+
+void start_elements_update()
+{
+    // Update all elements
+    Start_panel->update();
+}
+
+
+void start_actions()
+{
+    // Switch the state to EXIT if EXIT pressed
+
+    if (App_inputs.is_just_released(Key_actions::EXIT))
+    {
+        this_app.app_sm.request_state_change(PROGRAM_END_ID);
+    }
+
+    // Switch the state to MAIN MENU if ENTER pressed
+
+    if (App_inputs.is_just_released(Key_actions::ENTER))
+    {
+        this_app.app_sm.request_state_change(MAIN_MENU_ID);
+    }
+
+    if (App_inputs.is_just_released(Key_actions::SPECIAL_1))
+    {
+        App_palette.switch_to_the_next_palette();
+    }
+}
+
+
+void start_elements_render(SDL_Renderer* renderer)
+{
+    // Render all elements
+    Start_panel->render(renderer);
+}
+
+// =========================================================================================== STATE INNER FUNCTIONS REALIZATION
