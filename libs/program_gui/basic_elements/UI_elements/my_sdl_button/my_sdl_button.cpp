@@ -54,18 +54,10 @@ My_SDL_button::My_SDL_button()
     // Now the button content color controlled only by button itself 
     this->button_textbox.switch_passed_by_palette_flag(false);
 
-    // Now the button content font controlled only by button itself 
-    this->button_textbox.switch_passed_by_font_palette_flag(false);
-
-    this->button_textbox_font_passed_by_font_palette = true;
-
-    this->button_textbox.set_font_path(App_fonts.get_current_fonts_palette().button_text_font.font_path);
-    this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().button_text_font.ttf_font_link);
-
-
-    this->button_textbox.set_font_size(12);
+    this->button_textbox.switch_textbox_type(BUTTON_TEXT);
 
     this->button_textbox.set_content("But");
+
 
     // Sizes
 
@@ -183,7 +175,7 @@ My_SDL_button::~My_SDL_button()
 
 void My_SDL_button::update()
 {    
-    // Onetime initialization of the font
+    // Font prepare (onetime at the start or onetime by reset_flag from fonts palette)
     this->button_textbox.update();
 
     // Hover check
@@ -916,41 +908,67 @@ void My_SDL_button::render_data_recalculation()
     
     // Increment the press offset at every render repeat
 
+    // PRESS ANIMATION (simplified)
+
+    int base_size = (int)this->button_textbox.get_font_size();
+
+
     if (this->current_button_state == CLICKED_ES)
     {
-        if (this->push_mode_on && this->press_offset <= 5)
+        this->button_textbox.switch_textbox_type(NO_TYPE);
+    
+        if (this->push_mode_on)
         {
-            this->press_offset += 1;
-
-            // Set the new text size by current offset
-            if (this->button_textbox.get_font_size() - this->press_offset >= 10)
+            if (this->press_offset < 5)
+                this->press_offset++;
+    
+            int new_size = base_size - (this->press_offset / 2);
+    
+            if (new_size < 10) new_size = 10;
+    
+            // Only 4 + 1 (on release) TTF_OpenFont operation quantity control by:
+            if (this->press_offset < 5)
             {
-                this->button_textbox.set_ttf_font_link(TTF_OpenFont(
-
-              this->button_textbox.get_font_path().c_str(), 
-            this->button_textbox.get_font_size() - static_cast<int>(std::round(static_cast<float>(this->press_offset) / 2)))
-
+                TTF_Font* new_font = TTF_OpenFont(
+                    this->button_textbox.get_font_path().c_str(),
+                    new_size
                 );
-
+        
+                if (new_font)
+                {
+                    this->button_textbox.set_ttf_font_link(new_font);
+                    this->button_textbox.content_dirty = true;
+                }
             }
         }
     }
     else
     {
+        this->button_textbox.switch_textbox_type(
+            this->button_textbox.get_prev_textbox_type()
+        );
+    
         if (this->push_mode_on && this->press_offset > 0)
         {
-            // Reset size of text to default value
-            this->button_textbox.set_ttf_font_link((TTF_OpenFont(
-
-            this->button_textbox.get_font_path().c_str(),
-          this->button_textbox.get_font_size()))
-
-            );
-
             this->press_offset = 0;
+    
+            TTF_Font* new_font = TTF_OpenFont(
+                this->button_textbox.get_font_path().c_str(),
+                base_size
+            );
+    
+            if (new_font)
+            {
+                this->button_textbox.set_ttf_font_link(new_font);
+                this->button_textbox.content_dirty = true;
+            }
         }
     }
 }
 
 
+My_SDL_textbox* My_SDL_button::get_button_content_textbox()
+{
+    return &this->button_textbox;
+}
 // =========================================================================================== GUI

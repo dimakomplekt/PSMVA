@@ -377,6 +377,9 @@ class My_SDL_button : public My_SDL_element // SDL_Element
         // Switch the flag for showing that the button textbox font path and ttf_font_link setted by the font palette
         void button_textbox_font_passed_by_font_palette_flag_switch(bool new_flag);
 
+        // Button textbox getter 
+        My_SDL_textbox* get_button_content_textbox();
+
         // ===== GUI ======s
 
 

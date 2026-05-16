@@ -9,6 +9,9 @@
 #include "../../../../program_gui/basic_elements/UI_elements/my_sdl_textbox/my_sdl_textbox.h"
 #include "../../../../program_gui/basic_elements/UI_elements/my_sdl_panel/my_sdl_panel.h"
 
+#include "../../../../program_gui/basic_elements/UI_elements/my_sdl_button/my_sdl_button.h"
+
+
 // Predeclare for switching states
 #include "../../program_states.h"
 
@@ -27,6 +30,8 @@
 My_SDL_panel* Start_panel = nullptr;
 
 My_SDL_textbox* Start_textbox = nullptr;
+
+My_SDL_button* Test_button = nullptr;
 
 // =========================================================================================== STATE DATA
 
@@ -121,8 +126,15 @@ void start_elements_create()
     // Start panel create
     Start_panel = new My_SDL_panel();
 
+    std::cout << "Error not in the 1st textbox creation";
+
     // Start textbox create
     Start_textbox = new My_SDL_textbox();
+
+    std::cout << "Error not in the 2nd textbox creation";
+
+    // Start textbox create
+    Test_button = new My_SDL_button();
 }
 
 
@@ -133,8 +145,10 @@ void start_elements_setup()
     Start_panel->set_render_point(MAIN_WINDOW_H_SIZE / 2, MAIN_WINDOW_V_SIZE / 2);
     Start_panel->set_size(MAIN_WINDOW_H_SIZE, MAIN_WINDOW_V_SIZE);
 
+    std::cout << "Error not in the 1st textbox setup";
+
     // Start textbox setup
-    Start_textbox->switch_passed_by_font_palette_flag(false);
+    Start_textbox->switch_textbox_type(NO_TYPE);
 
     Start_textbox->set_font_size(40);
 
@@ -155,6 +169,11 @@ void start_elements_setup()
            1
     );
 
+
+    std::cout << "Error not in the 2nd textbox setup";
+
+    Test_button->set_render_point(100, 100);
+    Test_button->get_button_content_textbox()->set_content("WOW!!!");
 }
 
 
@@ -164,10 +183,13 @@ void start_elements_free_and_nullptr()
 
     Start_panel->delete_element();
 
+    Test_button->delete_element();
+
     // Nullptr the pointers
 
     Start_panel = nullptr;
     Start_textbox = nullptr;
+    Test_button = nullptr;
 }
 
 
@@ -175,6 +197,8 @@ void start_elements_update()
 {
     // Update all elements
     Start_panel->update();
+
+    Test_button->update();
 }
 
 
@@ -205,6 +229,8 @@ void start_elements_render(SDL_Renderer* renderer)
 {
     // Render all elements
     Start_panel->render(renderer);
+    
+    Test_button->render(renderer);
 }
 
 // =========================================================================================== STATE INNER FUNCTIONS REALIZATION

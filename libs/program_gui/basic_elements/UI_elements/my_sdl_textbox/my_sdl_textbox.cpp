@@ -25,9 +25,31 @@ My_SDL_textbox::My_SDL_textbox()
     this->y_render_point = 300;
 
 
-    // Font 
+    // Font - basically set as ordinary text font
 
-    this->font_size = 12; 
+    this->passed_by_font_palette = true;
+
+
+    // Basic data, which will be switch further
+    // need to be here for initialization on the first
+    // cycle steps
+
+    this->font_size = 18;
+
+    this->content_width_size = 0;
+    this->content_height_size = 0;
+
+    this->content_dirty = true;
+
+    this->content_texture = nullptr;
+
+    // Basic data, which will be switch further
+    // need to be here for initialization on the first
+    // cycle steps
+
+
+    this->prev_textbox_type = ORDINARY_TEXT;
+    this->textbox_type = ORDINARY_TEXT;
 
     // Relative path to the font file from the executable (can be changed by the setter for the font path)
     this->font_path = App_fonts.get_current_fonts_palette().ordinary_text_font.font_path;
@@ -46,8 +68,6 @@ My_SDL_textbox::My_SDL_textbox()
         }
     }
 
-    this->passed_by_font_palette = true;
-
 
     // if (!ttf_font_link) this->update();
 
@@ -63,12 +83,6 @@ My_SDL_textbox::My_SDL_textbox()
     // Basic text color by palette
     // flag for showing that the color setted by the pallet, automatically set to true inside the basic class constructor
     set_content_color(App_palette.get_current_palette().basic_content_color);
-
-
-    this->content_texture = nullptr;
-
-    // Reset flag for the next update in render
-    this->content_dirty = true; 
 
 
     // Blinking mode setup
@@ -138,31 +152,110 @@ void My_SDL_textbox::cleanup()
 // =========================================================================================== CONSTRUCTOR AND DESTRUCTOR
 
 // Helper-function predeclare
-void blinking_mode_control(blinkig_textbox_ctx &blinking_ctx);
+void blinking_mode_control(blinking_textbox_ctx &blinking_ctx);
 
 void My_SDL_textbox::update()
 {
     // Control blinking if it's needed
     blinking_mode_control(this->blinking_mode_context);
 
-    // Just font start initialization
+    // Font update
+    update_font();
+
+    // Check if the palette was switched and update the colors by the new palette if it was
+    this->reset_colors_if_palette_switched();
+}
+
+
+void My_SDL_textbox::update_font()
+{
+    // Just font start initialization in case when font not passed by font palette
     if (this->ttf_font_link == nullptr && !this->passed_by_font_palette)
     {
         if(!this->font_path.empty()) this->set_ttf_font_link(TTF_OpenFont(this->font_path.c_str(), this->font_size));
     }
 
+
     // Reset the font if current font palette was switched and the font was set by the font palette,
     // to update the font by the new palette
     if (this->passed_by_font_palette && App_fonts.get_fonts_palette_reset_flag())
     {
-        this->font_path = App_fonts.get_current_fonts_palette().ordinary_text_font.font_path;
-    
-        if (App_fonts.get_current_fonts_palette().ordinary_text_font.ttf_font_link != nullptr)
+
+        std::string curr_font_path;
+        TTF_Font* curr_font_link;
+
+
+        switch (this->textbox_type)
         {
-            this->ttf_font_link = App_fonts.get_current_fonts_palette().ordinary_text_font.ttf_font_link;
+            case HEADER_1:
+
+                curr_font_path = App_fonts.get_current_fonts_palette().header_1_font.font_path;
+                curr_font_link = App_fonts.get_current_fonts_palette().header_1_font.ttf_font_link;
+
+                break;
+
+
+            case HEADER_2:
+
+                curr_font_path = App_fonts.get_current_fonts_palette().header_2_font.font_path;
+                curr_font_link = App_fonts.get_current_fonts_palette().header_2_font.ttf_font_link;       
+                
+                break;
+
+
+            case HEADER_3:
+
+                curr_font_path = App_fonts.get_current_fonts_palette().header_3_font.font_path;
+                curr_font_link = App_fonts.get_current_fonts_palette().header_3_font.ttf_font_link;
+
+                break;
+
+
+            case ORDINARY_TEXT:
+
+                curr_font_path = App_fonts.get_current_fonts_palette().ordinary_text_font.font_path;
+                curr_font_link = App_fonts.get_current_fonts_palette().ordinary_text_font.ttf_font_link;
+
+                break;
+
+
+            case SMALL_TEXT:
+
+                curr_font_path = App_fonts.get_current_fonts_palette().small_text_font.font_path;
+                curr_font_link = App_fonts.get_current_fonts_palette().small_text_font.ttf_font_link;
+
+                break;
+
+
+            case BUTTON_TEXT:
+
+                curr_font_path = App_fonts.get_current_fonts_palette().button_text_font.font_path;
+                curr_font_link = App_fonts.get_current_fonts_palette().button_text_font.ttf_font_link;
+
+                break;
+
+
+            default:
+            
+                break;
+                
         }
-         else
+
+
+        if (curr_font_link != nullptr)
         {
+            // Renew
+
+            this->font_path = curr_font_path;
+            this->ttf_font_link = curr_font_link;
+
+            this->content_dirty = true;
+
+        }
+        else
+        {
+            // Reset
+            
             this->ttf_font_link = TTF_OpenFont(this->font_path.c_str(), this->font_size);
     
             if (!this->ttf_font_link)
@@ -170,14 +263,58 @@ void My_SDL_textbox::update()
                 SDL_Log("TTF_OpenFont failed: %s", SDL_GetError());
             }
         }
-    }
 
-    // Check if the palette was switched and update the colors by the new palette if it was
-    this->reset_colors_if_palette_switched();
+    }
 }
 
+
+void My_SDL_textbox::switch_textbox_type(app_textbox_type new_type)
+{
+    // Error handler
+    if (new_type < HEADER_1 || new_type >= LIMIT)
+    {
+        std::cerr << "Wrong font type setting attempt!\n";
+        return;
+    }
+
+    // No type case
+    if (new_type == NO_TYPE)
+    {
+        // Type set
+
+        // Save previous one with protection of double NO_TYPE set
+        if (this->textbox_type != NO_TYPE) this->prev_textbox_type = this->textbox_type;
+
+        this->textbox_type = new_type;
+
+        // Flag reset
+        this->passed_by_font_palette = false;
+
+        return;
+    }
+
+
+    this->prev_textbox_type = this->textbox_type;
+    this->textbox_type = new_type;
+
+    this->passed_by_font_palette = true;
+}
+
+
+app_textbox_type My_SDL_textbox::get_textbox_type() const
+{
+    return this->textbox_type;
+}
+
+
+app_textbox_type My_SDL_textbox::get_prev_textbox_type() const
+{
+    return this->prev_textbox_type;
+}
+
+
 // Helper-function for blinking mode parameters calculation
-void blinking_mode_control(blinkig_textbox_ctx &blinking_ctx)
+void blinking_mode_control(blinking_textbox_ctx &blinking_ctx)
 {
     if (!blinking_ctx.blinking_mode_on)
     {
@@ -277,8 +414,24 @@ void My_SDL_textbox::set_content(const std::string& new_text)
 
 void My_SDL_textbox::switch_passed_by_font_palette_flag(bool new_flag)
 {
-    this->passed_by_font_palette = new_flag;
+    // Switch the type if false flag
+    if (!new_flag)
+    {
+        this->switch_textbox_type(NO_TYPE);
+    }
+
+    // Protection vs double No_TYPE set flag reset cases
+    if (new_flag && this->textbox_type == NO_TYPE)
+    {
+        this->switch_textbox_type(this->prev_textbox_type);
+    }
+
+    if (new_flag && this->textbox_type != NO_TYPE)
+    {
+        this->switch_textbox_type(this->textbox_type);
+    }
 }
+
 
 bool My_SDL_textbox::get_passed_by_font_palette_flag() const
 {
@@ -336,7 +489,7 @@ void My_SDL_textbox::set_font_size(unsigned int new_size)
     this->font_size = new_size;
 
     // close old font
-    if (this->ttf_font_link)
+    if (this->ttf_font_link && !this->passed_by_font_palette)
     {
         TTF_CloseFont(this->ttf_font_link);
         this->ttf_font_link = nullptr;

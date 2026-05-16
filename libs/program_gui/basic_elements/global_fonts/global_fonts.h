@@ -32,6 +32,25 @@ struct app_font_ctx
 
 };
 
+
+// App textbox type enum
+// use for UI text pallette choose inside textbox element
+enum app_textbox_type
+{
+
+    HEADER_1,
+    HEADER_2,
+    HEADER_3,
+    ORDINARY_TEXT,
+    SMALL_TEXT,
+    BUTTON_TEXT,
+
+    NO_TYPE,
+
+    LIMIT
+
+};
+
 // Struct for app fonts, which contains all basic fonts for basic UI
 struct app_fonts_palette_ctx
 {
@@ -43,6 +62,8 @@ struct app_fonts_palette_ctx
     app_font_ctx header_3_font;
     
     app_font_ctx ordinary_text_font;
+
+    app_font_ctx small_text_font;
 
     app_font_ctx button_text_font;
 

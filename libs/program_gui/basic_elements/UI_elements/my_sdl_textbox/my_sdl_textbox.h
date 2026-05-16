@@ -8,13 +8,15 @@
 
 #include "../my_sdl_element/my_sdl_element.h" // Base class import
 
+#include "../../global_fonts/global_fonts.h" // Font types
+
 // =========================================================================================== IMPORT
 
 
 // =========================================================================================== TYPES
 
-// Stucture for blinking element implimentation
-struct blinkig_textbox_ctx
+// Stucture for blinking element implementation
+struct blinking_textbox_ctx
 {
 
     bool blinking_mode_on;
@@ -54,6 +56,13 @@ class My_SDL_textbox : public My_SDL_element // SDL_Element
         // ===== MAIN LOGIC =====
 
         void update() override;
+
+
+        void switch_textbox_type(app_textbox_type new_type);
+
+        app_textbox_type get_textbox_type() const;
+
+        app_textbox_type get_prev_textbox_type() const;
 
         // ===== MAIN LOGIC =====
 
@@ -246,6 +255,17 @@ class My_SDL_textbox : public My_SDL_element // SDL_Element
 
     protected:
 
+        // ===== MAIN LOGIC =====
+
+        // Textbox type
+        app_textbox_type textbox_type;
+
+        // Previous textbox type
+        app_textbox_type prev_textbox_type;
+        
+
+        void update_font();
+
         // ===== GUI ======
 
         // Only one string realization in this version (Time isn't on my side... No it isn't! (c))
@@ -256,7 +276,7 @@ class My_SDL_textbox : public My_SDL_element // SDL_Element
 
         TTF_Font* ttf_font_link = nullptr;             // TTF Font pointer
         
-        bool passed_by_font_palette;                      // Flag for showing that the font path and ttf_font_link setted by the font palette, automatically set to true inside the basic class constructor
+        bool passed_by_font_palette;                   // Flag for showing that the font path and ttf_font_link setted by the font palette, automatically set to true inside the basic class constructor
 
         unsigned int font_size;                        // Content size
 
@@ -305,7 +325,7 @@ class My_SDL_textbox : public My_SDL_element // SDL_Element
 
 
         // Blinking mode context
-        blinkig_textbox_ctx blinking_mode_context;
+        blinking_textbox_ctx blinking_mode_context;
 
 
         // ===== GUI ======

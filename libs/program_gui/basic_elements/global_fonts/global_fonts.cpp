@@ -23,6 +23,7 @@ static app_fonts_palette_ctx make_fonts_palette_1()
     palette.header_2_font = font_1;
     palette.header_3_font = font_1;
     palette.ordinary_text_font = font_1;
+    palette.small_text_font = font_1;
     palette.button_text_font = font_1;
 
     return palette;
@@ -77,6 +78,9 @@ void Global_fonts::fonts_init_in_update_loop()
     {
         for (app_fonts_palette_ctx& palette : this->fonts_palettes_list)
         {
+            // Counter for further logic switch by UI textbox type
+            int iterator_font_counter = 0;
+
             // Initialize / reinitialize SDL_TTF fonts for the palette
             for (app_font_ctx* font_ctx : {
 
@@ -84,6 +88,7 @@ void Global_fonts::fonts_init_in_update_loop()
                 &palette.header_2_font, 
                 &palette.header_3_font, 
                 &palette.ordinary_text_font,
+                &palette.small_text_font,
                 &palette.button_text_font
 
             })
@@ -94,14 +99,75 @@ void Global_fonts::fonts_init_in_update_loop()
                     font_ctx->ttf_font_link = nullptr;
                 }
 
+
                 if (!font_ctx->font_path.empty())
                 {
 
                     // ====== FONT INITIALIZATION ======
 
                     // Calls before any state machine cycle comands - guarantees the valid use of the palette font inside the program code
+                    switch (iterator_font_counter)
+                    {
+                        // header_1
+                        case 0:
 
-                    font_ctx->ttf_font_link = TTF_OpenFont(font_ctx->font_path.c_str(), 12); // Default font size, can be changed
+                            font_ctx->ttf_font_link = TTF_OpenFont(font_ctx->font_path.c_str(), 48);
+
+                            iterator_font_counter++;
+
+                            break;
+                            
+                        // header_2
+                        case 1:
+
+                            font_ctx->ttf_font_link = TTF_OpenFont(font_ctx->font_path.c_str(), 36);
+
+                            iterator_font_counter++;
+
+                            break;
+                        
+                        // header_3
+                        case 2:
+
+                            font_ctx->ttf_font_link = TTF_OpenFont(font_ctx->font_path.c_str(), 24);
+
+                            iterator_font_counter++;
+
+                            break;
+
+
+                        // ordinary text
+                        case 3:
+
+                            font_ctx->ttf_font_link = TTF_OpenFont(font_ctx->font_path.c_str(), 18);
+
+                            iterator_font_counter++;
+
+                            break;
+                            
+                        // small text
+                        case 4:
+
+                            font_ctx->ttf_font_link = TTF_OpenFont(font_ctx->font_path.c_str(), 12);
+
+                            iterator_font_counter++;
+
+                            break;
+
+                        // button text
+                        case 5:
+
+                            font_ctx->ttf_font_link = TTF_OpenFont(font_ctx->font_path.c_str(), 18);
+                            iterator_font_counter = 0;
+                            
+                        break;
+    
+
+                    default:
+
+                        break;
+                    }
+                   
 
                     // ====== FONT INITIALIZATION ======
 
