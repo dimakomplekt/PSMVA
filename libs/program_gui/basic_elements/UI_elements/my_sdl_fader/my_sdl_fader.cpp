@@ -347,7 +347,8 @@ void My_SDL_fader::push_mode_switch()
 float My_SDL_fader::fader_value_by_knob_position()
 {
     // Fader value calculation by the knob position like ((s.x.rp + (s.w - k.w) / 2) - (s.x.rp + (s.w - k.w) / 2) - curr.x)) / (s.w - k.w) jr
-    float new_fader_value = static_cast<float>(this->knob_x_render_point - (this->slot_x_render_point - (this->slot_width_size - this->knob_width_size) / 2)) / static_cast<float>(this->slot_width_size - this->knob_width_size);
+    float new_fader_value = static_cast<float>(this->knob_x_render_point - (this->slot_x_render_point - 
+    (this->slot_width_size - this->knob_width_size) / 2)) / static_cast<float>(this->slot_width_size - this->knob_width_size);
 
     // Overflow check for the fader value
     if (new_fader_value < 0.0f) new_fader_value = 0.0f;

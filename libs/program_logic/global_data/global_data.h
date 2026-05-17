@@ -20,7 +20,7 @@
  * for the running program instance.
  * 
  */
-const std::string THIS_APP_NAME = "PSMVA"; 
+const std::string THIS_APP_NAME = "PSMVA_1.0"; 
 
 
 // =========================================================================================== APP SETTINGS
