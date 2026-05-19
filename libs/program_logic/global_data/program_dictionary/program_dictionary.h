@@ -48,12 +48,6 @@ inline Lang_string_type gd_information_button = {
 };
 
 
-inline Lang_string_type gd_information_button = {
-
-    "Information",
-    "Информация"
-
-};
 
 inline Lang_string_type gd_information_textbox_1 = {
 

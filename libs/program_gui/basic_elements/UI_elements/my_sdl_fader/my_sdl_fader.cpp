@@ -157,6 +157,10 @@ float My_SDL_fader::get_fader_value() const
 
 void My_SDL_fader::update()
 {
+    // Movement logic if the movement is on
+    this->movement_logic_in_update_loop();
+
+
     // Check if the palette was switched and update the colors by the new palette if it was
     this->reset_colors_if_palette_switched();
 

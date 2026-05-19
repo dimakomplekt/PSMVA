@@ -175,6 +175,10 @@ My_SDL_button::~My_SDL_button()
 
 void My_SDL_button::update()
 {    
+    // Movement logic if the movement is on
+    this->movement_logic_in_update_loop();
+
+
     // Font prepare (onetime at the start or onetime by reset_flag from fonts palette)
     this->button_textbox.update();
 

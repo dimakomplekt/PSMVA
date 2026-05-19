@@ -10,6 +10,8 @@
 #include <cmath>                                                        // for std::round()
 
 
+// #include "../../../../program_logic/global_data/global_data.h" 
+
 #include "../../../../engine/engine.h"                                  // SDL3 and SDL ttf import
 
 #include "../../GUI_functions/drawing/figures_drawing.h"                // Basic figures
@@ -39,6 +41,56 @@ enum element_gui_type
 
 };
 
+
+// ===== Movement =====
+
+
+// Descartes coordinate for  SDL3 2D space.
+struct desc_c_2D
+{
+
+    int x;    // Coordinate by x-axes (width).
+    int y;    // Coordinate by y-axes (height).
+
+};
+
+
+// Enum for movement animation type define
+enum movement_easing
+{
+    
+    LINEAR,                      // Linear movement
+    EXPONENTIAL,                 // Exponential movement
+    LOGARITHMIC,                 // Logarithmic movement 
+    BACKWARD_LOGARITHMIC,        // Logarithmic movement
+
+};
+
+
+struct movement_ctx
+{
+
+    bool active = false;
+
+    desc_c_2D start_pos;
+    desc_c_2D end_pos;
+
+    Uint64 start_time;
+    Uint64 duration;
+
+    float progress = 0.0f;
+
+    movement_easing easing;
+
+    bool opacity_change = false;
+
+    Uint8 start_opacity;
+    Uint8 end_opacity;
+
+};
+// ===== Movement =====
+
+
 // Element rectangle boundaries struct for logic like hover and click checks
 struct element_rect_boundaries
 {
@@ -60,17 +112,6 @@ enum element_state
 
 };
 
-
-// TODO: rewrite x-y devide to desc_c_2D???
-
-// Descartes coordinate for  SDL3 2D space.
-struct desc_c_2D
-{
-
-    int x;    // Coordinate by x-axes (width).
-    int y;    // Coordinate by y-axes (height).
-
-};
 
 
 /**
@@ -194,6 +235,35 @@ class My_SDL_element
 
 
         /**
+         * @brief Element movement setter
+         * 
+         * Moves the element from point to point in every frame (until it reaches
+         * the end of trajectory) by element_movement
+         * 
+         * 
+         * @param x_cc_rp x coordinate of the movement end center-center render point
+         * @param y_cc_rp y coordinate of the movement end center-center render point
+         * @param easing  type of movement by the movement_easing enum
+         * @param movement_time movement time in ms
+         * 
+         */
+        void move_to_point(
+            
+            int new_x_cc_rp, 
+            int new_y_cc_rp,
+
+            movement_easing easing,
+
+            Uint64 movement_time
+
+        );
+
+
+        // Movement reset function
+        void movement_reset();
+
+
+        /**
          * @brief Returns the X coordinate of the element's render center.
          *
          * @return X coordinate (center of the element for rendering)
@@ -279,6 +349,7 @@ class My_SDL_element
         // ===== GUI =====
 
 
+    // Panel friendship for direct use of methods
     friend class My_SDL_panel;
 
     protected:
@@ -293,6 +364,11 @@ class My_SDL_element
             // ===== MAIN LOGIC =====
 
             My_SDL_panel* element_container = nullptr;    // NON-owning
+
+
+            movement_ctx element_movement;
+
+            virtual void movement_logic_in_update_loop();
 
             // ===== MAIN LOGIC =====
 

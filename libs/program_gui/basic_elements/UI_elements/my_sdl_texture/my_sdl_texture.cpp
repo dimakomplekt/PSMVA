@@ -64,7 +64,9 @@ void My_SDL_texture::delete_element()
 
 void My_SDL_texture::update()
 {
-    // Nothing now
+    // Movement logic if the movement is on
+    this->movement_logic_in_update_loop();
+
 }
 
 

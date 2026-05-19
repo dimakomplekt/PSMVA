@@ -156,6 +156,9 @@ void blinking_mode_control(blinking_textbox_ctx &blinking_ctx);
 
 void My_SDL_textbox::update()
 {
+    // Movement logic if the movement is on
+    this->movement_logic_in_update_loop();
+
     // Control blinking if it's needed
     blinking_mode_control(this->blinking_mode_context);
 

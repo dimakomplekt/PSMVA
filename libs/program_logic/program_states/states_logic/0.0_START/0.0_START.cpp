@@ -216,6 +216,30 @@ void start_actions()
     if (App_inputs.is_just_released(Key_actions::SPECIAL_1))
     {
         App_palette.switch_to_the_next_palette();
+        App_lang.switch_to_next_lang();
+    
+        static bool to_second = false;
+    
+        if (!to_second)
+        {
+            int old_x = Start_textbox->get_x_render_point();
+            int old_y = Start_textbox->get_y_render_point();
+    
+            // Start_panel->move_to_point(old_x - 100, old_y - 200, EXPONENTIAL, 500);
+            Start_textbox->move_to_point(old_x + 100, old_y + 200, LINEAR, 300);
+
+            to_second = true;
+        }
+        else
+        {
+            int old_x = Start_textbox->get_x_render_point();
+            int old_y = Start_textbox->get_y_render_point();
+
+            // Start_panel->move_to_point(old_x + 100, old_y + 200, EXPONENTIAL, 500);
+            Start_textbox->move_to_point(old_x - 100, old_y - 200, LINEAR, 300);
+
+            to_second = false;
+        }
     }
 }
 

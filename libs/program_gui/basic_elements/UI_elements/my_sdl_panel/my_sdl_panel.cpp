@@ -78,6 +78,9 @@ void My_SDL_panel::delete_element()
 
 void My_SDL_panel::update()
 {
+    // Movement logic if the movement is on
+    this->movement_logic_in_update_loop();
+
     // Check if the palette was switched and update the colors by the new palette if it was
     this->reset_colors_if_palette_switched();
 
@@ -201,6 +204,18 @@ void My_SDL_panel::set_render_point(int x_cc_rp, int y_cc_rp)
 
     // Update inner elements positions (though they will be set again in render, this ensures consistency)
     this->change_inner_elements_global_coordinates();
+}
+
+
+void My_SDL_panel::movement_logic_in_update_loop()
+{
+    // Basic movement
+    My_SDL_element::movement_logic_in_update_loop();
+
+    reset_anchor_points();
+    render_data_reset();
+
+    change_inner_elements_global_coordinates(); // ONLY update mapping
 }
 
 
@@ -569,6 +584,17 @@ int My_SDL_panel::global_y_by_local_y(int local_y)
 
     // Required global y-coordinate by offset from (0; 0)
     return g_p_r_p_y_0 + local_y;
+}
+
+
+int My_SDL_panel::local_x_by_global_x(int global_x)
+{
+    return global_x - this->element_anchor_points.top_left.x;
+}
+
+int My_SDL_panel::local_y_by_global_y(int global_y)
+{
+    return global_y - this->element_anchor_points.top_left.y;
 }
 
 

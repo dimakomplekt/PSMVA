@@ -239,9 +239,13 @@ void main_menu_elements_setup()
     Main_menu_panel->set_size(MAIN_WINDOW_H_SIZE, MAIN_WINDOW_V_SIZE);
 
     // Next state
+    int buttons_v_size = 200;
+    int buttons_h_size = 400;
+
+    int margin = (MAIN_WINDOW_V_SIZE - 4 * buttons_v_size) / 5;
 
     Analysis_start_button->get_button_content_textbox()->set_content(str_by_dictionary(gd_analysis_start_button));
-    Analysis_start_button->set_size();
+    Analysis_start_button->set_size(buttons_h_size, buttons_v_size);
 
     // Information panel
 
@@ -253,11 +257,11 @@ void main_menu_elements_setup()
     Information_panel->set_render_point(MAIN_WINDOW_H_SIZE + Information_panel->get_width_size(), MAIN_WINDOW_V_SIZE + Information_panel->get_height_size());
 
 
-    Info_1_textbox
+    Info_1_textbox->set_content(str_by_dictionary(gd_information_textbox_1));
 
-    Info_2_textbox
+    Info_2_textbox->set_content(str_by_dictionary(gd_information_textbox_2));
 
-    Info_3_textbox
+    Info_3_textbox->set_content(str_by_dictionary(gd_information_textbox_3));
 
 
     // Settings panel
