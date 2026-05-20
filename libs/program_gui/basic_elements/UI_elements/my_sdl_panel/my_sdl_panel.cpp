@@ -20,8 +20,8 @@ My_SDL_panel::My_SDL_panel()
     this->x_render_point = panel_width_size / 2 + 300;
     this->y_render_point = panel_height_size / 2 + 300;
 
-    this->border_width_size = 1;
-    this->border_radius_size = 0;
+    this->border_width_size = 5;
+    this->border_radius_size = 30;
 
 
     this->current_form = RECTANGLE_EF;

@@ -308,8 +308,9 @@ void My_SDL_element::movement_logic_in_update_loop()
     if (this->element_container == nullptr)
     {
         // Root-space element: direct assignment in global space
-        this->x_render_point = (int)global_x;
-        this->y_render_point = (int)global_y;
+        // Set only by set method (cause it will call anchors reset and other things)
+
+        this->set_render_point((int)global_x, (int)global_y);
     }
     else
     {

@@ -245,19 +245,19 @@ void main_menu_elements_setup()
 
     // Next state
 
-    const int WIDTH_30_PERCENT = static_cast<int>(MAIN_WINDOW_H_SIZE * 0.3);
-    const int WIDTH_70_PERCENT = MAIN_WINDOW_H_SIZE - WIDTH_30_PERCENT;
+    const int FIRST_ZONE_WIDTH = static_cast<int>(MAIN_WINDOW_H_SIZE * 0.4);
+    const int SECOND_ZONE_WIDTH = MAIN_WINDOW_H_SIZE - FIRST_ZONE_WIDTH;
 
     const int SCREEN_MARGIN_1 = 50;
     const int SCREEN_MARGIN_2 = 50;
 
-    int mm_buttons_h_size = WIDTH_30_PERCENT - 2 * SCREEN_MARGIN_1;
+    int mm_buttons_h_size = FIRST_ZONE_WIDTH - 2 * SCREEN_MARGIN_1;
     int mm_buttons_v_size = static_cast<int>((MAIN_WINDOW_V_SIZE - 5 * SCREEN_MARGIN_1) / 4);
 
-    int mm_panels_h_size = WIDTH_70_PERCENT - 2 * SCREEN_MARGIN_2;
+    int mm_panels_h_size = SECOND_ZONE_WIDTH - 2 * SCREEN_MARGIN_2;
     int mm_panels_v_size = static_cast<int>((MAIN_WINDOW_V_SIZE - 3 * SCREEN_MARGIN_1) / 2);
 
-    int inf_panel_x_render_point = MAIN_WINDOW_H_SIZE - WIDTH_70_PERCENT * 0.5;
+    int inf_panel_x_render_point = MAIN_WINDOW_H_SIZE - SECOND_ZONE_WIDTH * 0.5;
     int inf_panel_y_render_point = (SCREEN_MARGIN_1 + 0.5 * mm_panels_v_size);
 
 
@@ -267,13 +267,13 @@ void main_menu_elements_setup()
 
     Analysis_start_button->get_button_content_textbox()->set_content(str_by_dictionary(gd_analysis_start_button));
     Analysis_start_button->set_size(mm_buttons_h_size, mm_buttons_v_size);
-    Analysis_start_button->set_render_point(WIDTH_30_PERCENT * 0.5, SCREEN_MARGIN_1 + mm_buttons_v_size * 0.5);
+    Analysis_start_button->set_render_point(FIRST_ZONE_WIDTH * 0.5, SCREEN_MARGIN_1 + mm_buttons_v_size * 0.5);
 
     // Information button
 
     Information_button->get_button_content_textbox()->set_content(str_by_dictionary(gd_information_button));
     Information_button->set_size(mm_buttons_h_size, mm_buttons_v_size);
-    Information_button->set_render_point(WIDTH_30_PERCENT * 0.5, (SCREEN_MARGIN_1 + mm_buttons_v_size * 0.5) + 1*(mm_buttons_v_size + SCREEN_MARGIN_1));
+    Information_button->set_render_point(FIRST_ZONE_WIDTH * 0.5, (SCREEN_MARGIN_1 + mm_buttons_v_size * 0.5) + 1*(mm_buttons_v_size + SCREEN_MARGIN_1));
 
     // Information panel
 
@@ -293,7 +293,7 @@ void main_menu_elements_setup()
 
     Settings_button->get_button_content_textbox()->set_content(str_by_dictionary(gd_settings_button));
     Settings_button->set_size(mm_buttons_h_size, mm_buttons_v_size);
-    Settings_button->set_render_point(WIDTH_30_PERCENT * 0.5, (SCREEN_MARGIN_1 + mm_buttons_v_size * 0.5) + 2*(mm_buttons_v_size + SCREEN_MARGIN_1));
+    Settings_button->set_render_point(FIRST_ZONE_WIDTH * 0.5, (SCREEN_MARGIN_1 + mm_buttons_v_size * 0.5) + 2*(mm_buttons_v_size + SCREEN_MARGIN_1));
 
 
     Settings_panel->set_size(mm_panels_h_size, mm_panels_v_size);
@@ -317,7 +317,7 @@ void main_menu_elements_setup()
 
     Exit_button->get_button_content_textbox()->set_content(str_by_dictionary(gd_exit_button));
     Exit_button->set_size(mm_buttons_h_size, mm_buttons_v_size);
-    Exit_button->set_render_point(WIDTH_30_PERCENT * 0.5, (SCREEN_MARGIN_1 + mm_buttons_v_size * 0.5) + 3*(mm_buttons_v_size + SCREEN_MARGIN_1));
+    Exit_button->set_render_point(FIRST_ZONE_WIDTH * 0.5, (SCREEN_MARGIN_1 + mm_buttons_v_size * 0.5) + 3*(mm_buttons_v_size + SCREEN_MARGIN_1));
 
 
     // Panel with plasma spraying screen of video
@@ -553,7 +553,7 @@ void main_menu_actions()
     if (App_inputs.is_just_released(Key_actions::SPECIAL_1))
     {
         App_palette.switch_to_the_next_palette();
-        App_lang.switch_to_next_lang();
+        // App_lang.switch_to_next_lang();
     }
 
 
