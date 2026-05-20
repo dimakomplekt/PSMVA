@@ -98,6 +98,11 @@ class My_SDL_panel : public My_SDL_element
         void set_opacity(Uint8 new_opacity) override;
 
 
+        // Element visible condition setter override for panel
+        
+        void set_visible_flag(bool new_flag) override;
+
+
         // ===== MAIN LOGIC =====
 
 

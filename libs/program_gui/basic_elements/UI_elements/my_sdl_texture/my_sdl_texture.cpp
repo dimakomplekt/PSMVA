@@ -64,6 +64,10 @@ void My_SDL_texture::delete_element()
 
 void My_SDL_texture::update()
 {
+    // No actions for not visiable element
+    if (!this->visible_flag) return;
+
+
     // Movement logic if the movement is on
     this->movement_logic_in_update_loop();
 
@@ -134,6 +138,9 @@ void My_SDL_texture::set_texture(SDL_Texture* new_texture)
 void My_SDL_texture::render(SDL_Renderer* renderer)
 {
     if (this->texture == nullptr) return;
+
+    // No actions for not visiable element
+    if (!this->visible_flag) return;
 
     SDL_FRect dst;
 

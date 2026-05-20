@@ -380,6 +380,33 @@ class My_SDL_button : public My_SDL_element // SDL_Element
         // Button textbox getter 
         My_SDL_textbox* get_button_content_textbox();
 
+
+
+        /**
+         * @brief Element movement setter
+         * 
+         * Moves the element from point to point in every frame (until it reaches
+         * the end of trajectory) by element_movement
+         * 
+         * 
+         * @param x_cc_rp x coordinate of the movement end center-center render point
+         * @param y_cc_rp y coordinate of the movement end center-center render point
+         * @param easing  type of movement by the movement_easing enum
+         * @param movement_time movement time in ms
+         * 
+         */
+        virtual void move_to_point(
+            
+            int new_x_cc_rp, 
+            int new_y_cc_rp,
+
+            movement_easing easing,
+
+            Uint64 movement_time
+
+        ) override;
+
+
         // ===== GUI ======s
 
 
@@ -416,6 +443,7 @@ class My_SDL_button : public My_SDL_element // SDL_Element
 
 
         element_state current_button_state;
+
 
         // ===== MAIN LOGIC =====
         

@@ -15,7 +15,7 @@
 // States import
 
 #include "states_logic/0.0_START/0.0_START.h"
-// #include "states_logic/1.0_MAIN_MENU/1.0_MAIN_MENU.h"
+#include "states_logic/1.0_MAIN_MENU/1.0_MAIN_MENU.h"
 // #include "states_logic/1.1_FILE_CHOOSE/1.1_FILE_CHOOSE.h"
 // #include "states_logic/1.2_MASKS_SETUP/1.2_MASKS_SETUP.h"
 // #include "states_logic/1.3_FLOW_PARAMETERS_CALCULATION/1.3_FLOW_PARAMETERS_CALCULATION.h"
@@ -49,25 +49,6 @@ void program_end_render(SDL_Renderer* renderer)
 
 }
 
-void main_menu_enter()
-{
-    std::cout << "Entering MAIN_MENU\n";
-}
-
-void main_menu_exit()
-{
-
-}
-
-void main_menu_update()
-{
-
-}
-
-void main_menu_render(SDL_Renderer* renderer)
-{
-
-}
 
 // =========================================================================================== CALLBACKS
 

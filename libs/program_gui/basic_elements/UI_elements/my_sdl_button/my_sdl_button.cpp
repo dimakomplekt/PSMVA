@@ -175,6 +175,10 @@ My_SDL_button::~My_SDL_button()
 
 void My_SDL_button::update()
 {    
+    // No actions for not visiable element
+    if (!this->visible_flag) return;
+
+
     // Movement logic if the movement is on
     this->movement_logic_in_update_loop();
 
@@ -287,6 +291,42 @@ void My_SDL_button::update()
 }
 
 
+void My_SDL_button::move_to_point(
+            
+    int new_x_cc_rp, 
+    int new_y_cc_rp,
+
+    movement_easing easing,
+
+    Uint64 movement_time
+
+)
+{
+    My_SDL_element::move_to_point(
+            
+        new_x_cc_rp, 
+        new_y_cc_rp,
+    
+        easing,
+    
+        movement_time
+    
+    );
+
+    this->get_button_content_textbox()->move_to_point(
+            
+        new_x_cc_rp, 
+        new_y_cc_rp,
+    
+        easing,
+    
+        movement_time
+    
+    );
+}
+
+
+
 void My_SDL_button::push_mode_switch()
 {
     this->push_mode_on = !this->push_mode_on;
@@ -322,7 +362,10 @@ void My_SDL_button::button_hover_check()
 
 void My_SDL_button::render(SDL_Renderer* renderer)
 {
+    // No actions for not visiable element
+    if (!this->visible_flag) return;
 
+    
     // Render 3 figures (shadow (border sizes * scaler), border and background (width or hight - 2 * border_width)) 
     // by their sizes, with use of current colors and render point (center-center)
     if (this->current_form == RECTANGLE_EF)

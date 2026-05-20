@@ -78,6 +78,9 @@ void My_SDL_panel::delete_element()
 
 void My_SDL_panel::update()
 {
+    // No actions for not visiable element
+    if (!this->visible_flag) return;
+
     // Movement logic if the movement is on
     this->movement_logic_in_update_loop();
 
@@ -123,6 +126,20 @@ void My_SDL_panel::set_opacity(Uint8 new_opacity)
 }
 
 
+void My_SDL_panel::set_visible_flag(bool new_flag)
+{   
+    this->My_SDL_element::set_visible_flag(new_flag);
+
+    
+    // Change the opacity for all inner elements by the new container opacity
+    for (auto& inner : inner_elements)
+    {
+        inner.element_pointer->set_visible_flag(new_flag);
+    }
+}
+
+
+
 void My_SDL_panel::panel_palette_prepare()
 {
     // GLOBAL element opacity implementation
@@ -140,6 +157,9 @@ void My_SDL_panel::panel_palette_prepare()
 
 void My_SDL_panel::render(SDL_Renderer* renderer)
 {
+    // No actions for not visiable element
+    if (!this->visible_flag) return;
+
     // Render 3 figures (shadow (border sizes * scaler), border and background (width or hight - 2 * border_width)) 
     // by their sizes, with use of current colors and render point (center-center)
 

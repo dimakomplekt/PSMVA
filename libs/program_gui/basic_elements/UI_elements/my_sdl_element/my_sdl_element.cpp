@@ -60,6 +60,8 @@ My_SDL_element::My_SDL_element()
     // Basic GUI elements colors setted by palette (default)
     this->passed_by_palette = true;
 
+    // Basically visible
+    this->visible_flag = true;
 }
 
 
@@ -72,6 +74,13 @@ My_SDL_panel* My_SDL_element::get_element_container() const
 {
     return this->element_container;
 }
+
+void My_SDL_element::set_visible_flag(bool new_flag)
+{   
+    this->visible_flag = new_flag;
+}
+
+
 
 // =========================================================================================== MAIN LOGIC
 

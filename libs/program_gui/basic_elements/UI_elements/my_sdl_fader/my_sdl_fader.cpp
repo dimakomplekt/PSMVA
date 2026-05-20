@@ -157,6 +157,10 @@ float My_SDL_fader::get_fader_value() const
 
 void My_SDL_fader::update()
 {
+    // No actions for not visiable element
+    if (!this->visible_flag) return;
+
+
     // Movement logic if the movement is on
     this->movement_logic_in_update_loop();
 
@@ -390,6 +394,9 @@ void My_SDL_fader::knob_hover_check()
 
 void My_SDL_fader::render(SDL_Renderer *renderer)
 {
+    // No actions for not visiable element
+    if (!this->visible_flag) return;
+
     // Render the slot and knob with the appropriate colors, sizes and positions, based on the current states
 
     // Slot render

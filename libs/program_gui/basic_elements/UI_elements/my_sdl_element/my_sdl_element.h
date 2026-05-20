@@ -207,6 +207,10 @@ class My_SDL_element
         // Container-panel getter
         My_SDL_panel* get_element_container() const;
 
+        
+        // Element visible condition setter
+        virtual void set_visible_flag(bool new_flag);
+
         // ===== MAIN LOGIC =====
 
 
@@ -247,7 +251,7 @@ class My_SDL_element
          * @param movement_time movement time in ms
          * 
          */
-        void move_to_point(
+        virtual void move_to_point(
             
             int new_x_cc_rp, 
             int new_y_cc_rp,
@@ -356,19 +360,22 @@ class My_SDL_element
 
             // ===== CONSTRUCTOR AND DESTRUCTOR =====
 
-            My_SDL_element();                            // Element constructor (never calls, only for inheritance)
+            My_SDL_element();                                   // Element constructor (never calls, only for inheritance)
             
             // ===== CONSTRUCTOR AND DESTRUCTOR =====
 
 
             // ===== MAIN LOGIC =====
 
-            My_SDL_panel* element_container = nullptr;    // NON-owning
+            My_SDL_panel* element_container = nullptr;          // NON-owning
 
 
-            movement_ctx element_movement;
+            movement_ctx element_movement;                      // Element movement context
 
-            virtual void movement_logic_in_update_loop();
+            virtual void movement_logic_in_update_loop();       // Element movement context update  
+
+
+            bool visible_flag;                                  // Element visible flag (used unside render() to choose render or not)
 
             // ===== MAIN LOGIC =====
 

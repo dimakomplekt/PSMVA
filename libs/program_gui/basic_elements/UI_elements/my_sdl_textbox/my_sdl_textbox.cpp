@@ -156,6 +156,9 @@ void blinking_mode_control(blinking_textbox_ctx &blinking_ctx);
 
 void My_SDL_textbox::update()
 {
+    // No actions for not visiable element
+    if (!this->visible_flag) return;
+
     // Movement logic if the movement is on
     this->movement_logic_in_update_loop();
 
@@ -340,6 +343,9 @@ void blinking_mode_control(blinking_textbox_ctx &blinking_ctx)
 
 void My_SDL_textbox::render(SDL_Renderer* renderer)
 {
+    // No actions for not visiable element
+    if (!this->visible_flag) return;
+
     // Render logic
 
     this->update_content_texture(renderer, this->content_render_color);

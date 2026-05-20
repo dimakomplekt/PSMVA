@@ -134,6 +134,10 @@ enum class Key_actions
     MENU_FORWARD,
     MENU_BACK,
     SPECIAL_1,
+    LEFT,
+    UP,
+    RIGHT,
+    DOWN,
 
     COUNT
 
