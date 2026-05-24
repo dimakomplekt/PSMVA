@@ -48,7 +48,7 @@ My_SDL_button::My_SDL_button()
 
 
     // Textbox setup
-    
+
     this->button_textbox = My_SDL_textbox();
 
     // Now the button content color controlled only by button itself 
@@ -141,6 +141,10 @@ My_SDL_button::My_SDL_button()
 
 
     this->current_palette_number = 1;
+
+    // TODO: MAYBE this is the problem in case of not pallette pass??? Need to check and rewrite if it's so
+    this->po_base_font = this->get_button_content_textbox()->ttf_font_link;
+    this->po_base_size = (int)this->button_textbox.get_font_size();
 }
 
 
@@ -148,17 +152,10 @@ void My_SDL_button::delete_element()
 {
     My_SDL_panel* container = this->get_element_container();
 
-    // Textbox clean before destruction
-    // this->button_textbox.cleanup(); - Did automatically in the My_SDL_textbox destructor, so no need to call it here
 
-    if (container)
-    {
-        container->remove_element(this);
-    }
-    else
-    {
-        delete this;
-    }
+    if (container) container->remove_element(this);
+
+    else delete this;
 }
 
 
@@ -900,8 +897,8 @@ void My_SDL_button::reset_button_textbox_if_font_palette_switched()
         this->button_textbox.switch_passed_by_font_palette_flag(false);
 
         this->button_textbox.set_font_path(App_fonts.get_current_fonts_palette().button_text_font.font_path);
-        this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().button_text_font.ttf_font_link);
-
+        if (this->press_offset == 0) this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().button_text_font.ttf_font_link);
+        this->button_textbox.set_font_size(App_fonts.get_current_fonts_palette().button_text_font.font_size);
     }
 }
 
@@ -913,7 +910,7 @@ void My_SDL_button::button_textbox_font_passed_by_font_palette_flag_switch(bool 
 
 void My_SDL_button::render_data_recalculation()
 {
-    if (this->current_button_state != CLICKED_ES) this->press_offset = 0;
+    // if (!this->button_clicked && this->button_clicked_tmp) this->press_offset = 0;
 
 
     // Figures to build data calculation
@@ -956,25 +953,29 @@ void My_SDL_button::render_data_recalculation()
     // Increment the press offset at every render repeat
 
     // PRESS ANIMATION (simplified)
+    
+    // Cache
+    if (this->press_offset == 0)
+    {
+        this->po_base_font = this->get_button_content_textbox()->ttf_font_link;
+        this->po_base_size = (int)this->button_textbox.get_font_size();
+    }
 
-    int base_size = (int)this->button_textbox.get_font_size();
 
-
-    if (this->current_button_state == CLICKED_ES)
+    if (this->button_clicked && this->button_clicked_tmp)
     {
         this->button_textbox.switch_textbox_type(NO_TYPE);
     
         if (this->push_mode_on)
         {
-            if (this->press_offset < 5)
-                this->press_offset++;
+            if (this->press_offset < 5) this->press_offset++;
     
-            int new_size = base_size - (this->press_offset / 2);
+            int new_size = this->po_base_size - (this->press_offset);
     
             if (new_size < 10) new_size = 10;
     
             // Only 4 + 1 (on release) TTF_OpenFont operation quantity control by:
-            if (this->press_offset < 5)
+            if (this->press_offset < 4)
             {
                 TTF_Font* new_font = TTF_OpenFont(
                     this->button_textbox.get_font_path().c_str(),
@@ -983,13 +984,22 @@ void My_SDL_button::render_data_recalculation()
         
                 if (new_font)
                 {
+                    // Close after 1 step in case when the font passed by the palette
+                    // to use the basic font after end of the pressing
+                    if (press_offset > 1)
+                        TTF_CloseFont(this->get_button_content_textbox()->ttf_font_link);
+
+
+                    // Set new 
                     this->button_textbox.set_ttf_font_link(new_font);
+                    this->button_textbox.set_font_size(new_size);
                     this->button_textbox.content_dirty = true;
                 }
             }
         }
     }
-    else
+
+    else if (!this->button_clicked && !this->button_clicked_tmp) // !this->button_clicked && !this->button_clicked_tmp)
     {
         this->button_textbox.switch_textbox_type(
             this->button_textbox.get_prev_textbox_type()
@@ -997,18 +1007,18 @@ void My_SDL_button::render_data_recalculation()
     
         if (this->push_mode_on && this->press_offset > 0)
         {
+            // Clear the last font
+            TTF_CloseFont(this->get_button_content_textbox()->ttf_font_link);
+
+
             this->press_offset = 0;
-    
-            TTF_Font* new_font = TTF_OpenFont(
-                this->button_textbox.get_font_path().c_str(),
-                base_size
-            );
-    
-            if (new_font)
-            {
-                this->button_textbox.set_ttf_font_link(new_font);
-                this->button_textbox.content_dirty = true;
-            }
+
+            // Return the basic font link
+            this->button_textbox.set_ttf_font_link(this->po_base_font);
+            this->button_textbox.set_font_size(this->po_base_size);
+
+
+            this->button_textbox.content_dirty = true;
         }
     }
 }

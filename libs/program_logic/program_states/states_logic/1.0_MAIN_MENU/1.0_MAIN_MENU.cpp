@@ -41,7 +41,7 @@ My_SDL_button* Information_button = nullptr;
 
 My_SDL_panel* Information_panel = nullptr;
 
-bool information_panel_visible_flag;
+bool information_panel_visible_flag = false;
 
 My_SDL_textbox* Info_1_textbox = nullptr;
 My_SDL_texture* Plasma_spraying_texture_1 = nullptr;
@@ -328,6 +328,9 @@ void main_menu_elements_setup()
 
 void main_menu_elements_free_and_nullptr()
 {
+    // Protection
+    if (Main_menu_panel == nullptr) return;
+    
     // Free all elements
     // Background
     Main_menu_panel->delete_element();
@@ -530,6 +533,8 @@ void reset_passed_by_dictionary_textboxes_if_language_switched_mm()
         Settings_button->get_button_content_textbox()->set_content(str_by_dictionary(gd_analysis_start_button));
 
         Switch_language_button->get_button_content_textbox()->set_content(str_by_dictionary(gd_language_settings));
+
+        Exit_button->get_button_content_textbox()->set_content(str_by_dictionary(gd_exit_button));
     }
 }
 
@@ -553,7 +558,8 @@ void main_menu_actions()
     if (App_inputs.is_just_released(Key_actions::SPECIAL_1))
     {
         App_palette.switch_to_the_next_palette();
-        // App_lang.switch_to_next_lang();
+        App_fonts.switch_to_the_next_font_palette();
+        App_lang.switch_to_next_lang();
     }
 
 

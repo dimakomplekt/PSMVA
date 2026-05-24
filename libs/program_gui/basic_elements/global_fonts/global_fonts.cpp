@@ -32,6 +32,30 @@ static app_fonts_palette_ctx make_fonts_palette_1()
 // ===== Palette 1 =====
 
 
+// ===== Palette 2 =====
+
+static app_fonts_palette_ctx make_fonts_palette_2()
+{
+    app_font_ctx font_2;
+
+    font_2.font_path = absolute_by_relative_from_exe("content/ttf_fonts/Amiga_forever_pro.ttf");
+
+    app_fonts_palette_ctx palette;
+
+    palette.header_1_font = font_2;
+    palette.header_2_font = font_2;
+    palette.header_3_font = font_2;
+    palette.ordinary_text_font = font_2;
+    palette.small_text_font = font_2;
+    palette.button_text_font = font_2;
+
+    return palette;
+}
+
+// ===== Palette 2 =====
+
+
+
 // =========================================================================================== APP FONTS
 
 
@@ -48,7 +72,8 @@ Global_fonts& Global_fonts::Instance()
     {
         // Palettes initialization zone
         instance.add_fonts_palette(make_fonts_palette_1());
-        
+        instance.add_fonts_palette(make_fonts_palette_2());
+
         initialized = true;
     }
 
@@ -96,7 +121,7 @@ void Global_fonts::fonts_init_in_update_loop()
                 if (font_ctx->ttf_font_link)
                 {
                     TTF_CloseFont(static_cast<TTF_Font*>(font_ctx->ttf_font_link));
-                    font_ctx->ttf_font_link = nullptr;
+                    // font_ctx->ttf_font_link = nullptr; - MAYBE DESTRUCT THE LOGIC
                 }
 
 
@@ -111,7 +136,8 @@ void Global_fonts::fonts_init_in_update_loop()
                         // header_1
                         case 0:
 
-                            font_ctx->ttf_font_link = TTF_OpenFont(font_ctx->font_path.c_str(), 48);
+                            font_ctx->font_size = 48;
+                            font_ctx->ttf_font_link = TTF_OpenFont(font_ctx->font_path.c_str(), font_ctx->font_size);
 
                             iterator_font_counter++;
 
@@ -120,7 +146,8 @@ void Global_fonts::fonts_init_in_update_loop()
                         // header_2
                         case 1:
 
-                            font_ctx->ttf_font_link = TTF_OpenFont(font_ctx->font_path.c_str(), 36);
+                            font_ctx->font_size = 36;
+                            font_ctx->ttf_font_link = TTF_OpenFont(font_ctx->font_path.c_str(), font_ctx->font_size);
 
                             iterator_font_counter++;
 
@@ -129,7 +156,8 @@ void Global_fonts::fonts_init_in_update_loop()
                         // header_3
                         case 2:
 
-                            font_ctx->ttf_font_link = TTF_OpenFont(font_ctx->font_path.c_str(), 24);
+                            font_ctx->font_size = 24;
+                            font_ctx->ttf_font_link = TTF_OpenFont(font_ctx->font_path.c_str(), font_ctx->font_size);
 
                             iterator_font_counter++;
 
@@ -139,7 +167,8 @@ void Global_fonts::fonts_init_in_update_loop()
                         // ordinary text
                         case 3:
 
-                            font_ctx->ttf_font_link = TTF_OpenFont(font_ctx->font_path.c_str(), 18);
+                            font_ctx->font_size = 18;
+                            font_ctx->ttf_font_link = TTF_OpenFont(font_ctx->font_path.c_str(), font_ctx->font_size);
 
                             iterator_font_counter++;
 
@@ -148,7 +177,8 @@ void Global_fonts::fonts_init_in_update_loop()
                         // small text
                         case 4:
 
-                            font_ctx->ttf_font_link = TTF_OpenFont(font_ctx->font_path.c_str(), 12);
+                            font_ctx->font_size = 12;
+                            font_ctx->ttf_font_link = TTF_OpenFont(font_ctx->font_path.c_str(), font_ctx->font_size);
 
                             iterator_font_counter++;
 
@@ -157,7 +187,8 @@ void Global_fonts::fonts_init_in_update_loop()
                         // button text
                         case 5:
 
-                            font_ctx->ttf_font_link = TTF_OpenFont(font_ctx->font_path.c_str(), 18);
+                            font_ctx->font_size = 18;
+                            font_ctx->ttf_font_link = TTF_OpenFont(font_ctx->font_path.c_str(), font_ctx->font_size);
                             iterator_font_counter = 0;
                             
                         break;
@@ -196,7 +227,7 @@ const app_fonts_palette_ctx& Global_fonts::get_current_fonts_palette() const
 
 
 
-void Global_fonts::switch_to_the_next_fonts_palette()
+void Global_fonts::switch_to_the_next_font_palette()
 {
     if (this->current_fonts_palette_id + 1 < this->fonts_palettes_list.size())
     {

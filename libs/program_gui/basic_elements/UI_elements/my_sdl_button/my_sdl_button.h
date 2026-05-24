@@ -441,6 +441,10 @@ class My_SDL_button : public My_SDL_element // SDL_Element
         bool push_mode_on;                           // Current push display mode
         int press_offset;                            // Current press offset for push animation
 
+        // Data for press offset
+        TTF_Font* po_base_font;
+        int po_base_size;
+
 
         element_state current_button_state;
 

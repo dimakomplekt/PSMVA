@@ -57,10 +57,12 @@ My_SDL_textbox::My_SDL_textbox()
     if (App_fonts.get_current_fonts_palette().ordinary_text_font.ttf_font_link != nullptr)
     {
         this->ttf_font_link = App_fonts.get_current_fonts_palette().ordinary_text_font.ttf_font_link;
+        this->font_size = App_fonts.get_current_fonts_palette().ordinary_text_font.font_size;
     }
-     else
+    
+    else
     {
-        this->ttf_font_link = TTF_OpenFont(this->font_path.c_str(), this->font_size);
+        // this->ttf_font_link = TTF_OpenFont(this->font_path.c_str(), this->font_size); - Maybe destroys the logic
 
         if (!this->ttf_font_link)
         {
@@ -69,7 +71,7 @@ My_SDL_textbox::My_SDL_textbox()
     }
 
 
-    // if (!ttf_font_link) this->update();
+    // if (!ttf_font_link) this->update(); - Maybe destroys the logic
 
     // Content and sizes set with anchor points reset
     this->set_content("Text");
@@ -139,7 +141,7 @@ My_SDL_textbox::~My_SDL_textbox()
 void My_SDL_textbox::cleanup()
 {
     // Texture delete
-    if (this->content_texture)
+    if (this->passed_by_font_palette && this->content_texture)
     {
         SDL_DestroyTexture(this->content_texture);
         this->content_texture = nullptr;
@@ -154,10 +156,15 @@ void My_SDL_textbox::cleanup()
 // Helper-function predeclare
 void blinking_mode_control(blinking_textbox_ctx &blinking_ctx);
 
+
 void My_SDL_textbox::update()
 {
     // No actions for not visiable element
     if (!this->visible_flag) return;
+
+    // Font update
+    update_font();
+
 
     // Movement logic if the movement is on
     this->movement_logic_in_update_loop();
@@ -165,8 +172,6 @@ void My_SDL_textbox::update()
     // Control blinking if it's needed
     blinking_mode_control(this->blinking_mode_context);
 
-    // Font update
-    update_font();
 
     // Check if the palette was switched and update the colors by the new palette if it was
     this->reset_colors_if_palette_switched();
@@ -197,6 +202,7 @@ void My_SDL_textbox::update_font()
 
                 curr_font_path = App_fonts.get_current_fonts_palette().header_1_font.font_path;
                 curr_font_link = App_fonts.get_current_fonts_palette().header_1_font.ttf_font_link;
+                this->font_size = App_fonts.get_current_fonts_palette().ordinary_text_font.font_size;
 
                 break;
 
@@ -205,7 +211,8 @@ void My_SDL_textbox::update_font()
 
                 curr_font_path = App_fonts.get_current_fonts_palette().header_2_font.font_path;
                 curr_font_link = App_fonts.get_current_fonts_palette().header_2_font.ttf_font_link;       
-                
+                this->font_size = App_fonts.get_current_fonts_palette().ordinary_text_font.font_size;
+
                 break;
 
 
@@ -213,7 +220,8 @@ void My_SDL_textbox::update_font()
 
                 curr_font_path = App_fonts.get_current_fonts_palette().header_3_font.font_path;
                 curr_font_link = App_fonts.get_current_fonts_palette().header_3_font.ttf_font_link;
-
+                this->font_size = App_fonts.get_current_fonts_palette().ordinary_text_font.font_size;
+                
                 break;
 
 
@@ -221,6 +229,7 @@ void My_SDL_textbox::update_font()
 
                 curr_font_path = App_fonts.get_current_fonts_palette().ordinary_text_font.font_path;
                 curr_font_link = App_fonts.get_current_fonts_palette().ordinary_text_font.ttf_font_link;
+                this->font_size = App_fonts.get_current_fonts_palette().ordinary_text_font.font_size;
 
                 break;
 
@@ -229,6 +238,7 @@ void My_SDL_textbox::update_font()
 
                 curr_font_path = App_fonts.get_current_fonts_palette().small_text_font.font_path;
                 curr_font_link = App_fonts.get_current_fonts_palette().small_text_font.ttf_font_link;
+                this->font_size = App_fonts.get_current_fonts_palette().ordinary_text_font.font_size;
 
                 break;
 
@@ -237,6 +247,7 @@ void My_SDL_textbox::update_font()
 
                 curr_font_path = App_fonts.get_current_fonts_palette().button_text_font.font_path;
                 curr_font_link = App_fonts.get_current_fonts_palette().button_text_font.ttf_font_link;
+                this->font_size = App_fonts.get_current_fonts_palette().ordinary_text_font.font_size;
 
                 break;
 
@@ -262,7 +273,7 @@ void My_SDL_textbox::update_font()
         {
             // Reset
             
-            this->ttf_font_link = TTF_OpenFont(this->font_path.c_str(), this->font_size);
+            // this->ttf_font_link = TTF_OpenFont(this->font_path.c_str(), this->font_size); - Maybe the reason of errors!!!
     
             if (!this->ttf_font_link)
             {
@@ -393,30 +404,6 @@ void My_SDL_textbox::set_content(const std::string& new_text)
         return;
     }
 
-    int w = 0;
-    int h = 0;
-
-
-    // SDL3 AND SDL2 CONFLICT
-    if (!TTF_GetStringSize(
-
-            this->ttf_font_link,
-            this->content.c_str(),
-            this->content.length(),
-            &w,
-            &h
-
-    ))
-    {
-        std::cerr << "TTF_GetStringSize failed: " << SDL_GetError() << std::endl;
-        return;
-    }
-
-    this->content_width_size = w;
-    this->content_height_size = h;
-
-    this->reset_anchor_points();
-
     this->content_dirty = true;
 }
 
@@ -470,6 +457,8 @@ void My_SDL_textbox::set_font_path(const std::string& new_font_path)
         return;
     }
 
+    this->passed_by_font_palette = false;
+
     this->font_path = new_font_path;
 
     this->set_ttf_font_link(TTF_OpenFont(this->font_path.c_str(), this->font_size));
@@ -497,12 +486,15 @@ void My_SDL_textbox::set_font_size(unsigned int new_size)
 
     this->font_size = new_size;
 
-    // close old font
-    if (this->ttf_font_link && !this->passed_by_font_palette)
-    {
-        TTF_CloseFont(this->ttf_font_link);
-        this->ttf_font_link = nullptr;
-    }
+    // close old font - destroys the logic!!!
+    // if (this->ttf_font_link && !this->passed_by_font_palette)
+    // {
+    //     TTF_CloseFont(this->ttf_font_link);
+    //     this->ttf_font_link = nullptr;
+    // }
+
+    this->passed_by_font_palette = false;
+
 
     // open new font
     this->ttf_font_link = TTF_OpenFont(this->font_path.c_str(), this->font_size);
@@ -538,6 +530,8 @@ void My_SDL_textbox::set_content_color(SDL_Color new_color)
         return;     // Return if nothing changed
     }
 
+    this->passed_by_palette = false;
+
     this->content_render_color = new_color;
 
     // Content is dirty after reset
@@ -549,6 +543,8 @@ void My_SDL_textbox::set_content_texture(SDL_Texture* new_texture)
 {
     if (this->content_texture)
         SDL_DestroyTexture(this->content_texture);
+
+    this->passed_by_palette = false;
 
     this->content_texture = new_texture;
 
@@ -706,58 +702,66 @@ void My_SDL_textbox::reset_anchor_points()
 
 void My_SDL_textbox::update_content_texture(SDL_Renderer* renderer, SDL_Color new_color)
 {
-    // SDL ttf workflow
+    if (!content_dirty) return;
 
-    if (!this->content_dirty) return;
-
-
-    if (!this->ttf_font_link) 
+    if (!ttf_font_link)
     {
-        std::cerr << "Font load error!" << SDL_GetError() << std::endl;
+        std::cerr << "Font not initialized\n";
+        content_dirty = false;   // FIX
         return;
     }
 
-    // Empty content check
-    if (this->content.empty())
+    if (content.empty())
     {
-        if (this->content_texture)
+        if (content_texture)
         {
-            SDL_DestroyTexture(this->content_texture);
-            this->content_texture = nullptr;
+            SDL_DestroyTexture(content_texture);
+            content_texture = nullptr;
         }
 
-        this->content_dirty = false;
+        content_dirty = false;
         return;
     }
 
+    int w = 0, h = 0;
 
-    // Old texture clear
-    if (this->content_texture)
+    if (!TTF_GetStringSize(ttf_font_link, content.c_str(), content.length(), &w, &h))
     {
-        SDL_DestroyTexture(this->content_texture);
-        this->content_texture = nullptr;
+        std::cerr << "TTF_GetStringSize failed\n";
+        content_dirty = false;   // FIX
+        return;
     }
 
+    content_width_size = w;
+    content_height_size = h;
 
-    SDL_Color color = new_color; // By passed palette 
+    
+    reset_anchor_points();
+
+    if (content_texture)
+    {
+        SDL_DestroyTexture(content_texture);
+        content_texture = nullptr;
+    }
 
     SDL_Surface* surface = TTF_RenderText_Blended(
-        this->ttf_font_link,
-        this->content.c_str(),
+        ttf_font_link,
+        content.c_str(),
         0,
-        color
+        new_color
     );
 
-    if (!surface) return;
+    if (!surface)
+    {
+        content_dirty = false; // FIX
+        return;
+    }
 
-    this->content_texture = SDL_CreateTextureFromSurface(renderer, surface);
-
-    this->content_width_size = surface->w;
-    this->content_height_size = surface->h;
+    content_texture = SDL_CreateTextureFromSurface(renderer, surface);
 
     SDL_DestroySurface(surface);
 
-    this->content_dirty = false;
+    content_dirty = false;
 }
 
 

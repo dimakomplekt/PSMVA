@@ -217,6 +217,7 @@ void start_actions()
     {
         App_palette.switch_to_the_next_palette();
         App_lang.switch_to_next_lang();
+        App_fonts.switch_to_the_next_font_palette();
     
         static bool to_second = false;
     

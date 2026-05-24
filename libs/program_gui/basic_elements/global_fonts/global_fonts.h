@@ -30,6 +30,8 @@ struct app_font_ctx
 
     TTF_Font* ttf_font_link = nullptr;             // TTF Font pointer (void* to avoid SDL_ttf dependency in header)
 
+    
+    unsigned int font_size;                        // TTF font size
 };
 
 
@@ -146,7 +148,7 @@ class Global_fonts
          * Also sets reset flag to notify UI about palette change.
          * 
          */
-        void switch_to_the_next_fonts_palette();
+        void switch_to_the_next_font_palette();
 
 
         /**
