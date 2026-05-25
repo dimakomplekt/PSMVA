@@ -444,6 +444,7 @@ class My_SDL_button : public My_SDL_element // SDL_Element
         // Data for press offset
         TTF_Font* po_base_font;
         int po_base_size;
+        bool po_cached;
 
 
         element_state current_button_state;
