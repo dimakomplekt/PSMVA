@@ -492,6 +492,8 @@ void My_SDL_panel::add_element(My_SDL_element* element_pointer, int local_x, int
     element_pointer->element_container = this;
 
     element_pointer->set_opacity(element_pointer->get_basic_opacity());
+
+    element_pointer->set_visible_flag(this->visible_flag);
 }
 
 

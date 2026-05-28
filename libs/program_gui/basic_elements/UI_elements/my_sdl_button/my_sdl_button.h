@@ -96,6 +96,9 @@ class My_SDL_button : public My_SDL_element // SDL_Element
         // Toggles the push mode flag (affects pressed-state rendering behavior)
         void push_mode_switch();
 
+        // Switches the button's textbox type without crushes
+        void switch_button_textbox_type(app_textbox_type new_type);
+
 
         /**
          * @brief External callback for click permission validation.

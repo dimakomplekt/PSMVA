@@ -334,6 +334,90 @@ void My_SDL_button::push_mode_switch()
 }
 
 
+void My_SDL_button::switch_button_textbox_type(app_textbox_type new_type)
+{
+    // Type switch
+    this->get_button_content_textbox()->switch_textbox_type(new_type);
+    this->get_button_content_textbox()->passed_by_font_palette = false; 
+
+    // Font link rewrite
+    switch (this->get_button_content_textbox()->textbox_type)
+    {
+        case BUTTON_TEXT:
+
+            this->button_textbox.set_font_path(App_fonts.get_current_fonts_palette().button_text_font.font_path);
+
+            this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().button_text_font.ttf_font_link);
+
+            this->button_textbox.set_font_size(App_fonts.get_current_fonts_palette().button_text_font.font_size);
+            
+            break;
+
+
+        case HEADER_1:
+
+            this->button_textbox.set_font_path(App_fonts.get_current_fonts_palette().header_1_font.font_path);
+
+            this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().header_1_font.ttf_font_link);
+
+            this->button_textbox.set_font_size(App_fonts.get_current_fonts_palette().header_1_font.font_size);
+            
+            break;
+
+
+        case HEADER_2:
+
+            this->button_textbox.set_font_path(App_fonts.get_current_fonts_palette().header_2_font.font_path);
+
+            this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().header_2_font.ttf_font_link);
+
+            this->button_textbox.set_font_size(App_fonts.get_current_fonts_palette().header_2_font.font_size);
+            
+            break;
+
+
+        case HEADER_3:
+
+            this->button_textbox.set_font_path(App_fonts.get_current_fonts_palette().header_3_font.font_path);
+
+            this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().header_3_font.ttf_font_link);
+
+            this->button_textbox.set_font_size(App_fonts.get_current_fonts_palette().header_3_font.font_size);
+            
+            break;
+
+            
+        case ORDINARY_TEXT:
+
+            this->button_textbox.set_font_path(App_fonts.get_current_fonts_palette().ordinary_text_font.font_path);
+
+            this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().ordinary_text_font.ttf_font_link);
+
+            this->button_textbox.set_font_size(App_fonts.get_current_fonts_palette().ordinary_text_font.font_size);
+            
+            break;
+        
+
+        case SMALL_TEXT:
+
+            this->button_textbox.set_font_path(App_fonts.get_current_fonts_palette().small_text_font.font_path);
+
+            this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().small_text_font.ttf_font_link);
+
+            this->button_textbox.set_font_size(App_fonts.get_current_fonts_palette().small_text_font.font_size);
+            
+            break;
+
+        default:
+            break;
+    }
+
+    // Reset base data
+    this->po_base_font = this->get_button_content_textbox()->ttf_font_link;
+    this->po_base_size = (int)this->button_textbox.get_font_size();
+    this->po_cached = false;
+}
+
 void My_SDL_button::set_access_type(button_access_type new_access_type)
 {
     // Error handling for invalid access type
@@ -897,13 +981,78 @@ void My_SDL_button::reset_button_textbox_if_font_palette_switched()
     if (this->button_textbox_font_passed_by_font_palette && App_fonts.get_fonts_palette_reset_flag())
     {
         // Now the button content font controlled only by button itself 
-        this->button_textbox.switch_passed_by_font_palette_flag(false);
+        this->get_button_content_textbox()->passed_by_font_palette = false; 
 
-        this->button_textbox.set_font_path(App_fonts.get_current_fonts_palette().button_text_font.font_path);
+        switch (this->get_button_content_textbox()->textbox_type)
+        {
+            case BUTTON_TEXT:
 
-        if (this->press_offset == 0 && !this->button_clicked && !this->button_clicked_tmp) this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().button_text_font.ttf_font_link);
+                this->button_textbox.set_font_path(App_fonts.get_current_fonts_palette().button_text_font.font_path);
 
-        this->button_textbox.set_font_size(App_fonts.get_current_fonts_palette().button_text_font.font_size);
+                if (this->press_offset == 0 && !this->button_clicked && !this->button_clicked_tmp) this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().button_text_font.ttf_font_link);
+
+                this->button_textbox.set_font_size(App_fonts.get_current_fonts_palette().button_text_font.font_size);
+                
+                break;
+
+
+            case HEADER_1:
+
+                this->button_textbox.set_font_path(App_fonts.get_current_fonts_palette().header_1_font.font_path);
+
+                if (this->press_offset == 0 && !this->button_clicked && !this->button_clicked_tmp) this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().header_1_font.ttf_font_link);
+
+                this->button_textbox.set_font_size(App_fonts.get_current_fonts_palette().header_1_font.font_size);
+                
+                break;
+
+
+            case HEADER_2:
+
+                this->button_textbox.set_font_path(App_fonts.get_current_fonts_palette().header_2_font.font_path);
+
+                if (this->press_offset == 0 && !this->button_clicked && !this->button_clicked_tmp) this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().header_2_font.ttf_font_link);
+
+                this->button_textbox.set_font_size(App_fonts.get_current_fonts_palette().header_2_font.font_size);
+                
+                break;
+
+
+            case HEADER_3:
+
+                this->button_textbox.set_font_path(App_fonts.get_current_fonts_palette().header_3_font.font_path);
+
+                if (this->press_offset == 0 && !this->button_clicked && !this->button_clicked_tmp) this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().header_3_font.ttf_font_link);
+
+                this->button_textbox.set_font_size(App_fonts.get_current_fonts_palette().header_3_font.font_size);
+                
+                break;
+
+
+            case ORDINARY_TEXT:
+
+                this->button_textbox.set_font_path(App_fonts.get_current_fonts_palette().ordinary_text_font.font_path);
+
+                if (this->press_offset == 0 && !this->button_clicked && !this->button_clicked_tmp) this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().ordinary_text_font.ttf_font_link);
+
+                this->button_textbox.set_font_size(App_fonts.get_current_fonts_palette().ordinary_text_font.font_size);
+                
+                break;
+            
+
+            case SMALL_TEXT:
+
+                this->button_textbox.set_font_path(App_fonts.get_current_fonts_palette().small_text_font.font_path);
+
+                if (this->press_offset == 0 && !this->button_clicked && !this->button_clicked_tmp) this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().small_text_font.ttf_font_link);
+
+                this->button_textbox.set_font_size(App_fonts.get_current_fonts_palette().small_text_font.font_size);
+                
+                break;
+
+            default:
+                break;
+        }
     }
 }
 
