@@ -14,9 +14,11 @@
 static app_fonts_palette_ctx make_fonts_palette_1()
 {
     app_font_ctx font_1;
+    app_font_ctx emoji_font_1;
 
     font_1.font_path = absolute_by_relative_from_exe("content/ttf_fonts/basis33.ttf");
-
+    emoji_font_1.font_path = absolute_by_relative_from_exe("content/ttf_fonts/NotoEmoji.ttf");
+    
     app_fonts_palette_ctx palette;
 
     palette.header_1_font = font_1;
@@ -25,6 +27,7 @@ static app_fonts_palette_ctx make_fonts_palette_1()
     palette.ordinary_text_font = font_1;
     palette.small_text_font = font_1;
     palette.button_text_font = font_1;
+    palette.emoji_text_font = emoji_font_1;
 
     return palette;
 }
@@ -37,8 +40,10 @@ static app_fonts_palette_ctx make_fonts_palette_1()
 static app_fonts_palette_ctx make_fonts_palette_2()
 {
     app_font_ctx font_2;
+    app_font_ctx emoji_font_2;
 
     font_2.font_path = absolute_by_relative_from_exe("content/ttf_fonts/Amiga_forever_pro.ttf");
+    emoji_font_2.font_path = absolute_by_relative_from_exe("content/ttf_fonts/NotoEmoji.ttf");
 
     app_fonts_palette_ctx palette;
 
@@ -48,11 +53,38 @@ static app_fonts_palette_ctx make_fonts_palette_2()
     palette.ordinary_text_font = font_2;
     palette.small_text_font = font_2;
     palette.button_text_font = font_2;
+    palette.emoji_text_font = emoji_font_2;
 
     return palette;
 }
 
 // ===== Palette 2 =====
+
+
+// ===== Palette 3 =====
+
+static app_fonts_palette_ctx make_fonts_palette_3()
+{
+    app_font_ctx font_3;
+    app_font_ctx emoji_font_3;
+
+    font_3.font_path = absolute_by_relative_from_exe("content/ttf_fonts/boldspixels.ttf");
+    emoji_font_3.font_path = absolute_by_relative_from_exe("content/ttf_fonts/NotoEmoji.ttf");
+
+    app_fonts_palette_ctx palette;
+
+    palette.header_1_font = font_3;
+    palette.header_2_font = font_3;
+    palette.header_3_font = font_3;
+    palette.ordinary_text_font = font_3;
+    palette.small_text_font = font_3;
+    palette.button_text_font = font_3;
+    palette.emoji_text_font = emoji_font_3;
+
+    return palette;
+}
+
+// ===== Palette 3 =====
 
 
 
@@ -73,6 +105,7 @@ Global_fonts& Global_fonts::Instance()
         // Palettes initialization zone
         instance.add_fonts_palette(make_fonts_palette_1());
         instance.add_fonts_palette(make_fonts_palette_2());
+        instance.add_fonts_palette(make_fonts_palette_3());
 
         initialized = true;
     }
@@ -114,7 +147,8 @@ void Global_fonts::fonts_init_in_update_loop()
                 &palette.header_3_font, 
                 &palette.ordinary_text_font,
                 &palette.small_text_font,
-                &palette.button_text_font
+                &palette.button_text_font,
+                &palette.emoji_text_font
 
             })
             {
@@ -143,6 +177,7 @@ void Global_fonts::fonts_init_in_update_loop()
 
                             break;
                             
+
                         // header_2
                         case 1:
 
@@ -153,6 +188,7 @@ void Global_fonts::fonts_init_in_update_loop()
 
                             break;
                         
+
                         // header_3
                         case 2:
 
@@ -174,6 +210,7 @@ void Global_fonts::fonts_init_in_update_loop()
 
                             break;
                             
+
                         // small text
                         case 4:
 
@@ -184,19 +221,27 @@ void Global_fonts::fonts_init_in_update_loop()
 
                             break;
 
+
                         // button text
                         case 5:
 
                             font_ctx->font_size = 18;
                             font_ctx->ttf_font_link = TTF_OpenFont(font_ctx->font_path.c_str(), font_ctx->font_size);
+                            iterator_font_counter++;
+                            
+                            break;
+
+                        // emoji text
+                        case 6:
+
+                            font_ctx->font_size = 24;
+                            font_ctx->ttf_font_link = TTF_OpenFont(font_ctx->font_path.c_str(), font_ctx->font_size);
                             iterator_font_counter = 0;
                             
-                        break;
-    
+                            break;
+                        
 
-                    default:
-
-                        break;
+                        default: break;
                     }
                    
 

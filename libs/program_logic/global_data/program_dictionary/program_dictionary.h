@@ -78,13 +78,6 @@ inline Lang_string_type gd_settings_button = {
 
 };
 
-inline Lang_string_type gd_language_settings = {
-
-    "🇬🇧",
-    "🇷🇺"
-
-};
-
 
 inline Lang_string_type gd_exit_button = {
 

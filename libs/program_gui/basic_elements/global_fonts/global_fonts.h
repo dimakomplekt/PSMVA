@@ -46,6 +46,7 @@ enum app_textbox_type
     ORDINARY_TEXT,
     SMALL_TEXT,
     BUTTON_TEXT,
+    EMOJI_TEXT,
 
     NO_TYPE,
 
@@ -68,6 +69,8 @@ struct app_fonts_palette_ctx
     app_font_ctx small_text_font;
 
     app_font_ctx button_text_font;
+
+    app_font_ctx emoji_text_font;
 
 };
 

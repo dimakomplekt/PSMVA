@@ -202,7 +202,7 @@ void My_SDL_textbox::update_font()
 
                 curr_font_path = App_fonts.get_current_fonts_palette().header_1_font.font_path;
                 curr_font_link = App_fonts.get_current_fonts_palette().header_1_font.ttf_font_link;
-                this->font_size = App_fonts.get_current_fonts_palette().ordinary_text_font.font_size;
+                this->font_size = App_fonts.get_current_fonts_palette().header_1_font.font_size;
 
                 break;
 
@@ -211,7 +211,7 @@ void My_SDL_textbox::update_font()
 
                 curr_font_path = App_fonts.get_current_fonts_palette().header_2_font.font_path;
                 curr_font_link = App_fonts.get_current_fonts_palette().header_2_font.ttf_font_link;       
-                this->font_size = App_fonts.get_current_fonts_palette().ordinary_text_font.font_size;
+                this->font_size = App_fonts.get_current_fonts_palette().header_2_font.font_size;
 
                 break;
 
@@ -220,7 +220,7 @@ void My_SDL_textbox::update_font()
 
                 curr_font_path = App_fonts.get_current_fonts_palette().header_3_font.font_path;
                 curr_font_link = App_fonts.get_current_fonts_palette().header_3_font.ttf_font_link;
-                this->font_size = App_fonts.get_current_fonts_palette().ordinary_text_font.font_size;
+                this->font_size = App_fonts.get_current_fonts_palette().header_3_font.font_size;
                 
                 break;
 
@@ -238,7 +238,7 @@ void My_SDL_textbox::update_font()
 
                 curr_font_path = App_fonts.get_current_fonts_palette().small_text_font.font_path;
                 curr_font_link = App_fonts.get_current_fonts_palette().small_text_font.ttf_font_link;
-                this->font_size = App_fonts.get_current_fonts_palette().ordinary_text_font.font_size;
+                this->font_size = App_fonts.get_current_fonts_palette().small_text_font.font_size;
 
                 break;
 
@@ -247,9 +247,19 @@ void My_SDL_textbox::update_font()
 
                 curr_font_path = App_fonts.get_current_fonts_palette().button_text_font.font_path;
                 curr_font_link = App_fonts.get_current_fonts_palette().button_text_font.ttf_font_link;
-                this->font_size = App_fonts.get_current_fonts_palette().ordinary_text_font.font_size;
+                this->font_size = App_fonts.get_current_fonts_palette().button_text_font.font_size;
 
                 break;
+
+
+            case EMOJI_TEXT:
+
+                curr_font_path = App_fonts.get_current_fonts_palette().emoji_text_font.font_path;
+                curr_font_link = App_fonts.get_current_fonts_palette().emoji_text_font.ttf_font_link;
+                this->font_size = App_fonts.get_current_fonts_palette().emoji_text_font.font_size;
+
+                break;
+
 
 
             default:

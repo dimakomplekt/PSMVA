@@ -149,6 +149,9 @@ My_SDL_button::My_SDL_button()
     this->po_base_font = this->get_button_content_textbox()->ttf_font_link;
     this->po_base_size = (int)this->button_textbox.get_font_size();
     this->po_cached = false;
+
+
+    this->button_textbox_font_passed_by_font_palette  = true;
 }
 
 
@@ -179,13 +182,9 @@ void My_SDL_button::update()
     // No actions for not visible element
     if (!this->visible_flag) return;
 
-
     // Movement logic if the movement is on
     this->movement_logic_in_update_loop();
 
-
-    // Font prepare (onetime at the start or onetime by reset_flag from fonts palette)
-    this->button_textbox.update();
 
     // Hover check
     this->button_hover_check();
@@ -285,6 +284,9 @@ void My_SDL_button::update()
     // to update the font link and path if they are setted by the font palette
     this->reset_button_textbox_if_font_palette_switched();
 
+    // Font prepare (onetime at the start or onetime by reset_flag from fonts palette)
+    this->button_textbox.update();
+
     // Palette prepare for rendering
     this->button_palette_prepare();  
 
@@ -338,14 +340,13 @@ void My_SDL_button::switch_button_textbox_type(app_textbox_type new_type)
 {
     // Type switch
     this->get_button_content_textbox()->switch_textbox_type(new_type);
-    this->get_button_content_textbox()->passed_by_font_palette = false; 
 
     // Font link rewrite
     switch (this->get_button_content_textbox()->textbox_type)
     {
         case BUTTON_TEXT:
 
-            this->button_textbox.set_font_path(App_fonts.get_current_fonts_palette().button_text_font.font_path);
+            this->get_button_content_textbox()->font_path = (App_fonts.get_current_fonts_palette().button_text_font.font_path);
 
             this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().button_text_font.ttf_font_link);
 
@@ -356,7 +357,7 @@ void My_SDL_button::switch_button_textbox_type(app_textbox_type new_type)
 
         case HEADER_1:
 
-            this->button_textbox.set_font_path(App_fonts.get_current_fonts_palette().header_1_font.font_path);
+            this->get_button_content_textbox()->font_path = (App_fonts.get_current_fonts_palette().header_1_font.font_path);
 
             this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().header_1_font.ttf_font_link);
 
@@ -367,7 +368,7 @@ void My_SDL_button::switch_button_textbox_type(app_textbox_type new_type)
 
         case HEADER_2:
 
-            this->button_textbox.set_font_path(App_fonts.get_current_fonts_palette().header_2_font.font_path);
+            this->get_button_content_textbox()->font_path = (App_fonts.get_current_fonts_palette().header_2_font.font_path);
 
             this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().header_2_font.ttf_font_link);
 
@@ -378,7 +379,7 @@ void My_SDL_button::switch_button_textbox_type(app_textbox_type new_type)
 
         case HEADER_3:
 
-            this->button_textbox.set_font_path(App_fonts.get_current_fonts_palette().header_3_font.font_path);
+            this->get_button_content_textbox()->font_path = (App_fonts.get_current_fonts_palette().header_3_font.font_path);
 
             this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().header_3_font.ttf_font_link);
 
@@ -389,7 +390,7 @@ void My_SDL_button::switch_button_textbox_type(app_textbox_type new_type)
             
         case ORDINARY_TEXT:
 
-            this->button_textbox.set_font_path(App_fonts.get_current_fonts_palette().ordinary_text_font.font_path);
+            this->get_button_content_textbox()->font_path = (App_fonts.get_current_fonts_palette().ordinary_text_font.font_path);
 
             this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().ordinary_text_font.ttf_font_link);
 
@@ -400,7 +401,7 @@ void My_SDL_button::switch_button_textbox_type(app_textbox_type new_type)
 
         case SMALL_TEXT:
 
-            this->button_textbox.set_font_path(App_fonts.get_current_fonts_palette().small_text_font.font_path);
+            this->get_button_content_textbox()->font_path = (App_fonts.get_current_fonts_palette().small_text_font.font_path);
 
             this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().small_text_font.ttf_font_link);
 
@@ -408,15 +409,33 @@ void My_SDL_button::switch_button_textbox_type(app_textbox_type new_type)
             
             break;
 
-        default:
-            break;
+
+        case EMOJI_TEXT:
+
+            this->get_button_content_textbox()->font_path = (App_fonts.get_current_fonts_palette().emoji_text_font.font_path);
+
+            this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().emoji_text_font.ttf_font_link);
+
+            this->button_textbox.set_font_size(App_fonts.get_current_fonts_palette().emoji_text_font.font_size);
+            
+            break; 
+
+
+        default: break;
     }
 
     // Reset base data
     this->po_base_font = this->get_button_content_textbox()->ttf_font_link;
     this->po_base_size = (int)this->button_textbox.get_font_size();
     this->po_cached = false;
+
+    // Reset flag to not pass by palette after the first update by the palette switch
+    
+    this->get_button_content_textbox()->content_dirty = true;
+
+    this->get_button_content_textbox()->passed_by_font_palette = false; 
 }
+
 
 void My_SDL_button::set_access_type(button_access_type new_access_type)
 {
@@ -596,9 +615,7 @@ void My_SDL_button::button_palette_prepare()
 
             break;
     
-        default:
-
-            break;
+        default: break;
     }
     
 
@@ -714,6 +731,7 @@ void My_SDL_button::set_border_width_size(unsigned int new_size)
 
     this->border_width_size = new_size;
 }
+
 
 void My_SDL_button::set_border_radius(unsigned int new_size)
 {
@@ -980,16 +998,14 @@ void My_SDL_button::reset_button_textbox_if_font_palette_switched()
 
     if (this->button_textbox_font_passed_by_font_palette && App_fonts.get_fonts_palette_reset_flag())
     {
-        // Now the button content font controlled only by button itself 
-        this->get_button_content_textbox()->passed_by_font_palette = false; 
-
         switch (this->get_button_content_textbox()->textbox_type)
         {
             case BUTTON_TEXT:
 
-                this->button_textbox.set_font_path(App_fonts.get_current_fonts_palette().button_text_font.font_path);
+                this->get_button_content_textbox()->font_path = (App_fonts.get_current_fonts_palette().button_text_font.font_path);
 
-                if (this->press_offset == 0 && !this->button_clicked && !this->button_clicked_tmp) this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().button_text_font.ttf_font_link);
+                if (this->press_offset == 0 && !this->button_clicked && !this->button_clicked_tmp) 
+                    this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().button_text_font.ttf_font_link);
 
                 this->button_textbox.set_font_size(App_fonts.get_current_fonts_palette().button_text_font.font_size);
                 
@@ -998,9 +1014,10 @@ void My_SDL_button::reset_button_textbox_if_font_palette_switched()
 
             case HEADER_1:
 
-                this->button_textbox.set_font_path(App_fonts.get_current_fonts_palette().header_1_font.font_path);
+                this->get_button_content_textbox()->font_path = (App_fonts.get_current_fonts_palette().header_1_font.font_path);
 
-                if (this->press_offset == 0 && !this->button_clicked && !this->button_clicked_tmp) this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().header_1_font.ttf_font_link);
+                if (this->press_offset == 0 && !this->button_clicked && !this->button_clicked_tmp) 
+                    this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().header_1_font.ttf_font_link);
 
                 this->button_textbox.set_font_size(App_fonts.get_current_fonts_palette().header_1_font.font_size);
                 
@@ -1009,9 +1026,10 @@ void My_SDL_button::reset_button_textbox_if_font_palette_switched()
 
             case HEADER_2:
 
-                this->button_textbox.set_font_path(App_fonts.get_current_fonts_palette().header_2_font.font_path);
+                this->get_button_content_textbox()->font_path = (App_fonts.get_current_fonts_palette().header_2_font.font_path);
 
-                if (this->press_offset == 0 && !this->button_clicked && !this->button_clicked_tmp) this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().header_2_font.ttf_font_link);
+                if (this->press_offset == 0 && !this->button_clicked && !this->button_clicked_tmp) 
+                    this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().header_2_font.ttf_font_link);
 
                 this->button_textbox.set_font_size(App_fonts.get_current_fonts_palette().header_2_font.font_size);
                 
@@ -1020,9 +1038,10 @@ void My_SDL_button::reset_button_textbox_if_font_palette_switched()
 
             case HEADER_3:
 
-                this->button_textbox.set_font_path(App_fonts.get_current_fonts_palette().header_3_font.font_path);
+                this->get_button_content_textbox()->font_path = (App_fonts.get_current_fonts_palette().header_3_font.font_path);
 
-                if (this->press_offset == 0 && !this->button_clicked && !this->button_clicked_tmp) this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().header_3_font.ttf_font_link);
+                if (this->press_offset == 0 && !this->button_clicked && !this->button_clicked_tmp) 
+                    this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().header_3_font.ttf_font_link);
 
                 this->button_textbox.set_font_size(App_fonts.get_current_fonts_palette().header_3_font.font_size);
                 
@@ -1031,9 +1050,10 @@ void My_SDL_button::reset_button_textbox_if_font_palette_switched()
 
             case ORDINARY_TEXT:
 
-                this->button_textbox.set_font_path(App_fonts.get_current_fonts_palette().ordinary_text_font.font_path);
+                this->get_button_content_textbox()->font_path = (App_fonts.get_current_fonts_palette().ordinary_text_font.font_path);
 
-                if (this->press_offset == 0 && !this->button_clicked && !this->button_clicked_tmp) this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().ordinary_text_font.ttf_font_link);
+                if (this->press_offset == 0 && !this->button_clicked && !this->button_clicked_tmp) 
+                    this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().ordinary_text_font.ttf_font_link);
 
                 this->button_textbox.set_font_size(App_fonts.get_current_fonts_palette().ordinary_text_font.font_size);
                 
@@ -1042,19 +1062,45 @@ void My_SDL_button::reset_button_textbox_if_font_palette_switched()
 
             case SMALL_TEXT:
 
-                this->button_textbox.set_font_path(App_fonts.get_current_fonts_palette().small_text_font.font_path);
+                this->get_button_content_textbox()->font_path = (App_fonts.get_current_fonts_palette().small_text_font.font_path);
 
-                if (this->press_offset == 0 && !this->button_clicked && !this->button_clicked_tmp) this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().small_text_font.ttf_font_link);
+                if (this->press_offset == 0 && !this->button_clicked && !this->button_clicked_tmp) 
+                    this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().small_text_font.ttf_font_link);
 
                 this->button_textbox.set_font_size(App_fonts.get_current_fonts_palette().small_text_font.font_size);
                 
                 break;
 
-            default:
+
+            case EMOJI_TEXT:
+
+                this->get_button_content_textbox()->font_path = (App_fonts.get_current_fonts_palette().emoji_text_font.font_path);
+
+                if (this->press_offset == 0 && !this->button_clicked && !this->button_clicked_tmp) 
+                    this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().emoji_text_font.ttf_font_link);
+
+                this->button_textbox.set_font_size(App_fonts.get_current_fonts_palette().emoji_text_font.font_size);
+                
                 break;
+
+
+            default: break;
         }
     }
+
+    // Reset base data
+    this->po_base_font = this->get_button_content_textbox()->ttf_font_link;
+    this->po_base_size = (int)this->button_textbox.get_font_size();
+    this->po_cached = false;
+
+    // Reset flag to not pass by palette after the first update by the palette switch
+
+    this->get_button_content_textbox()->content_dirty = true;
+
+    // Now the button content font controlled only by button itself 
+    this->get_button_content_textbox()->passed_by_font_palette = false; 
 }
+
 
 void My_SDL_button::button_textbox_font_passed_by_font_palette_flag_switch(bool new_flag)
 {
@@ -1123,6 +1169,8 @@ void My_SDL_button::render_data_recalculation()
     {
         if (this->push_mode_on && this->po_cached)
         {
+            // Temporarily disable palette font management during press animation.
+            // Previous textbox type will be restored on release.
             this->button_textbox.switch_textbox_type(NO_TYPE);
 
 

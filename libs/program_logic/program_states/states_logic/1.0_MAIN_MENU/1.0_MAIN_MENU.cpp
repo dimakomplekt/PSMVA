@@ -411,21 +411,25 @@ void main_menu_elements_setup()
     Settings_panel->set_render_point(dynamic_panel_x_1, dynamic_panel_y_1);
 
 
+    Switch_theme_button->switch_button_textbox_type(EMOJI_TEXT);
     Switch_theme_button->get_button_content_textbox()->set_content("🎨");
     Switch_theme_button->set_size(mini_buttons_h_size, mini_buttons_v_size);
     Switch_theme_button->on_click = switch_theme_button_on_click;
 
 
-    Switch_language_button->get_button_content_textbox()->set_content(str_by_dictionary(gd_language_settings));
+    Switch_language_button->switch_button_textbox_type(EMOJI_TEXT);
+    Switch_language_button->get_button_content_textbox()->set_content("🌐");
     Switch_language_button->set_size(mini_buttons_h_size, mini_buttons_v_size);
     Switch_language_button->on_click = switch_language_button_on_click;
 
 
-    Switch_font_button->get_button_content_textbox()->set_content("⟲");
+    Switch_font_button->switch_button_textbox_type(EMOJI_TEXT);
+    Switch_font_button->get_button_content_textbox()->set_content("🔤");
     Switch_font_button->set_size(mini_buttons_h_size, mini_buttons_v_size);
     Switch_font_button->on_click = switch_font_button_on_click;
 
 
+    Settings_accept_button->switch_button_textbox_type(EMOJI_TEXT);
     Settings_accept_button->get_button_content_textbox()->set_content("✔");
     Settings_accept_button->set_size(mini_buttons_h_size, mini_buttons_v_size);
     Settings_accept_button->on_click = settings_accept_button_on_click;
@@ -677,8 +681,7 @@ void reset_passed_by_dictionary_textboxes_if_language_switched_mm()
         // Settings panel
         Settings_button->get_button_content_textbox()->set_content(str_by_dictionary(gd_settings_button));
 
-        Switch_language_button->get_button_content_textbox()->set_content(str_by_dictionary(gd_language_settings));
-
+        // Exit button
         Exit_button->get_button_content_textbox()->set_content(str_by_dictionary(gd_exit_button));
 
     }
@@ -751,8 +754,8 @@ void main_menu_actions()
 
             if (need_to_move_dynamic_panels)
             {
-                Information_panel->move_to_point(dynamic_panel_x_2, dynamic_panel_y_2, EXPONENTIAL, 600);
-                Settings_panel->move_to_point(dynamic_panel_x_1, dynamic_panel_y_1, EXPONENTIAL, 300);
+                Information_panel->move_to_point(dynamic_panel_x_2, dynamic_panel_y_2, EXPONENTIAL, 900);
+                Settings_panel->move_to_point(dynamic_panel_x_1, dynamic_panel_y_1, EXPONENTIAL, 600);
                 need_to_move_dynamic_panels = false;
             }
 
@@ -763,8 +766,8 @@ void main_menu_actions()
 
             if (need_to_move_dynamic_panels)
             {
-                Information_panel->move_to_point(dynamic_panel_x_1, dynamic_panel_y_1, EXPONENTIAL, 300);
-                Settings_panel->move_to_point(dynamic_panel_x_2, dynamic_panel_y_2, EXPONENTIAL, 600);
+                Information_panel->move_to_point(dynamic_panel_x_1, dynamic_panel_y_1, EXPONENTIAL, 600);
+                Settings_panel->move_to_point(dynamic_panel_x_2, dynamic_panel_y_2, EXPONENTIAL, 900);
                 need_to_move_dynamic_panels = false;
             }
 
