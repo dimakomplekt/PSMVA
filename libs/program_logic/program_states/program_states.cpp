@@ -16,7 +16,7 @@
 
 #include "states_logic/0.0_START/0.0_START.h"
 #include "states_logic/1.0_MAIN_MENU/1.0_MAIN_MENU.h"
-// #include "states_logic/1.1_FILE_CHOOSE/1.1_FILE_CHOOSE.h"
+#include "states_logic/1.1_FILE_CHOOSE/1.1_FILE_CHOOSE.h"
 // #include "states_logic/1.2_MASKS_SETUP/1.2_MASKS_SETUP.h"
 // #include "states_logic/1.3_FLOW_PARAMETERS_CALCULATION/1.3_FLOW_PARAMETERS_CALCULATION.h"
 // #include "states_logic/1.4_REPORT_FORMING/1.4_REPORT_FORMING.h"
@@ -75,6 +75,8 @@ void init_program_states(State_machine& app_state_machine)
         s->state_render = start_render;     // Rendering for the state
     }
 
+    // === MAIN_MENU ===
+
     app_state_machine.initiate_state(MAIN_MENU_ID, "MAIN_MENU");
 
     if (auto* s = app_state_machine.get_state(MAIN_MENU_ID))
@@ -83,6 +85,18 @@ void init_program_states(State_machine& app_state_machine)
         s->on_exit  = main_menu_exit;           // Actions on the state exit
         s->state_update = main_menu_update;     // Actions on the state update
         s->state_render = main_menu_render;     // Rendering for the state
+    }
+
+    // === FILE_CHOOSE ===
+
+    app_state_machine.initiate_state(FILE_CHOOSE_ID, "FILE_CHOOSE");
+
+    if (auto* s = app_state_machine.get_state(FILE_CHOOSE_ID))
+    {
+        s->on_enter = file_choose_enter;          // Actions on the state entering 
+        s->on_exit  = file_choose_exit;           // Actions on the state exit
+        s->state_update = file_choose_update;     // Actions on the state update
+        s->state_render = file_choose_render;     // Rendering for the state
     }
 
 

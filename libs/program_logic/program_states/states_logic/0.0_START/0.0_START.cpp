@@ -137,7 +137,7 @@ void start_elements_setup()
 
     Start_panel->set_render_point(MAIN_WINDOW_H_SIZE / 2, MAIN_WINDOW_V_SIZE / 2);
     Start_panel->set_size(MAIN_WINDOW_H_SIZE, MAIN_WINDOW_V_SIZE);
-
+    Start_panel->set_border_radius_size(0);
 
     // Start textbox setup
     Start_textbox->switch_textbox_type(NO_TYPE);

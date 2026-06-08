@@ -1,4 +1,4 @@
-// 1.1_FILE_CHOOSE.h
+// 1.1_this_state.h
 
 
 #pragma once
@@ -30,10 +30,10 @@
  * 
  */
 
-void file_choose_enter();
-void file_choose_exit();
+void this_state_enter();
+void this_state_exit();
 
-void file_choose_update();
-void file_choose_render(SDL_Renderer* renderer);
+void this_state_update();
+void this_state_render(SDL_Renderer* renderer);
 
 // =========================================================================================== MAIN STATE API

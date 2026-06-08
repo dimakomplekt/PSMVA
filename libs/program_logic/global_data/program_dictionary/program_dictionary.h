@@ -51,22 +51,22 @@ inline Lang_string_type gd_information_button = {
 
 inline Lang_string_type gd_information_textbox_1 = {
 
-    "Information 1",
-    "Информация 1"
+    "1) Choose an videofile for analysis",
+    "1) Выберете видео для анализа"
 
 };
 
 inline Lang_string_type gd_information_textbox_2 = {
 
-    "Information 2",
-    "Информация 2"
+    "2) Fill the file data and setup the masks by the faders",
+    "2) Заполните информацию о файле и настройте маски при помощи фейдеров"
 
 };
 
 inline Lang_string_type gd_information_textbox_3 = {
 
-    "Information 3",
-    "Информация 3"
+    "3) Start an analysis and wait until the report will formed",
+    "3) Запустите анализ и дождитесь формирования отчета"
 
 };
 

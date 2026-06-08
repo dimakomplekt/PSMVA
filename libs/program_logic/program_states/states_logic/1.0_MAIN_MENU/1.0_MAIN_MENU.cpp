@@ -129,7 +129,6 @@ void switch_language_button_on_click();
 void switch_font_button_on_click();
 void settings_accept_button_on_click();
 
-
 // =========================================================================================== STATE DATA
 
 
@@ -154,7 +153,6 @@ void main_menu_elements_render(SDL_Renderer* renderer);
 
 // =========================================================================================== MAIN STATE API
 
-
 void main_menu_enter()
 {
     // Log the enter in console
@@ -172,7 +170,6 @@ void main_menu_enter()
     main_menu_elements_setup();
 
 }
-
 
 
 void main_menu_exit()
@@ -207,15 +204,7 @@ void main_menu_render(SDL_Renderer* renderer)
     main_menu_elements_render(renderer);
 }
 
-
-
-
 // =========================================================================================== MAIN STATE API
-
-
-
-
-// =========================================================================================== INNER STATE FUNCTIONS
 
 
 // =========================================================================================== STATE INNER FUNCTIONS REALIZATION
@@ -397,11 +386,11 @@ void main_menu_elements_setup()
 
 
     Info_1_textbox->set_content(str_by_dictionary(gd_information_textbox_1));
-
+    Info_1_textbox->switch_textbox_type(HEADER_3);
     Info_2_textbox->set_content(str_by_dictionary(gd_information_textbox_2));
-
+    Info_2_textbox->switch_textbox_type(HEADER_3);
     Info_3_textbox->set_content(str_by_dictionary(gd_information_textbox_3));
-
+    Info_3_textbox->switch_textbox_type(HEADER_3);
 
 
     // Settings panel
@@ -479,6 +468,36 @@ void main_menu_elements_setup()
         Settings_accept_button,
         mini_buttons_h_size * 1.5 + 2 * SCREEN_MARGIN_1,
         mini_buttons_v_size * 1.5 + 2 * SCREEN_MARGIN_1,
+        1
+        
+    );
+
+
+    // Information panel
+
+    Information_panel->add_element(
+
+        Info_1_textbox,
+        mm_panels_h_size * 0.5,
+        mm_panels_v_size * 0.25,
+        1
+        
+    );
+
+    Information_panel->add_element(
+
+        Info_2_textbox,
+        mm_panels_h_size * 0.5,
+        mm_panels_v_size * 0.5,
+        1
+        
+    );
+
+    Information_panel->add_element(
+
+        Info_3_textbox,
+        mm_panels_h_size * 0.5,
+        mm_panels_v_size * 0.75,
         1
         
     );
@@ -627,13 +646,10 @@ void main_menu_elements_update()
     Information_panel->update();
 
 
-    Info_1_textbox->update();
     Plasma_spraying_texture_1->update();
 
-    Info_2_textbox->update();
     Plasma_spraying_texture_2->update();
 
-    Info_3_textbox->update();
     Plasma_spraying_texture_3->update();
 
 
@@ -677,6 +693,14 @@ void reset_passed_by_dictionary_textboxes_if_language_switched_mm()
         // Information panel
 
         Information_button->get_button_content_textbox()->set_content(str_by_dictionary(gd_information_button));
+
+
+        Info_1_textbox->set_content(str_by_dictionary(gd_information_textbox_1));
+
+        Info_2_textbox->set_content(str_by_dictionary(gd_information_textbox_2));
+    
+        Info_3_textbox->set_content(str_by_dictionary(gd_information_textbox_3));
+
 
         // Settings panel
         Settings_button->get_button_content_textbox()->set_content(str_by_dictionary(gd_settings_button));
@@ -847,8 +871,7 @@ void switch_right_panel_state(right_panel_state_ctx new_state)
 
 void analysis_start_on_click()
 {
-    // this_app.app_sm.request_state_change(FILE_CHOOSE_ID);
-    App_fonts.switch_to_the_next_font_palette();
+    this_app.app_sm.request_state_change(FILE_CHOOSE_ID);
 }
 
 
@@ -897,3 +920,5 @@ void settings_accept_button_on_click()
 {
     switch_right_panel_state(right_panel_state_ctx::NONE);
 }
+
+// =========================================================================================== STATE ELEMENTS INNER FUNCTIONS
