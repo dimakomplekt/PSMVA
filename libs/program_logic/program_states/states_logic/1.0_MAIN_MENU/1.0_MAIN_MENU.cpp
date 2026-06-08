@@ -274,6 +274,8 @@ void main_menu_elements_create()
 
 // ===== Main sizes =====
 
+// Static-size GUI
+
 const int BACKGROUND_WIDTH  = MAIN_WINDOW_H_SIZE;
 const int BACKGROUND_HEIGHT  = MAIN_WINDOW_V_SIZE;
 
@@ -377,12 +379,10 @@ void main_menu_elements_setup()
     PSMVA_textbox->set_content(THIS_APP_NAME);
 
 
-
     // Information panel basic position
 
     Information_panel->set_size(mm_panels_h_size, mm_panels_v_size);
     Information_panel->set_render_point(dynamic_panel_x_1, dynamic_panel_y_1);
-
 
 
     Info_1_textbox->set_content(str_by_dictionary(gd_information_textbox_1));
@@ -394,7 +394,6 @@ void main_menu_elements_setup()
 
 
     // Settings panel
-
 
     Settings_panel->set_size(mm_panels_h_size, mm_panels_v_size);
     Settings_panel->set_render_point(dynamic_panel_x_1, dynamic_panel_y_1);
@@ -423,16 +422,8 @@ void main_menu_elements_setup()
     Settings_accept_button->set_size(mini_buttons_h_size, mini_buttons_v_size);
     Settings_accept_button->on_click = settings_accept_button_on_click;
 
-    /*
-    Settings_panel->add_element(
 
-        Switch_theme_button,
-        Settings_panel->global_x_by_local_x(Settings_panel->get_anchor_points().center_center.x - 0.5 * (mini_buttons_h_size + SCREEN_MARGIN_1)),
-        Settings_panel->global_y_by_local_y(Settings_panel->get_anchor_points().center_center.y + 0.5 * (mini_buttons_v_size + SCREEN_MARGIN_1)),
-        1
-        
-    );
-    */
+    // ===== Add elements into panels =====
 
     Settings_panel->add_element(
 
@@ -442,7 +433,6 @@ void main_menu_elements_setup()
         1
         
     );
-
 
 
     Settings_panel->add_element(
@@ -752,7 +742,6 @@ void main_menu_actions()
     {
         Analysis_start_button->move_to_point(Analysis_start_button->get_x_render_point() + 25, Analysis_start_button->get_y_render_point(), LOGARITHMIC, 300);
     }
-
 
     if (App_inputs.is_just_released(Key_actions::DOWN))
     {

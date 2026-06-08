@@ -20,6 +20,11 @@
 // Log
 #include <iostream>
 
+
+// System file manager
+#include <windows.h>
+#include <commdlg.h>
+
 // =========================================================================================== IMPORT
 
 
@@ -34,27 +39,37 @@ My_SDL_textbox* File_choose_panel_textbox = nullptr;
 
 // File choose panel (5 elements now)
 
+
 My_SDL_panel* File_choose_panel = nullptr;
 
 My_SDL_panel* File_1_panel = nullptr;
 My_SDL_textbox* File_1_textbox = nullptr;
 My_SDL_button* File_1_button = nullptr;
 
+
 My_SDL_panel* File_2_panel = nullptr;
 My_SDL_textbox* File_2_textbox = nullptr;
 My_SDL_button* File_2_button = nullptr;
+
 
 My_SDL_panel* File_3_panel = nullptr;
 My_SDL_textbox* File_3_textbox = nullptr;
 My_SDL_button* File_3_button = nullptr;
 
+
 My_SDL_panel* File_4_panel = nullptr;
 My_SDL_textbox* File_4_textbox = nullptr;
 My_SDL_button* File_4_button = nullptr;
 
+
 My_SDL_panel* File_5_panel = nullptr;
 My_SDL_textbox* File_5_textbox = nullptr;
 My_SDL_button* File_5_button = nullptr;
+
+
+My_SDL_panel* File_6_panel = nullptr;
+My_SDL_textbox* File_6_textbox = nullptr;
+My_SDL_button* File_6_button = nullptr;
 
 
 // Preview panel
@@ -104,6 +119,10 @@ void file_choose_enter()
 
     // ===== State allocation =====
 
+
+    // File choose data init
+
+    file_choose_data_init();
 
     // Elements setup
 
@@ -183,6 +202,10 @@ void file_choose_elements_create()
     File_5_textbox = new My_SDL_textbox;
     File_5_button = new My_SDL_button;
 
+    File_6_panel = new My_SDL_panel;
+    File_6_textbox = new My_SDL_textbox;
+    File_6_button = new My_SDL_button;
+
 
     // Preview panel
 
@@ -199,6 +222,8 @@ void file_choose_elements_create()
 // ===== SETUP DATA =====
 
 // ===== Main sizes =====
+
+// Static-size GUI
 
 const int BACKGROUND_WIDTH  = MAIN_WINDOW_H_SIZE;
 const int BACKGROUND_HEIGHT  = MAIN_WINDOW_V_SIZE;
@@ -240,11 +265,11 @@ int file_choose_panel_x = FIRST_ZONE_WIDTH * 0.5;
 int file_choose_panel_y = BACKGROUND_HEIGHT * 0.5;
 
 
-int file_choose_preview_x = ;
-int file_choose_preview_y = ;
+int file_choose_preview_x = FIRST_ZONE_WIDTH + SECOND_ZONE_WIDTH * 0.5;
+int file_choose_preview_y = SCREEN_MARGIN_2 + file_preview_height * 0.5;
 
-int study_start_button_x = ; 
-int study_start_button_y = ; 
+int study_start_button_x = file_choose_preview_x; 
+int study_start_button_y = BACKGROUND_HEIGHT - SCREEN_MARGIN_2 - 0.5 * study_start_button_height; 
 
 
 // ===== SETUP DATA =====
@@ -321,6 +346,10 @@ void file_choose_elements_free_and_nullptr()
     File_5_panel = nullptr;
     File_5_textbox = nullptr;
     File_5_button = nullptr;
+
+    File_6_panel = nullptr;
+    File_6_textbox = nullptr;
+    File_6_button = nullptr;
 
 
     // Preview panel
@@ -408,5 +437,199 @@ void file_choose_elements_render(SDL_Renderer* renderer)
 
 // =========================================================================================== STATE ELEMENTS INNER FUNCTIONS
 
+
+void file_choose_data_init()
+{
+    file_choose_data.file_1_path = "";
+    file_choose_data.file_2_path = "";
+    file_choose_data.file_3_path = "";
+    file_choose_data.file_4_path = "";
+    file_choose_data.file_5_path = "";
+    file_choose_data.file_6_path = "";
+
+    file_choose_data.curr_file_for_choose = 1;
+    file_choose_data.last_cleared = 0;
+
+
+    file_choose_data.panels_states.file_1_panel_state = EMPTY;
+    file_choose_data.panels_states.file_2_panel_state = HIDEN;
+    file_choose_data.panels_states.file_3_panel_state = HIDEN;
+    file_choose_data.panels_states.file_4_panel_state = HIDEN;
+    file_choose_data.panels_states.file_5_panel_state = HIDEN;
+    file_choose_data.panels_states.file_6_panel_state = HIDEN;
+
+}
+
+
+std::string file_name_from_path(std::string path)
+{
+    /*
+
+    // Find the last slash (Windows '\' or Unix '/')
+    size_t last_slash_idx = path.find_last_of("\\/");
+    
+    // Return the substring before slash
+    // std::string::npos - special constant, which returned if there is no slashes 
+    // inside the link
+    if (std::string::npos != last_slash_idx)
+    {
+        return path.substr(last_slash_idx + 1);
+    }
+    
+    // No slashes or empty case
+    return path;
+
+    */
+
+    // Same by library
+    return std::filesystem::path(path).filename().string();
+}
+
+
+
+std::string get_path_by_file_manager()
+{
+    char file_name[MAX_PATH] = "";
+
+    OPENFILENAMEA ofn;
+
+    ZeroMemory(&ofn, sizeof(ofn));
+
+    ofn.lStructSize = sizeof(ofn);
+
+    // We may pass SDL-window descriptor, but NULL works as well
+    ofn.hwndOwner = NULL;
+    
+    // File filter
+    ofn.lpstrFilter = "All files (*.*)\0*.*\0Txt files (*.txt)\0*.txt\0";
+    ofn.lpstrFile = file_name;
+    ofn.nMaxFile = MAX_PATH;
+    
+    // Flags: file should exists, path must be valid
+    ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
+
+    // Calls the window, returns the path, if user choosed the path
+    if (GetOpenFileNameA(&ofn)) 
+    {
+        return std::string(file_name);
+    }
+
+    return ""; // User closed the window or error occures
+}
+
+
+void add_path(unsigned int file_number)
+{
+
+    // Check if rebuild is needed
+    if (file_number == 0) return;
+
+    unsigned int add_index = file_number - 1;
+
+    // Massive of variables links
+    std::string* paths[] = {
+
+        &file_choose_data.file_1_path,
+        &file_choose_data.file_2_path,
+        &file_choose_data.file_3_path,
+        &file_choose_data.file_4_path,
+        &file_choose_data.file_5_path,
+        &file_choose_data.file_6_path
+
+    };
+
+    file_choose_panel_state* panel_states[] = {
+
+        &file_choose_data.file_1_panel_state,
+        &file_choose_data.file_2_panel_state,
+        &file_choose_data.file_3_panel_state,
+        &file_choose_data.file_4_panel_state,
+        &file_choose_data.file_5_panel_state,
+        &file_choose_data.file_6_panel_state
+
+    };
+
+    if (panel_states[add_index] != EMPTY) std::cerr "Error on the file pass!";
+
+    paths[add_index] = get_path_by_file_manager();
+    if (paths[add_index] != "") panel_states[add_index] = CHOSEN;
+
+    // Show the next if it's not 6th file
+    if (add_index != 5) panel_states[add_index + 1] = EMPTY;
+
+}
+
+
+void clear_path(unsigned int file_number)
+{
+    // Clear file index
+    int cleared_idx = file_number - 1;
+
+    // Massive of variables links
+    std::string* paths[] = {
+
+        &file_choose_data.file_1_path,
+        &file_choose_data.file_2_path,
+        &file_choose_data.file_3_path,
+        &file_choose_data.file_4_path,
+        &file_choose_data.file_5_path,
+        &file_choose_data.file_6_path
+
+    };
+
+
+    file_choose_panel_state* panel_states[] = {
+
+        &file_choose_data.file_1_panel_state,
+        &file_choose_data.file_2_panel_state,
+        &file_choose_data.file_3_panel_state,
+        &file_choose_data.file_4_panel_state,
+        &file_choose_data.file_5_panel_state,
+        &file_choose_data.file_6_panel_state
+
+    };
+
+
+    // Move the names
+    if (cleared_idx >= 0 && cleared_idx < 6)
+    {
+        // From the deleted one
+        for (int i = cleared_idx; i < 5; ++i)
+        {
+            *paths[i] = *paths[i + 1];
+        }
+
+        // Empty string to the last one (previos becomes empty automatically
+        // during the iteration loop)
+        *paths[5] = "";
+    }
+
+    // Reset panels textboxes content according to the new list
+    File_1_textbox.set_content(file_name_from_path(file_choose_data.file_1_path));
+    File_2_textbox.set_content(file_name_from_path(file_choose_data.file_2_path));
+    File_3_textbox.set_content(file_name_from_path(file_choose_data.file_3_path));
+    File_4_textbox.set_content(file_name_from_path(file_choose_data.file_4_path));
+    File_5_textbox.set_content(file_name_from_path(file_choose_data.file_5_path));
+    File_6_textbox.set_content(file_name_from_path(file_choose_data.file_6_path));
+
+    // Reset statuses
+    // TODO:: RESET LOOGIC TO CORRECT ONE!!!
+    if ((cleared_idx >= 0 && cleared_idx < 6) && panel_states[cleared_idx + 1])
+    {
+        // From the deleted one
+        for (int i = cleared_idx; i < 5; ++i)
+        {
+            *panel_states[i] = *panel_states[i + 1];
+        }
+
+        // HIDE last one (previos becomes HIDEN automatically
+        // during the iteration loop)
+        *panel_states[5] = HIDEN;
+    }
+
+
+    // Block the rebuild
+    file_choose_data.last_cleared = 0;
+}
 
 // =========================================================================================== STATE ELEMENTS INNER FUNCTIONS

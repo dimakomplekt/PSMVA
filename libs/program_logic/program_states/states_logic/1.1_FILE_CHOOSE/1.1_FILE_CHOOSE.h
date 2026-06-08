@@ -37,3 +37,55 @@ void file_choose_update();
 void file_choose_render(SDL_Renderer* renderer);
 
 // =========================================================================================== MAIN STATE API
+
+
+// =========================================================================================== FILE CHOOSE GLOBAL DATA
+
+enum class file_choose_panel_state 
+{
+
+    HIDEN,
+    EMPTY,
+    CHOSEN
+
+};
+
+
+typedef struct
+{
+
+    file_choose_panel_state file_1_panel_state;
+    file_choose_panel_state file_2_panel_state;
+    file_choose_panel_state file_3_panel_state;
+    file_choose_panel_state file_4_panel_state;
+    file_choose_panel_state file_5_panel_state;
+    file_choose_panel_state file_6_panel_state;
+
+} file_choose_panel_states;
+
+
+typedef struct
+{
+
+    std::string file_1_path;
+    std::string file_2_path;
+    std::string file_3_path;
+    std::string file_4_path;
+    std::string file_5_path;
+    std::string file_6_path;
+
+
+    file_choose_panel_states panels_states;
+
+} file_choose_ctx;
+
+
+// Data for file choose - used for files access during the whole analysis (untill the new one)
+file_choose_ctx file_choose_data;
+
+
+// Calles at the file choose state enter (cause we use the same data through the whole analysis, 
+// so we just reset values to default ones)  
+void file_choose_data_init();
+
+// =========================================================================================== FILE CHOOSE GLOBAL DATA
