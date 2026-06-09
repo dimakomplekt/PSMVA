@@ -44,9 +44,9 @@ void file_choose_render(SDL_Renderer* renderer);
 enum class file_choose_panel_state 
 {
 
-    HIDEN,
-    EMPTY,
-    CHOSEN
+    HIDDEN_STATE,
+    EMPTY_STATE,
+    CHOSEN_STATE
 
 };
 
@@ -81,7 +81,7 @@ typedef struct
 
 
 // Data for file choose - used for files access during the whole analysis (untill the new one)
-file_choose_ctx file_choose_data;
+inline file_choose_ctx file_choose_data;
 
 
 // Calles at the file choose state enter (cause we use the same data through the whole analysis, 

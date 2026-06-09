@@ -274,6 +274,12 @@ int study_start_button_y = BACKGROUND_HEIGHT - SCREEN_MARGIN_2 - 0.5 * study_sta
 
 // ===== SETUP DATA =====
 
+// ===== CALLBACKS FOR BUTTONS =====
+
+void file_choose_or_clear(int file_number);
+
+// ===== CALLBACKS FOR BUTTONS =====
+
 
 void file_choose_elements_setup()
 {     
@@ -285,6 +291,285 @@ void file_choose_elements_setup()
     File_choose_background_panel->set_size(BACKGROUND_WIDTH, BACKGROUND_HEIGHT);
     File_choose_background_panel->set_border_radius_size(0);
     
+
+    // File choose panel
+    File_choose_panel->set_render_point(file_choose_panel_x, file_choose_panel_y);
+    File_choose_panel->set_size(file_choose_panel_width, file_choose_panel_height);
+
+    // File choose header
+    File_choose_panel_textbox->switch_textbox_type(HEADER_2);
+    File_choose_panel_textbox->set_content(str_by_dictionary(gd_choose_the_file));
+
+    // 1st file choose
+    File_1_panel->set_size(file_choose_mini_panels_width , file_choose_mini_panels_height);
+    
+    File_1_textbox->switch_textbox_type(HEADER_3);
+    File_1_textbox->set_content("");
+
+    File_1_button->switch_button_textbox_type(HEADER_3);
+    File_1_button->get_button_content_textbox()->set_content("+");
+    File_1_button->set_size(file_choose_buttons_width, file_choose_buttons_height);
+    
+    // Lambda for callback with args
+    File_1_button->on_click = []() { file_choose_or_clear(1); };
+
+
+    // 2nd file choose
+    File_2_panel->set_size(file_choose_mini_panels_width , file_choose_mini_panels_height);
+    File_2_panel->set_visible_flag(true);
+
+    File_2_textbox->switch_textbox_type(HEADER_3);
+    File_2_textbox->set_content("");
+
+    File_2_button->switch_button_textbox_type(HEADER_3);
+    File_2_button->get_button_content_textbox()->set_content("+");
+    File_2_button->set_size(file_choose_buttons_width, file_choose_buttons_height);
+    File_2_button->on_click = []() { file_choose_or_clear(2); };
+
+
+    // 3rd file choose
+    File_3_panel->set_size(file_choose_mini_panels_width , file_choose_mini_panels_height);
+    File_3_panel->set_visible_flag(true);
+
+    File_3_textbox->switch_textbox_type(HEADER_3);
+    File_3_textbox->set_content("");
+
+    File_3_button->switch_button_textbox_type(HEADER_3);
+    File_3_button->get_button_content_textbox()->set_content("+");
+    File_3_button->set_size(file_choose_buttons_width, file_choose_buttons_height);
+    File_3_button->on_click = []() { file_choose_or_clear(3); };
+    
+
+    // 4th file choose
+    File_4_panel->set_size(file_choose_mini_panels_width , file_choose_mini_panels_height);
+    File_4_panel->set_visible_flag(true);
+
+    File_4_textbox->switch_textbox_type(HEADER_3);
+    File_4_textbox->set_content("");
+
+    File_4_button->switch_button_textbox_type(HEADER_3);
+    File_4_button->get_button_content_textbox()->set_content("+");
+    File_4_button->set_size(file_choose_buttons_width, file_choose_buttons_height);
+    File_4_button->on_click = []() { file_choose_or_clear(4); };
+    
+
+    // 5th file choose
+    File_5_panel->set_size(file_choose_mini_panels_width , file_choose_mini_panels_height);
+    File_5_panel->set_visible_flag(true);
+
+    File_5_textbox->switch_textbox_type(HEADER_3);
+    File_5_textbox->set_content("");
+
+    File_5_button->switch_button_textbox_type(HEADER_3);
+    File_5_button->get_button_content_textbox()->set_content("+");
+    File_5_button->set_size(file_choose_buttons_width, file_choose_buttons_height);
+    File_5_button->on_click = []() { file_choose_or_clear(5); };
+    
+
+    // 6th file choose
+    File_6_panel->set_size(file_choose_mini_panels_width , file_choose_mini_panels_height);
+    File_6_panel->set_visible_flag(true);
+
+    File_6_textbox->switch_textbox_type(HEADER_3);
+    File_6_textbox->set_content("");
+
+    File_6_button->switch_button_textbox_type(HEADER_3);
+    File_6_button->get_button_content_textbox()->set_content("+");
+    File_6_button->set_size(file_choose_buttons_width, file_choose_buttons_height);
+    File_6_button->on_click = []() { file_choose_or_clear(6); };
+
+
+    // Put elements in panels
+    File_choose_panel->add_element(
+
+        File_choose_panel_textbox,
+        mini_panels_margin + 0.5 * File_choose_panel_textbox->get_width_size(), // Left anchor
+        1 * mini_panels_margin + 0.5 * file_choose_mini_panels_height,
+        1
+
+    );
+
+    // File 1 choose
+
+    File_1_panel->add_element(
+
+        File_1_textbox,
+        (file_choose_mini_panels_width - file_choose_buttons_width) * 0.5,
+        file_choose_mini_panels_height * 0.5,
+        1
+
+    );
+
+    File_1_panel->add_element(
+
+        File_1_button,
+        file_choose_mini_panels_width - 0.5 * file_choose_buttons_width,
+        file_choose_mini_panels_height * 0.5,
+        1
+
+    );
+
+
+    File_choose_panel->add_element(
+
+        File_1_panel,
+        file_choose_panel_width * 0.5, // Centered with equal margin
+        2 * mini_panels_margin + 1.5 * file_choose_mini_panels_height,
+        1
+
+    );
+
+    // File 2 choose
+    
+    File_2_panel->add_element(
+
+        File_2_textbox,
+        (file_choose_mini_panels_width - file_choose_buttons_width) * 0.5,
+        file_choose_mini_panels_height * 0.5,
+        1
+
+    );
+
+    File_2_panel->add_element(
+
+        File_2_button,
+        file_choose_mini_panels_width - 0.5 * file_choose_buttons_width,
+        file_choose_mini_panels_height * 0.5,
+        1
+
+    );
+
+
+    File_choose_panel->add_element(
+
+        File_2_panel,
+        file_choose_panel_width * 0.5, // Centered with equal margin
+        3 * mini_panels_margin + 2.5 * file_choose_mini_panels_height,
+        1
+
+    );
+
+    // File 3 choose
+
+    File_3_panel->add_element(
+
+        File_3_textbox,
+        (file_choose_mini_panels_width - file_choose_buttons_width) * 0.5,
+        file_choose_mini_panels_height * 0.5,
+        1
+
+    );
+
+    File_3_panel->add_element(
+
+        File_3_button,
+        file_choose_mini_panels_width - 0.5 * file_choose_buttons_width,
+        file_choose_mini_panels_height * 0.5,
+        1
+
+    );
+
+
+    File_choose_panel->add_element(
+
+        File_3_panel,
+        file_choose_panel_width * 0.5, // Centered with equal margin
+        4 * mini_panels_margin + 3.5 * file_choose_mini_panels_height,
+        1
+
+    );
+
+    // File 4 choose
+
+    File_4_panel->add_element(
+
+        File_4_textbox,
+        (file_choose_mini_panels_width - file_choose_buttons_width) * 0.5,
+        file_choose_mini_panels_height * 0.5,
+        1
+
+    );
+
+    File_4_panel->add_element(
+
+        File_4_button,
+        file_choose_mini_panels_width - 0.5 * file_choose_buttons_width,
+        file_choose_mini_panels_height * 0.5,
+        1
+
+    );
+
+
+    File_choose_panel->add_element(
+
+        File_4_panel,
+        file_choose_panel_width * 0.5, // Centered with equal margin
+        5 * mini_panels_margin + 4.5 * file_choose_mini_panels_height,
+        1
+
+    );
+
+    // File 5 choose
+
+    File_5_panel->add_element(
+
+        File_5_textbox,
+        (file_choose_mini_panels_width - file_choose_buttons_width) * 0.5,
+        file_choose_mini_panels_height * 0.5,
+        1
+
+    );
+
+    File_5_panel->add_element(
+
+        File_5_button,
+        file_choose_mini_panels_width - 0.5 * file_choose_buttons_width,
+        file_choose_mini_panels_height * 0.5,
+        1
+
+    );
+
+
+    File_choose_panel->add_element(
+
+        File_5_panel,
+        file_choose_panel_width * 0.5, // Centered with equal margin
+        6 * mini_panels_margin + 5.5 * file_choose_mini_panels_height,
+        1
+
+    );
+
+    // File 6 choose
+
+    File_6_panel->add_element(
+
+        File_6_textbox,
+        (file_choose_mini_panels_width - file_choose_buttons_width) * 0.5,
+        file_choose_mini_panels_height * 0.5,
+        1
+
+    );
+
+    File_6_panel->add_element(
+
+        File_6_button,
+        file_choose_mini_panels_width - 0.5 * file_choose_buttons_width,
+        file_choose_mini_panels_height * 0.5,
+        1
+
+    );
+
+
+    File_choose_panel->add_element(
+
+        File_6_panel,
+        file_choose_panel_width * 0.5, // Centered with equal margin
+        7 * mini_panels_margin + 6.5 * file_choose_mini_panels_height,
+        1
+
+    );
+
+
 
 }
 
@@ -400,6 +685,10 @@ void reset_passed_by_dictionary_textboxes_if_language_switched_fc()
     {
         // Textboxes for update
 
+        File_choose_panel_textbox->set_content(str_by_dictionary(gd_choose_the_file));
+
+
+
     }
 }
 
@@ -424,12 +713,12 @@ void file_choose_elements_render(SDL_Renderer* renderer)
 
     // Preview panel
 
-    File_preview_panel->render(renderer);
+    // File_preview_panel->render(renderer);
 
     
     // State control button
 
-    Study_start_button->render(renderer);
+    // Study_start_button->render(renderer);
 }
 
 // =========================================================================================== STATE INNER FUNCTIONS REALIZATION
@@ -447,23 +736,20 @@ void file_choose_data_init()
     file_choose_data.file_5_path = "";
     file_choose_data.file_6_path = "";
 
-    file_choose_data.curr_file_for_choose = 1;
-    file_choose_data.last_cleared = 0;
 
-
-    file_choose_data.panels_states.file_1_panel_state = EMPTY;
-    file_choose_data.panels_states.file_2_panel_state = HIDEN;
-    file_choose_data.panels_states.file_3_panel_state = HIDEN;
-    file_choose_data.panels_states.file_4_panel_state = HIDEN;
-    file_choose_data.panels_states.file_5_panel_state = HIDEN;
-    file_choose_data.panels_states.file_6_panel_state = HIDEN;
+    file_choose_data.panels_states.file_1_panel_state = file_choose_panel_state::EMPTY_STATE;
+    file_choose_data.panels_states.file_2_panel_state = file_choose_panel_state::HIDDEN_STATE;
+    file_choose_data.panels_states.file_3_panel_state = file_choose_panel_state::HIDDEN_STATE;
+    file_choose_data.panels_states.file_4_panel_state = file_choose_panel_state::HIDDEN_STATE;
+    file_choose_data.panels_states.file_5_panel_state = file_choose_panel_state::HIDDEN_STATE;
+    file_choose_data.panels_states.file_6_panel_state = file_choose_panel_state::HIDDEN_STATE;
 
 }
 
 
 std::string file_name_from_path(std::string path)
 {
-    /*
+
 
     // Find the last slash (Windows '\' or Unix '/')
     size_t last_slash_idx = path.find_last_of("\\/");
@@ -476,13 +762,11 @@ std::string file_name_from_path(std::string path)
         return path.substr(last_slash_idx + 1);
     }
     
-    // No slashes or empty case
+    // No slashes or EMPTY_STATE case
     return path;
 
-    */
-
     // Same by library
-    return std::filesystem::path(path).filename().string();
+    // return std::filesystem::path(path).filename().string();
 }
 
 
@@ -540,22 +824,22 @@ void add_path(unsigned int file_number)
 
     file_choose_panel_state* panel_states[] = {
 
-        &file_choose_data.file_1_panel_state,
-        &file_choose_data.file_2_panel_state,
-        &file_choose_data.file_3_panel_state,
-        &file_choose_data.file_4_panel_state,
-        &file_choose_data.file_5_panel_state,
-        &file_choose_data.file_6_panel_state
+        &file_choose_data.panels_states.file_1_panel_state,
+        &file_choose_data.panels_states.file_2_panel_state,
+        &file_choose_data.panels_states.file_3_panel_state,
+        &file_choose_data.panels_states.file_4_panel_state,
+        &file_choose_data.panels_states.file_5_panel_state,
+        &file_choose_data.panels_states.file_6_panel_state
 
     };
 
-    if (panel_states[add_index] != EMPTY) std::cerr "Error on the file pass!";
+    if (*panel_states[add_index] != file_choose_panel_state::EMPTY_STATE) std::cerr << "Error on the file pass!";
 
-    paths[add_index] = get_path_by_file_manager();
-    if (paths[add_index] != "") panel_states[add_index] = CHOSEN;
+    *paths[add_index] = get_path_by_file_manager();
+    if (*paths[add_index] != "") *panel_states[add_index] = file_choose_panel_state::CHOSEN_STATE;
 
     // Show the next if it's not 6th file
-    if (add_index != 5) panel_states[add_index + 1] = EMPTY;
+    if (add_index != 5) *panel_states[add_index + 1] = file_choose_panel_state::EMPTY_STATE;
 
 }
 
@@ -580,12 +864,12 @@ void clear_path(unsigned int file_number)
 
     file_choose_panel_state* panel_states[] = {
 
-        &file_choose_data.file_1_panel_state,
-        &file_choose_data.file_2_panel_state,
-        &file_choose_data.file_3_panel_state,
-        &file_choose_data.file_4_panel_state,
-        &file_choose_data.file_5_panel_state,
-        &file_choose_data.file_6_panel_state
+        &file_choose_data.panels_states.file_1_panel_state,
+        &file_choose_data.panels_states.file_2_panel_state,
+        &file_choose_data.panels_states.file_3_panel_state,
+        &file_choose_data.panels_states.file_4_panel_state,
+        &file_choose_data.panels_states.file_5_panel_state,
+        &file_choose_data.panels_states.file_6_panel_state
 
     };
 
@@ -599,18 +883,18 @@ void clear_path(unsigned int file_number)
             *paths[i] = *paths[i + 1];
         }
 
-        // Empty string to the last one (previos becomes empty automatically
+        // EMPTY_STATE string to the last one (previos becomes EMPTY_STATE automatically
         // during the iteration loop)
         *paths[5] = "";
     }
 
     // Reset panels textboxes content according to the new list
-    File_1_textbox.set_content(file_name_from_path(file_choose_data.file_1_path));
-    File_2_textbox.set_content(file_name_from_path(file_choose_data.file_2_path));
-    File_3_textbox.set_content(file_name_from_path(file_choose_data.file_3_path));
-    File_4_textbox.set_content(file_name_from_path(file_choose_data.file_4_path));
-    File_5_textbox.set_content(file_name_from_path(file_choose_data.file_5_path));
-    File_6_textbox.set_content(file_name_from_path(file_choose_data.file_6_path));
+    File_1_textbox->set_content(file_name_from_path(file_choose_data.file_1_path));
+    File_2_textbox->set_content(file_name_from_path(file_choose_data.file_2_path));
+    File_3_textbox->set_content(file_name_from_path(file_choose_data.file_3_path));
+    File_4_textbox->set_content(file_name_from_path(file_choose_data.file_4_path));
+    File_5_textbox->set_content(file_name_from_path(file_choose_data.file_5_path));
+    File_6_textbox->set_content(file_name_from_path(file_choose_data.file_6_path));
 
     // Reset statuses
     // TODO:: RESET LOOGIC TO CORRECT ONE!!!
@@ -622,14 +906,17 @@ void clear_path(unsigned int file_number)
             *panel_states[i] = *panel_states[i + 1];
         }
 
-        // HIDE last one (previos becomes HIDEN automatically
+        // HIDE last one (previos becomes HIDDEN_STATE automatically
         // during the iteration loop)
-        *panel_states[5] = HIDEN;
+        *panel_states[5] = file_choose_panel_state::HIDDEN_STATE;
     }
 
+}
 
-    // Block the rebuild
-    file_choose_data.last_cleared = 0;
+
+void file_choose_or_clear(int file_number)
+{
+    //
 }
 
 // =========================================================================================== STATE ELEMENTS INNER FUNCTIONS
