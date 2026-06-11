@@ -94,8 +94,9 @@ inline Lang_string_type gd_exit_button = {
 
 inline Lang_string_type gd_choose_the_file = {
 
-    "Choose the files:"
-    "Выберите файлы: "
+    "Choose the files:",
+    "Выберите файлы:"
+    
 };
 
 // =========================================================================================== STATE 1.1 DICTIONARY

@@ -254,7 +254,7 @@ class My_SDL_panel : public My_SDL_element
          * @param new_radius_size New border radius in pixels
          * 
          */
-        void set_border_radius_size(unsigned int new_radius_size);
+        void set_border_radius(unsigned int new_radius_size);
 
 
         /**

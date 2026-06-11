@@ -36,8 +36,8 @@ My_SDL_textbox::My_SDL_textbox()
 
     this->font_size = 18;
 
-    this->content_width_size = 0;
-    this->content_height_size = 0;
+    this->content_width = 0;
+    this->content_height = 0;
 
     this->content_dirty = true;
 
@@ -108,6 +108,10 @@ My_SDL_textbox::My_SDL_textbox()
 
     // Start with inactive condition (constantly switch inside the 1st update)
     this->blinking_mode_context.active_now = true;
+
+    // Must be here for error handling 
+
+    this->content_dirty = true;
 }
 
 
@@ -367,8 +371,11 @@ void My_SDL_textbox::render(SDL_Renderer* renderer)
     // No actions for not visiable element
     if (!this->visible_flag) return;
 
-    // Render logic
+    if (this->ttf_font_link == nullptr) return;
 
+    if (this->content.empty()) return;
+
+    // Render logic
     this->update_content_texture(renderer, this->content_render_color);
     
     // Basic draw if blinking mode is off
@@ -393,13 +400,13 @@ void My_SDL_textbox::set_render_point(int x_cc_rp, int y_cc_rp)
 
 unsigned int My_SDL_textbox::get_width_size() const
 {
-    return this->content_width_size;
+    return this->content_width;
 }
 
 
 unsigned int My_SDL_textbox::get_height_size() const
 {
-    return this->content_height_size;
+    return this->content_height;
 }
 
 
@@ -413,8 +420,10 @@ void My_SDL_textbox::set_content(const std::string& new_text)
         std::cerr << "Font not initialized!\n";
         return;
     }
-
+    
     this->content_dirty = true;
+
+    while(!TTF_GetStringSize(this->ttf_font_link, this->content.c_str(), this->content.length(), &this->content_width, &this->content_height));
 }
 
 
@@ -676,8 +685,8 @@ void My_SDL_textbox::reset_anchor_points()
     // Uses current crop to set the current anchor points
 
     // Always the same rounding accuracy, because we work with crop map in initial scale and new scalers
-    int half_w = static_cast<int>(std::round(static_cast<float>(this->content_width_size) * 0.5));
-    int half_h = static_cast<int>(std::round(static_cast<float>(this->content_height_size) * 0.5));
+    int half_w = static_cast<int>(std::round(static_cast<float>(this->content_width) * 0.5));
+    int half_h = static_cast<int>(std::round(static_cast<float>(this->content_height) * 0.5));
 
 
     // Element_anchor_points reset
@@ -712,12 +721,13 @@ void My_SDL_textbox::reset_anchor_points()
 
 void My_SDL_textbox::update_content_texture(SDL_Renderer* renderer, SDL_Color new_color)
 {
-    if (!content_dirty) return;
+    if (!this->content_dirty) return;
 
-    if (!ttf_font_link)
+
+    if (!this->ttf_font_link)
     {
         std::cerr << "Font not initialized\n";
-        content_dirty = false;   // FIX
+        this->content_dirty = false;   // FIX
         return;
     }
 
@@ -729,49 +739,41 @@ void My_SDL_textbox::update_content_texture(SDL_Renderer* renderer, SDL_Color ne
             content_texture = nullptr;
         }
 
-        content_dirty = false;
+        this->content_dirty = false;
         return;
     }
-
-    int w = 0, h = 0;
-
-    if (!TTF_GetStringSize(ttf_font_link, content.c_str(), content.length(), &w, &h))
-    {
-        std::cerr << "TTF_GetStringSize failed\n";
-        content_dirty = false;   // FIX
-        return;
-    }
-
-    content_width_size = w;
-    content_height_size = h;
 
     
+    // !!! ERRORS !!!
+    while(!TTF_GetStringSize(this->ttf_font_link, this->content.c_str(), this->content.length(), &this->content_width, &this->content_height));
+
+
     reset_anchor_points();
 
-    if (content_texture)
+    if (this->content_texture)
     {
-        SDL_DestroyTexture(content_texture);
-        content_texture = nullptr;
+        SDL_DestroyTexture(this->content_texture);
+        this->content_texture = nullptr;
     }
 
     SDL_Surface* surface = TTF_RenderText_Blended(
-        ttf_font_link,
-        content.c_str(),
+        this->ttf_font_link,
+        this->content.c_str(),
         0,
         new_color
     );
 
     if (!surface)
     {
-        content_dirty = false; // FIX
+        this->content_dirty = false; // FIX
         return;
     }
 
-    content_texture = SDL_CreateTextureFromSurface(renderer, surface);
+    this->content_texture = SDL_CreateTextureFromSurface(renderer, surface);
 
     SDL_DestroySurface(surface);
 
-    content_dirty = false;
+    this->content_dirty = false;
 }
 
 
@@ -781,8 +783,8 @@ void My_SDL_textbox::text_draw(SDL_Renderer* renderer)
     {
         SDL_FRect dst;
 
-        dst.w = this->content_width_size;
-        dst.h = this->content_height_size;
+        dst.w = this->content_width;
+        dst.h = this->content_height;
 
         dst.x = this->x_render_point - dst.w / 2.0f;
         dst.y = this->y_render_point - dst.h / 2.0f;

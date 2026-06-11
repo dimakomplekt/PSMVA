@@ -241,7 +241,7 @@ const int file_choose_panel_height = (BACKGROUND_HEIGHT - 2 * SCREEN_MARGIN_2);
 const int mini_panels_margin = 25;
 
 const int file_choose_mini_panels_width = file_choose_panel_width - 2 * mini_panels_margin;
-const int file_choose_mini_panels_height = (file_choose_panel_height - 7 * mini_panels_margin) / 6;
+const int file_choose_mini_panels_height = (file_choose_panel_height - 8 * mini_panels_margin) / 7;
 
 const int file_choose_buttons_width = file_choose_mini_panels_width * 0.2;
 const int file_choose_buttons_height = file_choose_mini_panels_height;
@@ -289,12 +289,13 @@ void file_choose_elements_setup()
 
     File_choose_background_panel->set_render_point(file_choose_background_x, file_choose_background_y);
     File_choose_background_panel->set_size(BACKGROUND_WIDTH, BACKGROUND_HEIGHT);
-    File_choose_background_panel->set_border_radius_size(0);
+    File_choose_background_panel->set_border_radius(0);
     
 
     // File choose panel
     File_choose_panel->set_render_point(file_choose_panel_x, file_choose_panel_y);
     File_choose_panel->set_size(file_choose_panel_width, file_choose_panel_height);
+    File_choose_panel->set_border_radius(mini_panels_margin + 10);
 
     // File choose header
     File_choose_panel_textbox->switch_textbox_type(HEADER_2);
@@ -309,14 +310,17 @@ void file_choose_elements_setup()
     File_1_button->switch_button_textbox_type(HEADER_3);
     File_1_button->get_button_content_textbox()->set_content("+");
     File_1_button->set_size(file_choose_buttons_width, file_choose_buttons_height);
-    
+
     // Lambda for callback with args
     File_1_button->on_click = []() { file_choose_or_clear(1); };
+
+    File_1_button->switch_push_mode();
+    File_1_panel->set_border_radius(10);
+    File_1_button->set_border_radius(10);
 
 
     // 2nd file choose
     File_2_panel->set_size(file_choose_mini_panels_width , file_choose_mini_panels_height);
-    File_2_panel->set_visible_flag(true);
 
     File_2_textbox->switch_textbox_type(HEADER_3);
     File_2_textbox->set_content("");
@@ -324,12 +328,16 @@ void file_choose_elements_setup()
     File_2_button->switch_button_textbox_type(HEADER_3);
     File_2_button->get_button_content_textbox()->set_content("+");
     File_2_button->set_size(file_choose_buttons_width, file_choose_buttons_height);
+
     File_2_button->on_click = []() { file_choose_or_clear(2); };
+
+    File_2_button->switch_push_mode();
+    File_2_panel->set_border_radius(10);
+    File_2_button->set_border_radius(10);
 
 
     // 3rd file choose
     File_3_panel->set_size(file_choose_mini_panels_width , file_choose_mini_panels_height);
-    File_3_panel->set_visible_flag(true);
 
     File_3_textbox->switch_textbox_type(HEADER_3);
     File_3_textbox->set_content("");
@@ -338,11 +346,14 @@ void file_choose_elements_setup()
     File_3_button->get_button_content_textbox()->set_content("+");
     File_3_button->set_size(file_choose_buttons_width, file_choose_buttons_height);
     File_3_button->on_click = []() { file_choose_or_clear(3); };
-    
+
+    File_3_button->switch_push_mode();
+    File_3_panel->set_border_radius(10);
+    File_3_button->set_border_radius(10);
+
 
     // 4th file choose
     File_4_panel->set_size(file_choose_mini_panels_width , file_choose_mini_panels_height);
-    File_4_panel->set_visible_flag(true);
 
     File_4_textbox->switch_textbox_type(HEADER_3);
     File_4_textbox->set_content("");
@@ -351,11 +362,14 @@ void file_choose_elements_setup()
     File_4_button->get_button_content_textbox()->set_content("+");
     File_4_button->set_size(file_choose_buttons_width, file_choose_buttons_height);
     File_4_button->on_click = []() { file_choose_or_clear(4); };
-    
+
+    File_4_button->switch_push_mode();
+    File_4_panel->set_border_radius(10);
+    File_4_button->set_border_radius(10);
+
 
     // 5th file choose
     File_5_panel->set_size(file_choose_mini_panels_width , file_choose_mini_panels_height);
-    File_5_panel->set_visible_flag(true);
 
     File_5_textbox->switch_textbox_type(HEADER_3);
     File_5_textbox->set_content("");
@@ -364,11 +378,13 @@ void file_choose_elements_setup()
     File_5_button->get_button_content_textbox()->set_content("+");
     File_5_button->set_size(file_choose_buttons_width, file_choose_buttons_height);
     File_5_button->on_click = []() { file_choose_or_clear(5); };
-    
+
+    File_5_button->switch_push_mode();
+    File_5_panel->set_border_radius(10);
+    File_5_button->set_border_radius(10);
 
     // 6th file choose
     File_6_panel->set_size(file_choose_mini_panels_width , file_choose_mini_panels_height);
-    File_6_panel->set_visible_flag(true);
 
     File_6_textbox->switch_textbox_type(HEADER_3);
     File_6_textbox->set_content("");
@@ -378,16 +394,22 @@ void file_choose_elements_setup()
     File_6_button->set_size(file_choose_buttons_width, file_choose_buttons_height);
     File_6_button->on_click = []() { file_choose_or_clear(6); };
 
+    File_6_button->switch_push_mode();
+    File_6_panel->set_border_radius(10);
+    File_6_button->set_border_radius(10);
+
 
     // Put elements in panels
     File_choose_panel->add_element(
 
         File_choose_panel_textbox,
-        mini_panels_margin + 0.5 * File_choose_panel_textbox->get_width_size(), // Left anchor
+        mini_panels_margin + 1 * File_choose_panel_textbox->get_width_size(), // Left anchor
         1 * mini_panels_margin + 0.5 * file_choose_mini_panels_height,
         1
 
     );
+
+    std::cout << "Size of the textbox in pixels: " << File_choose_panel_textbox->get_width_size() << std::endl;
 
     // File 1 choose
 
@@ -569,7 +591,12 @@ void file_choose_elements_setup()
 
     );
 
-
+    // Deactivate panels
+    File_2_panel->set_visible_flag(false);
+    File_3_panel->set_visible_flag(false);
+    File_4_panel->set_visible_flag(false);
+    File_5_panel->set_visible_flag(false);
+    File_6_panel->set_visible_flag(false);
 
 }
 

@@ -185,6 +185,7 @@ class My_SDL_textbox : public My_SDL_element // SDL_Element
          */
         unsigned int get_font_size() const;
 
+
         /**
          * Content color setter
          *                       
@@ -246,6 +247,7 @@ class My_SDL_textbox : public My_SDL_element // SDL_Element
          */
         void set_blinking_duty(float new_blinking_duty);
 
+
         // ===== GUI ======
 
 
@@ -286,8 +288,8 @@ class My_SDL_textbox : public My_SDL_element // SDL_Element
 
         // Variables for rendering with autoset 
         
-        int content_width_size;  
-        int content_height_size;
+        int content_width;  
+        int content_height;
 
 
         // Text's override for anchor points reset function
@@ -311,7 +313,7 @@ class My_SDL_textbox : public My_SDL_element // SDL_Element
          * Creates a new SDL_Texture from the current content string, font, and specified color.
          * If the content is unchanged or no font/text is set, the function does nothing.
          * Any existing texture is destroyed before creating a new one.
-         * The resulting texture dimensions are stored in content_width_size and content_height_size.
+         * The resulting texture dimensions are stored in content_width and content_height.
          * Marks the content as clean (content_dirty = false).
          * 
          */

@@ -30,15 +30,15 @@ target_link_libraries(PSMVA PRIVATE
 
 # SDL ttf include
 target_include_directories(PSMVA PRIVATE
-    ${CMAKE_SOURCE_DIR}/libs/engine/SDL3_ttf-3.1.0/include
+    ${CMAKE_SOURCE_DIR}/libs/engine/SDL3_ttf-3.2.2/include
 )
 
 target_include_directories(PSMVA PRIVATE
-    ${CMAKE_SOURCE_DIR}/libs/engine/SDL3_ttf-3.1.0/include/SDL3_ttf
+    ${CMAKE_SOURCE_DIR}/libs/engine/SDL3_ttf-3.2.2/include/SDL3_ttf
 )
 
 target_link_libraries(PSMVA PRIVATE
-    ${CMAKE_SOURCE_DIR}/libs/engine/SDL3_ttf-3.1.0/lib/x64/SDL3_ttf.lib
+    ${CMAKE_SOURCE_DIR}/libs/engine/SDL3_ttf-3.2.2/lib/x64/SDL3_ttf.lib
 )
 
 
@@ -52,7 +52,7 @@ add_custom_command(TARGET PSMVA POST_BUILD
 
 add_custom_command(TARGET PSMVA POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "${CMAKE_SOURCE_DIR}/libs/engine/SDL3_ttf-3.1.0/lib/x64/SDL3_ttf.dll"
+        "${CMAKE_SOURCE_DIR}/libs/engine/SDL3_ttf-3.2.2/lib/x64/SDL3_ttf.dll"
         "$<TARGET_FILE_DIR:PSMVA>"
 )
 

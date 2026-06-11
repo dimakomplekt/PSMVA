@@ -30,7 +30,7 @@
 
 // SDL ttf include
 
-#include "SDL3_ttf-3.1.0/include/SDL3_ttf/SDL_ttf.h"
+#include "SDL3_ttf-3.2.2/include/SDL3_ttf/SDL_ttf.h"
 
 
 // Mouse and keyboard read

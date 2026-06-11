@@ -330,7 +330,7 @@ void My_SDL_button::move_to_point(
 
 
 
-void My_SDL_button::push_mode_switch()
+void My_SDL_button::switch_push_mode()
 {
     this->push_mode_on = !this->push_mode_on;
 }

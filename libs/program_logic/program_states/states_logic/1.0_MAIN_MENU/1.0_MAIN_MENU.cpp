@@ -340,7 +340,7 @@ void main_menu_elements_setup()
 
     Main_menu_panel->set_render_point(main_menu_background_x, main_menu_background_y);
     Main_menu_panel->set_size(BACKGROUND_WIDTH, BACKGROUND_HEIGHT);
-    Main_menu_panel->set_border_radius_size(0);
+    Main_menu_panel->set_border_radius(0);
 
 
     // Analysis button
@@ -371,13 +371,6 @@ void main_menu_elements_setup()
     Exit_button->set_size(mm_buttons_h_size, mm_buttons_v_size);
     Exit_button->set_render_point(exit_x, exit_y);
     Exit_button->on_click = exit_on_click;
-
-
-    // PSMVA textbox
-    PSMVA_textbox->switch_textbox_type(HEADER_1);
-    PSMVA_textbox->set_render_point(dynamic_panel_x_2, dynamic_panel_y_2);
-    PSMVA_textbox->set_content(THIS_APP_NAME);
-
 
     // Information panel basic position
 
@@ -496,6 +489,21 @@ void main_menu_elements_setup()
     // Panel with plasma spraying screen of video
     Plasma_spraying_panel->set_size(mm_panels_h_size, mm_panels_v_size);
     Plasma_spraying_panel->set_render_point(static_panel_x, static_panel_y);
+
+    // PSMVA textbox
+    PSMVA_textbox->switch_textbox_type(HEADER_1);
+    PSMVA_textbox->set_content(THIS_APP_NAME);
+    
+
+
+    Plasma_spraying_panel->add_element(
+
+        PSMVA_textbox,
+        mm_panels_h_size * 0.5,
+        mm_panels_v_size * 0.5,
+        1
+        
+    );
 }
 
 
@@ -548,7 +556,6 @@ void main_menu_elements_free_and_nullptr()
 
     Plasma_spraying_panel->delete_element();
 
-    PSMVA_textbox->delete_element();
 
     Plasma_spraying_texture_4->delete_element();
 
@@ -664,8 +671,7 @@ void main_menu_elements_update()
 
     Plasma_spraying_panel->update();
 
-    PSMVA_textbox->update();
-
+    
     Plasma_spraying_texture_4->update();
 
 }
@@ -813,8 +819,6 @@ void main_menu_elements_render(SDL_Renderer* renderer)
 
     Exit_button->render(renderer);
 
-
-    PSMVA_textbox->render(renderer);
 
     Information_panel->render(renderer);
 

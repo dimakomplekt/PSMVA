@@ -206,6 +206,8 @@ void My_SDL_panel::render(SDL_Renderer* renderer)
     
     for (auto it = this->inner_elements.begin(); it != this->inner_elements.end(); ++it)
     {
+        if (!it->element_pointer->visible_flag) continue;
+        
         it->element_pointer->render(renderer);
     }
 }
@@ -282,7 +284,7 @@ void My_SDL_panel::set_border_width_size(unsigned int new_size)
 }
 
 
-void My_SDL_panel::set_border_radius_size(unsigned int new_size)
+void My_SDL_panel::set_border_radius(unsigned int new_size)
 {
 
     if (new_size > this->panel_width_size / 2 || new_size > this->panel_height_size / 2)

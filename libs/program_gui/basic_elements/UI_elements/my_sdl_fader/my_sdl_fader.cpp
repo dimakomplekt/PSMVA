@@ -346,7 +346,7 @@ void My_SDL_fader::update()
 }
 
 
-void My_SDL_fader::push_mode_switch()
+void My_SDL_fader::switch_push_mode()
 {
     this->push_mode_on = !this->push_mode_on;
 }
