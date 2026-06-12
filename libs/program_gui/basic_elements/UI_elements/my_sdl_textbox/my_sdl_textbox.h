@@ -288,8 +288,8 @@ class My_SDL_textbox : public My_SDL_element // SDL_Element
 
         // Variables for rendering with autoset 
         
-        int content_width;  
-        int content_height;
+        mutable int content_width;  
+        mutable int content_height;
 
 
         // Text's override for anchor points reset function
@@ -298,7 +298,7 @@ class My_SDL_textbox : public My_SDL_element // SDL_Element
 
 
         // Flag for render recalculation after new content or new content settings set
-        bool content_dirty;
+        mutable bool content_dirty;
 
 
         // Text texture for rendering

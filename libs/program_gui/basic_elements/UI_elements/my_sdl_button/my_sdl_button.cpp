@@ -185,7 +185,6 @@ void My_SDL_button::update()
     // Movement logic if the movement is on
     this->movement_logic_in_update_loop();
 
-
     // Hover check
     this->button_hover_check();
 
@@ -217,13 +216,9 @@ void My_SDL_button::update()
 
 
     if (this->click_access_type == BUTTON_DEFAULT_CLICK_PERMISSION)
-        if (this->button_hovered && this->button_clicked)
-            if (!this->button_clicked_tmp) 
-            {
-                this->button_clicked_tmp = true;
-
-                this->current_button_state = CLICKED_ES;
-            }
+    {
+        this->click_permission = true;
+    }
 
     // There can not be anything instead of BUTTON_EXTERN_CLICK_PERMISSION
     else if (this->click_access_type == BUTTON_EXTERN_CLICK_PERMISSION)
@@ -232,24 +227,6 @@ void My_SDL_button::update()
         if (this->extern_click_permission)
         {
             this->click_permission = this->extern_click_permission();
-
-            // Button_clicked logic by the callback if the permission obtained
-            if (this->click_permission)
-                if (this->button_hovered && this->button_clicked)
-
-                    // Button_clicked logic by the callback
-                    if (!this->button_clicked_tmp)
-                    {
-                        this->button_clicked_tmp = true;
-
-                        this->current_button_state = CLICKED_ES;
-                    }
-
-            else
-            {
-                // Block repeats and reset
-                this->button_clicked_tmp = false;
-            }
         }
         else 
         {
@@ -260,12 +237,20 @@ void My_SDL_button::update()
     }
 
 
+    if (this->click_permission && (this->button_hovered && this->button_clicked))
+        if (!this->button_clicked_tmp) 
+        {
+            this->button_clicked_tmp = true;
+
+            this->current_button_state = CLICKED_ES;
+        }
+
+
     // If we press and then release - reset permission
     if (!this->button_clicked && this->button_clicked_tmp) 
     {
         // One callback call after release
-        if ((this->click_access_type == BUTTON_DEFAULT_CLICK_PERMISSION || this->click_permission)
-        && this->on_click)
+        if (this->on_click)
         {
             this->on_click();
         }

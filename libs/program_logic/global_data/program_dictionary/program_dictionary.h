@@ -92,10 +92,10 @@ inline Lang_string_type gd_exit_button = {
 
 // =========================================================================================== STATE 1.1 DICTIONARY
 
-inline Lang_string_type gd_choose_the_file = {
+inline Lang_string_type gd_study_start = {
 
-    "Choose the files:",
-    "Выберите файлы:"
+    "Study start!",
+    "Начать исследование!"
     
 };
 

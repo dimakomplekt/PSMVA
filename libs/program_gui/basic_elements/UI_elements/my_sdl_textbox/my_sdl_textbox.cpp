@@ -179,6 +179,31 @@ void My_SDL_textbox::update()
 
     // Check if the palette was switched and update the colors by the new palette if it was
     this->reset_colors_if_palette_switched();
+    
+    // Renew sizes before render
+    if (this->content_dirty)
+    {
+        int w = 0, h = 0; 
+    
+        if (this->ttf_font_link != nullptr && !this->content.empty())
+        {
+            if (!TTF_GetStringSize(this->ttf_font_link, this->content.c_str(), this->content.length(), &w, &h))
+            { 
+                std::cerr << "TTF_GetStringSize failed\n";
+        
+                this->content_dirty = false; 
+                
+                return; 
+            } 
+            
+        }
+    
+        this->content_width = w; 
+        this->content_height = h;
+
+        
+        reset_anchor_points();
+    }
 }
 
 
@@ -422,8 +447,6 @@ void My_SDL_textbox::set_content(const std::string& new_text)
     }
     
     this->content_dirty = true;
-
-    while(!TTF_GetStringSize(this->ttf_font_link, this->content.c_str(), this->content.length(), &this->content_width, &this->content_height));
 }
 
 
@@ -742,13 +765,6 @@ void My_SDL_textbox::update_content_texture(SDL_Renderer* renderer, SDL_Color ne
         this->content_dirty = false;
         return;
     }
-
-    
-    // !!! ERRORS !!!
-    while(!TTF_GetStringSize(this->ttf_font_link, this->content.c_str(), this->content.length(), &this->content_width, &this->content_height));
-
-
-    reset_anchor_points();
 
     if (this->content_texture)
     {

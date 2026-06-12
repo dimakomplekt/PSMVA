@@ -35,8 +35,6 @@
 // Background
 My_SDL_panel* File_choose_background_panel = nullptr;
 
-My_SDL_textbox* File_choose_panel_textbox = nullptr;
-
 // File choose panel (5 elements now)
 
 
@@ -180,7 +178,6 @@ void file_choose_elements_create()
 
     File_choose_panel = new My_SDL_panel;
 
-    File_choose_panel_textbox = new My_SDL_textbox;
 
     File_1_panel = new My_SDL_panel;
     File_1_textbox = new My_SDL_textbox;
@@ -210,7 +207,7 @@ void file_choose_elements_create()
     // Preview panel
 
     File_preview_panel = new My_SDL_panel;
-    File_preview_texture = new My_SDL_texture;
+    // File_preview_texture = new My_SDL_texture;
 
 
     // State control button
@@ -241,7 +238,7 @@ const int file_choose_panel_height = (BACKGROUND_HEIGHT - 2 * SCREEN_MARGIN_2);
 const int mini_panels_margin = 25;
 
 const int file_choose_mini_panels_width = file_choose_panel_width - 2 * mini_panels_margin;
-const int file_choose_mini_panels_height = (file_choose_panel_height - 8 * mini_panels_margin) / 7;
+const int file_choose_mini_panels_height = (file_choose_panel_height - 7 * mini_panels_margin) / 6;
 
 const int file_choose_buttons_width = file_choose_mini_panels_width * 0.2;
 const int file_choose_buttons_height = file_choose_mini_panels_height;
@@ -278,6 +275,10 @@ int study_start_button_y = BACKGROUND_HEIGHT - SCREEN_MARGIN_2 - 0.5 * study_sta
 
 void file_choose_or_clear(int file_number);
 
+void study_start();
+
+bool check_start_study_access();
+
 // ===== CALLBACKS FOR BUTTONS =====
 
 
@@ -297,15 +298,12 @@ void file_choose_elements_setup()
     File_choose_panel->set_size(file_choose_panel_width, file_choose_panel_height);
     File_choose_panel->set_border_radius(mini_panels_margin + 10);
 
-    // File choose header
-    File_choose_panel_textbox->switch_textbox_type(HEADER_2);
-    File_choose_panel_textbox->set_content(str_by_dictionary(gd_choose_the_file));
 
     // 1st file choose
     File_1_panel->set_size(file_choose_mini_panels_width , file_choose_mini_panels_height);
     
     File_1_textbox->switch_textbox_type(HEADER_3);
-    File_1_textbox->set_content("");
+    File_1_textbox->set_content("File 1");
 
     File_1_button->switch_button_textbox_type(HEADER_3);
     File_1_button->get_button_content_textbox()->set_content("+");
@@ -400,23 +398,13 @@ void file_choose_elements_setup()
 
 
     // Put elements in panels
-    File_choose_panel->add_element(
-
-        File_choose_panel_textbox,
-        mini_panels_margin + 1 * File_choose_panel_textbox->get_width_size(), // Left anchor
-        1 * mini_panels_margin + 0.5 * file_choose_mini_panels_height,
-        1
-
-    );
-
-    std::cout << "Size of the textbox in pixels: " << File_choose_panel_textbox->get_width_size() << std::endl;
 
     // File 1 choose
 
     File_1_panel->add_element(
 
         File_1_textbox,
-        (file_choose_mini_panels_width - file_choose_buttons_width) * 0.5,
+        (file_choose_mini_panels_width - file_choose_buttons_width) / 2,       // Плохо - текст плавает или не задан
         file_choose_mini_panels_height * 0.5,
         1
 
@@ -436,7 +424,7 @@ void file_choose_elements_setup()
 
         File_1_panel,
         file_choose_panel_width * 0.5, // Centered with equal margin
-        2 * mini_panels_margin + 1.5 * file_choose_mini_panels_height,
+        1 * mini_panels_margin + 0.5 * file_choose_mini_panels_height,
         1
 
     );
@@ -466,7 +454,7 @@ void file_choose_elements_setup()
 
         File_2_panel,
         file_choose_panel_width * 0.5, // Centered with equal margin
-        3 * mini_panels_margin + 2.5 * file_choose_mini_panels_height,
+        2 * mini_panels_margin + 1.5 * file_choose_mini_panels_height,
         1
 
     );
@@ -496,7 +484,7 @@ void file_choose_elements_setup()
 
         File_3_panel,
         file_choose_panel_width * 0.5, // Centered with equal margin
-        4 * mini_panels_margin + 3.5 * file_choose_mini_panels_height,
+        3 * mini_panels_margin + 2.5 * file_choose_mini_panels_height,
         1
 
     );
@@ -526,7 +514,7 @@ void file_choose_elements_setup()
 
         File_4_panel,
         file_choose_panel_width * 0.5, // Centered with equal margin
-        5 * mini_panels_margin + 4.5 * file_choose_mini_panels_height,
+        4 * mini_panels_margin + 3.5 * file_choose_mini_panels_height,
         1
 
     );
@@ -556,7 +544,7 @@ void file_choose_elements_setup()
 
         File_5_panel,
         file_choose_panel_width * 0.5, // Centered with equal margin
-        6 * mini_panels_margin + 5.5 * file_choose_mini_panels_height,
+        5 * mini_panels_margin + 4.5 * file_choose_mini_panels_height,
         1
 
     );
@@ -586,7 +574,7 @@ void file_choose_elements_setup()
 
         File_6_panel,
         file_choose_panel_width * 0.5, // Centered with equal margin
-        7 * mini_panels_margin + 6.5 * file_choose_mini_panels_height,
+        6 * mini_panels_margin + 5.5 * file_choose_mini_panels_height,
         1
 
     );
@@ -598,6 +586,29 @@ void file_choose_elements_setup()
     File_5_panel->set_visible_flag(false);
     File_6_panel->set_visible_flag(false);
 
+
+
+    // Preview panel
+    File_preview_panel->set_size(file_preview_width, file_preview_height);
+    File_preview_panel->set_render_point(file_choose_preview_x, file_choose_preview_y);
+    File_preview_panel->set_border_radius(mini_panels_margin + 10);
+
+    // Texture
+    //
+
+    // Study start button
+
+    Study_start_button->switch_button_textbox_type(HEADER_2);
+    Study_start_button->get_button_content_textbox()->set_content(str_by_dictionary(gd_study_start));
+    Study_start_button->set_size(study_start_button_width, study_start_button_height);
+    Study_start_button->set_render_point(study_start_button_x, study_start_button_y);
+
+    Study_start_button->on_click = study_start;
+
+    Study_start_button->extern_click_permission = check_start_study_access;
+    Study_start_button->set_access_type(BUTTON_EXTERN_CLICK_PERMISSION);
+
+    Study_start_button->set_border_radius(mini_panels_margin + 10);
 }
 
 
@@ -636,8 +647,6 @@ void file_choose_elements_free_and_nullptr()
     // File choose panel (5 elements now)
 
     File_choose_panel = nullptr;
-
-    File_choose_panel_textbox = nullptr;
 
     File_1_panel = nullptr;
     File_1_textbox = nullptr;
@@ -712,7 +721,6 @@ void reset_passed_by_dictionary_textboxes_if_language_switched_fc()
     {
         // Textboxes for update
 
-        File_choose_panel_textbox->set_content(str_by_dictionary(gd_choose_the_file));
 
 
 
@@ -740,12 +748,12 @@ void file_choose_elements_render(SDL_Renderer* renderer)
 
     // Preview panel
 
-    // File_preview_panel->render(renderer);
+    File_preview_panel->render(renderer);
 
     
     // State control button
 
-    // Study_start_button->render(renderer);
+    Study_start_button->render(renderer);
 }
 
 // =========================================================================================== STATE INNER FUNCTIONS REALIZATION
@@ -923,6 +931,7 @@ void clear_path(unsigned int file_number)
     File_5_textbox->set_content(file_name_from_path(file_choose_data.file_5_path));
     File_6_textbox->set_content(file_name_from_path(file_choose_data.file_6_path));
 
+
     // Reset statuses
     // TODO:: RESET LOOGIC TO CORRECT ONE!!!
     if ((cleared_idx >= 0 && cleared_idx < 6) && panel_states[cleared_idx + 1])
@@ -945,5 +954,18 @@ void file_choose_or_clear(int file_number)
 {
     //
 }
+
+
+void study_start()
+{
+    //
+}
+
+
+bool check_start_study_access()
+{
+    return false;
+}
+
 
 // =========================================================================================== STATE ELEMENTS INNER FUNCTIONS
