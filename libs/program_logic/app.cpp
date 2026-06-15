@@ -199,8 +199,10 @@ bool SDL_app_cycle(SDL_app_ctx* app)
     App_palette.palette_reset_flag_state_loop_update();
 
     // Font initialization in case of palette reset, to avoid constant reinitialization and related performance issues
-    App_fonts.fonts_init_in_update_loop();
+    App_fonts.fonts_management_in_update_loop();
 
+    App_fonts.fonts_palette_reset_flag_state_loop_update();
+    
     // ===== GLOBAL GUI ELEMENTS UPDATES =====
 
 

@@ -111,7 +111,33 @@ My_SDL_textbox::My_SDL_textbox()
 
     // Must be here for error handling 
 
+
+    int w = 0, h = 0; 
+    
+    if (this->ttf_font_link != nullptr && !this->content.empty())
+    {
+        if (!TTF_GetStringSize(this->ttf_font_link, this->content.c_str(), this->content.length(), &w, &h))
+        { 
+            std::cerr << "TTF_GetStringSize failed\n";
+    
+            this->content_dirty = false; 
+            
+            return; 
+        } 
+        
+    }
+
+    this->content_width = w; 
+    this->content_height = h;
+
+    
+    reset_anchor_points();
+    
+
     this->content_dirty = true;
+
+
+    this->textbox_type_changed = true;
 }
 
 
@@ -179,31 +205,6 @@ void My_SDL_textbox::update()
 
     // Check if the palette was switched and update the colors by the new palette if it was
     this->reset_colors_if_palette_switched();
-    
-    // Renew sizes before render
-    if (this->content_dirty)
-    {
-        int w = 0, h = 0; 
-    
-        if (this->ttf_font_link != nullptr && !this->content.empty())
-        {
-            if (!TTF_GetStringSize(this->ttf_font_link, this->content.c_str(), this->content.length(), &w, &h))
-            { 
-                std::cerr << "TTF_GetStringSize failed\n";
-        
-                this->content_dirty = false; 
-                
-                return; 
-            } 
-            
-        }
-    
-        this->content_width = w; 
-        this->content_height = h;
-
-        
-        reset_anchor_points();
-    }
 }
 
 
@@ -215,10 +216,9 @@ void My_SDL_textbox::update_font()
         if(!this->font_path.empty()) this->set_ttf_font_link(TTF_OpenFont(this->font_path.c_str(), this->font_size));
     }
 
-
     // Reset the font if current font palette was switched and the font was set by the font palette,
     // to update the font by the new palette
-    if (this->passed_by_font_palette && App_fonts.get_fonts_palette_reset_flag())
+    if (this->passed_by_font_palette && (App_fonts.get_fonts_palette_reset_flag() || this->textbox_type_changed))
     {
 
         std::string curr_font_path;
@@ -305,8 +305,6 @@ void My_SDL_textbox::update_font()
             this->font_path = curr_font_path;
             this->ttf_font_link = curr_font_link;
 
-            this->content_dirty = true;
-
         }
         else
         {
@@ -320,6 +318,8 @@ void My_SDL_textbox::update_font()
             }
         }
 
+        this->textbox_type_changed = false;
+        this->content_dirty = true;
     }
 }
 
@@ -354,6 +354,9 @@ void My_SDL_textbox::switch_textbox_type(app_textbox_type new_type)
     this->textbox_type = new_type;
 
     this->passed_by_font_palette = true;
+    
+    this->textbox_type_changed = true;
+    this->content_dirty = true;
 }
 
 
@@ -438,6 +441,8 @@ unsigned int My_SDL_textbox::get_height_size() const
 
 void My_SDL_textbox::set_content(const std::string& new_text)
 {
+    std::cout << "Set content: " << content << std::endl;
+
     this->content = new_text;
 
     if (!this->ttf_font_link)
@@ -487,6 +492,8 @@ void My_SDL_textbox::set_ttf_font_link(TTF_Font* new_ttf_font_link)
     }
 
     this->ttf_font_link = new_ttf_font_link;
+
+    this->content_dirty = true;
 }
 
 
@@ -520,6 +527,8 @@ std::string My_SDL_textbox::get_font_path() const
 
 void My_SDL_textbox::set_font_size(unsigned int new_size)
 {
+    std::cout << "Set content: " << this->content << " size: " << new_size << std::endl;
+
     if (new_size == 0)
     {
         std::cerr << "Invalid font size! Font size not set!" << std::endl;
@@ -788,6 +797,31 @@ void My_SDL_textbox::update_content_texture(SDL_Renderer* renderer, SDL_Color ne
     this->content_texture = SDL_CreateTextureFromSurface(renderer, surface);
 
     SDL_DestroySurface(surface);
+
+    // Renew sizes before render
+    if (this->content_dirty)
+    {
+        int w = 0, h = 0; 
+    
+        if (this->ttf_font_link != nullptr && !this->content.empty())
+        {
+            if (!TTF_GetStringSize(this->ttf_font_link, this->content.c_str(), this->content.length(), &w, &h))
+            { 
+                std::cerr << "TTF_GetStringSize failed\n";
+        
+                this->content_dirty = false; 
+                
+                return; 
+            } 
+            
+        }
+    
+        this->content_width = w; 
+        this->content_height = h;
+
+        
+        reset_anchor_points();
+    }
 
     this->content_dirty = false;
 }

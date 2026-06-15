@@ -118,7 +118,7 @@ Global_fonts::Global_fonts()
 {
     this->current_fonts_palette_id = 0;
 
-    this->fonts_palette_reset_flag = true;
+    this->fonts_palette_init_flag = true;
     this->fonts_palette_reset_flag_loops_counter = 0;
 
 
@@ -129,14 +129,17 @@ Global_fonts::Global_fonts()
 
 // ===== Palette workflow =====
 
-void Global_fonts::fonts_init_in_update_loop()
+void Global_fonts::fonts_management_in_update_loop()
 {
+    // Reset flags or check
+
     // Go through the palettes list and initialize / reinitialize the SDL_TTF fonts if the palette reset flag is set
-    if (this->fonts_palette_reset_flag)
+    if (this->fonts_palette_init_flag)
     {
         for (app_fonts_palette_ctx& palette : this->fonts_palettes_list)
         {
             // Counter for further logic switch by UI textbox type
+            this->fonts_palette_reset_flag = true;
             int iterator_font_counter = 0;
 
             // Initialize / reinitialize SDL_TTF fonts for the palette
@@ -254,6 +257,8 @@ void Global_fonts::fonts_init_in_update_loop()
                 }
             }
         }
+
+        this->fonts_palette_init_flag = false;
     }
 }
 

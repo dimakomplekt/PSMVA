@@ -109,7 +109,7 @@ class Global_fonts
 
         // Automatically initializes / reinitializes the SDL_TTF fonts in the main update loop, 
         // if the palette reset flag is set 
-        void fonts_init_in_update_loop();
+        void fonts_management_in_update_loop();
 
         /**
          * @brief Adds a fonts palette to the internal fonts palette list.
@@ -223,6 +223,7 @@ class Global_fonts
 
         // Flag to indicate if the palette has been reset (for UI updates, etc.)
         bool fonts_palette_reset_flag;
+        bool fonts_palette_init_flag;
 
         // Counter to track how many loops have passed since the palette reset flag was set
         unsigned int fonts_palette_reset_flag_loops_counter;

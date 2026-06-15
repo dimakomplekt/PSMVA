@@ -212,60 +212,60 @@ void main_menu_render(SDL_Renderer* renderer)
 void main_menu_elements_create()
 {
     // Background
-    Main_menu_panel = new My_SDL_panel;
+    Main_menu_panel = new My_SDL_panel();
 
 
     // Next state
-    Analysis_start_button = new My_SDL_button;
+    Analysis_start_button = new My_SDL_button();
 
 
     // Information panel
 
-    Information_button = new My_SDL_button;
+    Information_button = new My_SDL_button();
 
-    Information_panel = new My_SDL_panel;
-
-
-    Info_1_textbox = new My_SDL_textbox;
-    Plasma_spraying_texture_1 = new My_SDL_texture;
-
-    Info_2_textbox = new My_SDL_textbox;
-    Plasma_spraying_texture_2 = new My_SDL_texture;
-
-    Info_3_textbox = new My_SDL_textbox;
-    Plasma_spraying_texture_3 = new My_SDL_texture;
+    Information_panel = new My_SDL_panel();
 
 
-    Information_close_button = new My_SDL_button;
+    Info_1_textbox = new My_SDL_textbox();
+    Plasma_spraying_texture_1 = new My_SDL_texture();
+
+    Info_2_textbox = new My_SDL_textbox();
+    Plasma_spraying_texture_2 = new My_SDL_texture();
+
+    Info_3_textbox = new My_SDL_textbox();
+    Plasma_spraying_texture_3 = new My_SDL_texture();
+
+
+    Information_close_button = new My_SDL_button();
 
 
     // Settings panel
 
-    Settings_button = new My_SDL_button;
+    Settings_button = new My_SDL_button();
 
-    Settings_panel = new My_SDL_panel;
+    Settings_panel = new My_SDL_panel();
 
-    Switch_theme_button = new My_SDL_button;
+    Switch_theme_button = new My_SDL_button();
 
-    Switch_language_button = new My_SDL_button;
+    Switch_language_button = new My_SDL_button();
 
-    Switch_font_button = new My_SDL_button;
+    Switch_font_button = new My_SDL_button();
 
-    Settings_accept_button = new My_SDL_button;
+    Settings_accept_button = new My_SDL_button();
 
 
     // Exit button
 
-    Exit_button = new My_SDL_button;
+    Exit_button = new My_SDL_button();
 
 
     // Panel with plasma spraying screen of video
 
-    Plasma_spraying_panel = new My_SDL_panel;
+    Plasma_spraying_panel = new My_SDL_panel();
 
-    PSMVA_textbox = new My_SDL_textbox;
+    PSMVA_textbox = new My_SDL_textbox();
 
-    Plasma_spraying_texture_4 = new My_SDL_texture;
+    Plasma_spraying_texture_4 = new My_SDL_texture();
 
 }
 

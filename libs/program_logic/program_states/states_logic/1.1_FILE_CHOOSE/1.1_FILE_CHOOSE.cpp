@@ -782,6 +782,39 @@ void file_choose_data_init()
 }
 
 
+std::string utf16_to_utf8(const std::wstring& wstr)
+{
+    if (wstr.empty())
+        return "";
+
+    int size_needed = WideCharToMultiByte(
+        CP_UTF8,
+        0,
+        wstr.c_str(),
+        -1,
+        nullptr,
+        0,
+        nullptr,
+        nullptr
+    );
+
+    std::string result(size_needed - 1, '\0');
+
+    WideCharToMultiByte(
+        CP_UTF8,
+        0,
+        wstr.c_str(),
+        -1,
+        result.data(),
+        size_needed,
+        nullptr,
+        nullptr
+    );
+
+    return result;
+}
+
+
 std::string file_name_from_path(std::string path)
 {
 
@@ -808,10 +841,10 @@ std::string file_name_from_path(std::string path)
 
 std::string get_path_by_file_manager()
 {
-    char file_name[MAX_PATH] = "";
+    // For cyrillic
+    wchar_t file_name[MAX_PATH] = L"";
 
-    OPENFILENAMEA ofn;
-
+    OPENFILENAMEW ofn;
     ZeroMemory(&ofn, sizeof(ofn));
 
     ofn.lStructSize = sizeof(ofn);
@@ -820,17 +853,25 @@ std::string get_path_by_file_manager()
     ofn.hwndOwner = NULL;
     
     // File filter
-    ofn.lpstrFilter = "All files (*.*)\0*.*\0Txt files (*.txt)\0*.txt\0";
+    ofn.lpstrFilter =
+        L"All files (*.*)\0*.*\0"
+        L"Txt files (*.txt)\0*.txt\0";
+
     ofn.lpstrFile = file_name;
     ofn.nMaxFile = MAX_PATH;
     
     // Flags: file should exists, path must be valid
-    ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
+
+    ofn.Flags =
+        OFN_EXPLORER |
+        OFN_FILEMUSTEXIST |
+        OFN_HIDEREADONLY;
+
 
     // Calls the window, returns the path, if user choosed the path
-    if (GetOpenFileNameA(&ofn)) 
+    if (GetOpenFileNameW(&ofn))
     {
-        return std::string(file_name);
+        return utf16_to_utf8(file_name);
     }
 
     return ""; // User closed the window or error occures
@@ -870,11 +911,29 @@ void add_path(unsigned int file_number)
 
     if (*panel_states[add_index] != file_choose_panel_state::EMPTY_STATE) std::cerr << "Error on the file pass!";
 
-    *paths[add_index] = get_path_by_file_manager();
-    if (*paths[add_index] != "") *panel_states[add_index] = file_choose_panel_state::CHOSEN_STATE;
+    std::string selected_path = get_path_by_file_manager();
 
-    // Show the next if it's not 6th file
-    if (add_index != 5) *panel_states[add_index + 1] = file_choose_panel_state::EMPTY_STATE;
+    if (selected_path.empty())
+    {
+        return;
+    }
+    
+    *paths[add_index] = selected_path;
+    *panel_states[add_index] = file_choose_panel_state::CHOSEN_STATE;
+    
+    // Show next panel
+    if (add_index < 5)
+    {
+        *panel_states[add_index + 1] = file_choose_panel_state::EMPTY_STATE;
+    }
+    
+    // Reset panels textboxes content according to the new list
+    File_1_textbox->set_content(file_name_from_path(file_choose_data.file_1_path));
+    File_2_textbox->set_content(file_name_from_path(file_choose_data.file_2_path));
+    File_3_textbox->set_content(file_name_from_path(file_choose_data.file_3_path));
+    File_4_textbox->set_content(file_name_from_path(file_choose_data.file_4_path));
+    File_5_textbox->set_content(file_name_from_path(file_choose_data.file_5_path));
+    File_6_textbox->set_content(file_name_from_path(file_choose_data.file_6_path));
 
 }
 
@@ -945,6 +1004,8 @@ void clear_path(unsigned int file_number)
         // HIDE last one (previos becomes HIDDEN_STATE automatically
         // during the iteration loop)
         *panel_states[5] = file_choose_panel_state::HIDDEN_STATE;
+
+        if (*panel_states[0] == file_choose_panel_state::HIDDEN_STATE) *panel_states[0] = file_choose_panel_state::EMPTY_STATE;
     }
 
 }
@@ -952,7 +1013,100 @@ void clear_path(unsigned int file_number)
 
 void file_choose_or_clear(int file_number)
 {
-    //
+    // EH
+    if (file_number < 1 || file_number > 6) return;
+
+
+    // Clear file index
+    int cleared_idx = file_number - 1;
+
+
+    file_choose_panel_state* panel_states[] = {
+
+        &file_choose_data.panels_states.file_1_panel_state,
+        &file_choose_data.panels_states.file_2_panel_state,
+        &file_choose_data.panels_states.file_3_panel_state,
+        &file_choose_data.panels_states.file_4_panel_state,
+        &file_choose_data.panels_states.file_5_panel_state,
+        &file_choose_data.panels_states.file_6_panel_state
+
+    };
+
+    bool add = false;
+    bool clear = false;
+
+    if (*panel_states[cleared_idx] == file_choose_panel_state::EMPTY_STATE) add = true;
+    else if (*panel_states[cleared_idx] == file_choose_panel_state::CHOSEN_STATE) clear = true;
+
+    if (add)
+    {
+        add_path(file_number);
+    }
+
+    if (clear)
+    {
+        clear_path(file_number);
+    }
+
+
+    // Set new textboxes
+
+    My_SDL_button* buttons[] = {
+
+        File_1_button,
+        File_2_button,
+        File_3_button,
+        File_4_button,
+        File_5_button,
+        File_6_button
+
+    };
+
+    My_SDL_panel* panels[] = {
+
+        File_1_panel,
+        File_2_panel,
+        File_3_panel,
+        File_4_panel,
+        File_5_panel,
+        File_6_panel
+
+    };
+
+
+    for (int i = 0; i <= 5; i++)
+    {
+        if (*panel_states[i] == file_choose_panel_state::EMPTY_STATE) 
+        {
+            buttons[i]->get_button_content_textbox()->set_content("+");
+            
+            panels[i]->set_visible_flag(true);
+        }
+
+        else if (*panel_states[i] == file_choose_panel_state::CHOSEN_STATE)
+        {
+            buttons[i]->get_button_content_textbox()->set_content("X");
+
+            panels[i]->set_visible_flag(true);
+        }
+
+        else panels[i]->set_visible_flag(false);
+    }
+
+
+    // Check
+    std::cout << file_choose_data.file_1_path << "\n" << std::endl;
+    std::cout << file_choose_data.file_2_path << "\n" << std::endl;
+    std::cout << file_choose_data.file_3_path << "\n" << std::endl;
+    std::cout << file_choose_data.file_4_path << "\n" << std::endl;
+    std::cout << file_choose_data.file_5_path << "\n" << std::endl;
+    std::cout << file_choose_data.file_6_path << "\n" << std::endl;
+    std::cout << static_cast<int>(file_choose_data.panels_states.file_1_panel_state) << "\n" << std::endl;
+    std::cout << static_cast<int>(file_choose_data.panels_states.file_2_panel_state) << "\n" << std::endl;
+    std::cout << static_cast<int>(file_choose_data.panels_states.file_3_panel_state) << "\n" << std::endl;
+    std::cout << static_cast<int>(file_choose_data.panels_states.file_4_panel_state) << "\n" << std::endl;
+    std::cout << static_cast<int>(file_choose_data.panels_states.file_5_panel_state) << "\n" << std::endl;
+    std::cout << static_cast<int>(file_choose_data.panels_states.file_6_panel_state) << "\n" << std::endl;
 }
 
 
@@ -964,7 +1118,18 @@ void study_start()
 
 bool check_start_study_access()
 {
-    return false;
+    if (
+
+        file_choose_data.panels_states.file_1_panel_state == file_choose_panel_state::CHOSEN_STATE &&
+        file_choose_data.panels_states.file_2_panel_state == file_choose_panel_state::CHOSEN_STATE &&
+        file_choose_data.panels_states.file_3_panel_state == file_choose_panel_state::CHOSEN_STATE &&
+        file_choose_data.panels_states.file_4_panel_state == file_choose_panel_state::CHOSEN_STATE &&
+        file_choose_data.panels_states.file_5_panel_state == file_choose_panel_state::CHOSEN_STATE &&
+        file_choose_data.panels_states.file_6_panel_state == file_choose_panel_state::CHOSEN_STATE 
+    
+    ) return true;
+
+    else return false;
 }
 
 

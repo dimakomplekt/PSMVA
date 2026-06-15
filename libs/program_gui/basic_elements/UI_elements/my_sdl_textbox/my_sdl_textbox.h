@@ -264,6 +264,8 @@ class My_SDL_textbox : public My_SDL_element // SDL_Element
 
         // Previous textbox type
         app_textbox_type prev_textbox_type;
+
+        bool textbox_type_changed;
         
 
         void update_font();

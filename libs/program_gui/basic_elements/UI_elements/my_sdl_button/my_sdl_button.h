@@ -458,6 +458,7 @@ class My_SDL_button : public My_SDL_element // SDL_Element
 
         // ===== GUI ======
 
+        unsigned int prev_palette_number;    // 1 or 2
         unsigned int current_palette_number; // 1 or 2
 
 

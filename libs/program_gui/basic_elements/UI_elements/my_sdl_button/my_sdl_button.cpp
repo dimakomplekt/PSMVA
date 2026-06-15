@@ -503,7 +503,8 @@ void My_SDL_button::render(SDL_Renderer* renderer)
 void My_SDL_button::button_palette_prepare()
 {
     // Current palette define logic
-    
+    this->prev_palette_number = this->current_palette_number;
+
     if (this->gui_type == STATIC_ELEMENT_GUI)
     {
         // Basic
@@ -614,7 +615,8 @@ void My_SDL_button::button_palette_prepare()
 
 
     // Onetime update render color for the textbox with content_dirty flag status change
-    this->button_textbox.set_content_color(this->render_content_color);
+    if (this->prev_palette_number != this->current_palette_number)
+        this->button_textbox.set_content_color(this->render_content_color);
 }
 
 
@@ -980,7 +982,6 @@ void My_SDL_button::reset_colors_if_palette_switched()
 
 void My_SDL_button::reset_button_textbox_if_font_palette_switched()
 {
-
     if (this->button_textbox_font_passed_by_font_palette && App_fonts.get_fonts_palette_reset_flag())
     {
         switch (this->get_button_content_textbox()->textbox_type)
@@ -1071,19 +1072,20 @@ void My_SDL_button::reset_button_textbox_if_font_palette_switched()
 
             default: break;
         }
+
+        // Reset base data
+        this->po_base_font = this->get_button_content_textbox()->ttf_font_link;
+        this->po_base_size = (int)this->button_textbox.get_font_size();
+        this->po_cached = false;
+
+        // Reset flag to not pass by palette after the first update by the palette switch
+
+        this->get_button_content_textbox()->content_dirty = true;
+
+        // Now the button content font controlled only by button itself 
+        this->get_button_content_textbox()->passed_by_font_palette = false; 
+
     }
-
-    // Reset base data
-    this->po_base_font = this->get_button_content_textbox()->ttf_font_link;
-    this->po_base_size = (int)this->button_textbox.get_font_size();
-    this->po_cached = false;
-
-    // Reset flag to not pass by palette after the first update by the palette switch
-
-    this->get_button_content_textbox()->content_dirty = true;
-
-    // Now the button content font controlled only by button itself 
-    this->get_button_content_textbox()->passed_by_font_palette = false; 
 }
 
 

@@ -128,6 +128,8 @@ void start_elements_create()
 
     // Start textbox create
     Start_textbox = new My_SDL_textbox();
+
+
 }
 
 
@@ -161,6 +163,7 @@ void start_elements_setup()
            1
     );
 
+
 }
 
 
@@ -184,6 +187,7 @@ void start_elements_update()
 
     // Update all elements
     Start_panel->update();
+
 }
 
 
@@ -249,6 +253,7 @@ void start_elements_render(SDL_Renderer* renderer)
 {
     // Render all elements
     Start_panel->render(renderer);
+
 }
 
 // =========================================================================================== STATE INNER FUNCTIONS REALIZATION
