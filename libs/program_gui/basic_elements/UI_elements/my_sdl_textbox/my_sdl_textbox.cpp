@@ -109,35 +109,12 @@ My_SDL_textbox::My_SDL_textbox()
     // Start with inactive condition (constantly switch inside the 1st update)
     this->blinking_mode_context.active_now = true;
 
-    // Must be here for error handling 
-
-
-    int w = 0, h = 0; 
-    
-    if (this->ttf_font_link != nullptr && !this->content.empty())
-    {
-        if (!TTF_GetStringSize(this->ttf_font_link, this->content.c_str(), this->content.length(), &w, &h))
-        { 
-            std::cerr << "TTF_GetStringSize failed\n";
-    
-            this->content_dirty = false; 
-            
-            return; 
-        } 
-        
-    }
-
-    this->content_width = w; 
-    this->content_height = h;
-
-    
-    reset_anchor_points();
-    
 
     this->content_dirty = true;
 
-
     this->textbox_type_changed = true;
+
+    this->textbox_sizes_initiation_update_flag = true;
 }
 
 
@@ -177,7 +154,15 @@ void My_SDL_textbox::cleanup()
         this->content_texture = nullptr;
     }
 
-    this->set_content("");
+    // TODO: check cool or not
+    if (!this->passed_by_font_palette)
+    {
+        TTF_CloseFont(this->ttf_font_link);
+        this->ttf_font_link = nullptr;
+    }
+
+    // TODO: Crushes by???
+    // this->set_content("");
 }
 
 
@@ -441,7 +426,7 @@ unsigned int My_SDL_textbox::get_height_size() const
 
 void My_SDL_textbox::set_content(const std::string& new_text)
 {
-    std::cout << "Set content: " << content << std::endl;
+    if (TEST_MODE) std::cout << "Set content: " << content << std::endl;
 
     this->content = new_text;
 
@@ -494,6 +479,10 @@ void My_SDL_textbox::set_ttf_font_link(TTF_Font* new_ttf_font_link)
     this->ttf_font_link = new_ttf_font_link;
 
     this->content_dirty = true;
+
+    // TEST:
+
+    if (TEST_MODE) std::cout << "TTF link setted: " << this->font_path << " with: " << this->font_size << "pts. \n" << std::endl;
 }
 
 
@@ -509,6 +498,8 @@ void My_SDL_textbox::set_font_path(const std::string& new_font_path)
     this->passed_by_font_palette = false;
 
     this->font_path = new_font_path;
+
+    if (TEST_MODE) std::cout << "TTF font path setted: " << this->font_path << "\n" << std::endl;
 
     this->set_ttf_font_link(TTF_OpenFont(this->font_path.c_str(), this->font_size));
 
@@ -527,8 +518,6 @@ std::string My_SDL_textbox::get_font_path() const
 
 void My_SDL_textbox::set_font_size(unsigned int new_size)
 {
-    std::cout << "Set content: " << this->content << " size: " << new_size << std::endl;
-
     if (new_size == 0)
     {
         std::cerr << "Invalid font size! Font size not set!" << std::endl;
@@ -546,6 +535,7 @@ void My_SDL_textbox::set_font_size(unsigned int new_size)
 
     this->passed_by_font_palette = false;
 
+    if (TEST_MODE) std::cout << "Try to set content: " << this->content << " new size size: " << new_size << "\n" << std::endl;
 
     // open new font
     this->ttf_font_link = TTF_OpenFont(this->font_path.c_str(), this->font_size);
@@ -561,6 +551,9 @@ void My_SDL_textbox::set_font_size(unsigned int new_size)
 
     // force texture rebuild
     this->content_dirty = true;
+
+
+    if (TEST_MODE) std::cout << "Set content: " << this->content << " new size size: " << new_size << "\n" << std::endl;
 }
 
 
@@ -798,9 +791,12 @@ void My_SDL_textbox::update_content_texture(SDL_Renderer* renderer, SDL_Color ne
 
     SDL_DestroySurface(surface);
 
-    // Renew sizes before render
-    if (this->content_dirty)
+    // Renew sizes before render (autoupdated on the 1st step after init)
+    if (this->content_dirty || this->textbox_sizes_initiation_update_flag)
     {
+
+        if (TEST_MODE) std::cout << "Try to update textbox: " << this->content << "sizes" << "\n" << std::endl;
+
         int w = 0, h = 0; 
     
         if (this->ttf_font_link != nullptr && !this->content.empty())
@@ -821,6 +817,11 @@ void My_SDL_textbox::update_content_texture(SDL_Renderer* renderer, SDL_Color ne
 
         
         reset_anchor_points();
+
+        // Block the next step autoupdate
+        this->textbox_sizes_initiation_update_flag = false;
+
+        if (TEST_MODE) std::cout << "Textbox: " << this->content << "sizes updated: " << this->content_width << "x" << this->content_height << "\n" << std::endl;
     }
 
     this->content_dirty = false;

@@ -26,8 +26,9 @@ My_SDL_panel::My_SDL_panel()
 
     this->current_form = RECTANGLE_EF;
 
-    this->shadow_offset_x = 2;
-    this->shadow_offset_y = 2;
+    this->shadow_offset_x = 10;
+    this->shadow_offset_y = 10;
+    
     this->shadow_scale_factor = 1.0f;
 
 
@@ -305,7 +306,7 @@ void My_SDL_panel::set_border_radius(unsigned int new_size)
 void My_SDL_panel::set_shadow_offset(int new_x_offset, int new_y_offset)
 {
     this->shadow_offset_x = new_x_offset;
-    this->shadow_offset_y = new_y_offset;
+    this->shadow_offset_y = -new_y_offset;  // SDL works with inverted y-axis on offset
 
     this->render_data_reset();
 }

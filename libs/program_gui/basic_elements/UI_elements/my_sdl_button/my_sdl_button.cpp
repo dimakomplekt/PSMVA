@@ -81,7 +81,7 @@ My_SDL_button::My_SDL_button()
     this->border_width_size = 5;
     this->border_radius_size = 15;
 
-    this->set_shadow_offset(3, -2);
+    this->set_shadow_offset(10, -10);
     this->shadow_scale_factor = 1.0f;
 
 
@@ -159,7 +159,6 @@ void My_SDL_button::delete_element()
 {
     My_SDL_panel* container = this->get_element_container();
 
-
     if (container) container->remove_element(this);
 
     else delete this;
@@ -169,7 +168,33 @@ void My_SDL_button::delete_element()
 My_SDL_button::~My_SDL_button()
 {
     // default
+
+    
+    // TODO: check cool or not
+    this->cleanup();
 }
+
+
+// TODO: check cool or not
+void My_SDL_button::cleanup()
+{
+    My_SDL_textbox* button_textbox = this->get_button_content_textbox();
+
+    // Texture delete
+    if (this->button_textbox_font_passed_by_font_palette && button_textbox->content_texture)
+    {
+        SDL_DestroyTexture(button_textbox->content_texture);
+        button_textbox->content_texture = nullptr;
+    }
+
+    // TODO: check cool or not
+    if (!this->button_textbox_font_passed_by_font_palette)
+    {
+        TTF_CloseFont(button_textbox->ttf_font_link);
+        button_textbox->ttf_font_link = nullptr;
+    }
+}
+
 
 
 // =========================================================================================== CONSTRUCTOR AND DESTRUCTOR
@@ -1167,7 +1192,8 @@ void My_SDL_button::render_data_recalculation()
     
     
             // Only 4 + 1 (on release) TTF_OpenFont operation quantity control by:
-            if (this->press_offset <= 5)
+            // (second condition for repetitive update block)
+            if (this->press_offset <= 5 && this->button_textbox.get_font_size() != new_size)
             {
                 TTF_Font* new_font = TTF_OpenFont(
                     this->button_textbox.get_font_path().c_str(),

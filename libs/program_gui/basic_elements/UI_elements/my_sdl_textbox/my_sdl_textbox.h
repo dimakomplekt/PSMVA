@@ -290,6 +290,7 @@ class My_SDL_textbox : public My_SDL_element // SDL_Element
 
         // Variables for rendering with autoset 
         
+        bool textbox_sizes_initiation_update_flag;
         mutable int content_width;  
         mutable int content_height;
 

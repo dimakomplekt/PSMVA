@@ -302,10 +302,10 @@ void file_choose_elements_setup()
     // 1st file choose
     File_1_panel->set_size(file_choose_mini_panels_width , file_choose_mini_panels_height);
     
-    File_1_textbox->switch_textbox_type(HEADER_3);
+    File_1_textbox->switch_textbox_type(HEADER_2);
     File_1_textbox->set_content("File 1");
 
-    File_1_button->switch_button_textbox_type(HEADER_3);
+    File_1_button->switch_button_textbox_type(HEADER_1);
     File_1_button->get_button_content_textbox()->set_content("+");
     File_1_button->set_size(file_choose_buttons_width, file_choose_buttons_height);
 
@@ -320,10 +320,10 @@ void file_choose_elements_setup()
     // 2nd file choose
     File_2_panel->set_size(file_choose_mini_panels_width , file_choose_mini_panels_height);
 
-    File_2_textbox->switch_textbox_type(HEADER_3);
+    File_2_textbox->switch_textbox_type(HEADER_2);
     File_2_textbox->set_content("");
 
-    File_2_button->switch_button_textbox_type(HEADER_3);
+    File_2_button->switch_button_textbox_type(HEADER_1);
     File_2_button->get_button_content_textbox()->set_content("+");
     File_2_button->set_size(file_choose_buttons_width, file_choose_buttons_height);
 
@@ -337,10 +337,10 @@ void file_choose_elements_setup()
     // 3rd file choose
     File_3_panel->set_size(file_choose_mini_panels_width , file_choose_mini_panels_height);
 
-    File_3_textbox->switch_textbox_type(HEADER_3);
+    File_3_textbox->switch_textbox_type(HEADER_2);
     File_3_textbox->set_content("");
 
-    File_3_button->switch_button_textbox_type(HEADER_3);
+    File_3_button->switch_button_textbox_type(HEADER_1);
     File_3_button->get_button_content_textbox()->set_content("+");
     File_3_button->set_size(file_choose_buttons_width, file_choose_buttons_height);
     File_3_button->on_click = []() { file_choose_or_clear(3); };
@@ -353,10 +353,10 @@ void file_choose_elements_setup()
     // 4th file choose
     File_4_panel->set_size(file_choose_mini_panels_width , file_choose_mini_panels_height);
 
-    File_4_textbox->switch_textbox_type(HEADER_3);
+    File_4_textbox->switch_textbox_type(HEADER_2);
     File_4_textbox->set_content("");
 
-    File_4_button->switch_button_textbox_type(HEADER_3);
+    File_4_button->switch_button_textbox_type(HEADER_1);
     File_4_button->get_button_content_textbox()->set_content("+");
     File_4_button->set_size(file_choose_buttons_width, file_choose_buttons_height);
     File_4_button->on_click = []() { file_choose_or_clear(4); };
@@ -369,10 +369,10 @@ void file_choose_elements_setup()
     // 5th file choose
     File_5_panel->set_size(file_choose_mini_panels_width , file_choose_mini_panels_height);
 
-    File_5_textbox->switch_textbox_type(HEADER_3);
+    File_5_textbox->switch_textbox_type(HEADER_2);
     File_5_textbox->set_content("");
 
-    File_5_button->switch_button_textbox_type(HEADER_3);
+    File_5_button->switch_button_textbox_type(HEADER_1);
     File_5_button->get_button_content_textbox()->set_content("+");
     File_5_button->set_size(file_choose_buttons_width, file_choose_buttons_height);
     File_5_button->on_click = []() { file_choose_or_clear(5); };
@@ -384,10 +384,10 @@ void file_choose_elements_setup()
     // 6th file choose
     File_6_panel->set_size(file_choose_mini_panels_width , file_choose_mini_panels_height);
 
-    File_6_textbox->switch_textbox_type(HEADER_3);
+    File_6_textbox->switch_textbox_type(HEADER_2);
     File_6_textbox->set_content("");
 
-    File_6_button->switch_button_textbox_type(HEADER_3);
+    File_6_button->switch_button_textbox_type(HEADER_1);
     File_6_button->get_button_content_textbox()->set_content("+");
     File_6_button->set_size(file_choose_buttons_width, file_choose_buttons_height);
     File_6_button->on_click = []() { file_choose_or_clear(6); };
@@ -396,6 +396,20 @@ void file_choose_elements_setup()
     File_6_panel->set_border_radius(10);
     File_6_button->set_border_radius(10);
 
+
+    File_1_button->set_shadow_offset(0, 0);
+    File_2_button->set_shadow_offset(0, 0);
+    File_3_button->set_shadow_offset(0, 0);
+    File_4_button->set_shadow_offset(0, 0);
+    File_5_button->set_shadow_offset(0, 0);
+    File_6_button->set_shadow_offset(0, 0);
+
+    File_1_panel->set_shadow_offset(-10, -10);
+    File_2_panel->set_shadow_offset(-10, -10);
+    File_3_panel->set_shadow_offset(-10, -10);
+    File_4_panel->set_shadow_offset(-10, -10);
+    File_5_panel->set_shadow_offset(-10, -10);
+    File_6_panel->set_shadow_offset(-10, -10);
 
     // Put elements in panels
 
@@ -1008,6 +1022,8 @@ void clear_path(unsigned int file_number)
         if (*panel_states[0] == file_choose_panel_state::HIDDEN_STATE) *panel_states[0] = file_choose_panel_state::EMPTY_STATE;
     }
 
+    // Просто оставляет себя пустым
+    if (file_number == 6) *panel_states[5] = file_choose_panel_state::EMPTY_STATE;
 }
 
 
@@ -1085,7 +1101,7 @@ void file_choose_or_clear(int file_number)
 
         else if (*panel_states[i] == file_choose_panel_state::CHOSEN_STATE)
         {
-            buttons[i]->get_button_content_textbox()->set_content("X");
+            buttons[i]->get_button_content_textbox()->set_content("-");
 
             panels[i]->set_visible_flag(true);
         }
