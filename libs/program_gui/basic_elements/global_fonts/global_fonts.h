@@ -36,7 +36,7 @@ struct app_font_ctx
 
 
 // App textbox type enum
-// use for UI text pallette choose inside textbox element
+// use for UI text palette choose inside textbox element
 enum app_textbox_type
 {
 
@@ -78,7 +78,7 @@ struct app_fonts_palette_ctx
 
 
 /**
- * @brief Singleton class that holds the fonts structure and current font pallette select.
+ * @brief Singleton class that holds the fonts structure and current font palette select.
  *
  * Ensures there is only one global instance of app palette.
  * 
@@ -114,13 +114,13 @@ class Global_fonts
         /**
          * @brief Adds a fonts palette to the internal fonts palette list.
          *
-         * @param new_font_pallette Fonts palette data to be stored.
+         * @param new_font_palette Fonts palette data to be stored.
          *
          * Palette is copied into internal std::vector storage.
          * No dynamic allocation or ownership transfer is involved.
          * 
          */
-        void add_fonts_palette(const app_fonts_palette_ctx& new_fonts_pallette);
+        void add_fonts_palette(const app_fonts_palette_ctx& new_fonts_palette);
 
 
         /**

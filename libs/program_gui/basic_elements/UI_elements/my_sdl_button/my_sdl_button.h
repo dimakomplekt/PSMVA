@@ -419,7 +419,7 @@ class My_SDL_button : public My_SDL_element // SDL_Element
 
         ~My_SDL_button();                           // Button destructor  (call in state.exit)  
 
-        void cleanup();                             // Non pallette-font destructor
+        void cleanup();                             // Non palette-font destructor
 
         // ===== CONSTRUCTOR AND DESTRUCTOR =====
 
@@ -453,7 +453,7 @@ class My_SDL_button : public My_SDL_element // SDL_Element
 
 
         element_state current_button_state;
-
+        element_state prev_button_state;
 
         // ===== MAIN LOGIC =====
         

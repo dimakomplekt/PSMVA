@@ -197,6 +197,18 @@ class My_SDL_textbox : public My_SDL_element // SDL_Element
          */                                  
         void set_content_color(SDL_Color new_color);
 
+        /**
+         * Content color setter for palette switch logic
+         *                       
+         * For elements with dynamic content color textboxes should                       
+         * call switch_passed_by_palette_flag(false) for inner textbox               
+         * and switch content color by the pallet or not by the palette by themselves
+         * for double calls protection   
+         *           
+         */                                  
+        void set_content_color_if_palette_switched(SDL_Color new_color);
+
+
         
         // Texture setters
 

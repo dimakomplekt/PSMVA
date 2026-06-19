@@ -16,7 +16,7 @@ static app_fonts_palette_ctx make_fonts_palette_1()
     app_font_ctx font_1;
     app_font_ctx emoji_font_1;
 
-    font_1.font_path = absolute_by_relative_from_exe("content/ttf_fonts/basis33.ttf");
+    font_1.font_path = absolute_by_relative_from_exe("content/ttf_fonts/Miracode.ttf");
     emoji_font_1.font_path = absolute_by_relative_from_exe("content/ttf_fonts/NotoEmoji.ttf");
     
     app_fonts_palette_ctx palette;
@@ -42,7 +42,7 @@ static app_fonts_palette_ctx make_fonts_palette_2()
     app_font_ctx font_2;
     app_font_ctx emoji_font_2;
 
-    font_2.font_path = absolute_by_relative_from_exe("content/ttf_fonts/Amiga_forever_pro.ttf");
+    font_2.font_path = absolute_by_relative_from_exe("content/ttf_fonts/Cairopixel.ttf");
     emoji_font_2.font_path = absolute_by_relative_from_exe("content/ttf_fonts/NotoEmoji.ttf");
 
     app_fonts_palette_ctx palette;
@@ -68,7 +68,7 @@ static app_fonts_palette_ctx make_fonts_palette_3()
     app_font_ctx font_3;
     app_font_ctx emoji_font_3;
 
-    font_3.font_path = absolute_by_relative_from_exe("content/ttf_fonts/boldspixels.ttf");
+    font_3.font_path = absolute_by_relative_from_exe("content/ttf_fonts/basis33.ttf");
     emoji_font_3.font_path = absolute_by_relative_from_exe("content/ttf_fonts/NotoEmoji.ttf");
 
     app_fonts_palette_ctx palette;
@@ -85,6 +85,60 @@ static app_fonts_palette_ctx make_fonts_palette_3()
 }
 
 // ===== Palette 3 =====
+
+
+// ===== Palette 3 =====
+
+static app_fonts_palette_ctx make_fonts_palette_4()
+{
+    app_font_ctx font_4;
+    app_font_ctx emoji_font_4;
+
+    font_4.font_path = absolute_by_relative_from_exe("content/ttf_fonts/MidnightLetters.ttf");
+    emoji_font_4.font_path = absolute_by_relative_from_exe("content/ttf_fonts/NotoEmoji.ttf");
+
+    app_fonts_palette_ctx palette;
+
+    palette.header_1_font = font_4;
+    palette.header_2_font = font_4;
+    palette.header_3_font = font_4;
+    palette.ordinary_text_font = font_4;
+    palette.small_text_font = font_4;
+    palette.button_text_font = font_4;
+    palette.emoji_text_font = emoji_font_4;
+
+    return palette;
+}
+
+// ===== Palette 4 =====
+
+
+
+// ===== Palette 5 =====
+
+static app_fonts_palette_ctx make_fonts_palette_5()
+{
+    app_font_ctx font_5;
+    app_font_ctx emoji_font_5;
+
+    font_5.font_path = absolute_by_relative_from_exe("content/ttf_fonts/Tiny5-LCDRegular.ttf");
+    emoji_font_5.font_path = absolute_by_relative_from_exe("content/ttf_fonts/NotoEmoji.ttf");
+
+    app_fonts_palette_ctx palette;
+
+    palette.header_1_font = font_5;
+    palette.header_2_font = font_5;
+    palette.header_3_font = font_5;
+    palette.ordinary_text_font = font_5;
+    palette.small_text_font = font_5;
+    palette.button_text_font = font_5;
+    palette.emoji_text_font = emoji_font_5;
+
+    return palette;
+}
+
+// ===== Palette 5 =====
+
 
 
 
@@ -106,6 +160,8 @@ Global_fonts& Global_fonts::Instance()
         instance.add_fonts_palette(make_fonts_palette_1());
         instance.add_fonts_palette(make_fonts_palette_2());
         instance.add_fonts_palette(make_fonts_palette_3());
+        instance.add_fonts_palette(make_fonts_palette_4());
+        instance.add_fonts_palette(make_fonts_palette_5());
 
         initialized = true;
     }
@@ -263,9 +319,9 @@ void Global_fonts::fonts_management_in_update_loop()
 }
 
 
-void Global_fonts::add_fonts_palette(const app_fonts_palette_ctx& new_fonts_pallette)
+void Global_fonts::add_fonts_palette(const app_fonts_palette_ctx& new_fonts_palette)
 {
-    this->fonts_palettes_list.push_back(new_fonts_pallette);
+    this->fonts_palettes_list.push_back(new_fonts_palette);
 }
 
 

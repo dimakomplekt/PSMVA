@@ -45,6 +45,7 @@ My_SDL_button::My_SDL_button()
     this->button_clicked_tmp = false;
 
     this->current_button_state = DEFAULT_ES;
+    this->prev_button_state = DEFAULT_ES;
 
     this->push_mode_on = true;
     this->press_offset = 0;
@@ -145,7 +146,7 @@ My_SDL_button::My_SDL_button()
 
     this->current_palette_number = 1;
 
-    // TODO: MAYBE this is the problem in case of not pallette pass??? Need to check and rewrite if it's so
+    // TODO: MAYBE this is the problem in case of not palette pass??? Need to check and rewrite if it's so
     this->po_base_font = this->get_button_content_textbox()->ttf_font_link;
     this->po_base_size = (int)this->button_textbox.get_font_size();
     this->po_cached = false;
@@ -204,6 +205,9 @@ void My_SDL_button::cleanup()
 
 void My_SDL_button::update()
 {    
+    // Write prev state
+    this->prev_button_state = this->current_button_state;
+
     // No actions for not visible element
     if (!this->visible_flag) return;
 
@@ -458,6 +462,10 @@ void My_SDL_button::set_access_type(button_access_type new_access_type)
 
     // New type setting
     else this->click_access_type = new_access_type;
+
+    if (new_access_type == BUTTON_DEFAULT_CLICK_PERMISSION) this->set_gui_type(STATIC_ELEMENT_GUI);
+
+    else if (new_access_type == BUTTON_EXTERN_CLICK_PERMISSION) this->set_gui_type(DYNAMIC_ELEMENT_GUI);
 }
 
 
@@ -529,6 +537,7 @@ void My_SDL_button::button_palette_prepare()
 {
     // Current palette define logic
     this->prev_palette_number = this->current_palette_number;
+
 
     if (this->gui_type == STATIC_ELEMENT_GUI)
     {
@@ -640,8 +649,12 @@ void My_SDL_button::button_palette_prepare()
 
 
     // Onetime update render color for the textbox with content_dirty flag status change
-    if (this->prev_palette_number != this->current_palette_number)
-        this->button_textbox.set_content_color(this->render_content_color);
+    if ((this->prev_palette_number != this->current_palette_number) || (this->prev_button_state != this->current_button_state))
+    {
+        if (TEST_MODE) std::cout << "Need to switch button textbox color! Call switch!!!" << "\n << std::endl";
+        
+        this->button_textbox.set_content_color_if_palette_switched(this->render_content_color);
+    } 
 }
 
 
@@ -1002,6 +1015,12 @@ void My_SDL_button::reset_colors_if_palette_switched()
     this->access_permitted_click_content_color = App_palette.get_current_palette().access_permitted_click_content_color;
     this->access_permitted_click_shadow_color = App_palette.get_current_palette().access_permitted_click_shadow_color;
 
+    
+    // Renew current colors
+
+    this->button_palette_prepare();
+
+    this->button_textbox.set_content_color_if_palette_switched(this->render_content_color);
 }
 
 

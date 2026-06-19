@@ -86,6 +86,9 @@ My_SDL_textbox::My_SDL_textbox()
     // flag for showing that the color setted by the pallet, automatically set to true inside the basic class constructor
     set_content_color(App_palette.get_current_palette().basic_content_color);
 
+    // Upper function resetted this flag XD
+    this->passed_by_palette = true;
+
 
     // Blinking mode setup
 
@@ -388,6 +391,8 @@ void My_SDL_textbox::render(SDL_Renderer* renderer)
 
     if (this->content.empty()) return;
 
+    this->reset_colors_if_palette_switched();
+
     // Render logic
     this->update_content_texture(renderer, this->content_render_color);
     
@@ -563,6 +568,7 @@ unsigned int My_SDL_textbox::get_font_size() const
 }
 
 
+// For textboxes, which colors ain't passed by palette
 void My_SDL_textbox::set_content_color(SDL_Color new_color)
 {
     // Safely check of equivalence
@@ -580,7 +586,35 @@ void My_SDL_textbox::set_content_color(SDL_Color new_color)
 
     // Content is dirty after reset
     this->content_dirty = true;
+
+    if (TEST_MODE) std::cout << "Textbox: " << this->content << "new color by palette switch setted with palette linking off\n" << std::endl;
 }
+
+
+// For textboxes with colors, passed by palette
+
+void My_SDL_textbox::set_content_color_if_palette_switched(SDL_Color new_color)
+{
+    // Safely check of equivalence
+    if (this->content_render_color.r == new_color.r &&
+        this->content_render_color.g == new_color.g &&
+        this->content_render_color.b == new_color.b &&
+        this->content_render_color.a == new_color.a)
+    {
+        return;     // Return if nothing changed
+    }
+
+    // No switch!!!
+    // this->passed_by_palette = false;
+
+    this->content_render_color = new_color;
+
+    // Content is dirty after reset
+    this->content_dirty = true;
+
+    if (TEST_MODE) std::cout << "Textbox: " << this->content << "new color by palette switch setted\n" << std::endl;
+}
+
 
 
 void My_SDL_textbox::set_content_texture(SDL_Texture* new_texture)
@@ -611,7 +645,11 @@ void My_SDL_textbox::reset_colors_if_palette_switched()
     //     !!!    and switch content color by the pallet or not by the palette by themselves    !!!
     //     !!!    for double calls protection                                                   !!!
 
-    set_content_color(App_palette.get_current_palette().basic_content_color);
+    if (TEST_MODE) std::cout << "Textbox: " << this->content << "started reset color by palette switch\n" << std::endl;
+
+
+    set_content_color_if_palette_switched(App_palette.get_current_palette().basic_content_color);
+
 }
 
 
