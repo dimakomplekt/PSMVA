@@ -53,6 +53,8 @@ bool this_app_init()
     // SDL TTF init
     if (!SDL_TTF_init()) return false;
 
+    // SDL image init
+    if (!SDL_Image_init()) return false;
 
     // APP init (4rth argument by the new string type, translated to the old string type)
     if (!SDL_app_init(&this_app, MAIN_WINDOW_H_SIZE, MAIN_WINDOW_V_SIZE, this_app.this_app_name.c_str())) 
@@ -80,6 +82,7 @@ bool this_app_init()
     return true;
 }
 
+
 bool SDL_TTF_init()
 {
     if (!TTF_Init()) 
@@ -93,6 +96,15 @@ bool SDL_TTF_init()
         return true;
     }
 }
+
+
+bool SDL_Image_init()
+{
+    // No actions for SDL3
+    return true;
+}
+
+
 
 
 bool SDL_app_init(SDL_app_ctx* app, int w, int h, const char* title)

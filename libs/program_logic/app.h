@@ -117,6 +117,17 @@ bool SDL_TTF_init();
 
 
 /**
+ * @brief Initializes SDL_image subsystem.
+ *
+ * Must be called before any image loading or rendering.
+ *
+ * @return true if initialization succeeded, false otherwise.
+ * 
+ */
+bool SDL_Image_init();
+
+
+/**
  * @brief Initializes SDL application context.
  *
  * Creates window, renderer and prepares runtime state.

@@ -32,6 +32,8 @@
 
 #include "SDL3_ttf-3.2.2/include/SDL3_ttf/SDL_ttf.h"
 
+// SDL image include
+#include "SDL3_image-3.4.4/include/SDL3_image/SDL_image.h"
 
 // Mouse and keyboard read
 

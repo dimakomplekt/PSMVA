@@ -227,7 +227,7 @@ void file_choose_elements_create()
     // Preview panel
 
     File_preview_panel = new My_SDL_panel;
-    // File_preview_texture = new My_SDL_texture;
+    File_preview_texture = new My_SDL_texture;
 
 
     // State control button
@@ -317,13 +317,13 @@ void file_choose_elements_setup()
     File_choose_panel->set_render_point(file_choose_panel_x, file_choose_panel_y);
     File_choose_panel->set_size(file_choose_panel_width, file_choose_panel_height);
     File_choose_panel->set_border_radius(mini_panels_margin + 10);
-
+    File_choose_panel->set_border_radius(0);
 
     // 1st file choose
     File_1_panel->set_size(file_choose_mini_panels_width , file_choose_mini_panels_height);
-    
-    File_1_textbox->switch_textbox_type(HEADER_2);
 
+    File_1_textbox->switch_textbox_type(HEADER_2);
+    
     File_1_button->switch_button_textbox_type(HEADER_1);
     File_1_button->set_size(file_choose_buttons_width, file_choose_buttons_height);
 
@@ -331,9 +331,9 @@ void file_choose_elements_setup()
     File_1_button->on_click = []() { file_choose_or_clear(1); };
 
     File_1_button->switch_push_mode();
-    File_1_panel->set_border_radius(10);
-    File_1_button->set_border_radius(10);
 
+    File_1_panel->set_border_radius(0);
+    File_1_button->set_border_radius(0);
 
     // 2nd file choose
     File_2_panel->set_size(file_choose_mini_panels_width , file_choose_mini_panels_height);
@@ -346,8 +346,9 @@ void file_choose_elements_setup()
     File_2_button->on_click = []() { file_choose_or_clear(2); };
 
     File_2_button->switch_push_mode();
-    File_2_panel->set_border_radius(10);
-    File_2_button->set_border_radius(10);
+
+    File_2_panel->set_border_radius(0);
+    File_2_button->set_border_radius(0);
 
 
     // 3rd file choose
@@ -360,8 +361,9 @@ void file_choose_elements_setup()
     File_3_button->on_click = []() { file_choose_or_clear(3); };
 
     File_3_button->switch_push_mode();
-    File_3_panel->set_border_radius(10);
-    File_3_button->set_border_radius(10);
+
+    File_3_panel->set_border_radius(0);
+    File_3_button->set_border_radius(0);
 
 
     // 4th file choose
@@ -374,8 +376,9 @@ void file_choose_elements_setup()
     File_4_button->on_click = []() { file_choose_or_clear(4); };
 
     File_4_button->switch_push_mode();
-    File_4_panel->set_border_radius(10);
-    File_4_button->set_border_radius(10);
+
+    File_4_panel->set_border_radius(0);
+    File_4_button->set_border_radius(0);
 
 
     // 5th file choose
@@ -388,8 +391,9 @@ void file_choose_elements_setup()
     File_5_button->on_click = []() { file_choose_or_clear(5); };
 
     File_5_button->switch_push_mode();
-    File_5_panel->set_border_radius(10);
-    File_5_button->set_border_radius(10);
+
+    File_5_panel->set_border_radius(0);
+    File_5_button->set_border_radius(0);
 
     // 6th file choose
     File_6_panel->set_size(file_choose_mini_panels_width , file_choose_mini_panels_height);
@@ -401,8 +405,9 @@ void file_choose_elements_setup()
     File_6_button->on_click = []() { file_choose_or_clear(6); };
 
     File_6_button->switch_push_mode();
-    File_6_panel->set_border_radius(10);
-    File_6_button->set_border_radius(10);
+
+    File_6_panel->set_border_radius(0);
+    File_6_button->set_border_radius(0);
 
 
     File_1_button->set_shadow_offset(0, 0);
@@ -698,7 +703,19 @@ void file_choose_elements_setup()
     // Preview panel
     File_preview_panel->set_size(file_preview_width, file_preview_height);
     File_preview_panel->set_render_point(file_choose_preview_x, file_choose_preview_y);
-    File_preview_panel->set_border_radius(mini_panels_margin + 10);
+    File_preview_panel->set_border_radius(0);
+
+    // Set picture 
+    File_preview_texture->set_texture_by_image(
+        
+        "C:/creator/it/programs/cpp/PSMVA/libs/program_gui/basic_elements/content/pictures/example.png",
+        this_app.renderer
+
+    );
+
+    File_preview_texture->set_size(file_preview_width - mini_panels_margin, file_preview_height - mini_panels_margin);
+
+    File_preview_panel->add_element(File_preview_texture, file_preview_width * 0.5, file_preview_height * 0.5, 1);
 
     // Texture
     //
@@ -715,7 +732,7 @@ void file_choose_elements_setup()
     Study_start_button->extern_click_permission = check_start_study_access;
     Study_start_button->set_access_type(BUTTON_EXTERN_CLICK_PERMISSION);
 
-    Study_start_button->set_border_radius(mini_panels_margin + 10);
+    Study_start_button->set_border_radius(0);
 }
 
 
@@ -833,6 +850,7 @@ void reset_passed_by_dictionary_textboxes_if_language_switched_fc()
     }
 }
 
+int counter_1 = 0;
 
 void file_choose_actions()
 {
@@ -843,6 +861,65 @@ void file_choose_actions()
     {
         this_app.app_sm.request_state_change(MAIN_MENU_ID);
     }
+
+
+    if (App_inputs.is_just_released(Key_actions::LEFT))
+    {
+        File_preview_texture->set_size(File_preview_texture->get_width_size() - 5, File_preview_texture->get_height_size());
+    }
+
+    
+    if (App_inputs.is_just_released(Key_actions::RIGHT))
+    {
+        File_preview_texture->set_size(File_preview_texture->get_width_size() + 5, File_preview_texture->get_height_size());
+    }
+
+
+    if (App_inputs.is_just_released(Key_actions::UP))
+    {
+        File_preview_texture->set_size(File_preview_texture->get_width_size(), File_preview_texture->get_height_size() + 5);
+    }
+
+    
+    if (App_inputs.is_just_released(Key_actions::DOWN))
+    {
+        File_preview_texture->set_size(File_preview_texture->get_width_size(), File_preview_texture->get_height_size() -5);
+    }
+
+
+
+    if (App_inputs.is_just_released(Key_actions::ENTER))
+    {
+
+        if (counter_1 == 0)
+        {
+
+            File_preview_texture->set_texture_by_image(
+        
+                "C:/creator/it/programs/cpp/PSMVA/libs/program_gui/basic_elements/content/pictures/example_2.png",
+                this_app.renderer
+        
+            );
+
+
+            counter_1 +=1;
+        }
+
+        else if (counter_1 == 1)
+        {
+            File_preview_texture->set_texture_by_image(
+        
+                "C:/creator/it/programs/cpp/PSMVA/libs/program_gui/basic_elements/content/pictures/example.png",
+                this_app.renderer
+        
+            );
+
+            counter_1 = 0;
+        }
+
+        File_preview_texture->set_size(file_preview_width - mini_panels_margin, file_preview_height - mini_panels_margin);
+    }
+
 
 }
 

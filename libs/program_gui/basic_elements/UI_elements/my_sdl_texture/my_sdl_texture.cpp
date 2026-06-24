@@ -26,6 +26,8 @@ My_SDL_texture::My_SDL_texture()
     this->x_render_point = 0;
     this->y_render_point = 0;
 
+    this->owns_texture = true;
+
     this->reset_anchor_points();
 }
 
@@ -35,7 +37,7 @@ My_SDL_texture::~My_SDL_texture()
     // Texture destructor
     if (this->texture != nullptr)
     {
-        SDL_DestroyTexture(this->texture);
+        if (this->owns_texture) SDL_DestroyTexture(this->texture);
         this->texture = nullptr;
     }
 }
@@ -74,7 +76,7 @@ void My_SDL_texture::update()
 }
 
 
-void My_SDL_texture::set_texture(SDL_Texture* new_texture)
+void My_SDL_texture::set_texture(SDL_Texture* new_texture, bool take_ownership)
 {
     // Texture link repeat - just reset size to basic and return
     if (this->texture == new_texture)
@@ -91,12 +93,15 @@ void My_SDL_texture::set_texture(SDL_Texture* new_texture)
     // Delete old before set
     if (this->texture != nullptr)
     {
-        SDL_DestroyTexture(this->texture);
+        if (this->owns_texture) SDL_DestroyTexture(this->texture);
+
         this->texture = nullptr;
     }
 
 
     this->texture = new_texture;
+    this->owns_texture = take_ownership;
+
 
     // Error handler for nullptr pass (could be possible on different workflows)
     if (this->texture == nullptr)
@@ -128,6 +133,32 @@ void My_SDL_texture::set_texture(SDL_Texture* new_texture)
     
     this->reset_anchor_points();
 }
+
+
+void My_SDL_texture::set_texture_by_image(const std::string& link, SDL_Renderer* renderer)
+{
+    if (!renderer)
+    {
+        SDL_Log("Renderer is null");
+        this->set_texture(nullptr, false);
+        return;
+    }
+
+    
+
+    SDL_Texture* new_texture = IMG_LoadTexture(renderer, link.c_str());
+
+    if (!new_texture)
+    {
+        SDL_Log("IMG_LoadTexture failed: %s", SDL_GetError());
+        this->set_texture(nullptr, false);
+        return;
+    }
+
+    // Images textures controlled by object himself
+    this->set_texture(new_texture, true);
+}
+
 
 // =========================================================================================== MAIN LOGIC
 

@@ -41,6 +41,21 @@ target_link_libraries(PSMVA PRIVATE
     ${CMAKE_SOURCE_DIR}/libs/engine/SDL3_ttf-3.2.2/lib/x64/SDL3_ttf.lib
 )
 
+# SDL Image
+
+target_include_directories(PSMVA PRIVATE
+    ${CMAKE_SOURCE_DIR}/libs/engine/SDL3_image-3.4.4/include/SDL3_image
+)
+
+target_link_libraries(PSMVA PRIVATE
+    ${CMAKE_SOURCE_DIR}/libs/engine/SDL3_image-3.4.4/lib/x64/SDL3_image.lib
+)
+
+add_custom_command(TARGET PSMVA POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${CMAKE_SOURCE_DIR}/libs/engine/SDL3_image-3.4.4/lib/x64/SDL3_image.dll"
+        "$<TARGET_FILE_DIR:PSMVA>"
+)
 
 # ---------------- dll copying for SDL ----------------
 
