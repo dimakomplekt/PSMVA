@@ -41,17 +41,17 @@ My_SDL_button* Information_button = nullptr;
 
 My_SDL_panel* Information_panel = nullptr;
 
+
 My_SDL_textbox* Info_1_textbox = nullptr;
-My_SDL_texture* Plasma_spraying_texture_1 = nullptr;
 
 My_SDL_textbox* Info_2_textbox = nullptr;
-My_SDL_texture* Plasma_spraying_texture_2 = nullptr;
 
 My_SDL_textbox* Info_3_textbox = nullptr;
-My_SDL_texture* Plasma_spraying_texture_3 = nullptr;
 
+My_SDL_textbox* Info_4_textbox = nullptr;
 
-My_SDL_button* Information_close_button = nullptr;
+My_SDL_textbox* Info_5_textbox = nullptr;
+
 
 
 // Settings panel
@@ -80,8 +80,6 @@ My_SDL_button* Exit_button = nullptr;
 My_SDL_panel* Plasma_spraying_panel = nullptr;
 
 My_SDL_textbox* PSMVA_textbox = nullptr;
-
-My_SDL_texture* Plasma_spraying_texture_4 = nullptr;
 
 
 
@@ -227,16 +225,15 @@ void main_menu_elements_create()
 
 
     Info_1_textbox = new My_SDL_textbox();
-    Plasma_spraying_texture_1 = new My_SDL_texture();
 
     Info_2_textbox = new My_SDL_textbox();
-    Plasma_spraying_texture_2 = new My_SDL_texture();
 
     Info_3_textbox = new My_SDL_textbox();
-    Plasma_spraying_texture_3 = new My_SDL_texture();
 
+    Info_4_textbox = new My_SDL_textbox();
 
-    Information_close_button = new My_SDL_button();
+    Info_5_textbox = new My_SDL_textbox();
+
 
 
     // Settings panel
@@ -264,8 +261,6 @@ void main_menu_elements_create()
     Plasma_spraying_panel = new My_SDL_panel();
 
     PSMVA_textbox = new My_SDL_textbox();
-
-    Plasma_spraying_texture_4 = new My_SDL_texture();
 
 }
 
@@ -380,10 +375,18 @@ void main_menu_elements_setup()
 
     Info_1_textbox->set_content(str_by_dictionary(gd_information_textbox_1));
     Info_1_textbox->switch_textbox_type(HEADER_3);
+
     Info_2_textbox->set_content(str_by_dictionary(gd_information_textbox_2));
     Info_2_textbox->switch_textbox_type(HEADER_3);
+
     Info_3_textbox->set_content(str_by_dictionary(gd_information_textbox_3));
     Info_3_textbox->switch_textbox_type(HEADER_3);
+
+    Info_4_textbox->switch_textbox_type(HEADER_3);
+    Info_4_textbox->set_content(str_by_dictionary(gd_information_textbox_4));
+
+    Info_5_textbox->switch_textbox_type(HEADER_3);
+    Info_5_textbox->set_content(str_by_dictionary(gd_information_textbox_5));
 
 
     // Settings panel
@@ -462,7 +465,7 @@ void main_menu_elements_setup()
 
         Info_1_textbox,
         mm_panels_h_size * 0.5,
-        mm_panels_v_size * 0.25,
+        mm_panels_v_size * ((1.0 / 6) * 1),
         1
         
     );
@@ -471,7 +474,7 @@ void main_menu_elements_setup()
 
         Info_2_textbox,
         mm_panels_h_size * 0.5,
-        mm_panels_v_size * 0.5,
+        mm_panels_v_size * ((1.0 / 6) * 2),
         1
         
     );
@@ -480,7 +483,25 @@ void main_menu_elements_setup()
 
         Info_3_textbox,
         mm_panels_h_size * 0.5,
-        mm_panels_v_size * 0.75,
+        mm_panels_v_size * ((1.0 / 6) * 3),
+        1
+        
+    );
+
+    Information_panel->add_element(
+
+        Info_4_textbox,
+        mm_panels_h_size * 0.5,
+        mm_panels_v_size * ((1.0 / 6) * 4),
+        1
+        
+    );
+
+    Information_panel->add_element(
+
+        Info_5_textbox,
+        mm_panels_h_size * 0.5,
+        mm_panels_v_size * ((1.0 / 6) * 5),
         1
         
     );
@@ -528,19 +549,6 @@ void main_menu_elements_free_and_nullptr()
     Information_panel->delete_element();
 
 
-    Info_1_textbox->delete_element();
-    Plasma_spraying_texture_1->delete_element();
-
-    Info_2_textbox->delete_element();
-    Plasma_spraying_texture_2->delete_element();
-
-    Info_3_textbox->delete_element();
-    Plasma_spraying_texture_3->delete_element();
-
-
-    Information_close_button->delete_element();
-
-
     // Settings panel
 
     Settings_button->delete_element();
@@ -555,9 +563,6 @@ void main_menu_elements_free_and_nullptr()
     // Panel with plasma spraying screen of video
 
     Plasma_spraying_panel->delete_element();
-
-
-    Plasma_spraying_texture_4->delete_element();
 
 
     // Nullptr the pointers
@@ -578,16 +583,14 @@ void main_menu_elements_free_and_nullptr()
 
 
     Info_1_textbox = nullptr;
-    Plasma_spraying_texture_1 = nullptr;
 
     Info_2_textbox = nullptr;
-    Plasma_spraying_texture_2 = nullptr;
 
     Info_3_textbox = nullptr;
-    Plasma_spraying_texture_3 = nullptr;
 
+    Info_4_textbox = nullptr;
 
-    Information_close_button = nullptr;
+    Info_5_textbox = nullptr;
 
 
     // Settings panel
@@ -616,7 +619,6 @@ void main_menu_elements_free_and_nullptr()
 
     PSMVA_textbox = nullptr;
 
-    Plasma_spraying_texture_4 = nullptr;
 }
 
 
@@ -643,23 +645,11 @@ void main_menu_elements_update()
     Information_panel->update();
 
 
-    Plasma_spraying_texture_1->update();
-
-    Plasma_spraying_texture_2->update();
-
-    Plasma_spraying_texture_3->update();
-
-
-    Information_close_button->update();
-
-
     // Settings panel
 
     Settings_button->update();
 
     Settings_panel->update();
-
-    Switch_theme_button->update();
 
 
     // Exit button
@@ -670,9 +660,6 @@ void main_menu_elements_update()
     // Panel with plasma spraying screen of video
 
     Plasma_spraying_panel->update();
-
-    
-    Plasma_spraying_texture_4->update();
 
 }
 
@@ -696,6 +683,10 @@ void reset_passed_by_dictionary_textboxes_if_language_switched_mm()
         Info_2_textbox->set_content(str_by_dictionary(gd_information_textbox_2));
     
         Info_3_textbox->set_content(str_by_dictionary(gd_information_textbox_3));
+
+        Info_4_textbox->set_content(str_by_dictionary(gd_information_textbox_4));
+    
+        Info_5_textbox->set_content(str_by_dictionary(gd_information_textbox_5));
 
 
         // Settings panel
@@ -822,19 +813,6 @@ void main_menu_elements_render(SDL_Renderer* renderer)
 
     Information_panel->render(renderer);
 
-    // Info_1_textbox->render(renderer);
-    // Plasma_spraying_texture->render(renderer);
-
-    // Info_2_textbox->render(renderer);
-    // Plasma_spraying_texture->render(renderer);
-
-    // Info_3_textbox->render(renderer);
-    // Plasma_spraying_texture->render(renderer);
-
-
-    // Information_close_button->render(renderer);
-
-
     // Settings panel
 
     Settings_panel->render(renderer);
@@ -843,9 +821,6 @@ void main_menu_elements_render(SDL_Renderer* renderer)
     // Panel with plasma spraying screen of video
 
     Plasma_spraying_panel->render(renderer);
-
-
-    // Plasma_spraying_texture->render(renderer);
 
 }
 

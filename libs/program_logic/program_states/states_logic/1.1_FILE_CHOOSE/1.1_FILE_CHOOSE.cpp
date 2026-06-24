@@ -100,6 +100,8 @@ void file_choose_actions();
 
 void file_choose_elements_render(SDL_Renderer* renderer);
 
+std::string file_name_from_path(std::string path);
+
 // =========================================================================================== STATE INNER FUNCTIONS PREDECLARATION
 
 
@@ -110,6 +112,24 @@ void file_choose_enter()
 {
     // Log the enter in console
     std::cout << "Entering FILE_CHOOSE\n"; 
+
+    // Check after new enter
+    if (TEST_MODE)
+    {
+        std::cout << file_choose_data.file_1_path << "\n" << std::endl;
+        std::cout << file_choose_data.file_2_path << "\n" << std::endl;
+        std::cout << file_choose_data.file_3_path << "\n" << std::endl;
+        std::cout << file_choose_data.file_4_path << "\n" << std::endl;
+        std::cout << file_choose_data.file_5_path << "\n" << std::endl;
+        std::cout << file_choose_data.file_6_path << "\n" << std::endl;
+        std::cout << static_cast<int>(file_choose_data.panels_states.file_1_panel_state) << "\n" << std::endl;
+        std::cout << static_cast<int>(file_choose_data.panels_states.file_2_panel_state) << "\n" << std::endl;
+        std::cout << static_cast<int>(file_choose_data.panels_states.file_3_panel_state) << "\n" << std::endl;
+        std::cout << static_cast<int>(file_choose_data.panels_states.file_4_panel_state) << "\n" << std::endl;
+        std::cout << static_cast<int>(file_choose_data.panels_states.file_5_panel_state) << "\n" << std::endl;
+        std::cout << static_cast<int>(file_choose_data.panels_states.file_6_panel_state) << "\n" << std::endl;
+    }
+
 
     // ===== State allocation =====
 
@@ -303,10 +323,8 @@ void file_choose_elements_setup()
     File_1_panel->set_size(file_choose_mini_panels_width , file_choose_mini_panels_height);
     
     File_1_textbox->switch_textbox_type(HEADER_2);
-    File_1_textbox->set_content("File 1");
 
     File_1_button->switch_button_textbox_type(HEADER_1);
-    File_1_button->get_button_content_textbox()->set_content("+");
     File_1_button->set_size(file_choose_buttons_width, file_choose_buttons_height);
 
     // Lambda for callback with args
@@ -321,10 +339,8 @@ void file_choose_elements_setup()
     File_2_panel->set_size(file_choose_mini_panels_width , file_choose_mini_panels_height);
 
     File_2_textbox->switch_textbox_type(HEADER_2);
-    File_2_textbox->set_content("");
 
     File_2_button->switch_button_textbox_type(HEADER_1);
-    File_2_button->get_button_content_textbox()->set_content("+");
     File_2_button->set_size(file_choose_buttons_width, file_choose_buttons_height);
 
     File_2_button->on_click = []() { file_choose_or_clear(2); };
@@ -338,10 +354,8 @@ void file_choose_elements_setup()
     File_3_panel->set_size(file_choose_mini_panels_width , file_choose_mini_panels_height);
 
     File_3_textbox->switch_textbox_type(HEADER_2);
-    File_3_textbox->set_content("");
 
     File_3_button->switch_button_textbox_type(HEADER_1);
-    File_3_button->get_button_content_textbox()->set_content("+");
     File_3_button->set_size(file_choose_buttons_width, file_choose_buttons_height);
     File_3_button->on_click = []() { file_choose_or_clear(3); };
 
@@ -354,10 +368,8 @@ void file_choose_elements_setup()
     File_4_panel->set_size(file_choose_mini_panels_width , file_choose_mini_panels_height);
 
     File_4_textbox->switch_textbox_type(HEADER_2);
-    File_4_textbox->set_content("");
 
     File_4_button->switch_button_textbox_type(HEADER_1);
-    File_4_button->get_button_content_textbox()->set_content("+");
     File_4_button->set_size(file_choose_buttons_width, file_choose_buttons_height);
     File_4_button->on_click = []() { file_choose_or_clear(4); };
 
@@ -370,10 +382,8 @@ void file_choose_elements_setup()
     File_5_panel->set_size(file_choose_mini_panels_width , file_choose_mini_panels_height);
 
     File_5_textbox->switch_textbox_type(HEADER_2);
-    File_5_textbox->set_content("");
 
     File_5_button->switch_button_textbox_type(HEADER_1);
-    File_5_button->get_button_content_textbox()->set_content("+");
     File_5_button->set_size(file_choose_buttons_width, file_choose_buttons_height);
     File_5_button->on_click = []() { file_choose_or_clear(5); };
 
@@ -385,10 +395,8 @@ void file_choose_elements_setup()
     File_6_panel->set_size(file_choose_mini_panels_width , file_choose_mini_panels_height);
 
     File_6_textbox->switch_textbox_type(HEADER_2);
-    File_6_textbox->set_content("");
 
     File_6_button->switch_button_textbox_type(HEADER_1);
-    File_6_button->get_button_content_textbox()->set_content("+");
     File_6_button->set_size(file_choose_buttons_width, file_choose_buttons_height);
     File_6_button->on_click = []() { file_choose_or_clear(6); };
 
@@ -410,6 +418,7 @@ void file_choose_elements_setup()
     File_4_panel->set_shadow_offset(-10, -10);
     File_5_panel->set_shadow_offset(-10, -10);
     File_6_panel->set_shadow_offset(-10, -10);
+
 
     // Put elements in panels
 
@@ -593,13 +602,97 @@ void file_choose_elements_setup()
 
     );
 
-    // Deactivate panels
-    File_2_panel->set_visible_flag(false);
-    File_3_panel->set_visible_flag(false);
-    File_4_panel->set_visible_flag(false);
-    File_5_panel->set_visible_flag(false);
-    File_6_panel->set_visible_flag(false);
 
+    // ===== Content by new or resetted states =====
+
+    My_SDL_button* state_buttons[] = {
+
+        File_1_button,
+        File_2_button,
+        File_3_button,
+        File_4_button,
+        File_5_button,
+        File_6_button
+
+    };
+
+    My_SDL_textbox* state_textboxes[] = {
+
+        File_1_textbox,
+        File_2_textbox,
+        File_3_textbox,
+        File_4_textbox,
+        File_5_textbox,
+        File_6_textbox
+
+    };
+
+    My_SDL_panel* state_panels[] = {
+
+        File_1_panel,
+        File_2_panel,
+        File_3_panel,
+        File_4_panel,
+        File_5_panel,
+        File_6_panel
+
+    };
+
+    file_choose_panel_state* state_panels_states[] = {
+
+        &file_choose_data.panels_states.file_1_panel_state,
+        &file_choose_data.panels_states.file_2_panel_state,
+        &file_choose_data.panels_states.file_3_panel_state,
+        &file_choose_data.panels_states.file_4_panel_state,
+        &file_choose_data.panels_states.file_5_panel_state,
+        &file_choose_data.panels_states.file_6_panel_state
+
+    };
+
+    std::string* file_paths[] = {
+
+        &file_choose_data.file_1_path,
+        &file_choose_data.file_2_path,
+        &file_choose_data.file_3_path,
+        &file_choose_data.file_4_path,
+        &file_choose_data.file_5_path,
+        &file_choose_data.file_6_path
+
+    };
+
+    for (int i = 0; i <= 5; i++)
+    {
+        if (*state_panels_states[i] == file_choose_panel_state::EMPTY_STATE) 
+        {
+            state_buttons[i]->get_button_content_textbox()->set_content("+");
+
+            *file_paths[i] = "";
+
+            std::string new_file_string = "File " + std::to_string(i + 1);
+            state_textboxes[i]->set_content(new_file_string);
+
+            state_panels[i]->set_visible_flag(true);
+        }
+
+        else if (*state_panels_states[i] == file_choose_panel_state::CHOSEN_STATE)
+        {
+            state_buttons[i]->get_button_content_textbox()->set_content("-");
+
+            std::string new_file_string = file_name_from_path(*file_paths[i]);
+            state_textboxes[i]->set_content(new_file_string);
+
+            state_panels[i]->set_visible_flag(true);
+        }
+
+        // Just hide
+        else
+        {
+            *file_paths[i] = "";
+            state_panels[i]->set_visible_flag(false);
+        }
+    }
+
+    // ===== Content by new or resetted states =====
 
 
     // Preview panel
@@ -733,8 +826,7 @@ void reset_passed_by_dictionary_textboxes_if_language_switched_fc()
     // Repeat content set if language switched
     if (App_lang.get_lang_reset_flag())
     {
-        // Textboxes for update
-
+        // Textboxes for update - no option to switch lang on this state, so just pass through
 
 
 
@@ -745,6 +837,13 @@ void reset_passed_by_dictionary_textboxes_if_language_switched_fc()
 void file_choose_actions()
 {
     // State actions
+
+
+    if (App_inputs.is_just_released(Key_actions::EXIT))
+    {
+        this_app.app_sm.request_state_change(MAIN_MENU_ID);
+    }
+
 }
 
 
@@ -778,21 +877,46 @@ void file_choose_elements_render(SDL_Renderer* renderer)
 
 void file_choose_data_init()
 {
-    file_choose_data.file_1_path = "";
-    file_choose_data.file_2_path = "";
-    file_choose_data.file_3_path = "";
-    file_choose_data.file_4_path = "";
-    file_choose_data.file_5_path = "";
-    file_choose_data.file_6_path = "";
+    // Block reinitialization
+
+    bool need_init = true;
+
+    if (file_choose_data.panels_states.file_1_panel_state == file_choose_panel_state::CHOSEN_STATE) need_init = false;
+
+    if (need_init)
+    {
+        file_choose_data.file_1_path = "";
+        file_choose_data.file_2_path = "";
+        file_choose_data.file_3_path = "";
+        file_choose_data.file_4_path = "";
+        file_choose_data.file_5_path = "";
+        file_choose_data.file_6_path = "";
+    
+    
+        file_choose_data.panels_states.file_1_panel_state = file_choose_panel_state::EMPTY_STATE;
+        file_choose_data.panels_states.file_2_panel_state = file_choose_panel_state::HIDDEN_STATE;
+        file_choose_data.panels_states.file_3_panel_state = file_choose_panel_state::HIDDEN_STATE;
+        file_choose_data.panels_states.file_4_panel_state = file_choose_panel_state::HIDDEN_STATE;
+        file_choose_data.panels_states.file_5_panel_state = file_choose_panel_state::HIDDEN_STATE;
+        file_choose_data.panels_states.file_6_panel_state = file_choose_panel_state::HIDDEN_STATE;
+    }
 
 
-    file_choose_data.panels_states.file_1_panel_state = file_choose_panel_state::EMPTY_STATE;
-    file_choose_data.panels_states.file_2_panel_state = file_choose_panel_state::HIDDEN_STATE;
-    file_choose_data.panels_states.file_3_panel_state = file_choose_panel_state::HIDDEN_STATE;
-    file_choose_data.panels_states.file_4_panel_state = file_choose_panel_state::HIDDEN_STATE;
-    file_choose_data.panels_states.file_5_panel_state = file_choose_panel_state::HIDDEN_STATE;
-    file_choose_data.panels_states.file_6_panel_state = file_choose_panel_state::HIDDEN_STATE;
-
+    if (TEST_MODE)
+    {
+        std::cout << file_choose_data.file_1_path << "\n" << std::endl;
+        std::cout << file_choose_data.file_2_path << "\n" << std::endl;
+        std::cout << file_choose_data.file_3_path << "\n" << std::endl;
+        std::cout << file_choose_data.file_4_path << "\n" << std::endl;
+        std::cout << file_choose_data.file_5_path << "\n" << std::endl;
+        std::cout << file_choose_data.file_6_path << "\n" << std::endl;
+        std::cout << static_cast<int>(file_choose_data.panels_states.file_1_panel_state) << "\n" << std::endl;
+        std::cout << static_cast<int>(file_choose_data.panels_states.file_2_panel_state) << "\n" << std::endl;
+        std::cout << static_cast<int>(file_choose_data.panels_states.file_3_panel_state) << "\n" << std::endl;
+        std::cout << static_cast<int>(file_choose_data.panels_states.file_4_panel_state) << "\n" << std::endl;
+        std::cout << static_cast<int>(file_choose_data.panels_states.file_5_panel_state) << "\n" << std::endl;
+        std::cout << static_cast<int>(file_choose_data.panels_states.file_6_panel_state) << "\n" << std::endl;
+    }
 }
 
 
@@ -949,6 +1073,8 @@ void add_path(unsigned int file_number)
     File_5_textbox->set_content(file_name_from_path(file_choose_data.file_5_path));
     File_6_textbox->set_content(file_name_from_path(file_choose_data.file_6_path));
 
+
+    if (TEST_MODE) std::cout << "Added path for file: " << file_number << ". Current path: \"" << *paths[add_index] << "\".\n" << std::endl;
 }
 
 
@@ -1022,8 +1148,11 @@ void clear_path(unsigned int file_number)
         if (*panel_states[0] == file_choose_panel_state::HIDDEN_STATE) *panel_states[0] = file_choose_panel_state::EMPTY_STATE;
     }
 
-    // Просто оставляет себя пустым
+    // If we clear file slot number six - set it as empty, not hiden
     if (file_number == 6) *panel_states[5] = file_choose_panel_state::EMPTY_STATE;
+
+
+    if (TEST_MODE) std::cout << "Clear path for file: " << file_number << ". Current path: \"" << *paths[cleared_idx] << "\".\n" << std::endl;
 }
 
 
@@ -1110,19 +1239,57 @@ void file_choose_or_clear(int file_number)
     }
 
 
+    // Add filler string to the new empty
+    
+    std::string* paths[] = {
+
+        &file_choose_data.file_1_path,
+        &file_choose_data.file_2_path,
+        &file_choose_data.file_3_path,
+        &file_choose_data.file_4_path,
+        &file_choose_data.file_5_path,
+        &file_choose_data.file_6_path
+
+    };
+    
+    My_SDL_textbox* textboxes[] = {
+
+        File_1_textbox,
+        File_2_textbox,
+        File_3_textbox,
+        File_4_textbox,
+        File_5_textbox,
+        File_6_textbox
+
+    };
+
+    for (int i = 0; i <= 5; i++)
+    {
+        if (*panel_states[i] == file_choose_panel_state::EMPTY_STATE) 
+        {
+            std::string new_file_string = "File " + std::to_string(i + 1);
+            textboxes[i]->set_content(new_file_string);
+        }
+    }
+    
+
     // Check
-    std::cout << file_choose_data.file_1_path << "\n" << std::endl;
-    std::cout << file_choose_data.file_2_path << "\n" << std::endl;
-    std::cout << file_choose_data.file_3_path << "\n" << std::endl;
-    std::cout << file_choose_data.file_4_path << "\n" << std::endl;
-    std::cout << file_choose_data.file_5_path << "\n" << std::endl;
-    std::cout << file_choose_data.file_6_path << "\n" << std::endl;
-    std::cout << static_cast<int>(file_choose_data.panels_states.file_1_panel_state) << "\n" << std::endl;
-    std::cout << static_cast<int>(file_choose_data.panels_states.file_2_panel_state) << "\n" << std::endl;
-    std::cout << static_cast<int>(file_choose_data.panels_states.file_3_panel_state) << "\n" << std::endl;
-    std::cout << static_cast<int>(file_choose_data.panels_states.file_4_panel_state) << "\n" << std::endl;
-    std::cout << static_cast<int>(file_choose_data.panels_states.file_5_panel_state) << "\n" << std::endl;
-    std::cout << static_cast<int>(file_choose_data.panels_states.file_6_panel_state) << "\n" << std::endl;
+
+    if (TEST_MODE)
+    {
+        std::cout << file_choose_data.file_1_path << "\n" << std::endl;
+        std::cout << file_choose_data.file_2_path << "\n" << std::endl;
+        std::cout << file_choose_data.file_3_path << "\n" << std::endl;
+        std::cout << file_choose_data.file_4_path << "\n" << std::endl;
+        std::cout << file_choose_data.file_5_path << "\n" << std::endl;
+        std::cout << file_choose_data.file_6_path << "\n" << std::endl;
+        std::cout << static_cast<int>(file_choose_data.panels_states.file_1_panel_state) << "\n" << std::endl;
+        std::cout << static_cast<int>(file_choose_data.panels_states.file_2_panel_state) << "\n" << std::endl;
+        std::cout << static_cast<int>(file_choose_data.panels_states.file_3_panel_state) << "\n" << std::endl;
+        std::cout << static_cast<int>(file_choose_data.panels_states.file_4_panel_state) << "\n" << std::endl;
+        std::cout << static_cast<int>(file_choose_data.panels_states.file_5_panel_state) << "\n" << std::endl;
+        std::cout << static_cast<int>(file_choose_data.panels_states.file_6_panel_state) << "\n" << std::endl;
+    }
 }
 
 
@@ -1134,13 +1301,14 @@ void study_start()
 
 bool check_start_study_access()
 {
+    // Access permitted, if one of the files choosen
     if (
 
-        file_choose_data.panels_states.file_1_panel_state == file_choose_panel_state::CHOSEN_STATE &&
-        file_choose_data.panels_states.file_2_panel_state == file_choose_panel_state::CHOSEN_STATE &&
-        file_choose_data.panels_states.file_3_panel_state == file_choose_panel_state::CHOSEN_STATE &&
-        file_choose_data.panels_states.file_4_panel_state == file_choose_panel_state::CHOSEN_STATE &&
-        file_choose_data.panels_states.file_5_panel_state == file_choose_panel_state::CHOSEN_STATE &&
+        file_choose_data.panels_states.file_1_panel_state == file_choose_panel_state::CHOSEN_STATE ||
+        file_choose_data.panels_states.file_2_panel_state == file_choose_panel_state::CHOSEN_STATE ||
+        file_choose_data.panels_states.file_3_panel_state == file_choose_panel_state::CHOSEN_STATE ||
+        file_choose_data.panels_states.file_4_panel_state == file_choose_panel_state::CHOSEN_STATE ||
+        file_choose_data.panels_states.file_5_panel_state == file_choose_panel_state::CHOSEN_STATE ||
         file_choose_data.panels_states.file_6_panel_state == file_choose_panel_state::CHOSEN_STATE 
     
     ) return true;

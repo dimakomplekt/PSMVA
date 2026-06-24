@@ -142,11 +142,7 @@ void start_elements_setup()
     Start_panel->set_border_radius(0);
 
     // Start textbox setup
-    Start_textbox->switch_textbox_type(NO_TYPE);
-
-    Start_textbox->set_font_size(40);
-
-    Start_textbox->set_font_path(absolute_by_relative_from_exe("content/ttf_fonts/basis33.ttf"));
+    Start_textbox->switch_textbox_type(HEADER_2);
 
     Start_textbox->set_content(str_by_dictionary(gd_press_any_key));
 

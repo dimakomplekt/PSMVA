@@ -1,3 +1,7 @@
+# Настраиваем PowerShell на работу с UTF-8
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+$OutputEncoding = [System.Text.Encoding]::UTF8
+
 # Добавляем OpenCV в PATH
 $env:PATH += ";C:\opencv\build\x64\vc16\bin"
 

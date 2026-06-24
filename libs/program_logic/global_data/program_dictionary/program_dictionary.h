@@ -58,15 +58,31 @@ inline Lang_string_type gd_information_textbox_1 = {
 
 inline Lang_string_type gd_information_textbox_2 = {
 
-    "2) Fill the file data and setup the masks by the faders",
-    "2) Заполните информацию о файле и настройте маски при помощи фейдеров"
+    "2) Fill the file data",
+    "2) Заполните информацию о файле"
 
 };
 
 inline Lang_string_type gd_information_textbox_3 = {
 
-    "3) Start an analysis and wait until the report will formed",
-    "3) Запустите анализ и дождитесь формирования отчета"
+    "3) Setup the masks by the faders",
+    "3) Настройте маски, используя фейдеры"
+
+};
+
+
+inline Lang_string_type gd_information_textbox_4 = {
+
+    "4) Start an analysis",
+    "4) Запустите анализ"
+
+};
+
+
+inline Lang_string_type gd_information_textbox_5 = {
+
+    "5) Wait until the report will be formed",
+    "5) Дождитесь формирования отчета"
 
 };
 
