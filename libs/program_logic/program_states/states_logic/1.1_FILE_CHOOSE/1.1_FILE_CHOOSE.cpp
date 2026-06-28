@@ -40,44 +40,71 @@ My_SDL_panel* File_choose_background_panel = nullptr;
 
 My_SDL_panel* File_choose_panel = nullptr;
 
+// Choose video file
 My_SDL_panel* File_1_panel = nullptr;
 My_SDL_textbox* File_1_textbox = nullptr;
 My_SDL_button* File_1_button = nullptr;
+
+// Choose video file meta-file (.txt with setted format)
+My_SDL_panel* File_1_data_panel = nullptr;
+My_SDL_textbox* File_1_data_textbox = nullptr;
+My_SDL_button* File_1_data_button = nullptr;
 
 
 My_SDL_panel* File_2_panel = nullptr;
 My_SDL_textbox* File_2_textbox = nullptr;
 My_SDL_button* File_2_button = nullptr;
 
+My_SDL_panel* File_2_data_panel = nullptr;
+My_SDL_textbox* File_2_data_textbox = nullptr;
+My_SDL_button* File_2_data_button = nullptr;
+
 
 My_SDL_panel* File_3_panel = nullptr;
 My_SDL_textbox* File_3_textbox = nullptr;
 My_SDL_button* File_3_button = nullptr;
+
+My_SDL_panel* File_3_data_panel = nullptr;
+My_SDL_textbox* File_3_data_textbox = nullptr;
+My_SDL_button* File_3_data_button = nullptr;
 
 
 My_SDL_panel* File_4_panel = nullptr;
 My_SDL_textbox* File_4_textbox = nullptr;
 My_SDL_button* File_4_button = nullptr;
 
+My_SDL_panel* File_4_data_panel = nullptr;
+My_SDL_textbox* File_4_data_textbox = nullptr;
+My_SDL_button* File_4_data_button = nullptr;
+
 
 My_SDL_panel* File_5_panel = nullptr;
 My_SDL_textbox* File_5_textbox = nullptr;
 My_SDL_button* File_5_button = nullptr;
+
+My_SDL_panel* File_5_data_panel = nullptr;
+My_SDL_textbox* File_5_data_textbox = nullptr;
+My_SDL_button* File_5_data_button = nullptr;
 
 
 My_SDL_panel* File_6_panel = nullptr;
 My_SDL_textbox* File_6_textbox = nullptr;
 My_SDL_button* File_6_button = nullptr;
 
+My_SDL_panel* File_6_data_panel = nullptr;
+My_SDL_textbox* File_6_data_textbox = nullptr;
+My_SDL_button* File_6_data_button = nullptr;
+
 
 // Preview panel
 
-My_SDL_panel* File_preview_panel = nullptr;
+My_SDL_panel* Video_panel = nullptr;
 My_SDL_texture* File_preview_texture = nullptr;
 
 
 // State control button
 
+My_SDL_button* Main_menu_button = nullptr;
 My_SDL_button* Study_start_button = nullptr;
 
 
@@ -116,18 +143,18 @@ void file_choose_enter()
     // Check after new enter
     if (TEST_MODE)
     {
-        std::cout << file_choose_data.file_1_path << "\n" << std::endl;
-        std::cout << file_choose_data.file_2_path << "\n" << std::endl;
-        std::cout << file_choose_data.file_3_path << "\n" << std::endl;
-        std::cout << file_choose_data.file_4_path << "\n" << std::endl;
-        std::cout << file_choose_data.file_5_path << "\n" << std::endl;
-        std::cout << file_choose_data.file_6_path << "\n" << std::endl;
-        std::cout << static_cast<int>(file_choose_data.panels_states.file_1_panel_state) << "\n" << std::endl;
-        std::cout << static_cast<int>(file_choose_data.panels_states.file_2_panel_state) << "\n" << std::endl;
-        std::cout << static_cast<int>(file_choose_data.panels_states.file_3_panel_state) << "\n" << std::endl;
-        std::cout << static_cast<int>(file_choose_data.panels_states.file_4_panel_state) << "\n" << std::endl;
-        std::cout << static_cast<int>(file_choose_data.panels_states.file_5_panel_state) << "\n" << std::endl;
-        std::cout << static_cast<int>(file_choose_data.panels_states.file_6_panel_state) << "\n" << std::endl;
+        std::cout << file_choose_info.file_1_path << "\n" << std::endl;
+        std::cout << file_choose_info.file_2_path << "\n" << std::endl;
+        std::cout << file_choose_info.file_3_path << "\n" << std::endl;
+        std::cout << file_choose_info.file_4_path << "\n" << std::endl;
+        std::cout << file_choose_info.file_5_path << "\n" << std::endl;
+        std::cout << file_choose_info.file_6_path << "\n" << std::endl;
+        std::cout << static_cast<int>(file_choose_info.panels_states.file_1_panel_state) << "\n" << std::endl;
+        std::cout << static_cast<int>(file_choose_info.panels_states.file_2_panel_state) << "\n" << std::endl;
+        std::cout << static_cast<int>(file_choose_info.panels_states.file_3_panel_state) << "\n" << std::endl;
+        std::cout << static_cast<int>(file_choose_info.panels_states.file_4_panel_state) << "\n" << std::endl;
+        std::cout << static_cast<int>(file_choose_info.panels_states.file_5_panel_state) << "\n" << std::endl;
+        std::cout << static_cast<int>(file_choose_info.panels_states.file_6_panel_state) << "\n" << std::endl;
     }
 
 
@@ -224,14 +251,38 @@ void file_choose_elements_create()
     File_6_button = new My_SDL_button;
 
 
+    File_1_data_panel = new My_SDL_panel;
+    File_1_data_textbox = new My_SDL_textbox;
+    File_1_data_button = new My_SDL_button;
+
+    File_2_data_panel = new My_SDL_panel;
+    File_2_data_textbox = new My_SDL_textbox;
+    File_2_data_button = new My_SDL_button;
+
+    File_3_data_panel = new My_SDL_panel;
+    File_3_data_textbox = new My_SDL_textbox;
+    File_3_data_button = new My_SDL_button;
+
+    File_4_data_panel = new My_SDL_panel;
+    File_4_data_textbox = new My_SDL_textbox;
+    File_4_data_button = new My_SDL_button;
+
+    File_5_data_panel = new My_SDL_panel;
+    File_5_data_textbox = new My_SDL_textbox;
+    File_5_data_button = new My_SDL_button;
+
+    File_6_data_panel = new My_SDL_panel;
+    File_6_data_textbox = new My_SDL_textbox;
+    File_6_data_button = new My_SDL_button;
+
     // Preview panel
 
-    File_preview_panel = new My_SDL_panel;
+    Video_panel = new My_SDL_panel;
     File_preview_texture = new My_SDL_texture;
 
 
     // State control button
-
+    Main_menu_button = new My_SDL_button;
     Study_start_button = new My_SDL_button;
 }
 
@@ -245,48 +296,50 @@ void file_choose_elements_create()
 const int BACKGROUND_WIDTH  = MAIN_WINDOW_H_SIZE;
 const int BACKGROUND_HEIGHT  = MAIN_WINDOW_V_SIZE;
 
-const int FIRST_ZONE_WIDTH = static_cast<int>(MAIN_WINDOW_H_SIZE * 0.5);
-const int SECOND_ZONE_WIDTH = MAIN_WINDOW_H_SIZE - FIRST_ZONE_WIDTH;
-
 const int SCREEN_MARGIN_1 = 50;
-const int SCREEN_MARGIN_2 = 50;
+const int SCREEN_MARGIN_2 = 25;
 
-const int file_choose_panel_width = (FIRST_ZONE_WIDTH  - 1.5 * SCREEN_MARGIN_1);
-const int file_choose_panel_height = (BACKGROUND_HEIGHT - 2 * SCREEN_MARGIN_2);
-
-
-const int mini_panels_margin = 25;
-
-const int file_choose_mini_panels_width = file_choose_panel_width - 2 * mini_panels_margin;
-const int file_choose_mini_panels_height = (file_choose_panel_height - 7 * mini_panels_margin) / 6;
-
-const int file_choose_buttons_width = file_choose_mini_panels_width * 0.2;
-const int file_choose_buttons_height = file_choose_mini_panels_height;
+const int FIRST_ZONE_HEIGHT = static_cast<int>((BACKGROUND_HEIGHT - 3 * SCREEN_MARGIN_1) * 0.65);
+const int SECOND_ZONE_HEIGHT = static_cast<int>((BACKGROUND_HEIGHT - 3 * SCREEN_MARGIN_1) * 0.35);
 
 
-const int file_preview_width = (SECOND_ZONE_WIDTH  - 1.5 * SCREEN_MARGIN_1);
-const int file_preview_height = (BACKGROUND_HEIGHT - 3 * SCREEN_MARGIN_2) * 0.7;
+int file_choose_panel_width = (BACKGROUND_WIDTH - 2 * SCREEN_MARGIN_1);
+int file_choose_panel_height = FIRST_ZONE_HEIGHT;
 
-const int study_start_button_width = file_preview_width;
-const int study_start_button_height = (BACKGROUND_HEIGHT - 3 * SCREEN_MARGIN_2) - file_preview_height;
+int video_panel_width = static_cast<int>((BACKGROUND_WIDTH - 4 * SCREEN_MARGIN_1) * 0.5);
+int video_panel_height = SECOND_ZONE_HEIGHT;
 
+int state_buttons_width = static_cast<int>((BACKGROUND_WIDTH - 4 * SCREEN_MARGIN_1) * 0.25);
+int state_buttons_height = SECOND_ZONE_HEIGHT;
+
+
+int file_choose_mini_panels_width = static_cast<int>((file_choose_panel_width - 3 * SCREEN_MARGIN_2) * 0.5);
+int file_choose_mini_panels_height = static_cast<int>((file_choose_panel_height - 7 * SCREEN_MARGIN_2) / 6);
+
+int file_choose_buttons_width = file_choose_mini_panels_width * 0.2;
+int file_choose_buttons_height = file_choose_mini_panels_height;
 
 
 // ====== Main points ======
 
-int file_choose_background_x = MAIN_WINDOW_H_SIZE * 0.5;
-int file_choose_background_y = MAIN_WINDOW_V_SIZE * 0.5;
+int file_choose_background_x = BACKGROUND_WIDTH * 0.5;
+int file_choose_background_y = BACKGROUND_HEIGHT * 0.5;
 
 
-int file_choose_panel_x = FIRST_ZONE_WIDTH * 0.5;
-int file_choose_panel_y = BACKGROUND_HEIGHT * 0.5;
+int file_choose_panel_x = SCREEN_MARGIN_1 + file_choose_panel_width * 0.5;
+int file_choose_panel_y = SCREEN_MARGIN_1 + FIRST_ZONE_HEIGHT * 0.5;
 
 
-int file_choose_preview_x = FIRST_ZONE_WIDTH + SECOND_ZONE_WIDTH * 0.5;
-int file_choose_preview_y = SCREEN_MARGIN_2 + file_preview_height * 0.5;
+int video_panel_x = static_cast<int>(SCREEN_MARGIN_1 + video_panel_width * 0.5);
+int video_panel_y = static_cast<int>(SCREEN_MARGIN_1 + FIRST_ZONE_HEIGHT + SCREEN_MARGIN_1 + SECOND_ZONE_HEIGHT * 0.5);
 
-int study_start_button_x = file_choose_preview_x; 
-int study_start_button_y = BACKGROUND_HEIGHT - SCREEN_MARGIN_2 - 0.5 * study_start_button_height; 
+
+int main_menu_button_x = static_cast<int>(video_panel_x + video_panel_width * 0.5 + SCREEN_MARGIN_1 + state_buttons_width * 0.5); 
+int main_menu_button_y = video_panel_y; 
+
+
+int study_start_button_x = static_cast<int>(main_menu_button_x + SCREEN_MARGIN_1 + state_buttons_width);
+int study_start_button_y = video_panel_y; 
 
 
 // ===== SETUP DATA =====
@@ -294,7 +347,9 @@ int study_start_button_y = BACKGROUND_HEIGHT - SCREEN_MARGIN_2 - 0.5 * study_sta
 // ===== CALLBACKS FOR BUTTONS =====
 
 void file_choose_or_clear(int file_number);
+void file_data_choose_or_clear(int file_number);
 
+void back_to_main_menu();
 void study_start();
 
 bool check_start_study_access();
@@ -313,18 +368,21 @@ void file_choose_elements_setup()
     File_choose_background_panel->set_border_radius(0);
     
 
-    // File choose panel
+    // ===== File choose panel =====
+
     File_choose_panel->set_render_point(file_choose_panel_x, file_choose_panel_y);
     File_choose_panel->set_size(file_choose_panel_width, file_choose_panel_height);
-    File_choose_panel->set_border_radius(mini_panels_margin + 10);
     File_choose_panel->set_border_radius(0);
+
+
+    // ===== 1 File choose panel =====
 
     // 1st file choose
     File_1_panel->set_size(file_choose_mini_panels_width , file_choose_mini_panels_height);
 
-    File_1_textbox->switch_textbox_type(HEADER_2);
+    File_1_textbox->switch_textbox_type(HEADER_3);
     
-    File_1_button->switch_button_textbox_type(HEADER_1);
+    File_1_button->switch_button_textbox_type(HEADER_2);
     File_1_button->set_size(file_choose_buttons_width, file_choose_buttons_height);
 
     // Lambda for callback with args
@@ -335,14 +393,74 @@ void file_choose_elements_setup()
     File_1_panel->set_border_radius(0);
     File_1_button->set_border_radius(0);
 
+
+    // 1st file data choose
+    File_1_data_panel->set_size(file_choose_mini_panels_width , file_choose_mini_panels_height);
+
+    File_1_data_textbox->switch_textbox_type(HEADER_3);
+    
+    File_1_data_button->switch_button_textbox_type(HEADER_2);
+    File_1_data_button->set_size(file_choose_buttons_width, file_choose_buttons_height);
+
+    // Lambda for callback with args
+    File_1_data_button->on_click = []() { file_data_choose_or_clear(1); };
+
+    File_1_data_button->switch_push_mode();
+
+    File_1_data_panel->set_border_radius(0);
+    File_1_data_button->set_border_radius(0);
+
+
+    File_1_panel->add_element(
+
+        File_1_textbox,
+        (file_choose_mini_panels_width - file_choose_buttons_width) / 2,
+        file_choose_mini_panels_height * 0.5,
+        1
+
+    );
+
+    File_1_panel->add_element(
+
+        File_1_button,
+        file_choose_mini_panels_width - 0.5 * file_choose_buttons_width,
+        file_choose_mini_panels_height * 0.5,
+        1
+
+    );
+
+
+    File_1_data_panel->add_element(
+
+        File_1_data_textbox,
+        (file_choose_mini_panels_width - file_choose_buttons_width) / 2,
+        file_choose_mini_panels_height * 0.5,
+        1
+
+    );
+
+    File_1_data_panel->add_element(
+
+        File_1_data_button,
+        file_choose_mini_panels_width - 0.5 * file_choose_buttons_width,
+        file_choose_mini_panels_height * 0.5,
+        1
+
+    );
+
+
+
+    // ===== 2 File choose panel =====
+
     // 2nd file choose
     File_2_panel->set_size(file_choose_mini_panels_width , file_choose_mini_panels_height);
 
-    File_2_textbox->switch_textbox_type(HEADER_2);
-
-    File_2_button->switch_button_textbox_type(HEADER_1);
+    File_2_textbox->switch_textbox_type(HEADER_3);
+    
+    File_2_button->switch_button_textbox_type(HEADER_2);
     File_2_button->set_size(file_choose_buttons_width, file_choose_buttons_height);
 
+    // Lambda for callback with args
     File_2_button->on_click = []() { file_choose_or_clear(2); };
 
     File_2_button->switch_push_mode();
@@ -351,13 +469,72 @@ void file_choose_elements_setup()
     File_2_button->set_border_radius(0);
 
 
+    // 2nd file data choose
+    File_2_data_panel->set_size(file_choose_mini_panels_width , file_choose_mini_panels_height);
+
+    File_2_data_textbox->switch_textbox_type(HEADER_3);
+    
+    File_2_data_button->switch_button_textbox_type(HEADER_2);
+    File_2_data_button->set_size(file_choose_buttons_width, file_choose_buttons_height);
+
+    // Lambda for callback with args
+    File_2_data_button->on_click = []() { file_data_choose_or_clear(2); };
+
+    File_2_data_button->switch_push_mode();
+
+    File_2_data_panel->set_border_radius(0);
+    File_2_data_button->set_border_radius(0);
+
+
+    File_2_panel->add_element(
+
+        File_2_textbox,
+        (file_choose_mini_panels_width - file_choose_buttons_width) / 2,
+        file_choose_mini_panels_height * 0.5,
+        1
+
+    );
+
+    File_2_panel->add_element(
+
+        File_2_button,
+        file_choose_mini_panels_width - 0.5 * file_choose_buttons_width,
+        file_choose_mini_panels_height * 0.5,
+        1
+
+    );
+
+    File_2_data_panel->add_element(
+
+        File_2_data_textbox,
+        (file_choose_mini_panels_width - file_choose_buttons_width) / 2,
+        file_choose_mini_panels_height * 0.5,
+        1
+
+    );
+
+    File_2_data_panel->add_element(
+
+        File_2_data_button,
+        file_choose_mini_panels_width - 0.5 * file_choose_buttons_width,
+        file_choose_mini_panels_height * 0.5,
+        1
+
+    );
+
+
+
+    // ===== 3 File choose panel =====
+
     // 3rd file choose
     File_3_panel->set_size(file_choose_mini_panels_width , file_choose_mini_panels_height);
 
-    File_3_textbox->switch_textbox_type(HEADER_2);
-
-    File_3_button->switch_button_textbox_type(HEADER_1);
+    File_3_textbox->switch_textbox_type(HEADER_3);
+    
+    File_3_button->switch_button_textbox_type(HEADER_2);
     File_3_button->set_size(file_choose_buttons_width, file_choose_buttons_height);
+
+    // Lambda for callback with args
     File_3_button->on_click = []() { file_choose_or_clear(3); };
 
     File_3_button->switch_push_mode();
@@ -366,13 +543,71 @@ void file_choose_elements_setup()
     File_3_button->set_border_radius(0);
 
 
-    // 4th file choose
+    // 3rd file data choose
+    File_3_data_panel->set_size(file_choose_mini_panels_width , file_choose_mini_panels_height);
+
+    File_3_data_textbox->switch_textbox_type(HEADER_3);
+    
+    File_3_data_button->switch_button_textbox_type(HEADER_2);
+    File_3_data_button->set_size(file_choose_buttons_width, file_choose_buttons_height);
+
+    // Lambda for callback with args
+    File_3_data_button->on_click = []() { file_data_choose_or_clear(3); };
+
+    File_3_data_button->switch_push_mode();
+
+    File_3_data_panel->set_border_radius(0);
+    File_3_data_button->set_border_radius(0);
+
+
+    File_3_panel->add_element(
+
+        File_3_textbox,
+        (file_choose_mini_panels_width - file_choose_buttons_width) / 2,
+        file_choose_mini_panels_height * 0.5,
+        1
+
+    );
+
+    File_3_panel->add_element(
+
+        File_3_button,
+        file_choose_mini_panels_width - 0.5 * file_choose_buttons_width,
+        file_choose_mini_panels_height * 0.5,
+        1
+
+    );
+
+    File_3_data_panel->add_element(
+
+        File_3_data_textbox,
+        (file_choose_mini_panels_width - file_choose_buttons_width) / 2,
+        file_choose_mini_panels_height * 0.5,
+        1
+
+    );
+
+    File_3_data_panel->add_element(
+
+        File_3_data_button,
+        file_choose_mini_panels_width - 0.5 * file_choose_buttons_width,
+        file_choose_mini_panels_height * 0.5,
+        1
+
+    );
+
+
+
+    // ===== 4 File choose panel =====
+
     File_4_panel->set_size(file_choose_mini_panels_width , file_choose_mini_panels_height);
 
-    File_4_textbox->switch_textbox_type(HEADER_2);
-
-    File_4_button->switch_button_textbox_type(HEADER_1);
+    File_4_textbox->switch_textbox_type(HEADER_3);
+    
+    File_4_button->switch_button_textbox_type(HEADER_2);
     File_4_button->set_size(file_choose_buttons_width, file_choose_buttons_height);
+
+    // Lambda for callback with args
     File_4_button->on_click = []() { file_choose_or_clear(4); };
 
     File_4_button->switch_push_mode();
@@ -381,13 +616,72 @@ void file_choose_elements_setup()
     File_4_button->set_border_radius(0);
 
 
-    // 5th file choose
+
+    File_4_data_panel->set_size(file_choose_mini_panels_width , file_choose_mini_panels_height);
+
+    File_4_data_textbox->switch_textbox_type(HEADER_3);
+    
+    File_4_data_button->switch_button_textbox_type(HEADER_2);
+    File_4_data_button->set_size(file_choose_buttons_width, file_choose_buttons_height);
+
+    // Lambda for callback with args
+    File_4_data_button->on_click = []() { file_data_choose_or_clear(4); };
+
+    File_4_data_button->switch_push_mode();
+
+    File_4_data_panel->set_border_radius(0);
+    File_4_data_button->set_border_radius(0);
+
+
+    File_4_panel->add_element(
+
+        File_4_textbox,
+        (file_choose_mini_panels_width - file_choose_buttons_width) / 2,
+        file_choose_mini_panels_height * 0.5,
+        1
+
+    );
+
+    File_4_panel->add_element(
+
+        File_4_button,
+        file_choose_mini_panels_width - 0.5 * file_choose_buttons_width,
+        file_choose_mini_panels_height * 0.5,
+        1
+
+    );
+
+
+    File_4_data_panel->add_element(
+
+        File_4_data_textbox,
+        (file_choose_mini_panels_width - file_choose_buttons_width) / 2,
+        file_choose_mini_panels_height * 0.5,
+        1
+
+    );
+
+    File_4_data_panel->add_element(
+
+        File_4_data_button,
+        file_choose_mini_panels_width - 0.5 * file_choose_buttons_width,
+        file_choose_mini_panels_height * 0.5,
+        1
+
+    );
+
+
+
+    // ===== 5 File choose panel =====
+
     File_5_panel->set_size(file_choose_mini_panels_width , file_choose_mini_panels_height);
 
-    File_5_textbox->switch_textbox_type(HEADER_2);
-
-    File_5_button->switch_button_textbox_type(HEADER_1);
+    File_5_textbox->switch_textbox_type(HEADER_3);
+    
+    File_5_button->switch_button_textbox_type(HEADER_2);
     File_5_button->set_size(file_choose_buttons_width, file_choose_buttons_height);
+
+    // Lambda for callback with args
     File_5_button->on_click = []() { file_choose_or_clear(5); };
 
     File_5_button->switch_push_mode();
@@ -395,13 +689,72 @@ void file_choose_elements_setup()
     File_5_panel->set_border_radius(0);
     File_5_button->set_border_radius(0);
 
-    // 6th file choose
+
+
+    File_5_data_panel->set_size(file_choose_mini_panels_width , file_choose_mini_panels_height);
+
+    File_5_data_textbox->switch_textbox_type(HEADER_3);
+    
+    File_5_data_button->switch_button_textbox_type(HEADER_2);
+    File_5_data_button->set_size(file_choose_buttons_width, file_choose_buttons_height);
+
+    // Lambda for callback with args
+    File_5_data_button->on_click = []() { file_data_choose_or_clear(5); };
+
+    File_5_data_button->switch_push_mode();
+
+    File_5_data_panel->set_border_radius(0);
+    File_5_data_button->set_border_radius(0);
+
+
+    File_5_panel->add_element(
+
+        File_5_textbox,
+        (file_choose_mini_panels_width - file_choose_buttons_width) / 2,
+        file_choose_mini_panels_height * 0.5,
+        1
+
+    );
+
+    File_5_panel->add_element(
+
+        File_5_button,
+        file_choose_mini_panels_width - 0.5 * file_choose_buttons_width,
+        file_choose_mini_panels_height * 0.5,
+        1
+
+    );
+
+
+    File_5_data_panel->add_element(
+
+        File_5_data_textbox,
+        (file_choose_mini_panels_width - file_choose_buttons_width) / 2,
+        file_choose_mini_panels_height * 0.5,
+        1
+
+    );
+
+    File_5_data_panel->add_element(
+
+        File_5_data_button,
+        file_choose_mini_panels_width - 0.5 * file_choose_buttons_width,
+        file_choose_mini_panels_height * 0.5,
+        1
+
+    );
+
+
+    // ===== 6 File choose panel =====
+
     File_6_panel->set_size(file_choose_mini_panels_width , file_choose_mini_panels_height);
 
-    File_6_textbox->switch_textbox_type(HEADER_2);
-
-    File_6_button->switch_button_textbox_type(HEADER_1);
+    File_6_textbox->switch_textbox_type(HEADER_3);
+    
+    File_6_button->switch_button_textbox_type(HEADER_2);
     File_6_button->set_size(file_choose_buttons_width, file_choose_buttons_height);
+
+    // Lambda for callback with args
     File_6_button->on_click = []() { file_choose_or_clear(6); };
 
     File_6_button->switch_push_mode();
@@ -409,6 +762,63 @@ void file_choose_elements_setup()
     File_6_panel->set_border_radius(0);
     File_6_button->set_border_radius(0);
 
+
+
+    File_6_data_panel->set_size(file_choose_mini_panels_width , file_choose_mini_panels_height);
+
+    File_6_data_textbox->switch_textbox_type(HEADER_3);
+    
+    File_6_data_button->switch_button_textbox_type(HEADER_2);
+    File_6_data_button->set_size(file_choose_buttons_width, file_choose_buttons_height);
+
+    // Lambda for callback with args
+    File_6_data_button->on_click = []() { file_data_choose_or_clear(6); };
+
+    File_6_data_button->switch_push_mode();
+
+    File_6_data_panel->set_border_radius(0);
+    File_6_data_button->set_border_radius(0);
+
+
+    File_6_panel->add_element(
+
+        File_6_textbox,
+        (file_choose_mini_panels_width - file_choose_buttons_width) / 2,
+        file_choose_mini_panels_height * 0.5,
+        1
+
+    );
+
+    File_6_panel->add_element(
+
+        File_6_button,
+        file_choose_mini_panels_width - 0.5 * file_choose_buttons_width,
+        file_choose_mini_panels_height * 0.5,
+        1
+
+    );
+
+
+    File_6_data_panel->add_element(
+
+        File_6_data_textbox,
+        (file_choose_mini_panels_width - file_choose_buttons_width) / 2,
+        file_choose_mini_panels_height * 0.5,
+        1
+
+    );
+
+    File_6_data_panel->add_element(
+
+        File_6_data_button,
+        file_choose_mini_panels_width - 0.5 * file_choose_buttons_width,
+        file_choose_mini_panels_height * 0.5,
+        1
+
+    );
+
+
+    // ===== Shadow =====
 
     File_1_button->set_shadow_offset(0, 0);
     File_2_button->set_shadow_offset(0, 0);
@@ -425,24 +835,31 @@ void file_choose_elements_setup()
     File_6_panel->set_shadow_offset(-10, -10);
 
 
-    // Put elements in panels
+    File_1_data_button->set_shadow_offset(0, 0);
+    File_2_data_button->set_shadow_offset(0, 0);
+    File_3_data_button->set_shadow_offset(0, 0);
+    File_4_data_button->set_shadow_offset(0, 0);
+    File_5_data_button->set_shadow_offset(0, 0);
+    File_6_data_button->set_shadow_offset(0, 0);
+
+    File_1_data_panel->set_shadow_offset(-10, -10);
+    File_2_data_panel->set_shadow_offset(-10, -10);
+    File_3_data_panel->set_shadow_offset(-10, -10);
+    File_4_data_panel->set_shadow_offset(-10, -10);
+    File_5_data_panel->set_shadow_offset(-10, -10);
+    File_6_data_panel->set_shadow_offset(-10, -10);
+
+
+
+    // ===== Put elements in main panel =====
 
     // File 1 choose
 
-    File_1_panel->add_element(
+    File_choose_panel->add_element(
 
-        File_1_textbox,
-        (file_choose_mini_panels_width - file_choose_buttons_width) / 2,       // Плохо - текст плавает или не задан
-        file_choose_mini_panels_height * 0.5,
-        1
-
-    );
-
-    File_1_panel->add_element(
-
-        File_1_button,
-        file_choose_mini_panels_width - 0.5 * file_choose_buttons_width,
-        file_choose_mini_panels_height * 0.5,
+        File_1_panel,
+        file_choose_panel_width * 0.25, // Centered with equal margin
+        1 * SCREEN_MARGIN_2 + 0.5 * file_choose_mini_panels_height,
         1
 
     );
@@ -450,29 +867,20 @@ void file_choose_elements_setup()
 
     File_choose_panel->add_element(
 
-        File_1_panel,
-        file_choose_panel_width * 0.5, // Centered with equal margin
-        1 * mini_panels_margin + 0.5 * file_choose_mini_panels_height,
+        File_1_data_panel,
+        file_choose_panel_width * 0.75, // Centered with equal margin
+        1 * SCREEN_MARGIN_2 + 0.5 * file_choose_mini_panels_height,
         1
 
     );
 
     // File 2 choose
     
-    File_2_panel->add_element(
+    File_choose_panel->add_element(
 
-        File_2_textbox,
-        (file_choose_mini_panels_width - file_choose_buttons_width) * 0.5,
-        file_choose_mini_panels_height * 0.5,
-        1
-
-    );
-
-    File_2_panel->add_element(
-
-        File_2_button,
-        file_choose_mini_panels_width - 0.5 * file_choose_buttons_width,
-        file_choose_mini_panels_height * 0.5,
+        File_2_panel,
+        file_choose_panel_width * 0.25, // Centered with equal margin
+        2 * SCREEN_MARGIN_2 + 1.5 * file_choose_mini_panels_height,
         1
 
     );
@@ -480,29 +888,20 @@ void file_choose_elements_setup()
 
     File_choose_panel->add_element(
 
-        File_2_panel,
-        file_choose_panel_width * 0.5, // Centered with equal margin
-        2 * mini_panels_margin + 1.5 * file_choose_mini_panels_height,
+        File_2_data_panel,
+        file_choose_panel_width * 0.75, // Centered with equal margin
+        2 * SCREEN_MARGIN_2 + 1.5 * file_choose_mini_panels_height,
         1
 
     );
 
     // File 3 choose
 
-    File_3_panel->add_element(
+    File_choose_panel->add_element(
 
-        File_3_textbox,
-        (file_choose_mini_panels_width - file_choose_buttons_width) * 0.5,
-        file_choose_mini_panels_height * 0.5,
-        1
-
-    );
-
-    File_3_panel->add_element(
-
-        File_3_button,
-        file_choose_mini_panels_width - 0.5 * file_choose_buttons_width,
-        file_choose_mini_panels_height * 0.5,
+        File_3_panel,
+        file_choose_panel_width * 0.25, // Centered with equal margin
+        3 * SCREEN_MARGIN_2 + 2.5 * file_choose_mini_panels_height,
         1
 
     );
@@ -510,29 +909,20 @@ void file_choose_elements_setup()
 
     File_choose_panel->add_element(
 
-        File_3_panel,
-        file_choose_panel_width * 0.5, // Centered with equal margin
-        3 * mini_panels_margin + 2.5 * file_choose_mini_panels_height,
+        File_3_data_panel,
+        file_choose_panel_width * 0.75, // Centered with equal margin
+        3 * SCREEN_MARGIN_2 + 2.5 * file_choose_mini_panels_height,
         1
 
     );
 
     // File 4 choose
 
-    File_4_panel->add_element(
+    File_choose_panel->add_element(
 
-        File_4_textbox,
-        (file_choose_mini_panels_width - file_choose_buttons_width) * 0.5,
-        file_choose_mini_panels_height * 0.5,
-        1
-
-    );
-
-    File_4_panel->add_element(
-
-        File_4_button,
-        file_choose_mini_panels_width - 0.5 * file_choose_buttons_width,
-        file_choose_mini_panels_height * 0.5,
+        File_4_panel,
+        file_choose_panel_width * 0.25, // Centered with equal margin
+        4 * SCREEN_MARGIN_2 + 3.5 * file_choose_mini_panels_height,
         1
 
     );
@@ -540,59 +930,21 @@ void file_choose_elements_setup()
 
     File_choose_panel->add_element(
 
-        File_4_panel,
-        file_choose_panel_width * 0.5, // Centered with equal margin
-        4 * mini_panels_margin + 3.5 * file_choose_mini_panels_height,
+        File_4_data_panel,
+        file_choose_panel_width * 0.75, // Centered with equal margin
+        4 * SCREEN_MARGIN_2 + 3.5 * file_choose_mini_panels_height,
         1
 
     );
+
 
     // File 5 choose
-
-    File_5_panel->add_element(
-
-        File_5_textbox,
-        (file_choose_mini_panels_width - file_choose_buttons_width) * 0.5,
-        file_choose_mini_panels_height * 0.5,
-        1
-
-    );
-
-    File_5_panel->add_element(
-
-        File_5_button,
-        file_choose_mini_panels_width - 0.5 * file_choose_buttons_width,
-        file_choose_mini_panels_height * 0.5,
-        1
-
-    );
-
 
     File_choose_panel->add_element(
 
         File_5_panel,
-        file_choose_panel_width * 0.5, // Centered with equal margin
-        5 * mini_panels_margin + 4.5 * file_choose_mini_panels_height,
-        1
-
-    );
-
-    // File 6 choose
-
-    File_6_panel->add_element(
-
-        File_6_textbox,
-        (file_choose_mini_panels_width - file_choose_buttons_width) * 0.5,
-        file_choose_mini_panels_height * 0.5,
-        1
-
-    );
-
-    File_6_panel->add_element(
-
-        File_6_button,
-        file_choose_mini_panels_width - 0.5 * file_choose_buttons_width,
-        file_choose_mini_panels_height * 0.5,
+        file_choose_panel_width * 0.25, // Centered with equal margin
+        5 * SCREEN_MARGIN_2 + 4.5 * file_choose_mini_panels_height,
         1
 
     );
@@ -600,12 +952,35 @@ void file_choose_elements_setup()
 
     File_choose_panel->add_element(
 
-        File_6_panel,
-        file_choose_panel_width * 0.5, // Centered with equal margin
-        6 * mini_panels_margin + 5.5 * file_choose_mini_panels_height,
+        File_5_data_panel,
+        file_choose_panel_width * 0.75, // Centered with equal margin
+        5 * SCREEN_MARGIN_2 + 4.5 * file_choose_mini_panels_height,
         1
 
     );
+
+
+    // File 6 choose
+
+    File_choose_panel->add_element(
+
+        File_6_panel,
+        file_choose_panel_width * 0.25, // Centered with equal margin
+        6 * SCREEN_MARGIN_2 + 5.5 * file_choose_mini_panels_height,
+        1
+
+    );
+
+
+    File_choose_panel->add_element(
+
+        File_6_data_panel,
+        file_choose_panel_width * 0.75, // Centered with equal margin
+        6 * SCREEN_MARGIN_2 + 5.5 * file_choose_mini_panels_height,
+        1
+
+    );
+
 
 
     // ===== Content by new or resetted states =====
@@ -645,28 +1020,88 @@ void file_choose_elements_setup()
 
     file_choose_panel_state* state_panels_states[] = {
 
-        &file_choose_data.panels_states.file_1_panel_state,
-        &file_choose_data.panels_states.file_2_panel_state,
-        &file_choose_data.panels_states.file_3_panel_state,
-        &file_choose_data.panels_states.file_4_panel_state,
-        &file_choose_data.panels_states.file_5_panel_state,
-        &file_choose_data.panels_states.file_6_panel_state
+        &file_choose_info.panels_states.file_1_panel_state,
+        &file_choose_info.panels_states.file_2_panel_state,
+        &file_choose_info.panels_states.file_3_panel_state,
+        &file_choose_info.panels_states.file_4_panel_state,
+        &file_choose_info.panels_states.file_5_panel_state,
+        &file_choose_info.panels_states.file_6_panel_state
 
     };
 
     std::string* file_paths[] = {
 
-        &file_choose_data.file_1_path,
-        &file_choose_data.file_2_path,
-        &file_choose_data.file_3_path,
-        &file_choose_data.file_4_path,
-        &file_choose_data.file_5_path,
-        &file_choose_data.file_6_path
+        &file_choose_info.file_1_path,
+        &file_choose_info.file_2_path,
+        &file_choose_info.file_3_path,
+        &file_choose_info.file_4_path,
+        &file_choose_info.file_5_path,
+        &file_choose_info.file_6_path
 
     };
 
+
+
+    My_SDL_button* state_data_buttons[] = {
+
+        File_1_data_button,
+        File_2_data_button,
+        File_3_data_button,
+        File_4_data_button,
+        File_5_data_button,
+        File_6_data_button
+
+    };
+
+    My_SDL_textbox* state_data_textboxes[] = {
+
+        File_1_data_textbox,
+        File_2_data_textbox,
+        File_3_data_textbox,
+        File_4_data_textbox,
+        File_5_data_textbox,
+        File_6_data_textbox
+
+    };
+
+    My_SDL_panel* state_data_panels[] = {
+
+        File_1_data_panel,
+        File_2_data_panel,
+        File_3_data_panel,
+        File_4_data_panel,
+        File_5_data_panel,
+        File_6_data_panel
+
+    };
+
+    file_choose_panel_state* state_data_panels_states[] = {
+
+        &file_data_choose_info.panels_states.file_1_data_panel_state,
+        &file_data_choose_info.panels_states.file_2_data_panel_state,
+        &file_data_choose_info.panels_states.file_3_data_panel_state,
+        &file_data_choose_info.panels_states.file_4_data_panel_state,
+        &file_data_choose_info.panels_states.file_5_data_panel_state,
+        &file_data_choose_info.panels_states.file_6_data_panel_state
+
+    };
+
+    std::string* file_data_paths[] = {
+
+        &file_data_choose_info.file_1_data_path,
+        &file_data_choose_info.file_2_data_path,
+        &file_data_choose_info.file_3_data_path,
+        &file_data_choose_info.file_4_data_path,
+        &file_data_choose_info.file_5_data_path,
+        &file_data_choose_info.file_6_data_path
+
+    };
+
+
     for (int i = 0; i <= 5; i++)
     {
+        // File add
+
         if (*state_panels_states[i] == file_choose_panel_state::EMPTY_STATE) 
         {
             state_buttons[i]->get_button_content_textbox()->set_content("+");
@@ -695,15 +1130,47 @@ void file_choose_elements_setup()
             *file_paths[i] = "";
             state_panels[i]->set_visible_flag(false);
         }
+
+
+        // File data add
+
+        if (*state_data_panels_states[i] == file_choose_panel_state::EMPTY_STATE) 
+        {
+            state_data_buttons[i]->get_button_content_textbox()->set_content("+");
+
+            *file_data_paths[i] = "";
+
+            std::string new_data_file_string = "File " + std::to_string(i + 1) + " data";
+            state_data_textboxes[i]->set_content(new_data_file_string);
+
+            state_data_panels[i]->set_visible_flag(true);
+        }
+
+        else if (*state_data_panels_states[i] == file_choose_panel_state::CHOSEN_STATE)
+        {
+            state_data_buttons[i]->get_button_content_textbox()->set_content("-");
+
+            std::string new_data_file_string = file_name_from_path(*file_data_paths[i]);
+            state_data_textboxes[i]->set_content(new_data_file_string);
+
+            state_data_panels[i]->set_visible_flag(true);
+        }
+
+        // Just hide
+        else
+        {
+            *file_data_paths[i] = "";
+            state_data_panels[i]->set_visible_flag(false);
+        }
     }
 
     // ===== Content by new or resetted states =====
 
 
     // Preview panel
-    File_preview_panel->set_size(file_preview_width, file_preview_height);
-    File_preview_panel->set_render_point(file_choose_preview_x, file_choose_preview_y);
-    File_preview_panel->set_border_radius(0);
+    Video_panel->set_size(video_panel_width, video_panel_height);
+    Video_panel->set_render_point(video_panel_x, video_panel_y);
+    Video_panel->set_border_radius(0);
 
     // Set picture 
     File_preview_texture->set_texture_by_image(
@@ -713,18 +1180,30 @@ void file_choose_elements_setup()
 
     );
 
-    File_preview_texture->set_size(file_preview_width - mini_panels_margin, file_preview_height - mini_panels_margin);
+    File_preview_texture->set_size(video_panel_width - SCREEN_MARGIN_2, video_panel_height - SCREEN_MARGIN_2);
 
-    File_preview_panel->add_element(File_preview_texture, file_preview_width * 0.5, file_preview_height * 0.5, 1);
+    Video_panel->add_element(File_preview_texture, video_panel_width * 0.5, video_panel_height * 0.5, 1);
 
     // Texture
-    //
+
+     
+    // Main menu button
+
+    Main_menu_button->switch_button_textbox_type(ORDINARY_TEXT);
+    Main_menu_button->get_button_content_textbox()->set_content(str_by_dictionary(gd_back_to_main_menu));
+    Main_menu_button->set_size(state_buttons_width, state_buttons_height);
+    Main_menu_button->set_render_point(main_menu_button_x, main_menu_button_y);
+
+    Main_menu_button->on_click = back_to_main_menu;
+
+    Main_menu_button->set_border_radius(0);
+
 
     // Study start button
 
-    Study_start_button->switch_button_textbox_type(HEADER_2);
+    Study_start_button->switch_button_textbox_type(ORDINARY_TEXT);
     Study_start_button->get_button_content_textbox()->set_content(str_by_dictionary(gd_study_start));
-    Study_start_button->set_size(study_start_button_width, study_start_button_height);
+    Study_start_button->set_size(state_buttons_width, state_buttons_height);
     Study_start_button->set_render_point(study_start_button_x, study_start_button_y);
 
     Study_start_button->on_click = study_start;
@@ -748,17 +1227,17 @@ void file_choose_elements_free_and_nullptr()
     File_choose_background_panel->delete_element();
 
 
-    // File choose panel (5 elements now)
+    // File choose panel (36 elements now)
 
     File_choose_panel->delete_element();
 
     // Preview panel
 
-    File_preview_panel->delete_element();
+    Video_panel->delete_element();
 
 
     // State control button
-
+    Main_menu_button->delete_element();
     Study_start_button->delete_element();
     
 
@@ -797,14 +1276,39 @@ void file_choose_elements_free_and_nullptr()
     File_6_button = nullptr;
 
 
+    File_1_data_panel = nullptr;
+    File_1_data_textbox = nullptr;
+    File_1_data_button = nullptr;
+
+    File_2_data_panel = nullptr;
+    File_2_data_textbox = nullptr;
+    File_2_data_button = nullptr;
+
+    File_3_data_panel = nullptr;
+    File_3_data_textbox = nullptr;
+    File_3_data_button = nullptr;
+
+    File_4_data_panel = nullptr;
+    File_4_data_textbox = nullptr;
+    File_4_data_button = nullptr;
+
+    File_5_data_panel = nullptr;
+    File_5_data_textbox = nullptr;
+    File_5_data_button = nullptr;
+    
+    File_6_data_panel = nullptr;
+    File_6_data_textbox = nullptr;
+    File_6_data_button = nullptr;
+
+
     // Preview panel
 
-    File_preview_panel = nullptr;
+    Video_panel = nullptr;
     File_preview_texture = nullptr;
 
 
     // State control button
-
+    Main_menu_button = nullptr;
     Study_start_button = nullptr;
 
 }
@@ -828,11 +1332,11 @@ void file_choose_elements_update()
 
     // Preview panel
 
-    File_preview_panel->update();
+    Video_panel->update();
 
     
     // State control button
-
+    Main_menu_button->update();
     Study_start_button->update();
         
 }
@@ -845,12 +1349,13 @@ void reset_passed_by_dictionary_textboxes_if_language_switched_fc()
     {
         // Textboxes for update - no option to switch lang on this state, so just pass through
 
-
+        // No free textboxes on state
 
     }
 }
 
 int counter_1 = 0;
+
 
 void file_choose_actions()
 {
@@ -917,7 +1422,7 @@ void file_choose_actions()
             counter_1 = 0;
         }
 
-        File_preview_texture->set_size(file_preview_width - mini_panels_margin, file_preview_height - mini_panels_margin);
+        File_preview_texture->set_size(video_panel_width - SCREEN_MARGIN_2, video_panel_height - SCREEN_MARGIN_2);
     }
 
 
@@ -938,11 +1443,12 @@ void file_choose_elements_render(SDL_Renderer* renderer)
 
     // Preview panel
 
-    File_preview_panel->render(renderer);
+    Video_panel->render(renderer);
 
     
     // State control button
 
+    Main_menu_button->render(renderer);
     Study_start_button->render(renderer);
 }
 
@@ -958,43 +1464,60 @@ void file_choose_data_init()
 
     bool need_init = true;
 
-    if (file_choose_data.panels_states.file_1_panel_state == file_choose_panel_state::CHOSEN_STATE) need_init = false;
+    if (file_choose_info.panels_states.file_1_panel_state == file_choose_panel_state::CHOSEN_STATE) need_init = false;
 
     if (need_init)
     {
-        file_choose_data.file_1_path = "";
-        file_choose_data.file_2_path = "";
-        file_choose_data.file_3_path = "";
-        file_choose_data.file_4_path = "";
-        file_choose_data.file_5_path = "";
-        file_choose_data.file_6_path = "";
+        file_choose_info.file_1_path = "";
+        file_choose_info.file_2_path = "";
+        file_choose_info.file_3_path = "";
+        file_choose_info.file_4_path = "";
+        file_choose_info.file_5_path = "";
+        file_choose_info.file_6_path = "";
     
     
-        file_choose_data.panels_states.file_1_panel_state = file_choose_panel_state::EMPTY_STATE;
-        file_choose_data.panels_states.file_2_panel_state = file_choose_panel_state::HIDDEN_STATE;
-        file_choose_data.panels_states.file_3_panel_state = file_choose_panel_state::HIDDEN_STATE;
-        file_choose_data.panels_states.file_4_panel_state = file_choose_panel_state::HIDDEN_STATE;
-        file_choose_data.panels_states.file_5_panel_state = file_choose_panel_state::HIDDEN_STATE;
-        file_choose_data.panels_states.file_6_panel_state = file_choose_panel_state::HIDDEN_STATE;
+        file_choose_info.panels_states.file_1_panel_state = file_choose_panel_state::EMPTY_STATE;
+        file_choose_info.panels_states.file_2_panel_state = file_choose_panel_state::HIDDEN_STATE;
+        file_choose_info.panels_states.file_3_panel_state = file_choose_panel_state::HIDDEN_STATE;
+        file_choose_info.panels_states.file_4_panel_state = file_choose_panel_state::HIDDEN_STATE;
+        file_choose_info.panels_states.file_5_panel_state = file_choose_panel_state::HIDDEN_STATE;
+        file_choose_info.panels_states.file_6_panel_state = file_choose_panel_state::HIDDEN_STATE;
+
+        file_data_choose_info.file_1_data_path = "";
+        file_data_choose_info.file_2_data_path = "";
+        file_data_choose_info.file_3_data_path = "";
+        file_data_choose_info.file_4_data_path = "";
+        file_data_choose_info.file_5_data_path = "";
+        file_data_choose_info.file_6_data_path = "";
+
+
+        file_data_choose_info.panels_states.file_1_data_panel_state = file_choose_panel_state::EMPTY_STATE;
+        file_data_choose_info.panels_states.file_2_data_panel_state = file_choose_panel_state::HIDDEN_STATE;
+        file_data_choose_info.panels_states.file_3_data_panel_state = file_choose_panel_state::HIDDEN_STATE;
+        file_data_choose_info.panels_states.file_4_data_panel_state = file_choose_panel_state::HIDDEN_STATE;
+        file_data_choose_info.panels_states.file_5_data_panel_state = file_choose_panel_state::HIDDEN_STATE;
+        file_data_choose_info.panels_states.file_6_data_panel_state = file_choose_panel_state::HIDDEN_STATE;
+
     }
 
 
     if (TEST_MODE)
     {
-        std::cout << file_choose_data.file_1_path << "\n" << std::endl;
-        std::cout << file_choose_data.file_2_path << "\n" << std::endl;
-        std::cout << file_choose_data.file_3_path << "\n" << std::endl;
-        std::cout << file_choose_data.file_4_path << "\n" << std::endl;
-        std::cout << file_choose_data.file_5_path << "\n" << std::endl;
-        std::cout << file_choose_data.file_6_path << "\n" << std::endl;
-        std::cout << static_cast<int>(file_choose_data.panels_states.file_1_panel_state) << "\n" << std::endl;
-        std::cout << static_cast<int>(file_choose_data.panels_states.file_2_panel_state) << "\n" << std::endl;
-        std::cout << static_cast<int>(file_choose_data.panels_states.file_3_panel_state) << "\n" << std::endl;
-        std::cout << static_cast<int>(file_choose_data.panels_states.file_4_panel_state) << "\n" << std::endl;
-        std::cout << static_cast<int>(file_choose_data.panels_states.file_5_panel_state) << "\n" << std::endl;
-        std::cout << static_cast<int>(file_choose_data.panels_states.file_6_panel_state) << "\n" << std::endl;
+        std::cout << file_choose_info.file_1_path << "\n" << std::endl;
+        std::cout << file_choose_info.file_2_path << "\n" << std::endl;
+        std::cout << file_choose_info.file_3_path << "\n" << std::endl;
+        std::cout << file_choose_info.file_4_path << "\n" << std::endl;
+        std::cout << file_choose_info.file_5_path << "\n" << std::endl;
+        std::cout << file_choose_info.file_6_path << "\n" << std::endl;
+        std::cout << static_cast<int>(file_choose_info.panels_states.file_1_panel_state) << "\n" << std::endl;
+        std::cout << static_cast<int>(file_choose_info.panels_states.file_2_panel_state) << "\n" << std::endl;
+        std::cout << static_cast<int>(file_choose_info.panels_states.file_3_panel_state) << "\n" << std::endl;
+        std::cout << static_cast<int>(file_choose_info.panels_states.file_4_panel_state) << "\n" << std::endl;
+        std::cout << static_cast<int>(file_choose_info.panels_states.file_5_panel_state) << "\n" << std::endl;
+        std::cout << static_cast<int>(file_choose_info.panels_states.file_6_panel_state) << "\n" << std::endl;
     }
 }
+
 
 
 std::string utf16_to_utf8(const std::wstring& wstr)
@@ -1093,7 +1616,7 @@ std::string get_path_by_file_manager()
 }
 
 
-void add_path(unsigned int file_number)
+void add_file_path(unsigned int file_number)
 {
 
     // Check if rebuild is needed
@@ -1104,25 +1627,38 @@ void add_path(unsigned int file_number)
     // Massive of variables links
     std::string* paths[] = {
 
-        &file_choose_data.file_1_path,
-        &file_choose_data.file_2_path,
-        &file_choose_data.file_3_path,
-        &file_choose_data.file_4_path,
-        &file_choose_data.file_5_path,
-        &file_choose_data.file_6_path
+        &file_choose_info.file_1_path,
+        &file_choose_info.file_2_path,
+        &file_choose_info.file_3_path,
+        &file_choose_info.file_4_path,
+        &file_choose_info.file_5_path,
+        &file_choose_info.file_6_path
 
     };
 
     file_choose_panel_state* panel_states[] = {
 
-        &file_choose_data.panels_states.file_1_panel_state,
-        &file_choose_data.panels_states.file_2_panel_state,
-        &file_choose_data.panels_states.file_3_panel_state,
-        &file_choose_data.panels_states.file_4_panel_state,
-        &file_choose_data.panels_states.file_5_panel_state,
-        &file_choose_data.panels_states.file_6_panel_state
+        &file_choose_info.panels_states.file_1_panel_state,
+        &file_choose_info.panels_states.file_2_panel_state,
+        &file_choose_info.panels_states.file_3_panel_state,
+        &file_choose_info.panels_states.file_4_panel_state,
+        &file_choose_info.panels_states.file_5_panel_state,
+        &file_choose_info.panels_states.file_6_panel_state
 
     };
+
+
+    file_choose_panel_state* data_panel_states[] = {
+
+        &file_data_choose_info.panels_states.file_1_data_panel_state,
+        &file_data_choose_info.panels_states.file_2_data_panel_state,
+        &file_data_choose_info.panels_states.file_3_data_panel_state,
+        &file_data_choose_info.panels_states.file_4_data_panel_state,
+        &file_data_choose_info.panels_states.file_5_data_panel_state,
+        &file_data_choose_info.panels_states.file_6_data_panel_state
+
+    };
+
 
     if (*panel_states[add_index] != file_choose_panel_state::EMPTY_STATE) std::cerr << "Error on the file pass!";
 
@@ -1139,98 +1675,143 @@ void add_path(unsigned int file_number)
     // Show next panel
     if (add_index < 5)
     {
+        // Show file add panel
         *panel_states[add_index + 1] = file_choose_panel_state::EMPTY_STATE;
+
+        // Show file data add panel
+        *data_panel_states[add_index + 1] = file_choose_panel_state::EMPTY_STATE;
     }
     
     // Reset panels textboxes content according to the new list
-    File_1_textbox->set_content(file_name_from_path(file_choose_data.file_1_path));
-    File_2_textbox->set_content(file_name_from_path(file_choose_data.file_2_path));
-    File_3_textbox->set_content(file_name_from_path(file_choose_data.file_3_path));
-    File_4_textbox->set_content(file_name_from_path(file_choose_data.file_4_path));
-    File_5_textbox->set_content(file_name_from_path(file_choose_data.file_5_path));
-    File_6_textbox->set_content(file_name_from_path(file_choose_data.file_6_path));
+    File_1_textbox->set_content(file_name_from_path(file_choose_info.file_1_path));
+    File_2_textbox->set_content(file_name_from_path(file_choose_info.file_2_path));
+    File_3_textbox->set_content(file_name_from_path(file_choose_info.file_3_path));
+    File_4_textbox->set_content(file_name_from_path(file_choose_info.file_4_path));
+    File_5_textbox->set_content(file_name_from_path(file_choose_info.file_5_path));
+    File_6_textbox->set_content(file_name_from_path(file_choose_info.file_6_path));
 
 
     if (TEST_MODE) std::cout << "Added path for file: " << file_number << ". Current path: \"" << *paths[add_index] << "\".\n" << std::endl;
 }
 
 
-void clear_path(unsigned int file_number)
+void clear_file_path(unsigned int file_number)
 {
     // Clear file index
-    int cleared_idx = file_number - 1;
+    int cleared_index = file_number - 1;
 
     // Massive of variables links
     std::string* paths[] = {
 
-        &file_choose_data.file_1_path,
-        &file_choose_data.file_2_path,
-        &file_choose_data.file_3_path,
-        &file_choose_data.file_4_path,
-        &file_choose_data.file_5_path,
-        &file_choose_data.file_6_path
+        &file_choose_info.file_1_path,
+        &file_choose_info.file_2_path,
+        &file_choose_info.file_3_path,
+        &file_choose_info.file_4_path,
+        &file_choose_info.file_5_path,
+        &file_choose_info.file_6_path
+
+    };
+
+
+    std::string* data_paths[] = {
+
+        &file_data_choose_info.file_1_data_path,
+        &file_data_choose_info.file_2_data_path,
+        &file_data_choose_info.file_3_data_path,
+        &file_data_choose_info.file_4_data_path,
+        &file_data_choose_info.file_5_data_path,
+        &file_data_choose_info.file_6_data_path
 
     };
 
 
     file_choose_panel_state* panel_states[] = {
 
-        &file_choose_data.panels_states.file_1_panel_state,
-        &file_choose_data.panels_states.file_2_panel_state,
-        &file_choose_data.panels_states.file_3_panel_state,
-        &file_choose_data.panels_states.file_4_panel_state,
-        &file_choose_data.panels_states.file_5_panel_state,
-        &file_choose_data.panels_states.file_6_panel_state
+        &file_choose_info.panels_states.file_1_panel_state,
+        &file_choose_info.panels_states.file_2_panel_state,
+        &file_choose_info.panels_states.file_3_panel_state,
+        &file_choose_info.panels_states.file_4_panel_state,
+        &file_choose_info.panels_states.file_5_panel_state,
+        &file_choose_info.panels_states.file_6_panel_state
+
+    };
+
+
+    file_choose_panel_state* data_panel_states[] = {
+
+        &file_data_choose_info.panels_states.file_1_data_panel_state,
+        &file_data_choose_info.panels_states.file_2_data_panel_state,
+        &file_data_choose_info.panels_states.file_3_data_panel_state,
+        &file_data_choose_info.panels_states.file_4_data_panel_state,
+        &file_data_choose_info.panels_states.file_5_data_panel_state,
+        &file_data_choose_info.panels_states.file_6_data_panel_state
 
     };
 
 
     // Move the names
-    if (cleared_idx >= 0 && cleared_idx < 6)
+    if (cleared_index >= 0 && cleared_index < 6)
     {
         // From the deleted one
-        for (int i = cleared_idx; i < 5; ++i)
+        for (int i = cleared_index; i < 5; ++i)
         {
             *paths[i] = *paths[i + 1];
+            *data_paths[i] = *data_paths[i + 1];
         }
 
         // EMPTY_STATE string to the last one (previos becomes EMPTY_STATE automatically
         // during the iteration loop)
         *paths[5] = "";
+        *data_paths[5] = "";
     }
 
     // Reset panels textboxes content according to the new list
-    File_1_textbox->set_content(file_name_from_path(file_choose_data.file_1_path));
-    File_2_textbox->set_content(file_name_from_path(file_choose_data.file_2_path));
-    File_3_textbox->set_content(file_name_from_path(file_choose_data.file_3_path));
-    File_4_textbox->set_content(file_name_from_path(file_choose_data.file_4_path));
-    File_5_textbox->set_content(file_name_from_path(file_choose_data.file_5_path));
-    File_6_textbox->set_content(file_name_from_path(file_choose_data.file_6_path));
+    File_1_textbox->set_content(file_name_from_path(file_choose_info.file_1_path));
+    File_2_textbox->set_content(file_name_from_path(file_choose_info.file_2_path));
+    File_3_textbox->set_content(file_name_from_path(file_choose_info.file_3_path));
+    File_4_textbox->set_content(file_name_from_path(file_choose_info.file_4_path));
+    File_5_textbox->set_content(file_name_from_path(file_choose_info.file_5_path));
+    File_6_textbox->set_content(file_name_from_path(file_choose_info.file_6_path));
+
+
+    File_1_data_textbox->set_content(file_name_from_path(file_data_choose_info.file_1_data_path));
+    File_2_data_textbox->set_content(file_name_from_path(file_data_choose_info.file_2_data_path));
+    File_3_data_textbox->set_content(file_name_from_path(file_data_choose_info.file_3_data_path));
+    File_4_data_textbox->set_content(file_name_from_path(file_data_choose_info.file_4_data_path));
+    File_5_data_textbox->set_content(file_name_from_path(file_data_choose_info.file_5_data_path));
+    File_6_data_textbox->set_content(file_name_from_path(file_data_choose_info.file_6_data_path));
 
 
     // Reset statuses
     // TODO:: RESET LOOGIC TO CORRECT ONE!!!
-    if ((cleared_idx >= 0 && cleared_idx < 6) && panel_states[cleared_idx + 1])
+    if ((cleared_index >= 0 && cleared_index < 6) && panel_states[cleared_index + 1])
     {
         // From the deleted one
-        for (int i = cleared_idx; i < 5; ++i)
+        for (int i = cleared_index; i < 5; ++i)
         {
             *panel_states[i] = *panel_states[i + 1];
+            *data_panel_states[i] = *data_panel_states[i + 1];
         }
 
         // HIDE last one (previos becomes HIDDEN_STATE automatically
         // during the iteration loop)
         *panel_states[5] = file_choose_panel_state::HIDDEN_STATE;
+        *data_panel_states[5] = file_choose_panel_state::HIDDEN_STATE;
 
         if (*panel_states[0] == file_choose_panel_state::HIDDEN_STATE) *panel_states[0] = file_choose_panel_state::EMPTY_STATE;
+        if (*data_panel_states[0] == file_choose_panel_state::HIDDEN_STATE) *data_panel_states[0] = file_choose_panel_state::EMPTY_STATE;
     }
 
     // If we clear file slot number six - set it as empty, not hiden
-    if (file_number == 6) *panel_states[5] = file_choose_panel_state::EMPTY_STATE;
+    if (file_number == 6)
+    {
+        *panel_states[5] = file_choose_panel_state::EMPTY_STATE;
+        *data_panel_states[5] = file_choose_panel_state::EMPTY_STATE;
+    }
 
-
-    if (TEST_MODE) std::cout << "Clear path for file: " << file_number << ". Current path: \"" << *paths[cleared_idx] << "\".\n" << std::endl;
+    if (TEST_MODE) std::cout << "Clear path for file: " << file_number << ". Current path: \"" << *paths[cleared_index] << "\".\n" << std::endl;
 }
+
 
 
 void file_choose_or_clear(int file_number)
@@ -1240,34 +1821,50 @@ void file_choose_or_clear(int file_number)
 
 
     // Clear file index
-    int cleared_idx = file_number - 1;
+    int cleared_index = file_number - 1;
 
 
     file_choose_panel_state* panel_states[] = {
 
-        &file_choose_data.panels_states.file_1_panel_state,
-        &file_choose_data.panels_states.file_2_panel_state,
-        &file_choose_data.panels_states.file_3_panel_state,
-        &file_choose_data.panels_states.file_4_panel_state,
-        &file_choose_data.panels_states.file_5_panel_state,
-        &file_choose_data.panels_states.file_6_panel_state
+        &file_choose_info.panels_states.file_1_panel_state,
+        &file_choose_info.panels_states.file_2_panel_state,
+        &file_choose_info.panels_states.file_3_panel_state,
+        &file_choose_info.panels_states.file_4_panel_state,
+        &file_choose_info.panels_states.file_5_panel_state,
+        &file_choose_info.panels_states.file_6_panel_state
 
     };
 
+
+    file_choose_panel_state* data_panel_states[] = {
+
+        &file_data_choose_info.panels_states.file_1_data_panel_state,
+        &file_data_choose_info.panels_states.file_2_data_panel_state,
+        &file_data_choose_info.panels_states.file_3_data_panel_state,
+        &file_data_choose_info.panels_states.file_4_data_panel_state,
+        &file_data_choose_info.panels_states.file_5_data_panel_state,
+        &file_data_choose_info.panels_states.file_6_data_panel_state
+
+    };
+
+
     bool add = false;
     bool clear = false;
+    
 
-    if (*panel_states[cleared_idx] == file_choose_panel_state::EMPTY_STATE) add = true;
-    else if (*panel_states[cleared_idx] == file_choose_panel_state::CHOSEN_STATE) clear = true;
+    if (*panel_states[cleared_index] == file_choose_panel_state::EMPTY_STATE) add = true;
+    else if (*panel_states[cleared_index] == file_choose_panel_state::CHOSEN_STATE) clear = true;
 
     if (add)
     {
-        add_path(file_number);
+        if (TEST_MODE) std::cout << "CHOOSE TO ADD FILE\n\n";
+        add_file_path(file_number);
     }
 
     if (clear)
     {
-        clear_path(file_number);
+        if (TEST_MODE) std::cout << "CHOOSE TO CLEAR FILE\n\n";
+        clear_file_path(file_number);
     }
 
 
@@ -1296,6 +1893,342 @@ void file_choose_or_clear(int file_number)
     };
 
 
+    My_SDL_button* data_buttons[] = {
+
+        File_1_data_button,
+        File_2_data_button,
+        File_3_data_button,
+        File_4_data_button,
+        File_5_data_button,
+        File_6_data_button
+
+    };
+
+    My_SDL_panel* data_panels[] = {
+
+        File_1_data_panel,
+        File_2_data_panel,
+        File_3_data_panel,
+        File_4_data_panel,
+        File_5_data_panel,
+        File_6_data_panel
+
+    };
+
+
+
+    for (int i = 0; i <= 5; i++)
+    {
+        if (*panel_states[i] == file_choose_panel_state::EMPTY_STATE) 
+        {
+            buttons[i]->get_button_content_textbox()->set_content("+");
+            
+            panels[i]->set_visible_flag(true);
+
+            data_buttons[i]->get_button_content_textbox()->set_content("+");
+            
+            data_panels[i]->set_visible_flag(true);
+        }
+
+
+        else if (*panel_states[i] == file_choose_panel_state::CHOSEN_STATE)
+        {
+            buttons[i]->get_button_content_textbox()->set_content("-");
+
+            panels[i]->set_visible_flag(true);
+
+            data_panels[i]->set_visible_flag(true);
+        }
+
+        else 
+        {
+            *data_panel_states[i] = file_choose_panel_state::HIDDEN_STATE;
+
+            panels[i]->set_visible_flag(false);
+            data_panels[i]->set_visible_flag(false);
+        }
+
+
+
+        if (*data_panel_states[i] == file_choose_panel_state::EMPTY_STATE) 
+        {
+            data_buttons[i]->get_button_content_textbox()->set_content("+");
+            
+            data_panels[i]->set_visible_flag(true);
+        }
+
+        else if (*data_panel_states[i] == file_choose_panel_state::CHOSEN_STATE)
+        {
+            data_buttons[i]->get_button_content_textbox()->set_content("-");
+
+            data_panels[i]->set_visible_flag(true);
+        }
+
+        else data_panels[i]->set_visible_flag(false);
+    }
+
+
+    // Add filler string to the new empty
+    
+    std::string* paths[] = {
+
+        &file_choose_info.file_1_path,
+        &file_choose_info.file_2_path,
+        &file_choose_info.file_3_path,
+        &file_choose_info.file_4_path,
+        &file_choose_info.file_5_path,
+        &file_choose_info.file_6_path
+
+    };
+    
+    My_SDL_textbox* textboxes[] = {
+
+        File_1_textbox,
+        File_2_textbox,
+        File_3_textbox,
+        File_4_textbox,
+        File_5_textbox,
+        File_6_textbox
+
+    };
+
+
+    std::string* data_paths[] = {
+
+        &file_data_choose_info.file_1_data_path,
+        &file_data_choose_info.file_2_data_path,
+        &file_data_choose_info.file_3_data_path,
+        &file_data_choose_info.file_4_data_path,
+        &file_data_choose_info.file_5_data_path,
+        &file_data_choose_info.file_6_data_path
+
+    };
+    
+    My_SDL_textbox* data_textboxes[] = {
+
+        File_1_data_textbox,
+        File_2_data_textbox,
+        File_3_data_textbox,
+        File_4_data_textbox,
+        File_5_data_textbox,
+        File_6_data_textbox
+
+    };
+
+
+    for (int i = 0; i <= 5; i++)
+    {
+        if (*panel_states[i] == file_choose_panel_state::EMPTY_STATE) 
+        {
+            std::string new_file_string = "File " + std::to_string(i + 1);
+            textboxes[i]->set_content(new_file_string);
+        }
+
+        if (*data_panel_states[i] == file_choose_panel_state::EMPTY_STATE) 
+        {
+            std::string new_file_data_string = "File " + std::to_string(i + 1) + " data";
+            data_textboxes[i]->set_content(new_file_data_string);
+        }
+    }
+    
+
+    // Check
+
+    if (TEST_MODE)
+    {
+        std::cout << file_choose_info.file_1_path << "\n" << std::endl;
+        std::cout << file_choose_info.file_2_path << "\n" << std::endl;
+        std::cout << file_choose_info.file_3_path << "\n" << std::endl;
+        std::cout << file_choose_info.file_4_path << "\n" << std::endl;
+        std::cout << file_choose_info.file_5_path << "\n" << std::endl;
+        std::cout << file_choose_info.file_6_path << "\n" << std::endl;
+        std::cout << static_cast<int>(file_choose_info.panels_states.file_1_panel_state) << "\n" << std::endl;
+        std::cout << static_cast<int>(file_choose_info.panels_states.file_2_panel_state) << "\n" << std::endl;
+        std::cout << static_cast<int>(file_choose_info.panels_states.file_3_panel_state) << "\n" << std::endl;
+        std::cout << static_cast<int>(file_choose_info.panels_states.file_4_panel_state) << "\n" << std::endl;
+        std::cout << static_cast<int>(file_choose_info.panels_states.file_5_panel_state) << "\n" << std::endl;
+        std::cout << static_cast<int>(file_choose_info.panels_states.file_6_panel_state) << "\n" << std::endl;
+    }
+}
+
+
+void add_file_data_path(unsigned int file_number)
+{
+
+    // Check if rebuild is needed
+    if (file_number == 0) return;
+
+    unsigned int add_index = file_number - 1;
+
+    // Massive of variables links
+    std::string* paths[] = {
+
+        &file_data_choose_info.file_1_data_path,
+        &file_data_choose_info.file_2_data_path,
+        &file_data_choose_info.file_3_data_path,
+        &file_data_choose_info.file_4_data_path,
+        &file_data_choose_info.file_5_data_path,
+        &file_data_choose_info.file_6_data_path
+
+    };
+
+    file_choose_panel_state* panel_states[] = {
+
+        &file_data_choose_info.panels_states.file_1_data_panel_state,
+        &file_data_choose_info.panels_states.file_2_data_panel_state,
+        &file_data_choose_info.panels_states.file_3_data_panel_state,
+        &file_data_choose_info.panels_states.file_4_data_panel_state,
+        &file_data_choose_info.panels_states.file_5_data_panel_state,
+        &file_data_choose_info.panels_states.file_6_data_panel_state
+
+    };
+
+    if (*panel_states[add_index] != file_choose_panel_state::EMPTY_STATE) std::cerr << "Error on the file pass!";
+
+
+    std::string selected_path = get_path_by_file_manager();
+
+
+    if (selected_path.empty())
+    {
+        return;
+    }
+    
+
+    *paths[add_index] = selected_path;
+    *panel_states[add_index] = file_choose_panel_state::CHOSEN_STATE;
+    
+
+    // Reset panels textboxes content according to the new list
+    switch (add_index)
+    {
+        case 0: File_1_data_textbox->set_content(file_name_from_path(file_data_choose_info.file_1_data_path));
+        case 1: File_2_data_textbox->set_content(file_name_from_path(file_data_choose_info.file_2_data_path));
+        case 2: File_3_data_textbox->set_content(file_name_from_path(file_data_choose_info.file_3_data_path));
+        case 3: File_4_data_textbox->set_content(file_name_from_path(file_data_choose_info.file_4_data_path));
+        case 4: File_5_data_textbox->set_content(file_name_from_path(file_data_choose_info.file_5_data_path));
+        case 5: File_6_data_textbox->set_content(file_name_from_path(file_data_choose_info.file_6_data_path));
+    }
+
+
+    if (TEST_MODE) std::cout << "Added path for file: " << file_number << ". Current path: \"" << *paths[add_index] << "\".\n" << std::endl;
+}
+
+
+void clear_file_data_path(unsigned int file_number)
+{
+    // Clear file index
+    int cleared_index = file_number - 1;
+
+    // Massive of variables links
+    std::string* paths[] = {
+
+        &file_data_choose_info.file_1_data_path,
+        &file_data_choose_info.file_2_data_path,
+        &file_data_choose_info.file_3_data_path,
+        &file_data_choose_info.file_4_data_path,
+        &file_data_choose_info.file_5_data_path,
+        &file_data_choose_info.file_6_data_path
+
+    };
+
+
+    file_choose_panel_state* panel_states[] = {
+
+        &file_data_choose_info.panels_states.file_1_data_panel_state,
+        &file_data_choose_info.panels_states.file_2_data_panel_state,
+        &file_data_choose_info.panels_states.file_3_data_panel_state,
+        &file_data_choose_info.panels_states.file_4_data_panel_state,
+        &file_data_choose_info.panels_states.file_5_data_panel_state,
+        &file_data_choose_info.panels_states.file_6_data_panel_state
+
+    };
+
+
+    // Move the names
+    // From the deleted one
+    *paths[cleared_index] = "";
+    *panel_states[cleared_index] = file_choose_panel_state::EMPTY_STATE;
+
+    // Reset panels textboxes content according to the new list
+    
+    switch (cleared_index)
+    {
+        case 0: File_1_data_textbox->set_content(file_name_from_path(file_data_choose_info.file_1_data_path));
+        case 1: File_2_data_textbox->set_content(file_name_from_path(file_data_choose_info.file_2_data_path));
+        case 2: File_3_data_textbox->set_content(file_name_from_path(file_data_choose_info.file_3_data_path));
+        case 3: File_4_data_textbox->set_content(file_name_from_path(file_data_choose_info.file_4_data_path));
+        case 4: File_5_data_textbox->set_content(file_name_from_path(file_data_choose_info.file_5_data_path));
+        case 5: File_6_data_textbox->set_content(file_name_from_path(file_data_choose_info.file_6_data_path));
+    }
+
+}
+
+
+
+void file_data_choose_or_clear(int file_number)
+{
+    // EH
+    if (file_number < 1 || file_number > 6) return;
+
+
+    // Clear file index
+    int cleared_index = file_number - 1;
+
+
+    file_choose_panel_state* panel_states[] = {
+
+        &file_data_choose_info.panels_states.file_1_data_panel_state,
+        &file_data_choose_info.panels_states.file_2_data_panel_state,
+        &file_data_choose_info.panels_states.file_3_data_panel_state,
+        &file_data_choose_info.panels_states.file_4_data_panel_state,
+        &file_data_choose_info.panels_states.file_5_data_panel_state,
+        &file_data_choose_info.panels_states.file_6_data_panel_state
+
+    };
+
+    bool add = false;
+    bool clear = false;
+
+    if (*panel_states[cleared_index] == file_choose_panel_state::EMPTY_STATE) add = true;
+    else if (*panel_states[cleared_index] == file_choose_panel_state::CHOSEN_STATE) clear = true;
+
+    if (add)
+    {
+        add_file_data_path(file_number);
+    }
+
+    if (clear)
+    {
+        clear_file_data_path(file_number);
+    }
+
+
+    // Set new textboxes
+
+    My_SDL_button* buttons[] = {
+
+        File_1_data_button,
+        File_2_data_button,
+        File_3_data_button,
+        File_4_data_button,
+        File_5_data_button,
+        File_6_data_button
+
+    };
+
+    My_SDL_panel* panels[] = {
+
+        File_1_data_panel,
+        File_2_data_panel,
+        File_3_data_panel,
+        File_4_data_panel,
+        File_5_data_panel,
+        File_6_data_panel
+
+    };
+
+
     for (int i = 0; i <= 5; i++)
     {
         if (*panel_states[i] == file_choose_panel_state::EMPTY_STATE) 
@@ -1320,23 +2253,23 @@ void file_choose_or_clear(int file_number)
     
     std::string* paths[] = {
 
-        &file_choose_data.file_1_path,
-        &file_choose_data.file_2_path,
-        &file_choose_data.file_3_path,
-        &file_choose_data.file_4_path,
-        &file_choose_data.file_5_path,
-        &file_choose_data.file_6_path
+        &file_data_choose_info.file_1_data_path,
+        &file_data_choose_info.file_2_data_path,
+        &file_data_choose_info.file_3_data_path,
+        &file_data_choose_info.file_4_data_path,
+        &file_data_choose_info.file_5_data_path,
+        &file_data_choose_info.file_6_data_path
 
     };
     
     My_SDL_textbox* textboxes[] = {
 
-        File_1_textbox,
-        File_2_textbox,
-        File_3_textbox,
-        File_4_textbox,
-        File_5_textbox,
-        File_6_textbox
+        File_1_data_textbox,
+        File_2_data_textbox,
+        File_3_data_textbox,
+        File_4_data_textbox,
+        File_5_data_textbox,
+        File_6_data_textbox
 
     };
 
@@ -1344,31 +2277,24 @@ void file_choose_or_clear(int file_number)
     {
         if (*panel_states[i] == file_choose_panel_state::EMPTY_STATE) 
         {
-            std::string new_file_string = "File " + std::to_string(i + 1);
-            textboxes[i]->set_content(new_file_string);
+            std::string new_file_data_string = "File " + std::to_string(i + 1) + " data";
+            textboxes[i]->set_content(new_file_data_string);
         }
-    }
-    
-
-    // Check
-
-    if (TEST_MODE)
-    {
-        std::cout << file_choose_data.file_1_path << "\n" << std::endl;
-        std::cout << file_choose_data.file_2_path << "\n" << std::endl;
-        std::cout << file_choose_data.file_3_path << "\n" << std::endl;
-        std::cout << file_choose_data.file_4_path << "\n" << std::endl;
-        std::cout << file_choose_data.file_5_path << "\n" << std::endl;
-        std::cout << file_choose_data.file_6_path << "\n" << std::endl;
-        std::cout << static_cast<int>(file_choose_data.panels_states.file_1_panel_state) << "\n" << std::endl;
-        std::cout << static_cast<int>(file_choose_data.panels_states.file_2_panel_state) << "\n" << std::endl;
-        std::cout << static_cast<int>(file_choose_data.panels_states.file_3_panel_state) << "\n" << std::endl;
-        std::cout << static_cast<int>(file_choose_data.panels_states.file_4_panel_state) << "\n" << std::endl;
-        std::cout << static_cast<int>(file_choose_data.panels_states.file_5_panel_state) << "\n" << std::endl;
-        std::cout << static_cast<int>(file_choose_data.panels_states.file_6_panel_state) << "\n" << std::endl;
     }
 }
 
+
+
+// ===== Main menu button =====
+
+void back_to_main_menu()
+{
+    // Request state change
+    this_app.app_sm.request_state_change(MAIN_MENU_ID);
+}
+
+
+// ===== Study start button =====
 
 void study_start()
 {
@@ -1378,17 +2304,108 @@ void study_start()
 
 bool check_start_study_access()
 {
-    // Access permitted, if one of the files choosen
-    if (
+    bool pair_1 = false;
+    bool pair_2 = false;
+    bool pair_3 = false;
+    bool pair_4 = false;
+    bool pair_5 = false;
+    bool pair_6 = false;
 
-        file_choose_data.panels_states.file_1_panel_state == file_choose_panel_state::CHOSEN_STATE ||
-        file_choose_data.panels_states.file_2_panel_state == file_choose_panel_state::CHOSEN_STATE ||
-        file_choose_data.panels_states.file_3_panel_state == file_choose_panel_state::CHOSEN_STATE ||
-        file_choose_data.panels_states.file_4_panel_state == file_choose_panel_state::CHOSEN_STATE ||
-        file_choose_data.panels_states.file_5_panel_state == file_choose_panel_state::CHOSEN_STATE ||
-        file_choose_data.panels_states.file_6_panel_state == file_choose_panel_state::CHOSEN_STATE 
-    
-    ) return true;
+
+    if (file_choose_info.panels_states.file_1_panel_state == file_choose_panel_state::CHOSEN_STATE
+        && file_data_choose_info.panels_states.file_1_data_panel_state == file_choose_panel_state::CHOSEN_STATE) 
+    {
+        // Always need to be choosen
+        pair_1 = true;
+    }
+
+    if (
+        
+        (file_choose_info.panels_states.file_2_panel_state == file_choose_panel_state::CHOSEN_STATE
+            && file_data_choose_info.panels_states.file_2_data_panel_state == file_choose_panel_state::CHOSEN_STATE)
+        
+        ||
+
+        (file_choose_info.panels_states.file_2_panel_state != file_choose_panel_state::CHOSEN_STATE
+            && file_data_choose_info.panels_states.file_2_data_panel_state != file_choose_panel_state::CHOSEN_STATE)
+
+    ) 
+    {
+        // Choosen or not choosen both
+        pair_2 = true;
+    }
+
+
+    if (
+        
+        (file_choose_info.panels_states.file_3_panel_state == file_choose_panel_state::CHOSEN_STATE
+            && file_data_choose_info.panels_states.file_3_data_panel_state == file_choose_panel_state::CHOSEN_STATE)
+        
+        ||
+
+        (file_choose_info.panels_states.file_3_panel_state != file_choose_panel_state::CHOSEN_STATE
+            && file_data_choose_info.panels_states.file_3_data_panel_state != file_choose_panel_state::CHOSEN_STATE)
+
+    ) 
+    {
+        // Choosen or not choosen both
+        pair_3 = true;
+    }
+
+
+    if (
+        
+        (file_choose_info.panels_states.file_4_panel_state == file_choose_panel_state::CHOSEN_STATE
+            && file_data_choose_info.panels_states.file_4_data_panel_state == file_choose_panel_state::CHOSEN_STATE)
+        
+        ||
+
+        (file_choose_info.panels_states.file_4_panel_state != file_choose_panel_state::CHOSEN_STATE
+            && file_data_choose_info.panels_states.file_4_data_panel_state != file_choose_panel_state::CHOSEN_STATE)
+
+    ) 
+    {
+        // Choosen or not choosen both
+        pair_4 = true;
+    }
+
+
+    if (
+        
+        (file_choose_info.panels_states.file_5_panel_state == file_choose_panel_state::CHOSEN_STATE
+            && file_data_choose_info.panels_states.file_5_data_panel_state == file_choose_panel_state::CHOSEN_STATE)
+        
+        ||
+
+        (file_choose_info.panels_states.file_5_panel_state != file_choose_panel_state::CHOSEN_STATE
+            && file_data_choose_info.panels_states.file_5_data_panel_state != file_choose_panel_state::CHOSEN_STATE)
+
+    ) 
+    {
+        // Choosen or not choosen both
+        pair_5 = true;
+    }
+
+
+    if (
+        
+        (file_choose_info.panels_states.file_6_panel_state == file_choose_panel_state::CHOSEN_STATE
+            && file_data_choose_info.panels_states.file_6_data_panel_state == file_choose_panel_state::CHOSEN_STATE)
+        
+        ||
+
+        (file_choose_info.panels_states.file_6_panel_state != file_choose_panel_state::CHOSEN_STATE
+            && file_data_choose_info.panels_states.file_6_data_panel_state != file_choose_panel_state::CHOSEN_STATE)
+
+    ) 
+    {
+        // Choosen or not choosen both
+        pair_6 = true;
+    }
+
+
+
+    if (pair_1 && pair_2 && pair_3 && pair_4 && pair_5 && pair_6) return true;
 
     else return false;
 }

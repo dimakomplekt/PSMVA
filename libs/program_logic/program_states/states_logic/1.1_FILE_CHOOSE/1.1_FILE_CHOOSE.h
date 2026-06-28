@@ -80,8 +80,39 @@ typedef struct
 } file_choose_ctx;
 
 
+typedef struct
+{
+
+    file_choose_panel_state file_1_data_panel_state;
+    file_choose_panel_state file_2_data_panel_state;
+    file_choose_panel_state file_3_data_panel_state;
+    file_choose_panel_state file_4_data_panel_state;
+    file_choose_panel_state file_5_data_panel_state;
+    file_choose_panel_state file_6_data_panel_state;
+
+} file_data_choose_panel_states;
+
+
+typedef struct
+{
+
+    std::string file_1_data_path;
+    std::string file_2_data_path;
+    std::string file_3_data_path;
+    std::string file_4_data_path;
+    std::string file_5_data_path;
+    std::string file_6_data_path;
+
+
+    file_data_choose_panel_states panels_states;
+
+} file_data_choose_ctx;
+
+
+
 // Data for file choose - used for files access during the whole analysis (untill the new one)
-inline file_choose_ctx file_choose_data;
+inline file_choose_ctx file_choose_info;
+inline file_data_choose_ctx file_data_choose_info;
 
 
 // Calles at the file choose state enter (cause we use the same data through the whole analysis, 

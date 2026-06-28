@@ -108,6 +108,15 @@ inline Lang_string_type gd_exit_button = {
 
 // =========================================================================================== STATE 1.1 DICTIONARY
 
+
+inline Lang_string_type gd_back_to_main_menu = {
+
+    "Back to menu.",
+    "Вернуться в меню."
+    
+};
+
+
 inline Lang_string_type gd_study_start = {
 
     "Study start!",
