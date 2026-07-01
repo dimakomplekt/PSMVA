@@ -91,12 +91,15 @@ target_include_directories(PSMVA PRIVATE ${OpenCV_INCLUDE_DIRS})
  
 
  # Добавляем include для IntelliSense
- target_include_directories(PSMVA PRIVATE
-
+ target_include_directories(
+    
+    OpenCV PRIVATE
+    
     "C:/opencv/build/include"
     "C:/opencv/build/x64/vc16/lib"
+    "C:/opencv/modules/geometry/include"
     "C:/opencv/modules/imgproc/include"
-    "C:/opencv/modules/highgui/include" 
+    "C:/opencv/modules/highgui/include"
     "C:/opencv/sources/include/opencv2"
-
+    
 )
