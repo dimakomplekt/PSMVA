@@ -144,8 +144,8 @@ bool this_app_loop()
 
     while (this_app.app_state == SDL_APP_CONTINUE)
     {
-        // FPS control [1]
-        frame_start = SDL_GetTicks();
+        // Update the timer and check if the execute zones are reached
+        App_timer.update();
     
         // Pumping events
         SDL_PumpEvents();
@@ -159,15 +159,7 @@ bool this_app_loop()
         SDL_app_cycle(&this_app);
     
 
-        // FPS control [2]
-
-        frame_end = SDL_GetTicks();
-        frame_duration = frame_end - frame_start;
-    
-        if (frame_duration < FRAME_TIME_MS)
-        {
-            SDL_Delay(FRAME_TIME_MS - frame_duration);
-        }
+        App_timer.end_cycle(); // Reset execute permissions for the next cycle
     }
 
     // On exit
@@ -204,16 +196,21 @@ bool SDL_app_cycle(SDL_app_ctx* app)
     
     // ===== GLOBAL GUI ELEMENTS UPDATES =====
 
-    // Counter and flag update for language reset in dictionary-oriented textboxes
-    App_lang.lang_reset_flag_state_loop_update();
+    if (App_timer.can_execute(Execute_zone_ID::HZ_240))
+    {
+        
+        // Counter and flag update for language reset in dictionary-oriented textboxes
+        App_lang.lang_reset_flag_state_loop_update();
 
-    // Counter and flag update for palette reset in palette-oriented elements
-    App_palette.palette_reset_flag_state_loop_update();
+        // Counter and flag update for palette reset in palette-oriented elements
+        App_palette.palette_reset_flag_state_loop_update();
 
-    // Font initialization in case of palette reset, to avoid constant reinitialization and related performance issues
-    App_fonts.fonts_management_in_update_loop();
+        // Font initialization in case of palette reset, to avoid constant reinitialization and related performance issues
+        App_fonts.fonts_management_in_update_loop();
 
-    App_fonts.fonts_palette_reset_flag_state_loop_update();
+        App_fonts.fonts_palette_reset_flag_state_loop_update();
+
+    }
     
     // ===== GLOBAL GUI ELEMENTS UPDATES =====
 

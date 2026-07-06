@@ -95,17 +95,28 @@ void start_exit()
 void start_update()
 {
     // Update inputs
-    App_inputs.update();
+    if (App_timer.can_execute(Execute_zone_ID::HZ_1000))
+    {
+        App_inputs.update();
+    }
 
-    start_elements_update();
+    if (App_timer.can_execute(Execute_zone_ID::HZ_240))
+    {
 
-    start_actions();
+        start_elements_update();
+
+        start_actions();
+
+    }
 }
 
 
 void start_render(SDL_Renderer* renderer)
 {
-    start_elements_render(renderer);
+    if (App_timer.can_execute(Execute_zone_ID::HZ_60))
+    {
+        start_elements_render(renderer);
+    }
 }
 
 

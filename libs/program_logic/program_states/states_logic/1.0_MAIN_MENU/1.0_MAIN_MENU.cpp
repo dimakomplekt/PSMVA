@@ -189,17 +189,26 @@ void main_menu_exit()
 void main_menu_update()
 {
     // Update inputs
-    App_inputs.update();
+    if (App_timer.can_execute(Execute_zone_ID::HZ_1000))
+    {
+        App_inputs.update();
+    }
 
-    main_menu_elements_update();
+    if (App_timer.can_execute(Execute_zone_ID::HZ_240))
+    {
+        main_menu_elements_update();
 
-    main_menu_actions();
+        main_menu_actions();
+    }
 }
 
 
 void main_menu_render(SDL_Renderer* renderer)
 {
-    main_menu_elements_render(renderer);
+    if (App_timer.can_execute(Execute_zone_ID::HZ_60))
+    {
+        main_menu_elements_render(renderer);
+    }
 }
 
 // =========================================================================================== MAIN STATE API

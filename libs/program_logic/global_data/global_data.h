@@ -39,19 +39,3 @@ const std::string THIS_APP_NAME = "PSMVA_1.0";
 const SDL_WindowFlags THIS_APP_WINDOW_FLAG = 0; // | SDL_WINDOW_ALLOW_HIGHDPI
 
 // =========================================================================================== GLOBAL WINDOW SETTINGS
-
-
-// =========================================================================================== FPS LIMITER
-
-// FPS
-extern const int TARGET_FPS;                // Change in CPP file
-extern const Uint64 FRAME_TIME_MS;          // Autoset in CPP file based on TARGET_FPS
-
-// Frame timing variables
-
-extern Uint64 frame_start;
-extern Uint64 frame_end;
-extern Uint64 frame_duration;
-
-
-// =========================================================================================== FPS LIMITER
