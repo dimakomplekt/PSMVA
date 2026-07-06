@@ -4,8 +4,6 @@
 
 #include "app.h"
 
-
-
 #include <iostream>
 
 // =========================================================================================== IMPORT
@@ -145,7 +143,7 @@ bool this_app_loop()
     while (this_app.app_state == SDL_APP_CONTINUE)
     {
         // Update the timer and check if the execute zones are reached
-        App_timer.update();
+        App_timer_1.update();
     
         // Pumping events
         SDL_PumpEvents();
@@ -159,7 +157,7 @@ bool this_app_loop()
         SDL_app_cycle(&this_app);
     
 
-        App_timer.end_cycle(); // Reset execute permissions for the next cycle
+        App_timer_1.end_cycle(); // Reset execute permissions for the next cycle
     }
 
     // On exit
@@ -196,7 +194,7 @@ bool SDL_app_cycle(SDL_app_ctx* app)
     
     // ===== GLOBAL GUI ELEMENTS UPDATES =====
 
-    if (App_timer.can_execute(Execute_zone_ID::HZ_240))
+    if (App_timer_1.can_execute(Execute_zone_ID::HZ_240))
     {
         
         // Counter and flag update for language reset in dictionary-oriented textboxes
@@ -222,7 +220,11 @@ bool SDL_app_cycle(SDL_app_ctx* app)
     if (app->app_sm.get_current_state())
     {
         SDL_SetRenderDrawColor(app->renderer, 0, 0, 0, 255);
-        SDL_RenderClear(app->renderer);
+
+        if (App_timer_1.can_execute(Execute_zone_ID::HZ_120))
+        {
+            SDL_RenderClear(app->renderer);
+        }
 
         app->app_sm.state_render(app->renderer);
 

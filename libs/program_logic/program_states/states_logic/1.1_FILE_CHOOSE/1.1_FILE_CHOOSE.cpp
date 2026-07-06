@@ -196,7 +196,7 @@ void file_choose_exit()
 void file_choose_update()
 {
     // Update inputs
-    if (App_timer.can_execute(Execute_zone_ID::HZ_1000))
+    if (App_timer_1.can_execute(Execute_zone_ID::HZ_1000))
     {
 
         App_inputs.update();
@@ -204,7 +204,7 @@ void file_choose_update()
     }
 
 
-    if (App_timer.can_execute(Execute_zone_ID::HZ_240))
+    if (App_timer_1.can_execute(Execute_zone_ID::HZ_240))
     {
 
         file_choose_elements_update();
@@ -217,7 +217,7 @@ void file_choose_update()
 
 void file_choose_render(SDL_Renderer* renderer)
 {
-    if (App_timer.can_execute(Execute_zone_ID::HZ_60))
+    if (App_timer_1.can_execute(Execute_zone_ID::HZ_120))
     {
         file_choose_elements_render(renderer);
     }

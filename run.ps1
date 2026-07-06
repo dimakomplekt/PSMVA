@@ -5,25 +5,36 @@ $OutputEncoding = [System.Text.Encoding]::UTF8
 # Добавляем OpenCV в PATH
 $env:PATH += ";C:\opencv\build\x64\vc16\bin"
 
-# Если папки build нет — создаём и конфигурируем проект
+# Создаем build при необходимости
 if (-not (Test-Path "build")) {
-    Write-Host "build отсуствует - создаем и запускаем сборку."
-    mkdir build
-    cd build
-    cmake ..
+    Write-Host "build отсутствует - создаем."
+    mkdir build | Out-Null
 }
-else {
-    cd build
+
+# Переходим в build
+cd build
+
+# Конфигурируем проект
+Write-Host "Конфигурирование CMake..."
+cmake ..
+
+if ($LASTEXITCODE -ne 0) {
+    Write-Host ""
+    Write-Host "Ошибка конфигурации CMake!"
+    exit 1
 }
 
 # Собираем проект
+Write-Host "Сборка проекта..."
 cmake --build . --config Release
 
-# Если сборка успешна — запускаем программу
-if ($LASTEXITCODE -eq 0) {
-    Write-Host "Запуск программы!"
-    .\Release\PSMVA.exe
-}
-else {
+if ($LASTEXITCODE -ne 0) {
+    Write-Host ""
     Write-Host "Ошибка сборки!"
+    exit 1
 }
+
+# Запускаем программу
+Write-Host ""
+Write-Host "Запуск программы!"
+.\Release\PSMVA.exe

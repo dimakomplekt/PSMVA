@@ -189,12 +189,12 @@ void main_menu_exit()
 void main_menu_update()
 {
     // Update inputs
-    if (App_timer.can_execute(Execute_zone_ID::HZ_1000))
+    if (App_timer_1.can_execute(Execute_zone_ID::HZ_1000))
     {
         App_inputs.update();
     }
 
-    if (App_timer.can_execute(Execute_zone_ID::HZ_240))
+    if (App_timer_1.can_execute(Execute_zone_ID::HZ_240))
     {
         main_menu_elements_update();
 
@@ -205,7 +205,7 @@ void main_menu_update()
 
 void main_menu_render(SDL_Renderer* renderer)
 {
-    if (App_timer.can_execute(Execute_zone_ID::HZ_60))
+    if (App_timer_1.can_execute(Execute_zone_ID::HZ_120))
     {
         main_menu_elements_render(renderer);
     }

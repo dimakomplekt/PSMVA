@@ -4,7 +4,7 @@
 
 #include "../../../engine/engine.h"
 
-#include <vector>
+#include <array>
 
 // =========================================================================================== IMPORT
 
@@ -18,7 +18,7 @@ struct execute_zone
     
     float start_time = 0.0f;
 
-    bool execute_permission;
+    bool execute_permission = false;
 
 };
 
@@ -29,7 +29,7 @@ enum class Execute_zone_ID
     HZ_10000,
     HZ_1000,
     HZ_240,
-    HZ_60,
+    HZ_120,
 
     COUNT
 
@@ -107,7 +107,7 @@ class App_timer
         // the program execution (hard to implement and not needed for this project)
 
 
-        bool App_timer::can_execute(Execute_zone_ID id) const;
+        bool can_execute(Execute_zone_ID id) const;
 
         // ===== Execute zone management =====
 
@@ -136,10 +136,10 @@ class App_timer
 
         float current_time = 0.0f; // Current time in seconds since the application started
 
-        std::array<execute_zone, static_cast<size_t>(ExecuteZoneID::COUNT)> execute_zones;
+        std::array<execute_zone, static_cast<size_t>(Execute_zone_ID::COUNT)> execute_zones;
 
         // ===== Data =====
-}
+};
 
 // =========================================================================================== APP TIMER SINGLETON
 

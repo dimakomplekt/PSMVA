@@ -29,7 +29,7 @@ App_timer::App_timer()
     execute_zones[(size_t)Execute_zone_ID::HZ_10000].frequency = 10000.0f;
     execute_zones[(size_t)Execute_zone_ID::HZ_1000 ].frequency = 1000.0f;
     execute_zones[(size_t)Execute_zone_ID::HZ_240  ].frequency = 240.0f;
-    execute_zones[(size_t)Execute_zone_ID::HZ_60   ].frequency = 60.0f;
+    execute_zones[(size_t)Execute_zone_ID::HZ_120   ].frequency = 120.0f;
 }
 
 
@@ -84,7 +84,7 @@ float App_timer::get_current_time() const
 }
 
 
-bool App_timer::can_execute(ExecuteZoneID id) const
+bool App_timer::can_execute(Execute_zone_ID id) const
 {
     return execute_zones[(size_t)id].execute_permission;
 }
