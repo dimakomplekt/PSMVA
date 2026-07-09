@@ -30,6 +30,9 @@ enum class Execute_zone_ID
     HZ_1000,
     HZ_240,
     HZ_120,
+    HZ_60,
+    HZ_30,
+    HZ_15,
 
     COUNT
 

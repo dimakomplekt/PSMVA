@@ -29,7 +29,11 @@ App_timer::App_timer()
     execute_zones[(size_t)Execute_zone_ID::HZ_10000].frequency = 10000.0f;
     execute_zones[(size_t)Execute_zone_ID::HZ_1000 ].frequency = 1000.0f;
     execute_zones[(size_t)Execute_zone_ID::HZ_240  ].frequency = 240.0f;
-    execute_zones[(size_t)Execute_zone_ID::HZ_120   ].frequency = 120.0f;
+    execute_zones[(size_t)Execute_zone_ID::HZ_120  ].frequency = 120.0f;
+    execute_zones[(size_t)Execute_zone_ID::HZ_60   ].frequency = 120.0f;
+    execute_zones[(size_t)Execute_zone_ID::HZ_30   ].frequency = 120.0f;
+    execute_zones[(size_t)Execute_zone_ID::HZ_15   ].frequency = 120.0f;
+
 }
 
 

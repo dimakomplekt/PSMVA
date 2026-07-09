@@ -221,7 +221,7 @@ bool SDL_app_cycle(SDL_app_ctx* app)
     {
         SDL_SetRenderDrawColor(app->renderer, 0, 0, 0, 255);
 
-        if (App_timer_1.can_execute(Execute_zone_ID::HZ_120))
+        if (App_timer_1.can_execute(Execute_zone_ID::HZ_60))
         {
             SDL_RenderClear(app->renderer);
         }

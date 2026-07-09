@@ -132,6 +132,36 @@ std::string file_name_from_path(std::string path);
 // =========================================================================================== STATE INNER FUNCTIONS PREDECLARATION
 
 
+// =========================================================================================== OPENCV PART OF THE STATE
+
+// ===== Data =====
+
+// Global capture
+cv::VideoCapture* video_capture_device = nullptr; 
+
+// Global MAT for capture frames
+cv::Mat* test_cv_mat = nullptr;
+
+// Global texture for test_cv_mat_translation
+SDL_Texture* translated_opencv_mat_texture = nullptr; 
+
+bool reset_opencv_data = false;
+
+
+// ===== Functions =====
+
+void opencv_setup_fc();
+
+void opencv_update_fc();
+
+void opencv_render_by_translator_fc(SDL_Renderer* renderer);
+
+void file_choose_opencv_free_and_nullptr();
+
+// =========================================================================================== OPENCV PART OF THE STATE
+
+
+
 // =========================================================================================== MAIN STATE API
 
 
@@ -181,7 +211,10 @@ void file_choose_exit()
 {
     // ===== State deallocation =====
 
+    file_choose_opencv_free_and_nullptr();
+
     file_choose_elements_free_and_nullptr();
+
 
     // ===== State deallocation =====
 
@@ -195,6 +228,19 @@ void file_choose_exit()
 
 void file_choose_update()
 {
+
+    // ===== OPENCV =====
+
+    // Max speed update not to loose synchronization
+    // TODO: maybe block max speed by timer?
+    if (App_timer_1.can_execute(Execute_zone_ID::HZ_30))
+    {
+        opencv_update_fc();
+    }
+
+    // ===== OPENCV =====
+
+
     // Update inputs
     if (App_timer_1.can_execute(Execute_zone_ID::HZ_1000))
     {
@@ -220,6 +266,17 @@ void file_choose_render(SDL_Renderer* renderer)
     if (App_timer_1.can_execute(Execute_zone_ID::HZ_120))
     {
         file_choose_elements_render(renderer);
+
+
+        // ===== OPENCV =====
+
+        // ===== OPENCV =====
+    }
+
+
+    if (App_timer_1.can_execute(Execute_zone_ID::HZ_60))
+    {
+        opencv_render_by_translator_fc(renderer);
     }
 }
 
@@ -373,6 +430,13 @@ bool check_start_study_access();
 
 void file_choose_elements_setup()
 {     
+    // ===== OPENCV =====
+
+    opencv_setup_fc();
+
+    // ===== OPENCV =====
+
+
     // ===== Setup =====
 
     // Background setup
@@ -1176,6 +1240,7 @@ void file_choose_elements_setup()
             *file_data_paths[i] = "";
             state_data_panels[i]->set_visible_flag(false);
         }
+        
     }
 
     // ===== Content by new or resetted states =====
@@ -1226,6 +1291,11 @@ void file_choose_elements_setup()
     Study_start_button->set_access_type(BUTTON_EXTERN_CLICK_PERMISSION);
 
     Study_start_button->set_border_radius(0);
+
+
+
+    Video_panel->set_opacity(255);
+    File_preview_texture->set_opacity(255);
 }
 
 
@@ -1455,15 +1525,12 @@ void file_choose_elements_render(SDL_Renderer* renderer)
 
     File_choose_panel->render(renderer);
 
-    // Preview panel
-
-    Video_panel->render(renderer);
-
     
     // State control button
 
     Main_menu_button->render(renderer);
     Study_start_button->render(renderer);
+
 }
 
 // =========================================================================================== STATE INNER FUNCTIONS REALIZATION
@@ -2426,3 +2493,160 @@ bool check_start_study_access()
 
 
 // =========================================================================================== STATE ELEMENTS INNER FUNCTIONS
+
+
+
+// =========================================================================================== OPENCV PART OF THE STATE FUNCTIONS
+
+void opencv_setup_fc()
+{
+    test_cv_mat = new cv::Mat();
+
+    translated_opencv_mat_texture = SDL_CreateTexture(
+
+        this_app.renderer, 
+        SDL_PIXELFORMAT_RGBA8888, 
+        SDL_TEXTUREACCESS_STREAMING, 
+        500, 
+        500
+
+    );
+
+    if (TEST_MODE) std::cout << "Mat and texture created\n" << std::endl;
+}
+
+void opencv_update_fc()
+{
+    if (file_choose_info.panels_states.file_1_panel_state == file_choose_panel_state::EMPTY_STATE)
+    {
+        reset_opencv_data = true;
+    }
+
+    // Check if the 1st file is choosen
+    if (file_choose_info.panels_states.file_1_panel_state == file_choose_panel_state::CHOSEN_STATE)
+    {
+        
+        if (TEST_MODE) std::cout << "FILE CHOOSEN! Reset the texture to the one from OPENCV!\n" << std::endl;
+
+        // Obtain the file by mat
+        std::string file_path = file_choose_info.file_1_path;
+
+
+        if (video_capture_device == nullptr) 
+        {
+            video_capture_device = new cv::VideoCapture(file_path);
+
+            
+            if (TEST_MODE) std::cout << "New video capture!\n" << std::endl;
+        } 
+        
+        else
+        {
+            // Open only new files
+            if (reset_opencv_data)
+            {
+                video_capture_device->open(file_path);
+                reset_opencv_data = false;
+
+                
+                if (TEST_MODE) std::cout << "Capture reset!\n" << std::endl;
+            }
+        }
+
+        if (!video_capture_device->isOpened())
+        {
+            SDL_Log("Error: can't open videofile: %s", file_path.c_str());
+            return;
+        }
+
+        else
+        {
+
+            *video_capture_device >> *test_cv_mat;
+
+            if (TEST_MODE) std::cout << "Capture passed to MAT!\n" << std::endl;
+
+
+            if (test_cv_mat->empty())
+            {
+                SDL_Log("Rewind to the start of the video.");
+                
+                // Rewind
+                video_capture_device->set(cv::CAP_PROP_POS_FRAMES, 0);
+                
+                // Read first frame
+                *video_capture_device >> *test_cv_mat;
+            }
+
+            // Renew basic texture sizes
+            if (translated_opencv_mat_texture != nullptr) 
+            {
+                
+                if (TEST_MODE) std::cout << "OPENCV - SDL translation started!\n" << std::endl;
+
+                translate_cv_mat_to_sdl_texture(test_cv_mat, translated_opencv_mat_texture, this_app.renderer);
+
+                if (TEST_MODE) std::cout << "OPENCV - SDL translation ended!\n" << std::endl;
+
+
+                
+                if (TEST_MODE) std::cout << "Start texture pass to My_SDL_Texture!\n" << std::endl;
+
+                int target_width = File_preview_texture->get_width_size();
+                int target_height = File_preview_texture->get_height_size();
+
+                // Renew my_SDL_texture by link to curr texture with target resize
+                File_preview_texture->set_texture(translated_opencv_mat_texture, false);
+
+                if (TEST_MODE) std::cout << "Texture pass to My_SDL_Texture complete!\n" << std::endl;
+
+
+                File_preview_texture->set_size(target_width, target_height);
+
+                if (TEST_MODE) std::cout << "Texture sizes changed to target inside My_SDL_Texture!\n" << std::endl;
+
+
+                SDL_SetTextureBlendMode(translated_opencv_mat_texture, SDL_BLENDMODE_NONE);
+            }
+        }
+
+    }
+}
+
+
+void opencv_render_by_translator_fc(SDL_Renderer* renderer)
+{
+    // Pass
+
+    // Data rendered by the Video_panel->render(renderer); 
+    // inside the basic render function
+
+    // Preview panel
+
+    Video_panel->render(renderer);
+
+}
+
+
+void file_choose_opencv_free_and_nullptr()
+{
+
+    // 1. Clear mat
+    if (test_cv_mat != nullptr)
+    {
+        delete test_cv_mat;
+
+        test_cv_mat = nullptr; 
+    }
+
+    // 2. Clear texture SDL: by inner destroy function
+    if (translated_opencv_mat_texture != nullptr)
+    {
+        SDL_DestroyTexture(translated_opencv_mat_texture); // Clear VRAM и RAM
+
+        translated_opencv_mat_texture = nullptr; 
+    }
+
+}
+
+// =========================================================================================== OPENCV PART OF THE STATE FUNCTIONS

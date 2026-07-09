@@ -17,7 +17,7 @@
 #include "states_logic/0.0_START/0.0_START.h"
 #include "states_logic/1.0_MAIN_MENU/1.0_MAIN_MENU.h"
 #include "states_logic/1.1_FILE_CHOOSE/1.1_FILE_CHOOSE.h"
-// #include "states_logic/1.2_MASKS_SETUP/1.2_MASKS_SETUP.h"
+#include "states_logic/1.2_MASKS_SETUP/1.2_MASKS_SETUP.h"
 // #include "states_logic/1.3_FLOW_PARAMETERS_CALCULATION/1.3_FLOW_PARAMETERS_CALCULATION.h"
 // #include "states_logic/1.4_REPORT_FORMING/1.4_REPORT_FORMING.h"
 // #include "states_logic/2.0_PROGRAM_END/2.0_PROGRAM_END.h"
@@ -100,50 +100,21 @@ void init_program_states(State_machine& app_state_machine)
     }
 
 
-    /*
-    // === MAIN_MENU ===
-    app_state_machine.initiate_state(MAIN_MENU_ID, "MAIN_MENU");
+    // === MASKS_SETUP ===
 
-    if (auto* s = app_state_machine.get_state(MAIN_MENU_ID))
+    app_state_machine.initiate_state(MASKS_SETUP_ID, "MASKS_SETUP");
+
+    if (auto* s = app_state_machine.get_state(MASKS_SETUP_ID))
     {
-        s->on_enter = main_menu_enter;
-        s->on_exit  = main_menu_exit;
+        s->on_enter = masks_setup_enter;          // Actions on the state entering 
+        s->on_exit  = masks_setup_exit;           // Actions on the state exit
+        s->state_update = masks_setup_update;     // Actions on the state update
+        s->state_render = masks_setup_render;     // Rendering for the state
     }
 
 
-    // === GAME ===
-    app_state_machine.initiate_state(GAME_ID, "GAME");
-
-    if (auto* s = app_state_machine.get_state(GAME_ID))
-    {
-        s->on_enter = game_enter;
-        s->on_exit  = game_exit;
-    }
-
-
-    // === LEVEL_GAMEPLAY ===
-    app_state_machine.initiate_state(LEVEL_GAMEPLAY_ID, "LEVEL_GAMEPLAY");
-
-    if (auto* s = app_state_machine.get_state(LEVEL_GAMEPLAY_ID))
-    {
-        s->on_enter = level_gameplay_enter;
-        s->on_exit  = level_gameplay_exit;
-    }
-
-
-    // === SMALL_MENU ===
-    app_state_machine.initiate_state(SMALL_MENU_ID, "SMALL_MENU");
-
-    if (auto* s = app_state_machine.get_state(SMALL_MENU_ID))
-    {
-        s->on_enter = small_menu_enter;
-        s->on_exit  = small_menu_exit;
-    }
-
-
-    */  
-    
     // === EXIT_PROGRAM ===
+
     app_state_machine.initiate_state(PROGRAM_END_ID, "PROGRAM END");
 
     if (auto* s = app_state_machine.get_state(PROGRAM_END_ID))

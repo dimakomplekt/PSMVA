@@ -214,7 +214,7 @@ void start_actions()
 
     if (App_inputs.is_just_released(Key_actions::EXIT))
     {
-        this_app.app_sm.request_state_change(PROGRAM_END_ID);
+        this_app.app_sm.request_state_change(MASKS_SETUP_ID);
     }
 
     // Switch the state to MAIN MENU if ENTER pressed
