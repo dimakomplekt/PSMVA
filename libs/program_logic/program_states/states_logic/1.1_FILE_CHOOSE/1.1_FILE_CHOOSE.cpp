@@ -99,6 +99,7 @@ My_SDL_button* File_6_data_button = nullptr;
 // Preview panel
 
 My_SDL_panel* Video_panel = nullptr;
+My_SDL_textbox* PSMVA_textbox_fc = nullptr;
 My_SDL_texture* File_preview_texture = nullptr;
 
 
@@ -349,6 +350,7 @@ void file_choose_elements_create()
     // Preview panel
 
     Video_panel = new My_SDL_panel;
+    PSMVA_textbox_fc = new My_SDL_textbox();
     File_preview_texture = new My_SDL_texture;
 
 
@@ -1246,10 +1248,13 @@ void file_choose_elements_setup()
     // ===== Content by new or resetted states =====
 
 
-    // Preview panel
+    // ===== Preview panel =====
+
     Video_panel->set_size(video_panel_width, video_panel_height);
     Video_panel->set_render_point(video_panel_x, video_panel_y);
     Video_panel->set_border_radius(0);
+
+    /*
 
     // Set picture 
     File_preview_texture->set_texture_by_image(
@@ -1259,11 +1264,19 @@ void file_choose_elements_setup()
 
     );
 
+    */
+
+    PSMVA_textbox_fc->switch_textbox_type(HEADER_1);
+    PSMVA_textbox_fc->set_content(THIS_APP_NAME);
+
+
     File_preview_texture->set_size(video_panel_width - SCREEN_MARGIN_2, video_panel_height - SCREEN_MARGIN_2);
 
     Video_panel->add_element(File_preview_texture, video_panel_width * 0.5, video_panel_height * 0.5, 1);
+    Video_panel->add_element(PSMVA_textbox_fc, video_panel_width * 0.5, video_panel_height * 0.5, 2);
 
-    // Texture
+
+    // ===== Preview panel =====
 
      
     // Main menu button
@@ -1388,6 +1401,7 @@ void file_choose_elements_free_and_nullptr()
     // Preview panel
 
     Video_panel = nullptr;
+    PSMVA_textbox_fc = nullptr;
     File_preview_texture = nullptr;
 
 
@@ -2520,6 +2534,9 @@ void opencv_update_fc()
     if (file_choose_info.panels_states.file_1_panel_state == file_choose_panel_state::EMPTY_STATE)
     {
         reset_opencv_data = true;
+
+        // Show PSMVA textbox instead
+        File_preview_texture->set_visible_flag(false);
     }
 
     // Check if the 1st file is choosen
@@ -2547,6 +2564,10 @@ void opencv_update_fc()
             {
                 video_capture_device->open(file_path);
                 reset_opencv_data = false;
+
+
+                // Start showing the videofile
+                File_preview_texture->set_visible_flag(true);
 
                 
                 if (TEST_MODE) std::cout << "Capture reset!\n" << std::endl;

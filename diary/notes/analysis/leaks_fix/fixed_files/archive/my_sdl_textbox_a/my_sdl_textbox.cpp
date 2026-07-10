@@ -150,22 +150,22 @@ My_SDL_textbox::~My_SDL_textbox()
 
 void My_SDL_textbox::cleanup()
 {
-    // Texture delete - the content texture is ALWAYS owned by the textbox
-    if (this->content_texture)
+    // Texture delete
+    if (this->passed_by_font_palette && this->content_texture)
     {
         SDL_DestroyTexture(this->content_texture);
         this->content_texture = nullptr;
     }
 
-    // Font delete - ONLY for the owned (self-opened) font,
-    // the shared palette fonts are owned and closed by App_fonts
-    if (this->owned_font)
+    // TODO: check cool or not
+    if (!this->passed_by_font_palette)
     {
-        TTF_CloseFont(this->owned_font);
-        this->owned_font = nullptr;
+        TTF_CloseFont(this->ttf_font_link);
+        this->ttf_font_link = nullptr;
     }
 
-    this->ttf_font_link = nullptr;
+    // TODO: Crushes by???
+    // this->set_content("");
 }
 
 
@@ -201,15 +201,7 @@ void My_SDL_textbox::update_font()
     // Just font start initialization in case when font not passed by font palette
     if (this->ttf_font_link == nullptr && !this->passed_by_font_palette)
     {
-        // Self-opened font - the textbox takes the ownership
-        if (!this->font_path.empty())
-        {
-            TTF_Font* self_opened_font = TTF_OpenFont(this->font_path.c_str(), this->font_size);
-
-            if (self_opened_font) this->set_owned_font(self_opened_font);
-
-            else SDL_Log("TTF_OpenFont failed: %s", SDL_GetError());
-        }
+        if(!this->font_path.empty()) this->set_ttf_font_link(TTF_OpenFont(this->font_path.c_str(), this->font_size));
     }
 
     // Reset the font if current font palette was switched and the font was set by the font palette,
@@ -218,7 +210,7 @@ void My_SDL_textbox::update_font()
     {
 
         std::string curr_font_path;
-        TTF_Font* curr_font_link = nullptr;    // nullptr init vs the uninitialized read on the default case
+        TTF_Font* curr_font_link;
 
 
         switch (this->textbox_type)
@@ -296,10 +288,10 @@ void My_SDL_textbox::update_font()
 
         if (curr_font_link != nullptr)
         {
-            // Renew by the shared palette font (the previous owned font closes inside)
+            // Renew
 
             this->font_path = curr_font_path;
-            this->set_shared_font(curr_font_link);
+            this->ttf_font_link = curr_font_link;
 
         }
         else
@@ -317,40 +309,6 @@ void My_SDL_textbox::update_font()
         this->textbox_type_changed = false;
         this->content_dirty = true;
     }
-}
-
-
-// Font ownership setters - the ONLY valid ways to change ttf_font_link inside the class code
-
-void My_SDL_textbox::set_shared_font(TTF_Font* shared_font)
-{
-    // Previous owned font close (shared fonts are never closed here)
-    if (this->owned_font != nullptr && this->owned_font != shared_font)
-    {
-        TTF_CloseFont(this->owned_font);
-    }
-
-    this->owned_font = nullptr;
-
-    this->ttf_font_link = shared_font;
-
-    this->content_dirty = true;
-}
-
-
-void My_SDL_textbox::set_owned_font(TTF_Font* new_owned_font)
-{
-    // Previous owned font close (with the same font double set protection)
-    if (this->owned_font != nullptr && this->owned_font != new_owned_font)
-    {
-        TTF_CloseFont(this->owned_font);
-    }
-
-    this->owned_font = new_owned_font;
-
-    this->ttf_font_link = new_owned_font;
-
-    this->content_dirty = true;
 }
 
 
@@ -523,9 +481,9 @@ void My_SDL_textbox::set_ttf_font_link(TTF_Font* new_ttf_font_link)
         return;
     }
 
-    // External font links are SHARED (palette) fonts - link without taking ownership
-    // (the previous owned font closes inside set_shared_font)
-    this->set_shared_font(new_ttf_font_link);
+    this->ttf_font_link = new_ttf_font_link;
+
+    this->content_dirty = true;
 
     // TEST:
 
@@ -548,17 +506,12 @@ void My_SDL_textbox::set_font_path(const std::string& new_font_path)
 
     if (TEST_MODE) std::cout << "TTF font path setted: " << this->font_path << "\n" << std::endl;
 
-    // Self-opened font - the textbox takes the ownership
-    // (the previous owned font closes inside set_owned_font)
-    TTF_Font* self_opened_font = TTF_OpenFont(this->font_path.c_str(), this->font_size);
+    this->set_ttf_font_link(TTF_OpenFont(this->font_path.c_str(), this->font_size));
 
-    if (!self_opened_font)
+    if (!this->ttf_font_link)
     {
         SDL_Log("TTF_OpenFont failed: %s", SDL_GetError());
-        return;
     }
-
-    this->set_owned_font(self_opened_font);
 }
 
 
@@ -578,22 +531,25 @@ void My_SDL_textbox::set_font_size(unsigned int new_size)
 
     this->font_size = new_size;
 
+    // close old font - destroys the logic!!!
+    // if (this->ttf_font_link && !this->passed_by_font_palette)
+    // {
+    //     TTF_CloseFont(this->ttf_font_link);
+    //     this->ttf_font_link = nullptr;
+    // }
+
     this->passed_by_font_palette = false;
 
     if (TEST_MODE) std::cout << "Try to set content: " << this->content << " new size size: " << new_size << "\n" << std::endl;
 
-    // Open new font with the ownership taking - the previous owned font closes inside
-    // set_owned_font, the shared palette fonts stay untouched (the old direct TTF_CloseFont
-    // here destroyed the logic exactly because it could close a shared palette font)
-    TTF_Font* self_opened_font = TTF_OpenFont(this->font_path.c_str(), this->font_size);
+    // open new font
+    this->ttf_font_link = TTF_OpenFont(this->font_path.c_str(), this->font_size);
 
-    if (!self_opened_font)
+    if (!this->ttf_font_link)
     {
         SDL_Log("TTF_OpenFont failed: %s", SDL_GetError());
         return;
     }
-
-    this->set_owned_font(self_opened_font);
 
     // rebuild geometry
     this->set_content(this->content);

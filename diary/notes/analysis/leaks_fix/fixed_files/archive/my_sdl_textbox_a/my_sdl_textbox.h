@@ -282,31 +282,6 @@ class My_SDL_textbox : public My_SDL_element // SDL_Element
 
         void update_font();
 
-
-        // Font ownership setters - the ONLY valid ways to change ttf_font_link inside the class code
-
-        /**
-         * @brief Sets a SHARED (palette-owned) font as the current font.
-         *
-         * Closes the previously owned font (if there was one), then links the shared font
-         * without taking ownership. Shared fonts are NEVER closed by the textbox.
-         *
-         * @param shared_font Pointer to a font, owned by the App_fonts palette (or another external owner)
-         *
-         */
-        void set_shared_font(TTF_Font* shared_font);
-
-        /**
-         * @brief Sets an OWNED (self-opened) font as the current font.
-         *
-         * Closes the previously owned font (if there was one), then links the new font
-         * with taking ownership. The owned font closes on the next font change or inside cleanup().
-         *
-         * @param new_owned_font Pointer to a font, opened by the textbox (or by the button around it)
-         *
-         */
-        void set_owned_font(TTF_Font* new_owned_font);
-
         // ===== GUI ======
 
         // Only one string realization in this version (Time isn't on my side... No it isn't! (c))
@@ -316,9 +291,7 @@ class My_SDL_textbox : public My_SDL_element // SDL_Element
         std::string font_path;                         // Font path for text
 
         TTF_Font* ttf_font_link = nullptr;             // TTF Font pointer
-
-        TTF_Font* owned_font = nullptr;                // Font, OWNED by this textbox (self-opened by TTF_OpenFont); nullptr - when ttf_font_link is a SHARED (palette-owned) font. Invariant: owned_font is nullptr or equal to ttf_font_link
-
+        
         bool passed_by_font_palette;                   // Flag for showing that the font path and ttf_font_link setted by the font palette, automatically set to true inside the basic class constructor
 
         unsigned int font_size;                        // Content size

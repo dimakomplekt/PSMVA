@@ -146,9 +146,9 @@ My_SDL_button::My_SDL_button()
 
     this->current_palette_number = 1;
 
+    // TODO: MAYBE this is the problem in case of not palette pass??? Need to check and rewrite if it's so
     this->po_base_font = this->get_button_content_textbox()->ttf_font_link;
     this->po_base_size = (int)this->button_textbox.get_font_size();
-    this->po_base_font_owned = false;
     this->po_cached = false;
 
 
@@ -170,27 +170,30 @@ My_SDL_button::~My_SDL_button()
 {
     // default
 
+    
+    // TODO: check cool or not
     this->cleanup();
 }
 
 
+// TODO: check cool or not
 void My_SDL_button::cleanup()
 {
-    // Base font guardianship return in case when the button is destroyed
-    // in the middle of the press animation (the last press step font closes inside)
-    if (this->po_cached)
+    My_SDL_textbox* button_textbox = this->get_button_content_textbox();
+
+    // Texture delete
+    if (this->button_textbox_font_passed_by_font_palette && button_textbox->content_texture)
     {
-        if (this->po_base_font_owned) this->button_textbox.set_owned_font(this->po_base_font);
-
-        else this->button_textbox.set_shared_font(this->po_base_font);
-
-        this->po_cached = false;
+        SDL_DestroyTexture(button_textbox->content_texture);
+        button_textbox->content_texture = nullptr;
     }
 
-    // Texture and owned font delete by the textbox itself (the content texture is always
-    // owned by the textbox, the fonts close only if they were self-opened - the shared
-    // palette fonts are owned and closed by App_fonts)
-    this->button_textbox.cleanup();
+    // TODO: check cool or not
+    if (!this->button_textbox_font_passed_by_font_palette)
+    {
+        TTF_CloseFont(button_textbox->ttf_font_link);
+        button_textbox->ttf_font_link = nullptr;
+    }
 }
 
 
@@ -361,8 +364,8 @@ void My_SDL_button::switch_button_textbox_type(app_textbox_type new_type)
 
             this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().button_text_font.ttf_font_link);
 
-            this->get_button_content_textbox()->font_size = App_fonts.get_current_fonts_palette().button_text_font.font_size;
-
+            this->button_textbox.set_font_size(App_fonts.get_current_fonts_palette().button_text_font.font_size);
+            
             break;
 
 
@@ -372,8 +375,8 @@ void My_SDL_button::switch_button_textbox_type(app_textbox_type new_type)
 
             this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().header_1_font.ttf_font_link);
 
-            this->get_button_content_textbox()->font_size = App_fonts.get_current_fonts_palette().header_1_font.font_size;
-
+            this->button_textbox.set_font_size(App_fonts.get_current_fonts_palette().header_1_font.font_size);
+            
             break;
 
 
@@ -383,8 +386,8 @@ void My_SDL_button::switch_button_textbox_type(app_textbox_type new_type)
 
             this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().header_2_font.ttf_font_link);
 
-            this->get_button_content_textbox()->font_size = App_fonts.get_current_fonts_palette().header_2_font.font_size;
-
+            this->button_textbox.set_font_size(App_fonts.get_current_fonts_palette().header_2_font.font_size);
+            
             break;
 
 
@@ -394,8 +397,8 @@ void My_SDL_button::switch_button_textbox_type(app_textbox_type new_type)
 
             this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().header_3_font.ttf_font_link);
 
-            this->get_button_content_textbox()->font_size = App_fonts.get_current_fonts_palette().header_3_font.font_size;
-
+            this->button_textbox.set_font_size(App_fonts.get_current_fonts_palette().header_3_font.font_size);
+            
             break;
 
             
@@ -405,8 +408,8 @@ void My_SDL_button::switch_button_textbox_type(app_textbox_type new_type)
 
             this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().ordinary_text_font.ttf_font_link);
 
-            this->get_button_content_textbox()->font_size = App_fonts.get_current_fonts_palette().ordinary_text_font.font_size;
-
+            this->button_textbox.set_font_size(App_fonts.get_current_fonts_palette().ordinary_text_font.font_size);
+            
             break;
         
 
@@ -416,8 +419,8 @@ void My_SDL_button::switch_button_textbox_type(app_textbox_type new_type)
 
             this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().small_text_font.ttf_font_link);
 
-            this->get_button_content_textbox()->font_size = App_fonts.get_current_fonts_palette().small_text_font.font_size;
-
+            this->button_textbox.set_font_size(App_fonts.get_current_fonts_palette().small_text_font.font_size);
+            
             break;
 
 
@@ -427,9 +430,9 @@ void My_SDL_button::switch_button_textbox_type(app_textbox_type new_type)
 
             this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().emoji_text_font.ttf_font_link);
 
-            this->get_button_content_textbox()->font_size = App_fonts.get_current_fonts_palette().emoji_text_font.font_size;
-
-            break;
+            this->button_textbox.set_font_size(App_fonts.get_current_fonts_palette().emoji_text_font.font_size);
+            
+            break; 
 
 
         default: break;
@@ -438,21 +441,13 @@ void My_SDL_button::switch_button_textbox_type(app_textbox_type new_type)
     // Reset base data
     this->po_base_font = this->get_button_content_textbox()->ttf_font_link;
     this->po_base_size = (int)this->button_textbox.get_font_size();
-
-    this->po_base_font_owned = (
-
-        this->po_base_font != nullptr &&
-        this->get_button_content_textbox()->owned_font == this->po_base_font
-
-    );
-
     this->po_cached = false;
 
     // Reset flag to not pass by palette after the first update by the palette switch
-
+    
     this->get_button_content_textbox()->content_dirty = true;
 
-    this->get_button_content_textbox()->passed_by_font_palette = false;
+    this->get_button_content_textbox()->passed_by_font_palette = false; 
 }
 
 
@@ -1039,13 +1034,11 @@ void My_SDL_button::reset_button_textbox_if_font_palette_switched()
 
                 this->get_button_content_textbox()->font_path = (App_fonts.get_current_fonts_palette().button_text_font.font_path);
 
-                if (this->press_offset == 0 && !this->button_clicked && !this->button_clicked_tmp)
-                {
+                if (this->press_offset == 0 && !this->button_clicked && !this->button_clicked_tmp) 
                     this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().button_text_font.ttf_font_link);
 
-                    this->get_button_content_textbox()->font_size = App_fonts.get_current_fonts_palette().button_text_font.font_size;
-                }
-
+                this->button_textbox.set_font_size(App_fonts.get_current_fonts_palette().button_text_font.font_size);
+                
                 break;
 
 
@@ -1053,13 +1046,11 @@ void My_SDL_button::reset_button_textbox_if_font_palette_switched()
 
                 this->get_button_content_textbox()->font_path = (App_fonts.get_current_fonts_palette().header_1_font.font_path);
 
-                if (this->press_offset == 0 && !this->button_clicked && !this->button_clicked_tmp)
-                {
+                if (this->press_offset == 0 && !this->button_clicked && !this->button_clicked_tmp) 
                     this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().header_1_font.ttf_font_link);
 
-                    this->get_button_content_textbox()->font_size = App_fonts.get_current_fonts_palette().header_1_font.font_size;
-                }
-
+                this->button_textbox.set_font_size(App_fonts.get_current_fonts_palette().header_1_font.font_size);
+                
                 break;
 
 
@@ -1067,13 +1058,11 @@ void My_SDL_button::reset_button_textbox_if_font_palette_switched()
 
                 this->get_button_content_textbox()->font_path = (App_fonts.get_current_fonts_palette().header_2_font.font_path);
 
-                if (this->press_offset == 0 && !this->button_clicked && !this->button_clicked_tmp)
-                {
+                if (this->press_offset == 0 && !this->button_clicked && !this->button_clicked_tmp) 
                     this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().header_2_font.ttf_font_link);
 
-                    this->get_button_content_textbox()->font_size = App_fonts.get_current_fonts_palette().header_2_font.font_size;
-                }
-
+                this->button_textbox.set_font_size(App_fonts.get_current_fonts_palette().header_2_font.font_size);
+                
                 break;
 
 
@@ -1081,13 +1070,11 @@ void My_SDL_button::reset_button_textbox_if_font_palette_switched()
 
                 this->get_button_content_textbox()->font_path = (App_fonts.get_current_fonts_palette().header_3_font.font_path);
 
-                if (this->press_offset == 0 && !this->button_clicked && !this->button_clicked_tmp)
-                {
+                if (this->press_offset == 0 && !this->button_clicked && !this->button_clicked_tmp) 
                     this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().header_3_font.ttf_font_link);
 
-                    this->get_button_content_textbox()->font_size = App_fonts.get_current_fonts_palette().header_3_font.font_size;
-                }
-
+                this->button_textbox.set_font_size(App_fonts.get_current_fonts_palette().header_3_font.font_size);
+                
                 break;
 
 
@@ -1095,13 +1082,11 @@ void My_SDL_button::reset_button_textbox_if_font_palette_switched()
 
                 this->get_button_content_textbox()->font_path = (App_fonts.get_current_fonts_palette().ordinary_text_font.font_path);
 
-                if (this->press_offset == 0 && !this->button_clicked && !this->button_clicked_tmp)
-                {
+                if (this->press_offset == 0 && !this->button_clicked && !this->button_clicked_tmp) 
                     this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().ordinary_text_font.ttf_font_link);
 
-                    this->get_button_content_textbox()->font_size = App_fonts.get_current_fonts_palette().ordinary_text_font.font_size;
-                }
-
+                this->button_textbox.set_font_size(App_fonts.get_current_fonts_palette().ordinary_text_font.font_size);
+                
                 break;
             
 
@@ -1109,13 +1094,11 @@ void My_SDL_button::reset_button_textbox_if_font_palette_switched()
 
                 this->get_button_content_textbox()->font_path = (App_fonts.get_current_fonts_palette().small_text_font.font_path);
 
-                if (this->press_offset == 0 && !this->button_clicked && !this->button_clicked_tmp)
-                {
+                if (this->press_offset == 0 && !this->button_clicked && !this->button_clicked_tmp) 
                     this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().small_text_font.ttf_font_link);
 
-                    this->get_button_content_textbox()->font_size = App_fonts.get_current_fonts_palette().small_text_font.font_size;
-                }
-
+                this->button_textbox.set_font_size(App_fonts.get_current_fonts_palette().small_text_font.font_size);
+                
                 break;
 
 
@@ -1123,43 +1106,28 @@ void My_SDL_button::reset_button_textbox_if_font_palette_switched()
 
                 this->get_button_content_textbox()->font_path = (App_fonts.get_current_fonts_palette().emoji_text_font.font_path);
 
-                if (this->press_offset == 0 && !this->button_clicked && !this->button_clicked_tmp)
-                {
+                if (this->press_offset == 0 && !this->button_clicked && !this->button_clicked_tmp) 
                     this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().emoji_text_font.ttf_font_link);
 
-                    this->get_button_content_textbox()->font_size = App_fonts.get_current_fonts_palette().emoji_text_font.font_size;
-                }
-
+                this->button_textbox.set_font_size(App_fonts.get_current_fonts_palette().emoji_text_font.font_size);
+                
                 break;
 
 
             default: break;
         }
 
-        // Reset base data (only outside of the press animation - the po_base_* data
-        // must stay valid for the release restore; the two-loops-long reset flag
-        // guarantees the second pass after the release restore)
-        if (this->press_offset == 0 && !this->button_clicked && !this->button_clicked_tmp)
-        {
-            this->po_base_font = this->get_button_content_textbox()->ttf_font_link;
-            this->po_base_size = (int)this->button_textbox.get_font_size();
-
-            this->po_base_font_owned = (
-
-                this->po_base_font != nullptr &&
-                this->get_button_content_textbox()->owned_font == this->po_base_font
-
-            );
-
-            this->po_cached = false;
-        }
+        // Reset base data
+        this->po_base_font = this->get_button_content_textbox()->ttf_font_link;
+        this->po_base_size = (int)this->button_textbox.get_font_size();
+        this->po_cached = false;
 
         // Reset flag to not pass by palette after the first update by the palette switch
 
         this->get_button_content_textbox()->content_dirty = true;
 
-        // Now the button content font controlled only by button itself
-        this->get_button_content_textbox()->passed_by_font_palette = false;
+        // Now the button content font controlled only by button itself 
+        this->get_button_content_textbox()->passed_by_font_palette = false; 
 
     }
 }
@@ -1218,24 +1186,11 @@ void My_SDL_button::render_data_recalculation()
     if (this->button_clicked_tmp && this->press_offset == 0 && !this->po_cached)
     {
         int current_size = (int)this->button_textbox.get_font_size();
-
-        if (current_size > 0)
+        
+        if (current_size > 0) 
         {
             this->po_base_font = this->get_button_content_textbox()->ttf_font_link;
             this->po_base_size = current_size;
-
-            // Base font guardianship goes to the button for the press animation time,
-            // so the press step fonts close by the set_owned_font() calls chain
-            // without touching the base font
-            this->po_base_font_owned = (
-
-                this->po_base_font != nullptr &&
-                this->get_button_content_textbox()->owned_font == this->po_base_font
-
-            );
-
-            this->get_button_content_textbox()->owned_font = nullptr;
-
             this->po_cached = true;
         }
     }
@@ -1266,12 +1221,19 @@ void My_SDL_button::render_data_recalculation()
         
                 if (new_font)
                 {
-                    // Set new font with the ownership pass - the previous press step font
-                    // closes inside set_owned_font(), the base font is not owned by the
-                    // textbox during the press, so it stays untouched
-                    this->get_button_content_textbox()->set_owned_font(new_font);
+                    // Close after 1 step in case when the font passed by the palette
+                    // to use the basic font after end of the pressing - so we are not closing this->po_base_font
+                    TTF_Font* current_font = this->get_button_content_textbox()->ttf_font_link;
+                
+                    if (current_font != nullptr && current_font != this->po_base_font) 
+                    {
+                        TTF_CloseFont(current_font);
+                    }
 
-                    this->get_button_content_textbox()->font_size = static_cast<unsigned int>(new_size);
+
+                    // Set new font
+                    this->button_textbox.set_ttf_font_link(new_font);
+                    this->button_textbox.set_font_size(new_size);
 
                     this->get_button_content_textbox()->content_dirty = true;
                 }
@@ -1284,32 +1246,27 @@ void My_SDL_button::render_data_recalculation()
         {
             this->button_textbox.switch_textbox_type(this->button_textbox.get_prev_textbox_type());
 
+            
+            // Clear the last font
+            TTF_Font* font_to_destroy = this->get_button_content_textbox()->ttf_font_link;
+
 
             this->press_offset = 0;
 
             if (this->po_cached)
             {
-                // Base font return with the guardianship return - the last press step font
-                // closes inside the set_owned_font() / set_shared_font() call
-
-                if (this->po_base_font_owned) this->get_button_content_textbox()->set_owned_font(this->po_base_font);
-
-                else this->get_button_content_textbox()->set_shared_font(this->po_base_font);
-
-
-                this->get_button_content_textbox()->font_size = static_cast<unsigned int>(this->po_base_size);
-
+                this->button_textbox.set_ttf_font_link(this->po_base_font);
+                this->button_textbox.set_font_size(this->po_base_size);
                 this->po_cached = false;
             }
 
             this->get_button_content_textbox()->content_dirty = true;
 
-
-            // Block the palette font re-fetch on the next update_font() call and keep the
-            // pre-press flags state - the base font is already restored manually here
-            this->get_button_content_textbox()->textbox_type_changed = false;
-
-            this->get_button_content_textbox()->passed_by_font_palette = false;
+            
+            if (font_to_destroy != nullptr && font_to_destroy != this->po_base_font)
+            {
+                TTF_CloseFont(font_to_destroy);
+            }
         }
     }
 
