@@ -12,6 +12,64 @@
 void translate_cv_mat_to_sdl_texture(cv::Mat* cv_mat, SDL_Texture*& sdl_texture, SDL_Renderer* renderer)
 {
 
+    /**
+     *
+     * OPENCV CV::MAT TO SDL_TEXTURE TRANSLATION WORKFLOW
+     * ============================================================================
+     * This pipeline efficiently uploads 2D image data processed by OpenCV (CPU/RAM)
+     * into an optimized SDL_Texture managed by the graphics driver (GPU/VRAM).
+     *
+     *
+     * STEP 1: PARAMETER BINDING & API INPUTS
+     *
+     * - cv::Mat* cv_mat          : Passed via raw pointer to prevent heavy object copying.
+     * - SDL_Texture*& sdl_texture: Passed as a reference to a pointer (*&). This allows
+     *                              the function to directly allocate, destroy, or update
+     *                              the original texture variable in the outer scope.
+     * - SDL_Renderer* renderer   : The hardware rendering context tied to the GPU,
+     *                              required to manage and allocate VRAM blocks.
+     *
+     *
+     * STEP 2: PIPELINE PROTECTION (INPUT VALIDATION)
+     *
+     * - Checks if the pointer is null or if the matrix container is empty (e.g., failed
+     *   camera frame capture or EOF). Safely returns early to prevent crash/segfault.
+     *
+     *
+     * STEP 3: GEOMETRY EXTRACTION
+     *
+     * - Extracts image dimensions where 'cols' maps to width and 'rows' maps to height.
+     *   These values define the explicit spatial configuration for the GPU texture.
+     *
+     *
+     * STEP 4: ADAPTIVE VRAM LIFECYCLE MANAGEMENT (SMART RECYCLING)
+     *
+     * - First Frame/Null Check : If texture is null, triggers an allocation flag.
+     * - Resolution Change Check: Uses SDL_GetTextureSize to check current VRAM bounds.
+     *                            If user resizes the window or video stream changes resolution,
+     *                            it calls SDL_DestroyTexture to free VRAM (preventing leaks),
+     *                            sets pointer to null, and triggers reallocation.
+     * - SDL_CreateTexture      : Allocates memory on GPU with two critical performance flags:
+     *   -> SDL_PIXELFORMAT_RGBA8888  : Native, optimized 32-bit hardware format (4 bytes/pixel).
+     *   -> SDL_TEXTUREACCESS_STREAMING: Tells the GPU driver that data changes every frame,
+     *                                 optimizing the memory path for high-frequency updates.
+     *
+     *
+     * STEP 5: BUS TRANSIT, COLOR ALIGNMENT & UNLOCK (THE TRANSIT LAYER)
+     *
+     * - SDL_LockTexture   : GPU memory is inaccessible to the CPU. Locking allocates a temporary
+     *                       staging buffer in system RAM, returning 'texture_pixels' (write-pointer)
+     *                       and 'texture_pitch' (the exact byte-length of a row including GPU padding).
+     * - SDL_ConvertPixels : A highly optimized, hardware-accelerated memory blitter. It reads
+     *                       directly from cv_mat->data using cv_mat->step (source pitch), maps the
+     *                       native OpenCV color channel layout (e.g., BGR24) to the target format 
+     *                       (RGBA8888), automatically flips color channels on the fly, fixes row 
+     *                       alignment padding, and writes to the staging buffer.
+     * - SDL_UnlockTexture : Locks off CPU access, flags the driver, and triggers a direct DMA 
+     *                       transfer over the PCIe bus, committing raw pixels straight into VRAM.
+     *
+     */
+
     // 1. Check input
 
     if (cv_mat == nullptr || cv_mat->empty())
