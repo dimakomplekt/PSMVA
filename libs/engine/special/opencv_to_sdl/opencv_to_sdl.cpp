@@ -11,65 +11,99 @@
 // rescale passed sdl_texture and copy bitmap of Mat to the bitmam of SDL_Texture
 void translate_cv_mat_to_sdl_texture(cv::Mat* cv_mat, SDL_Texture*& sdl_texture, SDL_Renderer* renderer)
 {
-
+    
     /**
      *
-     * OPENCV CV::MAT TO SDL_TEXTURE TRANSLATION WORKFLOW
+     * OPENCV cv::Mat -> SDL_Texture TRANSLATION PIPELINE
      * ============================================================================
-     * This pipeline efficiently uploads 2D image data processed by OpenCV (CPU/RAM)
-     * into an optimized SDL_Texture managed by the graphics driver (GPU/VRAM).
+     *
+     * This function uploads image data stored inside an OpenCV cv::Mat into a
+     * streaming SDL_Texture suitable for hardware rendering.
+     *
+     * The function owns the complete translation pipeline:
+     *
+     * --------------------------------------------------------------------------
+     * 1. INPUT VALIDATION
+     * --------------------------------------------------------------------------
+     *
+     * - Verifies that the passed cv::Mat exists and contains valid image data.
+     * - Prevents processing of null or empty frames.
      *
      *
-     * STEP 1: PARAMETER BINDING & API INPUTS
+     * --------------------------------------------------------------------------
+     * 2. IMAGE GEOMETRY
+     * --------------------------------------------------------------------------
      *
-     * - cv::Mat* cv_mat          : Passed via raw pointer to prevent heavy object copying.
-     * - SDL_Texture*& sdl_texture: Passed as a reference to a pointer (*&). This allows
-     *                              the function to directly allocate, destroy, or update
-     *                              the original texture variable in the outer scope.
-     * - SDL_Renderer* renderer   : The hardware rendering context tied to the GPU,
-     *                              required to manage and allocate VRAM blocks.
+     * - Reads image width and height from the OpenCV matrix.
+     * - These dimensions are used to validate or recreate the destination texture.
      *
      *
-     * STEP 2: PIPELINE PROTECTION (INPUT VALIDATION)
+     * --------------------------------------------------------------------------
+     * 3. TEXTURE LIFECYCLE
+     * --------------------------------------------------------------------------
      *
-     * - Checks if the pointer is null or if the matrix container is empty (e.g., failed
-     *   camera frame capture or EOF). Safely returns early to prevent crash/segfault.
+     * The destination texture is reused whenever possible.
      *
+     * A new texture is created only when:
      *
-     * STEP 3: GEOMETRY EXTRACTION
+     *   • the texture pointer is null;
+     *   • the frame resolution has changed.
      *
-     * - Extracts image dimensions where 'cols' maps to width and 'rows' maps to height.
-     *   These values define the explicit spatial configuration for the GPU texture.
+     * Old textures are destroyed before recreation, preventing VRAM leaks.
      *
+     * The texture is created as:
      *
-     * STEP 4: ADAPTIVE VRAM LIFECYCLE MANAGEMENT (SMART RECYCLING)
+     *   SDL_PIXELFORMAT_RGBA8888
+     *   SDL_TEXTUREACCESS_STREAMING
      *
-     * - First Frame/Null Check : If texture is null, triggers an allocation flag.
-     * - Resolution Change Check: Uses SDL_GetTextureSize to check current VRAM bounds.
-     *                            If user resizes the window or video stream changes resolution,
-     *                            it calls SDL_DestroyTexture to free VRAM (preventing leaks),
-     *                            sets pointer to null, and triggers reallocation.
-     * - SDL_CreateTexture      : Allocates memory on GPU with two critical performance flags:
-     *   -> SDL_PIXELFORMAT_RGBA8888  : Native, optimized 32-bit hardware format (4 bytes/pixel).
-     *   -> SDL_TEXTUREACCESS_STREAMING: Tells the GPU driver that data changes every frame,
-     *                                 optimizing the memory path for high-frequency updates.
+     * which matches the update pattern of continuously changing video frames.
      *
      *
-     * STEP 5: BUS TRANSIT, COLOR ALIGNMENT & UNLOCK (THE TRANSIT LAYER)
+     * --------------------------------------------------------------------------
+     * 4. PIXEL FORMAT TRANSLATION
+     * --------------------------------------------------------------------------
      *
-     * - SDL_LockTexture   : GPU memory is inaccessible to the CPU. Locking allocates a temporary
-     *                       staging buffer in system RAM, returning 'texture_pixels' (write-pointer)
-     *                       and 'texture_pitch' (the exact byte-length of a row including GPU padding).
-     * - SDL_ConvertPixels : A highly optimized, hardware-accelerated memory blitter. It reads
-     *                       directly from cv_mat->data using cv_mat->step (source pitch), maps the
-     *                       native OpenCV color channel layout (e.g., BGR24) to the target format 
-     *                       (RGBA8888), automatically flips color channels on the fly, fixes row 
-     *                       alignment padding, and writes to the staging buffer.
-     * - SDL_UnlockTexture : Locks off CPU access, flags the driver, and triggers a direct DMA 
-     *                       transfer over the PCIe bus, committing raw pixels straight into VRAM.
+     * OpenCV stores images in different native layouts depending on the number
+     * of channels:
+     *
+     *   1 channel -> grayscale
+     *   3 channels -> BGR
+     *   4 channels -> BGRA
+     *
+     * The corresponding SDL pixel format is selected dynamically.
+     *
+     * SDL_ConvertPixels() performs:
+     *
+     *   • channel reordering;
+     *   • pixel format conversion;
+     *   • row pitch handling;
+     *   • copying into the locked texture memory.
+     *
+     *
+     * --------------------------------------------------------------------------
+     * 5. TEXTURE UPDATE
+     * --------------------------------------------------------------------------
+     *
+     * SDL_LockTexture() provides writable memory for the texture.
+     *
+     * SDL_ConvertPixels() writes the converted image into that memory.
+     *
+     * SDL_UnlockTexture() completes the update, making the new pixel data
+     * available for subsequent rendering.
+     *
+     * ============================================================================
+     *
+     * Notes
+     *
+     * - No additional OpenCV image copies are created.
+     * - Pixel conversion is delegated entirely to SDL.
+     * - The caller remains the owner of cv::Mat.
+     * - This function may recreate the SDL_Texture when required, therefore the
+     *   texture pointer is passed by reference.
      *
      */
 
+     
     // 1. Check input
 
     if (cv_mat == nullptr || cv_mat->empty())
@@ -83,30 +117,6 @@ void translate_cv_mat_to_sdl_texture(cv::Mat* cv_mat, SDL_Texture*& sdl_texture,
     int width = cv_mat->cols;
     int height = cv_mat->rows;
 
-
-    /*
-    
-    // 3. Convert color format. OpenCV uses BGR by default.
-    // Translate it to the RGBA (or RGB, in dependence of sdl_texture)
-
-    cv::Mat rgba_mat;
-
-    if (cv_mat->channels() == 3) 
-    {
-        cv::cvtColor(*cv_mat, rgba_mat, cv::COLOR_BGR2BGRA);
-    } 
-
-    else if (cv_mat->channels() == 1) 
-    {
-        cv::cvtColor(*cv_mat, rgba_mat, cv::COLOR_GRAY2RGBA);
-    } 
-
-    else 
-    {
-        rgba_mat = *cv_mat; // 4 channels mode
-    }
-    
-    */
 
     // 3. Check sdl_texture - if there is no sdl_texture, or frame size have been changed - reallocate
 
@@ -159,21 +169,6 @@ void translate_cv_mat_to_sdl_texture(cv::Mat* cv_mat, SDL_Texture*& sdl_texture,
     }
 
 
-    // Get ID of the texture properties
-    SDL_PropertiesID props = SDL_GetTextureProperties(sdl_texture);
-
-    if (props != 0)
-    {
-        SDL_PixelFormat format = static_cast<SDL_PixelFormat>(
-            SDL_GetNumberProperty(
-                props,
-                SDL_PROP_TEXTURE_FORMAT_NUMBER,
-                SDL_PIXELFORMAT_UNKNOWN));
-    
-        std::cout << SDL_GetPixelFormatName(format) << std::endl;
-    }
-
-
     // 4. Copy pixels from cv::Mat to SDL_Texture
 
     void* texture_pixels = nullptr;
@@ -186,37 +181,6 @@ void translate_cv_mat_to_sdl_texture(cv::Mat* cv_mat, SDL_Texture*& sdl_texture,
     }
 
 
-    /*
-    
-    // Block texture for write operation
-    if (SDL_LockTexture(sdl_texture, nullptr, &texture_pixels, &texture_pitch))
-    {
-        SDL_ConvertPixels(
-    
-            width,
-            height,
-    
-            // Equal to basic format of OpenCV
-            SDL_PIXELFORMAT_ARGB8888
-            rgba_mat.data,
-            rgba_mat.step,
-    
-            // Target basic format for SDL
-            SDL_PIXELFORMAT_RGBA8888,
-            texture_pixels,
-            texture_pitch
-    
-        );
-    
-        SDL_UnlockTexture(sdl_texture);
-    }
-    else 
-    {
-        SDL_Log("Can't block the texture: %s", SDL_GetError());
-    }
-    
-    */
-
     // Block texture
     if (SDL_LockTexture(sdl_texture, nullptr, &texture_pixels, &texture_pitch))
     {
@@ -227,19 +191,27 @@ void translate_cv_mat_to_sdl_texture(cv::Mat* cv_mat, SDL_Texture*& sdl_texture,
         else if (cv_mat->channels() == 1) src_format = SDL_PIXELFORMAT_INDEX8;    // Specific (grayscale)
         else if (cv_mat->channels() == 4) src_format = SDL_PIXELFORMAT_BGRA32;    // Format with alpha
 
+
+        if (src_format == SDL_PIXELFORMAT_UNKNOWN)
+        {
+            SDL_Log("Unsupported OpenCV image format.");
+            SDL_UnlockTexture(sdl_texture);
+            return;
+        }
+
         
         SDL_ConvertPixels(
             
             width,
             height,
             
-            src_format,                   // SDL format equal, which equal to current OpenCV format
-            cv_mat->data,                 // Original data
-            cv_mat->step,                 // Original step
+            src_format,                                  // SDL format equal, which equal to current OpenCV format
+            cv_mat->data,                           // Original data
+            cv_mat->step,                     // Original step
             
-            SDL_PIXELFORMAT_RGBA8888,     // Target format
-            texture_pixels,               // Target pixels
-            texture_pitch                 // Target pitch
+            SDL_PIXELFORMAT_RGBA8888,        // Target format
+            texture_pixels,                         // Target pixels
+            texture_pitch                     // Target pitch
             
         );
     
