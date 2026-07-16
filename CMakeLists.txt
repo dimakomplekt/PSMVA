@@ -102,3 +102,6 @@ target_include_directories(PSMVA PRIVATE ${OpenCV_INCLUDE_DIRS})
     "C:/opencv/modules/highgui/include"
 
 )
+
+
+target_compile_options(PSMVA PRIVATE /utf-8)

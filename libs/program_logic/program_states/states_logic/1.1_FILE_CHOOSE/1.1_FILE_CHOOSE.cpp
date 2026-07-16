@@ -174,18 +174,28 @@ void file_choose_enter()
     // Check after new enter
     if (TEST_MODE)
     {
-        std::cout << file_choose_info.file_1_path << "\n" << std::endl;
-        std::cout << file_choose_info.file_2_path << "\n" << std::endl;
-        std::cout << file_choose_info.file_3_path << "\n" << std::endl;
-        std::cout << file_choose_info.file_4_path << "\n" << std::endl;
-        std::cout << file_choose_info.file_5_path << "\n" << std::endl;
-        std::cout << file_choose_info.file_6_path << "\n" << std::endl;
-        std::cout << static_cast<int>(file_choose_info.panels_states.file_1_panel_state) << "\n" << std::endl;
-        std::cout << static_cast<int>(file_choose_info.panels_states.file_2_panel_state) << "\n" << std::endl;
-        std::cout << static_cast<int>(file_choose_info.panels_states.file_3_panel_state) << "\n" << std::endl;
-        std::cout << static_cast<int>(file_choose_info.panels_states.file_4_panel_state) << "\n" << std::endl;
-        std::cout << static_cast<int>(file_choose_info.panels_states.file_5_panel_state) << "\n" << std::endl;
-        std::cout << static_cast<int>(file_choose_info.panels_states.file_6_panel_state) << "\n" << std::endl;
+        // std::cout << file_choose_info.file_1_path << "\n" << std::endl;
+        // std::cout << file_choose_info.file_2_path << "\n" << std::endl;
+        // std::cout << file_choose_info.file_3_path << "\n" << std::endl;
+        // std::cout << file_choose_info.file_4_path << "\n" << std::endl;
+        // std::cout << file_choose_info.file_5_path << "\n" << std::endl;
+        // std::cout << file_choose_info.file_6_path << "\n" << std::endl;
+        // std::cout << static_cast<int>(file_choose_info.panels_states.file_1_panel_state) << "\n" << std::endl;
+        // std::cout << static_cast<int>(file_choose_info.panels_states.file_2_panel_state) << "\n" << std::endl;
+        // std::cout << static_cast<int>(file_choose_info.panels_states.file_3_panel_state) << "\n" << std::endl;
+        // std::cout << static_cast<int>(file_choose_info.panels_states.file_4_panel_state) << "\n" << std::endl;
+        // std::cout << static_cast<int>(file_choose_info.panels_states.file_5_panel_state) << "\n" << std::endl;
+        // std::cout << static_cast<int>(file_choose_info.panels_states.file_6_panel_state) << "\n" << std::endl;
+
+
+        std::cout << "Video 1 bit depth: " << files_metadata.video_1_data.bit_depth << ".\n" << std::endl;
+        std::cout << "Video 1 frames quantity: " << files_metadata.video_1_data.frames_quantity << ".\n" << std::endl;
+        std::cout << "Video 1 FPS: " << files_metadata.video_1_data.frames_per_second << ".\n" << std::endl;
+        std::cout << "Video 1 frame time: " << files_metadata.video_1_data.frame_time << ".\n" << std::endl;
+        std::cout << "Video 1 exposition time: " << files_metadata.video_1_data.exposition_time << ".\n" << std::endl;
+        std::cout << "Video 1 width: " << files_metadata.video_1_data.width << ".\n" << std::endl;
+        std::cout << "Video 1 height: " << files_metadata.video_1_data.height << ".\n" << std::endl;
+        std::cout << "Video 1 status: " << static_cast<int>(files_metadata.video_1_data.status) << ".\n" << std::endl;
     }
 
 
@@ -1793,7 +1803,7 @@ void add_file_path(unsigned int file_number)
 void clear_file_path(unsigned int file_number)
 {
     // Clear file index
-    int cleared_index = file_number - 1;
+    int clear_index = file_number - 1;
 
     // Massive of variables links
     std::string* paths[] = {
@@ -1845,10 +1855,10 @@ void clear_file_path(unsigned int file_number)
 
 
     // Move the names
-    if (cleared_index >= 0 && cleared_index < 6)
+    if (clear_index >= 0 && clear_index < 6)
     {
         // From the deleted one
-        for (int i = cleared_index; i < 5; ++i)
+        for (int i = clear_index; i < 5; ++i)
         {
             *paths[i] = *paths[i + 1];
             *data_paths[i] = *data_paths[i + 1];
@@ -1879,10 +1889,10 @@ void clear_file_path(unsigned int file_number)
 
     // Reset statuses
     // TODO:: RESET LOOGIC TO CORRECT ONE!!!
-    if ((cleared_index >= 0 && cleared_index < 6) && panel_states[cleared_index + 1])
+    if ((clear_index >= 0 && clear_index < 6) && panel_states[clear_index + 1])
     {
         // From the deleted one
-        for (int i = cleared_index; i < 5; ++i)
+        for (int i = clear_index; i < 5; ++i)
         {
             *panel_states[i] = *panel_states[i + 1];
             *data_panel_states[i] = *data_panel_states[i + 1];
@@ -1904,7 +1914,7 @@ void clear_file_path(unsigned int file_number)
         *data_panel_states[5] = file_choose_panel_state::EMPTY_STATE;
     }
 
-    if (TEST_MODE) std::cout << "Clear path for file: " << file_number << ". Current path: \"" << *paths[cleared_index] << "\".\n" << std::endl;
+    if (TEST_MODE) std::cout << "Clear path for file: " << file_number << ". Current path: \"" << *paths[clear_index] << "\".\n" << std::endl;
 }
 
 
@@ -1916,7 +1926,7 @@ void file_choose_or_clear(int file_number)
 
 
     // Clear file index
-    int cleared_index = file_number - 1;
+    int clear_index = file_number - 1;
 
 
     file_choose_panel_state* panel_states[] = {
@@ -1947,8 +1957,8 @@ void file_choose_or_clear(int file_number)
     bool clear = false;
     
 
-    if (*panel_states[cleared_index] == file_choose_panel_state::EMPTY_STATE) add = true;
-    else if (*panel_states[cleared_index] == file_choose_panel_state::CHOSEN_STATE) clear = true;
+    if (*panel_states[clear_index] == file_choose_panel_state::EMPTY_STATE) add = true;
+    else if (*panel_states[clear_index] == file_choose_panel_state::CHOSEN_STATE) clear = true;
 
     if (add)
     {
@@ -2194,6 +2204,41 @@ void add_file_data_path(unsigned int file_number)
     *panel_states[add_index] = file_choose_panel_state::CHOSEN_STATE;
     
 
+    if (TEST_MODE)
+    {
+        std::cout << "Added path for file: " << file_number << ". Current path: \"" << *paths[add_index] << "\".\n" << std::endl;
+        std::cout << "Start parsing!\n" << std::endl;
+    }
+
+
+    // Parse data from txt
+
+    parsed_video_data* videos_metadata[] = {
+
+        &files_metadata.video_1_data,
+        &files_metadata.video_2_data,
+        &files_metadata.video_3_data,
+        &files_metadata.video_4_data,
+        &files_metadata.video_5_data,
+        &files_metadata.video_6_data
+
+    };
+
+
+    parse_metadata_txt(*videos_metadata[add_index], *paths[add_index]);
+
+
+    std::cout << "Video 1 bit depth: " << videos_metadata[add_index]->bit_depth << ".\n" << std::endl;
+    std::cout << "Video 1 frames quantity: " << videos_metadata[add_index]->frames_quantity << ".\n" << std::endl;
+    std::cout << "Video 1 FPS: " << videos_metadata[add_index]->frames_per_second << ".\n" << std::endl;
+    std::cout << "Video 1 frame time: " << videos_metadata[add_index]->frame_time << ".\n" << std::endl;
+    std::cout << "Video 1 exposition time: " << videos_metadata[add_index]->exposition_time << ".\n" << std::endl;
+    std::cout << "Video 1 width: " << videos_metadata[add_index]->width << ".\n" << std::endl;
+    std::cout << "Video 1 height: " << videos_metadata[add_index]->height << ".\n" << std::endl;
+    std::cout << "Video 1 status: " << static_cast<int>(videos_metadata[add_index]->status) << ".\n" << std::endl;
+
+
+
     // Reset panels textboxes content according to the new list
     switch (add_index)
     {
@@ -2204,16 +2249,14 @@ void add_file_data_path(unsigned int file_number)
         case 4: File_5_data_textbox->set_content(file_name_from_path(file_data_choose_info.file_5_data_path));
         case 5: File_6_data_textbox->set_content(file_name_from_path(file_data_choose_info.file_6_data_path));
     }
-
-
-    if (TEST_MODE) std::cout << "Added path for file: " << file_number << ". Current path: \"" << *paths[add_index] << "\".\n" << std::endl;
+    
 }
 
 
 void clear_file_data_path(unsigned int file_number)
 {
     // Clear file index
-    int cleared_index = file_number - 1;
+    int clear_index = file_number - 1;
 
     // Massive of variables links
     std::string* paths[] = {
@@ -2242,12 +2285,38 @@ void clear_file_data_path(unsigned int file_number)
 
     // Move the names
     // From the deleted one
-    *paths[cleared_index] = "";
-    *panel_states[cleared_index] = file_choose_panel_state::EMPTY_STATE;
+    *paths[clear_index] = "";
+    *panel_states[clear_index] = file_choose_panel_state::EMPTY_STATE;
+
+
+    // Drop parsed data
+
+    parsed_video_data* videos_metadata[] = {
+
+        &files_metadata.video_1_data,
+        &files_metadata.video_2_data,
+        &files_metadata.video_3_data,
+        &files_metadata.video_4_data,
+        &files_metadata.video_5_data,
+        &files_metadata.video_6_data
+
+    };
+
+    drop_metadata(*videos_metadata[clear_index]);
+
+    std::cout << "Video 1 bit depth: " << videos_metadata[clear_index]->bit_depth << ".\n" << std::endl;
+    std::cout << "Video 1 frames quantity: " << videos_metadata[clear_index]->frames_quantity << ".\n" << std::endl;
+    std::cout << "Video 1 FPS: " << videos_metadata[clear_index]->frames_per_second << ".\n" << std::endl;
+    std::cout << "Video 1 frame time: " << videos_metadata[clear_index]->frame_time << ".\n" << std::endl;
+    std::cout << "Video 1 exposition time: " << videos_metadata[clear_index]->exposition_time << ".\n" << std::endl;
+    std::cout << "Video 1 width: " << videos_metadata[clear_index]->width << ".\n" << std::endl;
+    std::cout << "Video 1 height: " << videos_metadata[clear_index]->height << ".\n" << std::endl;
+    std::cout << "Video 1 status: " << static_cast<int>(videos_metadata[clear_index]->status) << ".\n" << std::endl;
+
 
     // Reset panels textboxes content according to the new list
-    
-    switch (cleared_index)
+
+    switch (clear_index)
     {
         case 0: File_1_data_textbox->set_content(file_name_from_path(file_data_choose_info.file_1_data_path));
         case 1: File_2_data_textbox->set_content(file_name_from_path(file_data_choose_info.file_2_data_path));
@@ -2256,7 +2325,7 @@ void clear_file_data_path(unsigned int file_number)
         case 4: File_5_data_textbox->set_content(file_name_from_path(file_data_choose_info.file_5_data_path));
         case 5: File_6_data_textbox->set_content(file_name_from_path(file_data_choose_info.file_6_data_path));
     }
-
+    
 }
 
 
@@ -2268,7 +2337,7 @@ void file_data_choose_or_clear(int file_number)
 
 
     // Clear file index
-    int cleared_index = file_number - 1;
+    int clear_index = file_number - 1;
 
 
     file_choose_panel_state* panel_states[] = {
@@ -2285,8 +2354,8 @@ void file_data_choose_or_clear(int file_number)
     bool add = false;
     bool clear = false;
 
-    if (*panel_states[cleared_index] == file_choose_panel_state::EMPTY_STATE) add = true;
-    else if (*panel_states[cleared_index] == file_choose_panel_state::CHOSEN_STATE) clear = true;
+    if (*panel_states[clear_index] == file_choose_panel_state::EMPTY_STATE) add = true;
+    else if (*panel_states[clear_index] == file_choose_panel_state::CHOSEN_STATE) clear = true;
 
     if (add)
     {

@@ -243,4 +243,5 @@ void SDL_app_shutdown(SDL_app_ctx* app)
     SDL_Quit();
 }
 
+
 // =========================================================================================== APP LOOP INNER FUNCTIONS
