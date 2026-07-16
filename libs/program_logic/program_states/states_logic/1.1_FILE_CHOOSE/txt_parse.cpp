@@ -83,9 +83,19 @@ void parse_metadata_txt(parsed_video_data& video, std::string txt_link)
 
     std::string line;
 
+
     while (std::getline(file, line))
     {
         txt_lines.push_back(line);
+    }
+
+
+    // Empty file error handler
+    if (txt_lines.empty() || (txt_lines.size() != 14 && txt_lines.size() != 6))
+    {
+        std::cout << "Wrong type of the passed file!\n" << std::endl;
+        drop_metadata(video);
+        return;
     }
 
 

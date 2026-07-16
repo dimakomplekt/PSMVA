@@ -1773,6 +1773,30 @@ void add_file_path(unsigned int file_number)
     {
         return;
     }
+
+
+    // Check format
+
+    std::string path_ending = ".avi";
+
+    std::string actual_ending = "";
+    if (selected_path.length() >= path_ending.length()) 
+    {
+        actual_ending = selected_path.substr(selected_path.length() - path_ending.length());
+        
+        std::transform(actual_ending.begin(), actual_ending.end(), actual_ending.begin(), 
+                       [](unsigned char c) { return std::tolower(c); });
+    }
+
+    if (actual_ending != path_ending) 
+    {
+        std::cout << "Wrong video format!\n";
+        return;
+    }
+
+
+    // Avi pass:
+
     
     *paths[add_index] = selected_path;
     *panel_states[add_index] = file_choose_panel_state::CHOSEN_STATE;
@@ -1854,6 +1878,20 @@ void clear_file_path(unsigned int file_number)
     };
 
 
+    // Drop parsed data
+
+    parsed_video_data* videos_metadata[] = {
+
+        &files_metadata.video_1_data,
+        &files_metadata.video_2_data,
+        &files_metadata.video_3_data,
+        &files_metadata.video_4_data,
+        &files_metadata.video_5_data,
+        &files_metadata.video_6_data
+
+    };
+
+
     // Move the names
     if (clear_index >= 0 && clear_index < 6)
     {
@@ -1868,8 +1906,10 @@ void clear_file_path(unsigned int file_number)
         // during the iteration loop)
         *paths[5] = "";
         *data_paths[5] = "";
+
     }
 
+    
     // Reset panels textboxes content according to the new list
     File_1_textbox->set_content(file_name_from_path(file_choose_info.file_1_path));
     File_2_textbox->set_content(file_name_from_path(file_choose_info.file_2_path));
@@ -1885,10 +1925,11 @@ void clear_file_path(unsigned int file_number)
     File_4_data_textbox->set_content(file_name_from_path(file_data_choose_info.file_4_data_path));
     File_5_data_textbox->set_content(file_name_from_path(file_data_choose_info.file_5_data_path));
     File_6_data_textbox->set_content(file_name_from_path(file_data_choose_info.file_6_data_path));
+    
+
 
 
     // Reset statuses
-    // TODO:: RESET LOOGIC TO CORRECT ONE!!!
     if ((clear_index >= 0 && clear_index < 6) && panel_states[clear_index + 1])
     {
         // From the deleted one
@@ -1896,6 +1937,8 @@ void clear_file_path(unsigned int file_number)
         {
             *panel_states[i] = *panel_states[i + 1];
             *data_panel_states[i] = *data_panel_states[i + 1];
+
+            *videos_metadata[i] = *videos_metadata[i + 1];
         }
 
         // HIDE last one (previos becomes HIDDEN_STATE automatically
@@ -1903,16 +1946,34 @@ void clear_file_path(unsigned int file_number)
         *panel_states[5] = file_choose_panel_state::HIDDEN_STATE;
         *data_panel_states[5] = file_choose_panel_state::HIDDEN_STATE;
 
+        drop_metadata(*videos_metadata[5]);
+
+
         if (*panel_states[0] == file_choose_panel_state::HIDDEN_STATE) *panel_states[0] = file_choose_panel_state::EMPTY_STATE;
         if (*data_panel_states[0] == file_choose_panel_state::HIDDEN_STATE) *data_panel_states[0] = file_choose_panel_state::EMPTY_STATE;
+
+        if (*data_panel_states[0] == file_choose_panel_state::EMPTY_STATE) drop_metadata(*videos_metadata[0]);
     }
+
 
     // If we clear file slot number six - set it as empty, not hiden
     if (file_number == 6)
     {
         *panel_states[5] = file_choose_panel_state::EMPTY_STATE;
         *data_panel_states[5] = file_choose_panel_state::EMPTY_STATE;
+
+        if (*data_panel_states[5] == file_choose_panel_state::EMPTY_STATE) drop_metadata(*videos_metadata[5]);
     }
+
+    // Backwards delete error handle 
+    if (*data_panel_states[4] == file_choose_panel_state::CHOSEN_STATE)
+    {
+        *panel_states[5] = file_choose_panel_state::EMPTY_STATE;
+        *data_panel_states[5] = file_choose_panel_state::EMPTY_STATE;
+
+        if (*data_panel_states[5] == file_choose_panel_state::EMPTY_STATE) drop_metadata(*videos_metadata[5]);
+    }
+
 
     if (TEST_MODE) std::cout << "Clear path for file: " << file_number << ". Current path: \"" << *paths[clear_index] << "\".\n" << std::endl;
 }
@@ -2073,6 +2134,39 @@ void file_choose_or_clear(int file_number)
     }
 
 
+    // Drop parsed data
+
+    parsed_video_data* videos_metadata[] = {
+
+        &files_metadata.video_1_data,
+        &files_metadata.video_2_data,
+        &files_metadata.video_3_data,
+        &files_metadata.video_4_data,
+        &files_metadata.video_5_data,
+        &files_metadata.video_6_data
+
+    };
+    
+
+    if (*panel_states[5] == file_choose_panel_state::HIDDEN_STATE && *panel_states[4] == file_choose_panel_state::CHOSEN_STATE)
+    {
+        buttons[5]->get_button_content_textbox()->set_content("+");
+            
+        panels[5]->set_visible_flag(true);
+
+        data_buttons[5]->get_button_content_textbox()->set_content("+");
+        
+        data_panels[5]->set_visible_flag(true);
+
+        *panel_states[5] = file_choose_panel_state::EMPTY_STATE;
+
+        *data_panel_states[5] = file_choose_panel_state::EMPTY_STATE;
+
+        drop_metadata(*videos_metadata[5]);
+
+    }
+
+
     // Add filler string to the new empty
     
     std::string* paths[] = {
@@ -2157,6 +2251,9 @@ void file_choose_or_clear(int file_number)
 }
 
 
+void clear_file_data_path(unsigned int file_number);
+
+
 void add_file_data_path(unsigned int file_number)
 {
 
@@ -2200,6 +2297,7 @@ void add_file_data_path(unsigned int file_number)
     }
     
 
+
     *paths[add_index] = selected_path;
     *panel_states[add_index] = file_choose_panel_state::CHOSEN_STATE;
     
@@ -2238,16 +2336,30 @@ void add_file_data_path(unsigned int file_number)
     std::cout << "Video 1 status: " << static_cast<int>(videos_metadata[add_index]->status) << ".\n" << std::endl;
 
 
-
-    // Reset panels textboxes content according to the new list
-    switch (add_index)
+    // Wrong file or parse error
+    if (videos_metadata[add_index]->status == txt_parse_status::EMPTY_STATE)
     {
-        case 0: File_1_data_textbox->set_content(file_name_from_path(file_data_choose_info.file_1_data_path));
-        case 1: File_2_data_textbox->set_content(file_name_from_path(file_data_choose_info.file_2_data_path));
-        case 2: File_3_data_textbox->set_content(file_name_from_path(file_data_choose_info.file_3_data_path));
-        case 3: File_4_data_textbox->set_content(file_name_from_path(file_data_choose_info.file_4_data_path));
-        case 4: File_5_data_textbox->set_content(file_name_from_path(file_data_choose_info.file_5_data_path));
-        case 5: File_6_data_textbox->set_content(file_name_from_path(file_data_choose_info.file_6_data_path));
+        // Call clear function for element reset
+        clear_file_data_path(file_number);
+
+        // Clear
+        drop_metadata(*videos_metadata[add_index]);
+    }
+
+    // In normal case - update textboxes
+    else
+    {
+        // Reset panels textboxes content according to the new list
+        switch (add_index)
+        {
+            case 0: File_1_data_textbox->set_content(file_name_from_path(file_data_choose_info.file_1_data_path));
+            case 1: File_2_data_textbox->set_content(file_name_from_path(file_data_choose_info.file_2_data_path));
+            case 2: File_3_data_textbox->set_content(file_name_from_path(file_data_choose_info.file_3_data_path));
+            case 3: File_4_data_textbox->set_content(file_name_from_path(file_data_choose_info.file_4_data_path));
+            case 4: File_5_data_textbox->set_content(file_name_from_path(file_data_choose_info.file_5_data_path));
+            case 5: File_6_data_textbox->set_content(file_name_from_path(file_data_choose_info.file_6_data_path));
+        }
+    
     }
     
 }
