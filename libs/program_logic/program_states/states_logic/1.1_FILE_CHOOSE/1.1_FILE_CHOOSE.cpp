@@ -2574,8 +2574,47 @@ void back_to_main_menu()
 
 void study_start()
 {
-    //
+    // Setup file choose status
+
+    file_choose_panel_state* panel_states[] = {
+
+        &file_data_choose_info.panels_states.file_1_data_panel_state,
+        &file_data_choose_info.panels_states.file_2_data_panel_state,
+        &file_data_choose_info.panels_states.file_3_data_panel_state,
+        &file_data_choose_info.panels_states.file_4_data_panel_state,
+        &file_data_choose_info.panels_states.file_5_data_panel_state,
+        &file_data_choose_info.panels_states.file_6_data_panel_state
+
+    };
+
+
+    bool* statuses[] = {
+
+        &files_choose_status.file_1_choosen,
+        &files_choose_status.file_2_choosen,
+        &files_choose_status.file_3_choosen,
+        &files_choose_status.file_4_choosen,
+        &files_choose_status.file_5_choosen,
+        &files_choose_status.file_6_choosen
+
+    };
+
+    
+    for (unsigned int i = 0; i < 6; i++)
+    {
+        if (*panel_states[i] == file_choose_panel_state::CHOSEN_STATE)
+            *statuses[i] = true;
+        else    
+            *statuses[i] = false;
+    }
+
+
+    // Switch state
+
+    // Request state change
+    this_app.app_sm.request_state_change(MASKS_SETUP_ID);
 }
+
 
 
 bool check_start_study_access()

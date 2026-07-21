@@ -20,6 +20,10 @@
 // Log
 #include <iostream>
 
+
+// Check
+#include "../1.1_FILE_CHOOSE/1.1_FILE_CHOOSE.h"
+
 // =========================================================================================== IMPORT
 
 
@@ -30,14 +34,6 @@
 My_SDL_panel* Masks_setup_panel = nullptr;
 
 My_SDL_textbox* Masks_setup_textbox = nullptr;
-
-My_SDL_textbox* Masks_setup_textbox_2 = nullptr;
-
-My_SDL_textbox* Masks_setup_textbox_3 = nullptr;
-
-My_SDL_textbox* Masks_setup_textbox_4 = nullptr;
-
-My_SDL_button* Information_button_1 = nullptr;
 
 // =========================================================================================== STATE DATA
 
@@ -74,6 +70,31 @@ void masks_setup_enter()
     masks_setup_elements_create();
 
     // ===== State allocation =====
+
+
+    // FILE STATUS PASS TEST
+
+    bool* statuses[] = {
+
+        &files_choose_status.file_1_choosen,
+        &files_choose_status.file_2_choosen,
+        &files_choose_status.file_3_choosen,
+        &files_choose_status.file_4_choosen,
+        &files_choose_status.file_5_choosen,
+        &files_choose_status.file_6_choosen
+
+    };
+
+
+    for (int i = 0; i < 6; i++)
+    {
+        if (*statuses[i] == true)
+        {
+            std::cout << "File number " << i << " is choosen!\n" << std::endl;
+        }
+    }
+
+    // FILE STATUS PASS TEST
 
 
     // Elements setup
@@ -147,12 +168,6 @@ void masks_setup_elements_create()
 
     // Masks_setup textbox create
     Masks_setup_textbox = new My_SDL_textbox();
-
-    Masks_setup_textbox_2 = new My_SDL_textbox();
-    Masks_setup_textbox_3 = new My_SDL_textbox();
-    Masks_setup_textbox_4 = new My_SDL_textbox();
-
-    Information_button_1 = new My_SDL_button();
 }
 
 
@@ -172,28 +187,6 @@ void masks_setup_elements_setup()
     Masks_setup_textbox->switch_blinking_mode_flag(true);
 
 
-    Masks_setup_textbox_2->switch_textbox_type(HEADER_2);
-    Masks_setup_textbox_2->set_content(str_by_dictionary(gd_press_any_key));
-    Masks_setup_textbox_2->switch_blinking_mode_flag(true);
-
-
-    Masks_setup_textbox_3->switch_textbox_type(HEADER_2);
-    Masks_setup_textbox_3->set_content(str_by_dictionary(gd_press_any_key));
-    Masks_setup_textbox_3->switch_blinking_mode_flag(true);
-
-
-    Masks_setup_textbox_4->switch_textbox_type(HEADER_2);
-    Masks_setup_textbox_4->set_content(str_by_dictionary(gd_press_any_key));
-    Masks_setup_textbox_4->switch_blinking_mode_flag(true);
-
-
-    Information_button_1->switch_button_textbox_type(HEADER_2);
-    Information_button_1->get_button_content_textbox()->set_content(str_by_dictionary(gd_information_button));
-    Information_button_1->set_size(100, 150);
-    Information_button_1->set_render_point(300, 200);
-
-
-
 
     // Put the texture inside the middle of the panel
 
@@ -204,31 +197,6 @@ void masks_setup_elements_setup()
           (Masks_setup_panel->get_height_size()) * 0.2,
            1
     );
-
-    Masks_setup_panel->add_element(
-
-        Masks_setup_textbox_2,
-         (Masks_setup_panel->get_width_size()) * 0.5,
-          (Masks_setup_panel->get_height_size()) * 0.4,
-           1
-    );
-
-    Masks_setup_panel->add_element(
-
-        Masks_setup_textbox_3,
-         (Masks_setup_panel->get_width_size()) * 0.5,
-          (Masks_setup_panel->get_height_size()) * 0.6,
-           1
-    );
-
-    Masks_setup_panel->add_element(
-
-        Masks_setup_textbox_4,
-         (Masks_setup_panel->get_width_size()) * 0.5,
-          (Masks_setup_panel->get_height_size()) * 0.8,
-           1
-    );
-
 
 }
 
@@ -244,13 +212,6 @@ void masks_setup_elements_free_and_nullptr()
     Masks_setup_panel = nullptr;
     Masks_setup_textbox = nullptr;
     
-    Masks_setup_textbox_2 = nullptr;
-    Masks_setup_textbox_3 = nullptr;
-    Masks_setup_textbox_4 = nullptr;
-
-
-    Information_button_1->delete_element();
-    Information_button_1 = nullptr;
 }
 
 
@@ -261,8 +222,6 @@ void masks_setup_elements_update()
 
     // Update all elements
     Masks_setup_panel->update();
-
-    Information_button_1->update();
 
 }
 
@@ -329,8 +288,6 @@ void masks_setup_elements_render(SDL_Renderer* renderer)
 {
     // Render all elements
     Masks_setup_panel->render(renderer);
-
-    Information_button_1->render(renderer);
 
 }
 

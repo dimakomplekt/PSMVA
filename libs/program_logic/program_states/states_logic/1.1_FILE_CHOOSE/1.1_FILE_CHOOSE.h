@@ -55,7 +55,7 @@ enum class file_choose_panel_state
 };
 
 
-typedef struct
+struct file_choose_panel_states
 {
 
     file_choose_panel_state file_1_panel_state;
@@ -65,10 +65,10 @@ typedef struct
     file_choose_panel_state file_5_panel_state;
     file_choose_panel_state file_6_panel_state;
 
-} file_choose_panel_states;
+};
 
 
-typedef struct
+struct file_choose_ctx
 {
 
     std::string file_1_path;
@@ -81,10 +81,10 @@ typedef struct
 
     file_choose_panel_states panels_states;
 
-} file_choose_ctx;
+};
 
 
-typedef struct
+struct file_data_choose_panel_states
 {
 
     file_choose_panel_state file_1_data_panel_state;
@@ -94,10 +94,10 @@ typedef struct
     file_choose_panel_state file_5_data_panel_state;
     file_choose_panel_state file_6_data_panel_state;
 
-} file_data_choose_panel_states;
+};
 
 
-typedef struct
+struct file_data_choose_ctx
 {
 
     std::string file_1_data_path;
@@ -110,13 +110,29 @@ typedef struct
 
     file_data_choose_panel_states panels_states;
 
-} file_data_choose_ctx;
+};
+
+
+
+struct files_choose_status_ctx
+{
+    
+    bool file_1_choosen = false;
+    bool file_2_choosen = false;
+    bool file_3_choosen = false;
+    bool file_4_choosen = false;
+    bool file_5_choosen = false;
+    bool file_6_choosen = false;
+     
+};
 
 
 
 // Data for file choose - used for files access during the whole analysis (untill the new one)
 inline file_choose_ctx file_choose_info;
 inline file_data_choose_ctx file_data_choose_info;
+
+inline files_choose_status_ctx files_choose_status;
 
 
 // Calles at the file choose state enter (cause we use the same data through the whole analysis, 
