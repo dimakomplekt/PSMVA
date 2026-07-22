@@ -37,3 +37,50 @@ void masks_setup_update();
 void masks_setup_render(SDL_Renderer* renderer);
 
 // =========================================================================================== MAIN STATE API
+
+
+// =========================================================================================== ADDITIONAL STATES API
+
+void masks_setup_1_enter();
+void masks_setup_1_exit();
+
+void masks_setup_1_update();
+void masks_setup_1_render(SDL_Renderer* renderer);
+
+
+void masks_setup_2_enter();
+void masks_setup_2_exit();
+
+void masks_setup_2_update();
+void masks_setup_2_render(SDL_Renderer* renderer);
+
+
+void masks_setup_3_enter();
+void masks_setup_3_exit();
+
+void masks_setup_3_update();
+void masks_setup_3_render(SDL_Renderer* renderer);
+
+
+void masks_setup_4_enter();
+void masks_setup_4_exit();
+
+void masks_setup_4_update();
+void masks_setup_4_render(SDL_Renderer* renderer);
+
+
+void masks_setup_5_enter();
+void masks_setup_5_exit();
+
+void masks_setup_5_update();
+void masks_setup_5_render(SDL_Renderer* renderer);
+
+
+void masks_setup_6_enter();
+void masks_setup_6_exit();
+
+void masks_setup_6_update();
+void masks_setup_6_render(SDL_Renderer* renderer);
+
+
+// =========================================================================================== ADDITIONAL STATES API

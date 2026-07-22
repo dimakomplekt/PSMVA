@@ -28,11 +28,27 @@
  */
 
 const State_ID START_ID                             = {0};           // Initial boot/start state
+
+
 const State_ID MAIN_MENU_ID                         = {1};           // Main functions basic state
+
 const State_ID FILE_CHOOSE_ID                       = {1, 1};        // File choose state
+
 const State_ID MASKS_SETUP_ID                       = {1, 2};        // Masks setup state
+
+const State_ID MASKS_SETUP_ID_1                     = {1, 2, 1};     // Masks setup state
+const State_ID MASKS_SETUP_ID_2                     = {1, 2, 2};     // Masks setup state
+const State_ID MASKS_SETUP_ID_3                     = {1, 2, 3};     // Masks setup state
+const State_ID MASKS_SETUP_ID_4                     = {1, 2, 4};     // Masks setup state
+const State_ID MASKS_SETUP_ID_5                     = {1, 2, 5};     // Masks setup state
+const State_ID MASKS_SETUP_ID_6                     = {1, 2, 6};     // Masks setup state
+
+
 const State_ID FLOW_PARAMETERS_CALCULATION_ID       = {1, 3};        // Flow parameters calculation state
+
+
 const State_ID REPORT_FORMING_ID                    = {1, 4};        // Report forming state
+
 
 const State_ID PROGRAM_END_ID                       = {2};           // Program exit state
 
@@ -43,13 +59,19 @@ const State_ID PROGRAM_END_ID                       = {2};           // Program 
  */
 const std::vector<std::pair<State_ID, std::string>> state_defs = {
 
-    {{0},       "START"},                           // Просто запуск программы, загрузка чего-то, подготовка к работе
-    {{1},       "MAIN_MENU"},                       // Дать возможность начать работу с программой или выйти
-    {{1,1},     "FILE_CHOOSE"},                     // Меню выбора файлов для обработки    
-    {{1,2},     "MASKS_SETUP"},                     // Меню выбора параметров масок для обработки видео        
-    {{1,3},     "FLOW_PARAMETERS_CALCULATION"},     // Расчёт + статус бар + прогресс бар по каждому видео + сигнализация по успеху (с переходом вперед) неудаче (переход назад + лог)
-    {{1,4},     "REPORT_FORMING"},                  // Формирование отчёта + выбор места сохранения + сигнализация об успехе + переход к следующему этапу
-    {{2},       "PROGRAM_END"}                      // Сообщение о завершении работы + переход на этап MAIN_MENU при нажатии любой клавиши
+    {{0},               "START"},                           // Просто запуск программы, загрузка чего-то, подготовка к работе
+    {{1},               "MAIN_MENU"},                       // Дать возможность начать работу с программой или выйти
+    {{1, 1},            "FILE_CHOOSE"},                     // Меню выбора файлов для обработки    
+    {{1, 2},            "MASKS_SETUP"},                     // Меню выбора параметров масок для обработки видео
+    {{1, 2, 1},         "MASKS_SETUP_1"},                   // Меню выбора параметров масок для обработки видео
+    {{1, 2, 2},         "MASKS_SETUP_2"},                   // Меню выбора параметров масок для обработки видео
+    {{1, 2, 3},         "MASKS_SETUP_3"},                   // Меню выбора параметров масок для обработки видео
+    {{1, 2, 4},         "MASKS_SETUP_4"},                   // Меню выбора параметров масок для обработки видео
+    {{1, 2, 5},         "MASKS_SETUP_5"},                   // Меню выбора параметров масок для обработки видео
+    {{1, 2, 6},         "MASKS_SETUP_6"},                   // Меню выбора параметров масок для обработки видео  
+    {{1, 3},            "FLOW_PARAMETERS_CALCULATION"},     // Расчёт + статус бар + прогресс бар по каждому видео + сигнализация по успеху (с переходом вперед) неудаче (переход назад + лог)
+    {{1, 4},            "REPORT_FORMING"},                  // Формирование отчёта + выбор места сохранения + сигнализация об успехе + переход к следующему этапу
+    {{2},               "PROGRAM_END"}                      // Сообщение о завершении работы + переход на этап MAIN_MENU при нажатии любой клавиши
 
 };
 

@@ -72,31 +72,6 @@ void masks_setup_enter()
     // ===== State allocation =====
 
 
-    // FILE STATUS PASS TEST
-
-    bool* statuses[] = {
-
-        &files_choose_status.file_1_choosen,
-        &files_choose_status.file_2_choosen,
-        &files_choose_status.file_3_choosen,
-        &files_choose_status.file_4_choosen,
-        &files_choose_status.file_5_choosen,
-        &files_choose_status.file_6_choosen
-
-    };
-
-
-    for (int i = 0; i < 6; i++)
-    {
-        if (*statuses[i] == true)
-        {
-            std::cout << "File number " << i << " is choosen!\n" << std::endl;
-        }
-    }
-
-    // FILE STATUS PASS TEST
-
-
     // Elements setup
 
     masks_setup_elements_setup();
@@ -128,6 +103,7 @@ void masks_setup_update()
     {
         App_inputs.update();
     }
+
 
     if (App_timer_1.can_execute(Execute_zone_ID::HZ_240))
     {
@@ -182,7 +158,7 @@ void masks_setup_elements_setup()
     // Masks_setup textbox setup
     Masks_setup_textbox->switch_textbox_type(HEADER_2);
 
-    Masks_setup_textbox->set_content(str_by_dictionary(gd_press_any_key));
+    Masks_setup_textbox->set_content(str_by_dictionary(gd_masks_setup_info));
 
     Masks_setup_textbox->switch_blinking_mode_flag(true);
 
@@ -194,7 +170,7 @@ void masks_setup_elements_setup()
 
         Masks_setup_textbox,
          (Masks_setup_panel->get_width_size()) * 0.5,
-          (Masks_setup_panel->get_height_size()) * 0.2,
+          (Masks_setup_panel->get_height_size()) * 0.5,
            1
     );
 
@@ -231,7 +207,7 @@ void reset_passed_by_dictionary_textboxes_if_language_switched_ms()
     // Repeat content set if language switched
     if (App_lang.get_lang_reset_flag())
     {
-        Masks_setup_textbox->set_content(str_by_dictionary(gd_press_any_key));
+        Masks_setup_textbox->set_content(str_by_dictionary(gd_masks_setup_info));
     }
 }
 
@@ -242,45 +218,16 @@ void masks_setup_actions()
 
     if (App_inputs.is_just_released(Key_actions::EXIT))
     {
-        this_app.app_sm.request_state_change(START_ID);
+        this_app.app_sm.request_state_change(FILE_CHOOSE_ID);
     }
 
     // Switch the state to MAIN MENU if ENTER pressed
 
     if (App_inputs.is_just_released(Key_actions::ENTER))
     {
-        this_app.app_sm.request_state_change(START_ID);
+        this_app.app_sm.request_state_change(MASKS_SETUP_ID_1);
     }
 
-    if (App_inputs.is_just_released(Key_actions::SPECIAL_1))
-    {
-        App_palette.switch_to_the_next_palette();
-        App_lang.switch_to_next_lang();
-        App_fonts.switch_to_the_next_font_palette();
-    
-        static bool to_second = false;
-    
-        if (!to_second)
-        {
-            int old_x = Masks_setup_textbox->get_x_render_point();
-            int old_y = Masks_setup_textbox->get_y_render_point();
-    
-            // Masks_setup_panel->move_to_point(old_x - 100, old_y - 200, EXPONENTIAL, 500);
-            Masks_setup_textbox->move_to_point(old_x + 100, old_y + 200, LINEAR, 300);
-
-            to_second = true;
-        }
-        else
-        {
-            int old_x = Masks_setup_textbox->get_x_render_point();
-            int old_y = Masks_setup_textbox->get_y_render_point();
-
-            // Masks_setup_panel->move_to_point(old_x + 100, old_y + 200, EXPONENTIAL, 500);
-            Masks_setup_textbox->move_to_point(old_x - 100, old_y - 200, LINEAR, 300);
-
-            to_second = false;
-        }
-    }
 }
 
 
@@ -292,3 +239,150 @@ void masks_setup_elements_render(SDL_Renderer* renderer)
 }
 
 // =========================================================================================== STATE INNER FUNCTIONS REALIZATION
+
+
+
+void masks_setup_1_enter()
+{
+    //
+}
+
+
+void masks_setup_1_exit()
+{
+    //
+}
+
+
+void masks_setup_1_update()
+{
+    //
+}
+
+
+void masks_setup_1_render(SDL_Renderer* renderer)
+{
+    //
+}
+
+
+void masks_setup_2_enter()
+{
+    //
+}
+
+
+void masks_setup_2_exit()
+{
+    //
+}
+
+
+void masks_setup_2_update()
+{
+    //
+}
+
+
+void masks_setup_2_render(SDL_Renderer* renderer)
+{
+    //
+}
+
+
+void masks_setup_3_enter()
+{
+    //
+}
+
+
+void masks_setup_3_exit()
+{
+    //
+}
+
+
+void masks_setup_3_update()
+{
+    //
+}
+
+
+void masks_setup_3_render(SDL_Renderer* renderer)
+{
+    //
+}
+
+
+void masks_setup_4_enter()
+{
+    //
+}
+
+
+void masks_setup_4_exit()
+{
+    //
+}
+
+
+void masks_setup_4_update()
+{
+    //
+}
+
+
+void masks_setup_4_render(SDL_Renderer* renderer)
+{
+    //
+}
+
+
+void masks_setup_5_enter()
+{
+    //
+}
+
+
+void masks_setup_5_exit()
+{
+    //
+}
+
+
+void masks_setup_5_update()
+{
+    //
+}
+
+
+void masks_setup_5_render(SDL_Renderer* renderer)
+{
+    //
+}
+
+
+void masks_setup_6_enter()
+{
+    //
+}
+
+
+void masks_setup_6_exit()
+{
+    //
+}
+
+
+void masks_setup_6_update()
+{
+    //
+}
+
+
+void masks_setup_6_render(SDL_Renderer* renderer)
+{
+    //
+}
+
+
