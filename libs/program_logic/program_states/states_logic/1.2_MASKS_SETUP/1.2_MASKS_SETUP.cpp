@@ -241,31 +241,6 @@ void masks_setup_elements_render(SDL_Renderer* renderer)
 // =========================================================================================== STATE INNER FUNCTIONS REALIZATION
 
 
-
-void masks_setup_1_enter()
-{
-    //
-}
-
-
-void masks_setup_1_exit()
-{
-    //
-}
-
-
-void masks_setup_1_update()
-{
-    //
-}
-
-
-void masks_setup_1_render(SDL_Renderer* renderer)
-{
-    //
-}
-
-
 void masks_setup_2_enter()
 {
     //

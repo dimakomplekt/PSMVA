@@ -135,7 +135,7 @@ inline file_data_choose_ctx file_data_choose_info;
 inline files_choose_status_ctx files_choose_status;
 
 
-// Calles at the file choose state enter (cause we use the same data through the whole analysis, 
+// Called at the file choose state enter (cause we use the same data through the whole analysis, 
 // so we just reset values to default ones)  
 void file_choose_data_init();
 

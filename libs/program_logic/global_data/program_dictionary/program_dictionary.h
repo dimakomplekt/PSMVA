@@ -137,4 +137,18 @@ inline Lang_string_type gd_masks_setup_info = {
     
 };
 
+
+// ===== STATE 1.2.1 =====
+
+inline Lang_string_type gd_masks_setup_1_info = {
+
+    "Setup the masks for the video 1!",
+    "Настройте маски для видео 1!"
+    
+};
+
+
+// ===== STATE 1.2.1 =====
+
+
 // =========================================================================================== STATE 1.2 DICTIONARY

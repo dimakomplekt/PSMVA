@@ -39,6 +39,72 @@ void masks_setup_render(SDL_Renderer* renderer);
 // =========================================================================================== MAIN STATE API
 
 
+// =========================================================================================== GLOBAL DATA
+
+// Mask for the nozzle detection
+struct nozzle_detection_mask
+{
+
+};
+
+
+// Mask for the nozzle detection
+struct jet_detection_mask
+{
+
+};
+
+
+// Mask for the nozzle detection
+struct particle_detection_mask
+{
+
+};
+
+
+
+enum class mask_state 
+{
+
+    EMPTY_STATE,
+    FILLED_STATE
+
+};
+
+
+// Context for one file
+struct file_masks_data
+{
+    bool* file_choose_state;
+
+    mask_state masks_setup_state;
+
+
+    nozzle_detection_mask nozzle_mask;
+    jet_detection_mask jet_mask;
+    particle_detection_mask particle_mask;
+
+};
+
+
+struct files_masks_data
+{
+
+    file_masks_data file_1_masks;
+    file_masks_data file_2_masks;
+    file_masks_data file_3_masks;
+    file_masks_data file_4_masks;
+    file_masks_data file_5_masks;
+    file_masks_data file_6_masks;
+
+};
+
+// Data for masks setup
+inline files_masks_data masks_data;
+
+// =========================================================================================== GLOBAL DATA
+
+
 // =========================================================================================== ADDITIONAL STATES API
 
 void masks_setup_1_enter();
