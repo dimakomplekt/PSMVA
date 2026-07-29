@@ -2749,6 +2749,7 @@ void opencv_setup_fc()
     if (TEST_MODE) std::cout << "Mat and texture created\n" << std::endl;
 }
 
+
 void opencv_update_fc()
 {
     if (file_choose_info.panels_states.file_1_panel_state == file_choose_panel_state::EMPTY_STATE)

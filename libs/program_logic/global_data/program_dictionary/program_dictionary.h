@@ -138,6 +138,65 @@ inline Lang_string_type gd_masks_setup_info = {
 };
 
 
+inline Lang_string_type gd_save_preset = {
+
+    "SAVE",
+    "СОХРАНИТЬ"
+
+}
+
+
+inline Lang_string_type gd_load_preset = {
+
+    "LOAD",
+    "ЗАГРУЗИТЬ"
+
+}
+
+
+inline Lang_string_type gd_calculation_start = {
+
+    "STUDY",
+    "РАСЧЁТ"
+
+}
+
+
+inline Lang_string_type gd_masks_setup_exit = {
+
+    "BACK",
+    "НАЗАД"
+
+};
+
+
+
+inline Lang_string_type gd_mask_1_name = {
+
+    "Mask 1",
+    "Маска 1"
+
+}
+
+
+
+
+inline Lang_string_type gd_mask_2_name = {
+
+    "Mask 2",
+    "Маска 2"
+    
+}
+
+
+inline Lang_string_type gd_mask_3_name = {
+
+    "Mask 3",
+    "Маска 3"
+    
+}
+
+
 // ===== STATE 1.2.1 =====
 
 inline Lang_string_type gd_masks_setup_1_info = {
@@ -152,3 +211,5 @@ inline Lang_string_type gd_masks_setup_1_info = {
 
 
 // =========================================================================================== STATE 1.2 DICTIONARY
+
+
