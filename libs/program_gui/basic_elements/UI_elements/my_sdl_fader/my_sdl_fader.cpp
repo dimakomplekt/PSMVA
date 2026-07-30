@@ -475,18 +475,27 @@ void My_SDL_fader::set_render_point(int x_cc_rp, int y_cc_rp)
 
     this->knob_y_render_point = y_cc_rp;
 
-    this->reset_slot_boundaries_points();
-    
-    this->reset_knob_boundaries_points();
 
+    this->knob_x_render_point = this->knob_position_by_fader_value();
+    this->knob_y_render_point = this->slot_y_render_point;
+
+
+    // borders
+
+    this->reset_knob_boundaries_points();
+    this->reset_slot_boundaries_points();
+
+
+    // Anchor points
     this->reset_anchor_points();
+    
 }
 
 
 void My_SDL_fader::set_slot_size(unsigned int new_width, unsigned int new_height)
 {
     // Slot can't be circle
-    if ((new_width < 120 || new_height < 20) || 
+    if ((new_width < 120 || new_height < 10) || 
         (this->slot_border_width_size > new_width / 2) || 
         (this->slot_border_width_size > new_height / 2) || 
         (this->slot_border_radius_size != 0 && this->slot_border_width_size > (this->slot_border_radius_size - 1)))
