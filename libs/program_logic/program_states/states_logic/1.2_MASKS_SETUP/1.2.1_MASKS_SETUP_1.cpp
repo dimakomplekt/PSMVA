@@ -284,6 +284,15 @@ void masks_setup_1_enter()
 
     opencv_setup_ms_1();
 
+
+    // TEST
+
+    std::cout << 
+
+        "\n\nPassed width: " << files_metadata.video_1_data.width << 
+        "\nPassed height: " << files_metadata.video_1_data.height << std::endl;
+
+
 }
 
 
@@ -482,12 +491,21 @@ const int SCREEN_MARGIN_2 = 100;
 
 // Video panel
 
-int video_width_ms_1= files_metadata.video_1_data.width;
-int video_height_ms_1 = files_metadata.video_1_data.height; 
 
-int video_panel_width_ms_1 = video_width_ms_1+ 2 * SCREEN_MARGIN_0;
-int video_panel_height_ms_1 = video_height_ms_1 + 2 * SCREEN_MARGIN_0;
+// ===== !!! =====
 
+// Only declarations are placed here.
+// Initialization from files_metadata is intentionally NOT performed here,
+// because global variables are initialized during program startup,
+// before the TXT parser fills files_metadata with actual values.
+
+unsigned int video_width_ms_1;
+unsigned int video_height_ms_1; 
+
+int video_panel_width_ms_1;
+int video_panel_height_ms_1;
+
+// ===== !!! =====
 
 // Masks setup panels
 
@@ -588,6 +606,24 @@ void masks_setup_1_elements_setup()
 {
     // Masks setup panel
 
+
+    // ===== !!! =====
+
+    // Initialize layout values after the metadata has been loaded.
+    // These assignments cannot be performed as global initializers because
+    // files_metadata contains valid data only after the previous state finishes parsing.
+
+    // Otherwise there will be "Static Initialization Order Fiasco"
+
+    video_width_ms_1 = files_metadata.video_1_data.width;
+    video_height_ms_1 = files_metadata.video_1_data.height; 
+
+    video_panel_width_ms_1 = video_width_ms_1 + 2 * SCREEN_MARGIN_0;
+    video_panel_height_ms_1 = video_height_ms_1 + 2 * SCREEN_MARGIN_0;
+
+    // ===== !!! =====
+
+
     Masks_setup_panel_ms_1->set_render_point(MAIN_WINDOW_H_SIZE / 2, MAIN_WINDOW_V_SIZE / 2);
     Masks_setup_panel_ms_1->set_size(MAIN_WINDOW_H_SIZE, MAIN_WINDOW_V_SIZE);
     Masks_setup_panel_ms_1->set_border_radius(0);
@@ -596,10 +632,20 @@ void masks_setup_1_elements_setup()
 
     // Video preview 
 
+    // TEST
+    std::cout << "Size before set: " << video_panel_width_ms_1 << "x" << video_panel_height_ms_1 << std::endl;
+
     Video_preview_panel_ms_1->set_render_point(video_panel_x_ms_1, video_panel_y_ms_1);
     Video_preview_panel_ms_1->set_size(video_panel_width_ms_1, video_panel_height_ms_1);
     Video_preview_panel_ms_1->set_border_radius(0);
 
+
+    // TEST
+    std::cout << "Video preview panel size: " << video_panel_width_ms_1 << "x" << video_panel_height_ms_1 << std::endl;
+    std::cout << "Passed video size: " << Video_preview_panel_ms_1->get_width_size() << "x" << Video_preview_panel_ms_1->get_height_size() << std::endl;
+    
+    
+    
     // Texture
 
     Video_preview_texture_ms_1->set_size(video_width_ms_1, video_height_ms_1);
@@ -625,7 +671,7 @@ void masks_setup_1_elements_setup()
     File_choose_panel_ms_1->set_border_radius(0);
     File_choose_panel_ms_1->set_shadow_scale_factor(0);
 
-    File_choose_textbox_ms_1->set_content("F:");
+    File_choose_textbox_ms_1->set_content(str_by_dictionary(gd_file_choose_panel_name));
     File_choose_textbox_ms_1->switch_textbox_type(ORDINARY_TEXT);
 
 
@@ -639,7 +685,7 @@ void masks_setup_1_elements_setup()
     File_1_button_ms_1->set_access_type(BUTTON_EXTERN_CLICK_PERMISSION);
     File_1_button_ms_1->set_border_radius(0);
     File_1_button_ms_1->set_shadow_scale_factor(0);
-
+    File_1_button_ms_1->switch_push_mode();
 
     // File 2 button
 
@@ -651,7 +697,7 @@ void masks_setup_1_elements_setup()
     File_2_button_ms_1->set_access_type(BUTTON_EXTERN_CLICK_PERMISSION);
     File_2_button_ms_1->set_border_radius(0);
     File_2_button_ms_1->set_shadow_scale_factor(0);
-
+    File_2_button_ms_1->switch_push_mode();
 
     // File 3 button
 
@@ -663,7 +709,7 @@ void masks_setup_1_elements_setup()
     File_3_button_ms_1->set_access_type(BUTTON_EXTERN_CLICK_PERMISSION);
     File_3_button_ms_1->set_border_radius(0);
     File_3_button_ms_1->set_shadow_scale_factor(0);
-
+    File_3_button_ms_1->switch_push_mode();
 
     // File 4 button
 
@@ -675,7 +721,7 @@ void masks_setup_1_elements_setup()
     File_4_button_ms_1->set_access_type(BUTTON_EXTERN_CLICK_PERMISSION);
     File_4_button_ms_1->set_border_radius(0);
     File_4_button_ms_1->set_shadow_scale_factor(0);
-
+    File_4_button_ms_1->switch_push_mode();
 
     // File 5 button
 
@@ -687,7 +733,7 @@ void masks_setup_1_elements_setup()
     File_5_button_ms_1->set_access_type(BUTTON_EXTERN_CLICK_PERMISSION);
     File_5_button_ms_1->set_border_radius(0);
     File_5_button_ms_1->set_shadow_scale_factor(0);
-
+    File_5_button_ms_1->switch_push_mode();
 
     // File 6 button
 
@@ -699,8 +745,9 @@ void masks_setup_1_elements_setup()
     File_6_button_ms_1->set_access_type(BUTTON_EXTERN_CLICK_PERMISSION);
     File_6_button_ms_1->set_border_radius(0);
     File_6_button_ms_1->set_shadow_scale_factor(0);
+    File_6_button_ms_1->switch_push_mode();
 
-
+    
     // Add elements in panel
 
     File_choose_panel_ms_1->add_element(
@@ -781,7 +828,7 @@ void masks_setup_1_elements_setup()
     Masks_choose_panel_ms_1->set_border_radius(0);
     Masks_choose_panel_ms_1->set_shadow_scale_factor(0);
 
-    Mask_choose_textbox_ms_1->set_content("M:");
+    Mask_choose_textbox_ms_1->set_content(str_by_dictionary(gd_mask_choose_panel_name));
     Mask_choose_textbox_ms_1->switch_textbox_type(ORDINARY_TEXT);
 
 
@@ -793,7 +840,7 @@ void masks_setup_1_elements_setup()
     Mask_1_choose_button_ms_1->on_click = mask_1_choose;
     Mask_1_choose_button_ms_1->set_border_radius(0);
     Mask_1_choose_button_ms_1->set_shadow_scale_factor(0);
-
+    Mask_1_choose_button_ms_1->switch_push_mode();
 
     // Mask 2 button
 
@@ -803,6 +850,7 @@ void masks_setup_1_elements_setup()
     Mask_2_choose_button_ms_1->on_click = mask_2_choose;
     Mask_2_choose_button_ms_1->set_border_radius(0);
     Mask_2_choose_button_ms_1->set_shadow_scale_factor(0);
+    Mask_2_choose_button_ms_1->switch_push_mode();
 
 
     // Mask 3 button
@@ -813,6 +861,7 @@ void masks_setup_1_elements_setup()
     Mask_3_choose_button_ms_1->on_click = mask_3_choose;
     Mask_3_choose_button_ms_1->set_border_radius(0);
     Mask_3_choose_button_ms_1->set_shadow_scale_factor(0);
+    Mask_3_choose_button_ms_1->switch_push_mode();
 
 
     // Add elements to the panel
@@ -1518,6 +1567,10 @@ void reset_passed_by_dictionary_textboxes_if_language_switched_ms_1()
         file_choose_state_but_ms_1->get_button_content_textbox()->set_content(str_by_dictionary(gd_masks_setup_exit));
 
         flow_parameters_calculation_state_but_ms_1->get_button_content_textbox()->set_content(str_by_dictionary(gd_calculation_start));
+    
+        File_choose_textbox_ms_1->set_content(str_by_dictionary(gd_file_choose_panel_name));
+
+        Mask_choose_textbox_ms_1->set_content(str_by_dictionary(gd_mask_choose_panel_name));
     }
 }
 

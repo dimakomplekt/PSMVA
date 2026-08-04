@@ -138,6 +138,25 @@ inline Lang_string_type gd_masks_setup_info = {
 };
 
 
+inline Lang_string_type gd_file_choose_panel_name = {
+
+    "File",
+    "Файл"
+
+};
+
+
+inline Lang_string_type gd_mask_choose_panel_name = {
+
+    "Mask",
+    "Маска"
+
+};
+
+
+
+
+
 inline Lang_string_type gd_save_preset = {
 
     "SAVE",
