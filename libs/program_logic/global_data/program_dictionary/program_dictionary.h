@@ -10,6 +10,44 @@
 // =========================================================================================== IMPORT
 
 
+
+// =========================================================================================== GLOBAL DICTIONARY
+
+
+inline Lang_string_type gd_coordinate = {
+
+    "Сoordinate",
+    "Координата"
+
+};
+
+inline Lang_string_type gd_pixels = {
+
+    "px",
+    "пкс"
+
+};
+
+
+inline Lang_string_type gd_diameter = {
+
+    "Diameter",
+    "Диаметр"
+
+};
+
+inline Lang_string_type gd_millimeters = {
+
+    "mm",
+    "мм"
+
+};
+
+
+// =========================================================================================== GLOBAL DICTIONARY
+
+
+
 // =========================================================================================== STATE 0.0 DICTIONARY
 
 // Could be not inline - replace with extern and define in cpp, but for simplicity - inline, as it's just a small 

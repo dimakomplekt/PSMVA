@@ -20,6 +20,7 @@ My_SDL_fader::My_SDL_fader()
     // Data
 
     this->fader_value = 0.5f;
+    this->prev_fader_value = 0.5f;
 
     // Control flags
 
@@ -155,10 +156,33 @@ float My_SDL_fader::get_fader_value() const
 }
 
 
+int My_SDL_fader::fader_value_to_int_from_range(int min, int max)
+{
+    float val = this->get_fader_value();
+    
+    // std::round ensures correct switching at the midpoint of the fader travel
+    return min + static_cast<int>(std::round(val * (max - min)));
+}
+
+
+float My_SDL_fader::fader_value_to_float_from_range(float min, float max)
+{
+    float val = this->get_fader_value();
+    
+    // Standart linear interpolation (lerp)
+    return min + val * (max - min);
+}
+
+
+
 void My_SDL_fader::update()
 {
     // No actions for not visiable element
     if (!this->visible_flag) return;
+
+
+    // Update prev_fader_value for next step
+    this->prev_fader_value = this->fader_value;
 
 
     // Movement logic if the movement is on
@@ -343,6 +367,7 @@ void My_SDL_fader::update()
 
     // Update render data
     this->render_data_recalculation();
+
 }
 
 
@@ -350,6 +375,15 @@ void My_SDL_fader::switch_push_mode()
 {
     this->push_mode_on = !this->push_mode_on;
 }
+
+
+bool My_SDL_fader::fader_value_changed_at_last_step()
+{
+    // Will return true if value been changed
+    return (this->fader_value != this->prev_fader_value);
+}
+
+
 
 
 float My_SDL_fader::fader_value_by_knob_position()

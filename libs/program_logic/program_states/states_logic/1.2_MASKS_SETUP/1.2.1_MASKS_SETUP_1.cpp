@@ -109,6 +109,9 @@ My_SDL_fader* Mask_1_par_3_fader_ms_1 = nullptr;
 My_SDL_textbox* Mask_1_par_4_textbox_ms_1 = nullptr;
 My_SDL_fader* Mask_1_par_4_fader_ms_1 = nullptr;
 
+My_SDL_textbox* Mask_1_par_5_textbox_ms_1 = nullptr;
+My_SDL_fader* Mask_1_par_5_fader_ms_1 = nullptr;
+
 
 My_SDL_panel* Mask_1_setup_panel_ms_1 = nullptr;
 
@@ -128,6 +131,9 @@ My_SDL_fader* Mask_2_par_3_fader_ms_1 = nullptr;
 
 My_SDL_textbox* Mask_2_par_4_textbox_ms_1 = nullptr;
 My_SDL_fader* Mask_2_par_4_fader_ms_1 = nullptr;
+
+My_SDL_textbox* Mask_2_par_5_textbox_ms_1 = nullptr;
+My_SDL_fader* Mask_2_par_5_fader_ms_1 = nullptr;
 
 
 My_SDL_panel* Mask_2_setup_panel_ms_1 = nullptr;
@@ -263,6 +269,147 @@ void masks_setup_1_elements_render(SDL_Renderer* renderer);
 // =========================================================================================== STATE INNER FUNCTIONS PREDECLARATION
 
 
+// =========================================================================================== HELPERS
+
+
+// ===== MASK 1 =====
+
+
+void x_1_textbox_update_ms_1()
+{
+    int choosen_x_1 = Mask_1_par_1_fader_ms_1->fader_value_to_int_from_range(
+
+        0,
+        files_metadata.video_1_data.width
+
+    );
+
+    std::string mask_1_par_1_curr_value_to_show = 
+
+        str_by_dictionary(gd_coordinate) + " X1: " + 
+        std::to_string(choosen_x_1) + " " +
+        str_by_dictionary(gd_pixels) + ".";
+
+
+    Mask_1_par_1_textbox_ms_1->set_content(mask_1_par_1_curr_value_to_show);
+
+
+    // Update value
+    masks_data.file_1_masks.nozzle_mask.x_1 = choosen_x_1;
+
+};
+
+
+void y_1_textbox_update_ms_1()
+{
+
+    int choosen_y_1 = Mask_1_par_2_fader_ms_1->fader_value_to_int_from_range(
+
+        0,
+        files_metadata.video_1_data.height
+
+    );
+
+    std::string mask_1_par_2_curr_value_to_show = 
+
+        str_by_dictionary(gd_coordinate) + " Y1: " + 
+        std::to_string(choosen_y_1) + " " +
+        str_by_dictionary(gd_pixels) + ".";
+
+
+    Mask_1_par_2_textbox_ms_1->set_content(mask_1_par_2_curr_value_to_show);
+
+
+    // Update value
+    masks_data.file_1_masks.nozzle_mask.y_1 = choosen_y_1;
+
+};
+
+
+void x_2_textbox_update_ms_1()
+{
+    int choosen_x_2 = Mask_1_par_3_fader_ms_1->fader_value_to_int_from_range(
+
+        0,
+        files_metadata.video_1_data.width
+
+    );
+
+    std::string mask_1_par_3_curr_value_to_show = 
+
+        str_by_dictionary(gd_coordinate) + " X2: " + 
+        std::to_string(choosen_x_2) + " " +
+        str_by_dictionary(gd_pixels) + ".";
+
+
+    Mask_1_par_3_textbox_ms_1->set_content(mask_1_par_3_curr_value_to_show);
+
+
+    // Update value
+    masks_data.file_1_masks.nozzle_mask.x_2 = choosen_x_2;
+
+};
+
+
+void y_2_textbox_update_ms_1()
+{
+    int choosen_y_2 = Mask_1_par_4_fader_ms_1->fader_value_to_int_from_range(
+
+        0,
+        files_metadata.video_1_data.height
+
+    );
+
+    std::string mask_1_par_4_curr_value_to_show = 
+
+        str_by_dictionary(gd_coordinate) + " Y1: " + 
+        std::to_string(choosen_y_2) + " " +
+        str_by_dictionary(gd_pixels) + ".";
+
+
+    Mask_1_par_4_textbox_ms_1->set_content(mask_1_par_4_curr_value_to_show);
+
+
+    // Update value
+    masks_data.file_1_masks.nozzle_mask.y_2 = choosen_y_2;
+
+};
+
+
+void diameter_textbox_update_ms_1()
+{
+
+    int choosen_diameter = Mask_1_par_5_fader_ms_1->fader_value_to_int_from_range(
+
+        nozzle_diameters[0],
+        nozzle_diameters[nozzle_diameters.size() - 1]
+
+    );
+
+    std::string mask_1_par_5_curr_value_to_show = 
+
+        str_by_dictionary(gd_diameter) + ": " + 
+        std::to_string(choosen_diameter) + " " +
+        str_by_dictionary(gd_millimeters) + ".";
+
+
+    Mask_1_par_5_textbox_ms_1->set_content(mask_1_par_5_curr_value_to_show);
+
+
+    // Update value
+    masks_data.file_1_masks.nozzle_mask.Dn = choosen_diameter;
+}
+
+
+
+
+// ===== MASK 1 =====
+
+
+
+// =========================================================================================== HELPERS
+
+
 // =========================================================================================== MAIN STATE API
 
 
@@ -348,8 +495,6 @@ void masks_setup_1_render(SDL_Renderer* renderer)
 }
 
 
-
-
 // =========================================================================================== MAIN STATE API
 
 
@@ -417,6 +562,10 @@ void masks_setup_1_elements_create()
 
     Mask_1_par_4_textbox_ms_1 = new My_SDL_textbox;
     Mask_1_par_4_fader_ms_1 = new My_SDL_fader;
+
+    Mask_1_par_5_textbox_ms_1 = new My_SDL_textbox;
+    Mask_1_par_5_fader_ms_1 = new My_SDL_fader;
+
 
     Mask_1_setup_panel_ms_1 = new My_SDL_panel;
 
@@ -500,7 +649,7 @@ const int SCREEN_MARGIN_2 = 100;
 // before the TXT parser fills files_metadata with actual values.
 
 unsigned int video_width_ms_1;
-unsigned int video_height_ms_1; 
+unsigned int video_height_ms_1;
 
 int video_panel_width_ms_1;
 int video_panel_height_ms_1;
@@ -552,6 +701,22 @@ int faders_textboxes_height = static_cast<int>(std::min(
 
 int faders_width = 0.8 * (mask_setup_panel_width / 2 - 3 * SCREEN_MARGIN_0);
 int faders_height = faders_textboxes_height;
+
+
+int big_faders_textboxes_width = 0.5 * (mask_setup_panel_width - 3 * SCREEN_MARGIN_0);
+
+int big_faders_textboxes_height = static_cast<int>(std::min(
+
+    (mask_setup_panel_height - SCREEN_MARGIN_0 - (0.5 * MASK_1_FADERS_QUANTITY) * SCREEN_MARGIN_0) / (0.5 * MASK_1_FADERS_QUANTITY),
+    75.0
+
+));
+
+
+int big_faders_width = 0.5 * (mask_setup_panel_width - 3 * SCREEN_MARGIN_0);
+int big_faders_height = big_faders_textboxes_height;
+
+
 
 // ===== Main sizes =====
 
@@ -959,58 +1124,66 @@ void masks_setup_1_elements_setup()
 
     // Panel 1 elements
 
-    Mask_1_par_1_textbox_ms_1->set_content("P1:");
+    Mask_1_par_1_textbox_ms_1->set_content("X1:");
     Mask_1_par_1_textbox_ms_1->switch_textbox_type(ORDINARY_TEXT);
 
     Mask_1_par_1_fader_ms_1->set_knob_border_radius(5);
-    Mask_1_par_1_fader_ms_1->set_knob_size(faders_width * 0.15, faders_height);
+    Mask_1_par_1_fader_ms_1->set_knob_size(big_faders_width * 0.1, big_faders_height);
     Mask_1_par_1_fader_ms_1->set_slot_border_width_size(5);
-    Mask_1_par_1_fader_ms_1->set_slot_size(faders_width, faders_height * 0.25);
+    Mask_1_par_1_fader_ms_1->set_slot_size(big_faders_width, big_faders_height * 0.25);
 
 
-    Mask_1_par_2_textbox_ms_1->set_content("P2:");
+    Mask_1_par_2_textbox_ms_1->set_content("Y1:");
     Mask_1_par_2_textbox_ms_1->switch_textbox_type(ORDINARY_TEXT);
 
     Mask_1_par_2_fader_ms_1->set_knob_border_radius(5);
-    Mask_1_par_2_fader_ms_1->set_knob_size(faders_width * 0.15, faders_height);
+    Mask_1_par_2_fader_ms_1->set_knob_size(big_faders_width * 0.1, big_faders_height);
     Mask_1_par_2_fader_ms_1->set_slot_border_width_size(5);
-    Mask_1_par_2_fader_ms_1->set_slot_size(faders_width, faders_height * 0.25);
+    Mask_1_par_2_fader_ms_1->set_slot_size(big_faders_width, big_faders_height * 0.25);
 
 
-    Mask_1_par_3_textbox_ms_1->set_content("P3:");
+    Mask_1_par_3_textbox_ms_1->set_content("X2:");
     Mask_1_par_3_textbox_ms_1->switch_textbox_type(ORDINARY_TEXT);
 
     Mask_1_par_3_fader_ms_1->set_knob_border_radius(5);
-    Mask_1_par_3_fader_ms_1->set_knob_size(faders_width * 0.15, faders_height);
+    Mask_1_par_3_fader_ms_1->set_knob_size(big_faders_width * 0.1, big_faders_height);
     Mask_1_par_3_fader_ms_1->set_slot_border_width_size(5);
-    Mask_1_par_3_fader_ms_1->set_slot_size(faders_width, faders_height * 0.25);
+    Mask_1_par_3_fader_ms_1->set_slot_size(big_faders_width, big_faders_height * 0.25);
 
 
-    Mask_1_par_4_textbox_ms_1->set_content("P4:");
+    Mask_1_par_4_textbox_ms_1->set_content("Y2:");
     Mask_1_par_4_textbox_ms_1->switch_textbox_type(ORDINARY_TEXT);
 
     Mask_1_par_4_fader_ms_1->set_knob_border_radius(5);
-    Mask_1_par_4_fader_ms_1->set_knob_size(faders_width * 0.15, faders_height);
+    Mask_1_par_4_fader_ms_1->set_knob_size(big_faders_width * 0.1, big_faders_height);
     Mask_1_par_4_fader_ms_1->set_slot_border_width_size(5);
-    Mask_1_par_4_fader_ms_1->set_slot_size(faders_width, faders_height * 0.25);
+    Mask_1_par_4_fader_ms_1->set_slot_size(big_faders_width, big_faders_height * 0.25);
 
+    
+    Mask_1_par_5_textbox_ms_1->set_content("Dn:");
+    Mask_1_par_5_textbox_ms_1->switch_textbox_type(ORDINARY_TEXT);
 
+    Mask_1_par_5_fader_ms_1->set_knob_border_radius(5);
+    Mask_1_par_5_fader_ms_1->set_knob_size(big_faders_width * 0.1, big_faders_height);
+    Mask_1_par_5_fader_ms_1->set_slot_border_width_size(5);
+    Mask_1_par_5_fader_ms_1->set_slot_size(big_faders_width, big_faders_height * 0.25);
 
-    Mask_1_setup_panel_ms_1->add_element(
+    // Update textboxes
 
-        Mask_1_par_1_textbox_ms_1,
-        1 * SCREEN_MARGIN_0 + 0.5 * faders_textboxes_width,
-        1 * SCREEN_MARGIN_0 + 0.5 *faders_textboxes_height,
-        1
+    x_1_textbox_update_ms_1();
+    y_1_textbox_update_ms_1();
 
-    );
+    x_2_textbox_update_ms_1();
+    y_2_textbox_update_ms_1();
+
+    diameter_textbox_update_ms_1();
 
 
     Mask_1_setup_panel_ms_1->add_element(
 
         Mask_1_par_1_fader_ms_1,
-        2 * SCREEN_MARGIN_0 + 1 * faders_textboxes_width + 0.5 * faders_width,
-        1 * SCREEN_MARGIN_0 + 0.5 *faders_textboxes_height,
+        1 * SCREEN_MARGIN_0 + 0.5 * big_faders_width,
+        1 * SCREEN_MARGIN_0 + 0.5 * big_faders_textboxes_height,
         1
 
     );
@@ -1018,9 +1191,9 @@ void masks_setup_1_elements_setup()
 
     Mask_1_setup_panel_ms_1->add_element(
 
-        Mask_1_par_2_textbox_ms_1,
-        1 * SCREEN_MARGIN_0 + 0.5 * faders_textboxes_width,
-        2 * SCREEN_MARGIN_0 + 1.5 * faders_textboxes_height,
+        Mask_1_par_1_textbox_ms_1,
+        2 * SCREEN_MARGIN_0 + 1 * big_faders_width + 0.5 * big_faders_textboxes_width,
+        1 * SCREEN_MARGIN_0 + 0.5 * big_faders_textboxes_height,
         1
 
     );
@@ -1029,8 +1202,8 @@ void masks_setup_1_elements_setup()
     Mask_1_setup_panel_ms_1->add_element(
 
         Mask_1_par_2_fader_ms_1,
-        2 * SCREEN_MARGIN_0 + 1 * faders_textboxes_width + 0.5 * faders_width,
-        2 * SCREEN_MARGIN_0 + 1.5 * faders_textboxes_height,
+        1 * SCREEN_MARGIN_0 + 0.5 * big_faders_width,
+        2 * SCREEN_MARGIN_0 + 1.5 * big_faders_textboxes_height,
         1
 
     );
@@ -1038,9 +1211,9 @@ void masks_setup_1_elements_setup()
 
     Mask_1_setup_panel_ms_1->add_element(
 
-        Mask_1_par_3_textbox_ms_1,
-        0.5 * mask_setup_panel_width + 1 * SCREEN_MARGIN_0 + 0.5 * faders_textboxes_width,
-        1 * SCREEN_MARGIN_0 + 0.5 *faders_textboxes_height,
+        Mask_1_par_2_textbox_ms_1,
+        2 * SCREEN_MARGIN_0 + 1 * big_faders_width + 0.5 * big_faders_textboxes_width,
+        2 * SCREEN_MARGIN_0 + 1.5 * big_faders_textboxes_height,
         1
 
     );
@@ -1049,8 +1222,8 @@ void masks_setup_1_elements_setup()
     Mask_1_setup_panel_ms_1->add_element(
 
         Mask_1_par_3_fader_ms_1,
-        0.5 * mask_setup_panel_width + 2 * SCREEN_MARGIN_0 + 1 * faders_textboxes_width + 0.5 * faders_width,
-        1 * SCREEN_MARGIN_0 + 0.5 *faders_textboxes_height,
+        1 * SCREEN_MARGIN_0 + 0.5 * big_faders_width,
+        3 * SCREEN_MARGIN_0 + 2.5 * big_faders_textboxes_height,
         1
 
     );
@@ -1058,9 +1231,9 @@ void masks_setup_1_elements_setup()
 
     Mask_1_setup_panel_ms_1->add_element(
 
-        Mask_1_par_4_textbox_ms_1,
-        0.5 * mask_setup_panel_width + 1 * SCREEN_MARGIN_0 + 0.5 * faders_textboxes_width,
-        2 * SCREEN_MARGIN_0 + 1.5 * faders_textboxes_height,
+        Mask_1_par_3_textbox_ms_1,
+        2 * SCREEN_MARGIN_0 + 1 * big_faders_width + 0.5 * big_faders_textboxes_width,
+        3 * SCREEN_MARGIN_0 + 2.5 * big_faders_textboxes_height,
         1
 
     );
@@ -1069,11 +1242,42 @@ void masks_setup_1_elements_setup()
     Mask_1_setup_panel_ms_1->add_element(
 
         Mask_1_par_4_fader_ms_1,
-        0.5 * mask_setup_panel_width + 2 * SCREEN_MARGIN_0 + 1 * faders_textboxes_width + 0.5 * faders_width,
-        2 * SCREEN_MARGIN_0 + 1.5 * faders_textboxes_height,
+        1 * SCREEN_MARGIN_0 + 0.5 * big_faders_width,
+        4 * SCREEN_MARGIN_0 + 3.5 * big_faders_textboxes_height,
         1
 
     );
+
+
+    Mask_1_setup_panel_ms_1->add_element(
+
+        Mask_1_par_4_textbox_ms_1,
+        2 * SCREEN_MARGIN_0 + 1 * big_faders_width + 0.5 * big_faders_textboxes_width,
+        4 * SCREEN_MARGIN_0 + 3.5 * big_faders_textboxes_height,
+        1
+
+    );
+
+    
+    Mask_1_setup_panel_ms_1->add_element(
+
+        Mask_1_par_5_fader_ms_1,
+        1 * SCREEN_MARGIN_0 + 0.5 * big_faders_width,
+        5 * SCREEN_MARGIN_0 + 4.5 * big_faders_textboxes_height,
+        1
+
+    );
+
+
+    Mask_1_setup_panel_ms_1->add_element(
+
+        Mask_1_par_5_textbox_ms_1,
+        2 * SCREEN_MARGIN_0 + 1 * big_faders_width + 0.5 * big_faders_textboxes_width,
+        5 * SCREEN_MARGIN_0 + 4.5 * big_faders_textboxes_height,
+        1
+
+    );
+
 
 
     // Mask 2 choose state - inactive at init
@@ -1462,7 +1666,10 @@ void masks_setup_1_elements_free_and_nullptr()
     Mask_1_par_4_textbox_ms_1 = nullptr;
     Mask_1_par_4_fader_ms_1 = nullptr;
 
+    Mask_1_par_5_textbox_ms_1 = nullptr;
+    Mask_1_par_5_fader_ms_1 = nullptr;
 
+    
     Mask_1_setup_panel_ms_1 = nullptr;
 
     // ===== MASK 1 panel =====
@@ -1542,7 +1749,26 @@ void masks_setup_1_elements_update()
     Load_preset_button_ms_1->update();
 
 
+    // Update textbox only if value of fader been changed
+    if (Mask_1_par_1_fader_ms_1->fader_value_changed_at_last_step())
+        x_1_textbox_update_ms_1();
+
+    if (Mask_1_par_2_fader_ms_1->fader_value_changed_at_last_step())
+        y_1_textbox_update_ms_1();
+
+    if (Mask_1_par_3_fader_ms_1->fader_value_changed_at_last_step())
+        x_2_textbox_update_ms_1();
+
+    if (Mask_1_par_4_fader_ms_1->fader_value_changed_at_last_step())
+        y_2_textbox_update_ms_1();
+
+    if (Mask_1_par_5_fader_ms_1->fader_value_changed_at_last_step())
+        diameter_textbox_update_ms_1();
+
+
     Mask_1_setup_panel_ms_1->update();
+
+
 
     Mask_2_setup_panel_ms_1->update();
 
@@ -1571,6 +1797,15 @@ void reset_passed_by_dictionary_textboxes_if_language_switched_ms_1()
         File_choose_textbox_ms_1->set_content(str_by_dictionary(gd_file_choose_panel_name));
 
         Mask_choose_textbox_ms_1->set_content(str_by_dictionary(gd_mask_choose_panel_name));
+
+        x_1_textbox_update_ms_1();
+        y_1_textbox_update_ms_1();
+    
+        x_2_textbox_update_ms_1();
+        y_2_textbox_update_ms_1();
+
+        diameter_textbox_update_ms_1();
+
     }
 }
 
