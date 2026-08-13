@@ -99,44 +99,6 @@ void parse_metadata_txt(parsed_video_data& video, std::string txt_link)
     }
 
 
-    // TEST
-
-    std::cout << "File:\n";
-
-    for (unsigned char c : txt_lines[0])
-    {
-        printf("%02X ", c);
-    }
-
-    printf("\n");
-
-
-    std::cout << "Literal:\n";
-
-    for (unsigned char c : evercam_rows[0])
-    {
-        printf("%02X ", c);
-    }
-
-    printf("\n");
-
-    // TEST
-    
-
-    // TEST
-
-    std::cout << "Rows: " << txt_lines.size() << '\n';
-
-    for (size_t i = 0; i < txt_lines.size(); ++i)
-    {
-        std::cout << i << ": " << txt_lines[i] << '\n';
-    }
-
-    // TEST
-
-
-
-
     // Format pre-check
     if (txt_lines.empty() || (txt_lines.size() != 14 && txt_lines.size() != 6))
     {
@@ -502,6 +464,7 @@ void parse_metadata_txt(parsed_video_data& video, std::string txt_link)
 
             break;
         }
+        
 // =========================================================================================== FILL 1
 
 

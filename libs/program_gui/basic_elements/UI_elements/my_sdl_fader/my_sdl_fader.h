@@ -80,6 +80,18 @@ class My_SDL_fader : public My_SDL_element // SDL_Element
 
 
         /**
+         * @brief Fader value setter
+         * 
+         * Set's the fader value, moves the knob to the position which should be shown 
+         * with setted value
+         *
+         * @param new_value fader value (0.0 - 1.0)
+         * 
+         */
+        void set_fader_value(float new_value);
+
+
+        /**
          * @brief Value by fader value getter
          * 
          * Uses for external logic
@@ -99,6 +111,34 @@ class My_SDL_fader : public My_SDL_element // SDL_Element
          * 
          */
         float fader_value_to_float_from_range(float min, float max);
+
+
+        
+        /**
+         * @brief Fader value setter by value and range
+         * 
+         * Uses for external logic
+         *
+         * @param curr Current value in range
+         * @param min Min value in range
+         * @param max Max value in range 
+         * 
+         */
+        void set_fader_value_by_int_from_range(int curr, int min, int max);
+
+
+        /**
+         * @brief Fader value setter by value and range
+         * 
+         * Uses for external logic
+         *
+         * @param curr Current value in range
+         * @param min Min value in range
+         * @param max Max value in range 
+         * 
+         */
+        void set_fader_value_by_float_from_range(float curr, float min, float max);
+
 
 
 

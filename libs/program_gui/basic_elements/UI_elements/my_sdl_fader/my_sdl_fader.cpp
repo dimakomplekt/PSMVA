@@ -156,6 +156,18 @@ float My_SDL_fader::get_fader_value() const
 }
 
 
+void My_SDL_fader::set_fader_value(float new_value)
+{
+    if (new_value < 0.0 || new_value > 1.0) return;
+
+    this->fader_value = new_value;
+
+    int new_x_point = this->knob_position_by_fader_value();
+
+    this->set_knob_render_point(new_x_point);
+}
+
+
 int My_SDL_fader::fader_value_to_int_from_range(int min, int max)
 {
     float val = this->get_fader_value();
@@ -172,6 +184,32 @@ float My_SDL_fader::fader_value_to_float_from_range(float min, float max)
     // Standart linear interpolation (lerp)
     return min + val * (max - min);
 }
+
+
+void My_SDL_fader::set_fader_value_by_int_from_range(int curr, int min, int max)
+{
+    // Prevent division by zero if the range is invalid
+    if (max == min) return; 
+
+    // Calculate the normalized proportion of the current value within the range
+    float new_value = static_cast<float>(curr - min) / static_cast<float>(max - min);
+
+    // set_fader_value handles boundary checks (0.0 - 1.0) and updates the knob position
+    this->set_fader_value(new_value);
+}
+
+
+void My_SDL_fader::set_fader_value_by_float_from_range(float curr, float min, float max)
+{
+    // Prevent division by zero for floating-point values
+    if (std::abs(max - min) < 1e-6f) return; 
+
+    // Inverse linear interpolation (get normalized 0.0 - 1.0 value)
+    float new_value = (curr - min) / (max - min);
+
+    this->set_fader_value(new_value);
+}
+
 
 
 

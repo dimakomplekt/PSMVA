@@ -28,6 +28,10 @@
 // Check
 #include "../1.1_FILE_CHOOSE/1.1_FILE_CHOOSE.h"
 
+
+// HELPER-FUNCTIONS (LOAD and SAVE presets, ...)
+#include "1.2_MS_HELPER.h"
+
 // =========================================================================================== IMPORT
 
 
@@ -177,38 +181,38 @@ My_SDL_button* flow_parameters_calculation_state_but_ms_1 = nullptr;
 
 // =========================================================================================== CALLBACKS
 
-void file_1_choose();
-void file_2_choose();
-void file_3_choose();
-void file_4_choose();
-void file_5_choose();
-void file_6_choose();
+void file_1_choose_ms_1();
+void file_2_choose_ms_1();
+void file_3_choose_ms_1();
+void file_4_choose_ms_1();
+void file_5_choose_ms_1();
+void file_6_choose_ms_1();
 
-void mask_1_choose();
-void mask_2_choose();
-void mask_3_choose();
+void mask_1_choose_ms_1();
+void mask_2_choose_ms_1();
+void mask_3_choose_ms_1();
 
 
-void save_preset();
-void load_preset();
+void save_preset_ms_1();
+void load_preset_ms_1();
 
-void previous_state();
-void next_state();
+void previous_state_ms_1();
+void next_state_ms_1();
 
 // =========================================================================================== CALLBACKS
 
 
 // =========================================================================================== CLICK PERMISSION FUNCTIONS
 
-bool file_1_choose_permission();
-bool file_2_choose_permission();
-bool file_3_choose_permission();
-bool file_4_choose_permission();
-bool file_5_choose_permission();
-bool file_6_choose_permission();
+bool file_1_choose_ms_1_permission();
+bool file_2_choose_ms_1_permission();
+bool file_3_choose_ms_1_permission();
+bool file_4_choose_ms_1_permission();
+bool file_5_choose_ms_1_permission();
+bool file_6_choose_ms_1_permission();
 
 
-bool next_state_permission();
+bool next_state_permission_ms_1();
 
 // =========================================================================================== CLICK PERMISSION FUNCTIONS
 
@@ -274,8 +278,7 @@ void masks_setup_1_elements_render(SDL_Renderer* renderer);
 
 // ===== MASK 1 =====
 
-
-void x_1_textbox_update_ms_1()
+void m_1_x_1_update_ms_1()
 {
     int choosen_x_1 = Mask_1_par_1_fader_ms_1->fader_value_to_int_from_range(
 
@@ -300,7 +303,7 @@ void x_1_textbox_update_ms_1()
 };
 
 
-void y_1_textbox_update_ms_1()
+void m_1_y_1_update_ms_1()
 {
 
     int choosen_y_1 = Mask_1_par_2_fader_ms_1->fader_value_to_int_from_range(
@@ -326,7 +329,7 @@ void y_1_textbox_update_ms_1()
 };
 
 
-void x_2_textbox_update_ms_1()
+void m_1_x_2_update_ms_1()
 {
     int choosen_x_2 = Mask_1_par_3_fader_ms_1->fader_value_to_int_from_range(
 
@@ -351,7 +354,7 @@ void x_2_textbox_update_ms_1()
 };
 
 
-void y_2_textbox_update_ms_1()
+void m_1_y_2_update_ms_1()
 {
     int choosen_y_2 = Mask_1_par_4_fader_ms_1->fader_value_to_int_from_range(
 
@@ -376,7 +379,7 @@ void y_2_textbox_update_ms_1()
 };
 
 
-void diameter_textbox_update_ms_1()
+void m_1_dn_update_ms_1()
 {
 
     int choosen_diameter = Mask_1_par_5_fader_ms_1->fader_value_to_int_from_range(
@@ -397,10 +400,91 @@ void diameter_textbox_update_ms_1()
 
 
     // Update value
-    masks_data.file_1_masks.nozzle_mask.Dn = choosen_diameter;
+    masks_data.file_1_masks.nozzle_mask.d_n = choosen_diameter;
 }
 
 
+void file_masks_faders_init_ms_1()
+{
+
+    // 1st call / 2nd call
+
+    // ===== MASK 1 =====
+    
+    if (!masks_data.file_1_masks.nozzle_mask.initialized)
+    {
+        Mask_1_par_1_fader_ms_1->set_fader_value(0.5);
+        Mask_1_par_2_fader_ms_1->set_fader_value(0.5);
+        Mask_1_par_3_fader_ms_1->set_fader_value(0.5);
+        Mask_1_par_4_fader_ms_1->set_fader_value(0.5);
+        Mask_1_par_5_fader_ms_1->set_fader_value(0.5);
+
+        // Block next 50% reinit
+        masks_data.file_1_masks.nozzle_mask.initialized = true;
+    }
+    else
+    {
+        // Set the fader know and value, according to the early choosen
+
+        // x_1 parameter value
+        Mask_1_par_1_fader_ms_1->set_fader_value_by_int_from_range(
+
+            masks_data.file_1_masks.nozzle_mask.x_1,
+            0,
+            files_metadata.video_1_data.width
+        
+        );
+
+        // y_1 parameter value
+        Mask_1_par_2_fader_ms_1->set_fader_value_by_int_from_range(
+
+            masks_data.file_1_masks.nozzle_mask.y_1,
+            0,
+            files_metadata.video_1_data.height
+        
+        );
+
+        // x_2 parameter value
+        Mask_1_par_3_fader_ms_1->set_fader_value_by_int_from_range(
+
+            masks_data.file_1_masks.nozzle_mask.x_2,
+            0,
+            files_metadata.video_1_data.width
+        
+        );
+
+        // y_2 parameter value
+        Mask_1_par_4_fader_ms_1->set_fader_value_by_int_from_range(
+
+            masks_data.file_1_masks.nozzle_mask.y_2,
+            0,
+            files_metadata.video_1_data.height
+        
+        );
+
+        // d_n parameter value
+        Mask_1_par_5_fader_ms_1->set_fader_value_by_int_from_range(
+
+            masks_data.file_1_masks.nozzle_mask.d_n,
+            nozzle_diameters[0],
+            nozzle_diameters[nozzle_diameters.size() - 1] 
+        
+        );
+
+    }
+
+
+    
+    m_1_x_1_update_ms_1();
+    m_1_y_1_update_ms_1();
+
+    m_1_x_2_update_ms_1();
+    m_1_y_2_update_ms_1();
+
+    m_1_dn_update_ms_1();
+
+    // ===== MASK 1 =====
+}
 
 
 // ===== MASK 1 =====
@@ -425,20 +509,25 @@ void masks_setup_1_enter()
     // ===== State allocation =====
 
 
-    // Elements setup
+
+    // ===== Faders initiation / reinitiation =====
+
+    // Need to be called before elements_setup
+    file_masks_faders_init_ms_1();
+
+    // ===== Faders initiation / reinitiation =====
+
+
+    // ===== Elements setup =====
 
     masks_setup_1_elements_setup();
 
     opencv_setup_ms_1();
 
+    // ===== Elements setup =====  
 
-    // TEST
-
-    std::cout << 
-
-        "\n\nPassed width: " << files_metadata.video_1_data.width << 
-        "\nPassed height: " << files_metadata.video_1_data.height << std::endl;
-
+    
+    // ===== Faders initiation / reinitiation =====
 
 }
 
@@ -845,8 +934,8 @@ void masks_setup_1_elements_setup()
     File_1_button_ms_1->switch_button_textbox_type(ORDINARY_TEXT);
     File_1_button_ms_1->get_button_content_textbox()->set_content("1");
     File_1_button_ms_1->set_size(file_choose_buttons_width_ms_1, file_choose_buttons_height_ms_1);
-    File_1_button_ms_1->on_click = file_1_choose;
-    File_1_button_ms_1->extern_click_permission = file_1_choose_permission;
+    File_1_button_ms_1->on_click = file_1_choose_ms_1;
+    File_1_button_ms_1->extern_click_permission = file_1_choose_ms_1_permission;
     File_1_button_ms_1->set_access_type(BUTTON_EXTERN_CLICK_PERMISSION);
     File_1_button_ms_1->set_border_radius(0);
     File_1_button_ms_1->set_shadow_scale_factor(0);
@@ -857,8 +946,8 @@ void masks_setup_1_elements_setup()
     File_2_button_ms_1->switch_button_textbox_type(ORDINARY_TEXT);
     File_2_button_ms_1->get_button_content_textbox()->set_content("2");
     File_2_button_ms_1->set_size(file_choose_buttons_width_ms_1, file_choose_buttons_height_ms_1);
-    File_2_button_ms_1->on_click = file_2_choose;
-    File_2_button_ms_1->extern_click_permission = file_2_choose_permission;
+    File_2_button_ms_1->on_click = file_2_choose_ms_1;
+    File_2_button_ms_1->extern_click_permission = file_2_choose_ms_1_permission;
     File_2_button_ms_1->set_access_type(BUTTON_EXTERN_CLICK_PERMISSION);
     File_2_button_ms_1->set_border_radius(0);
     File_2_button_ms_1->set_shadow_scale_factor(0);
@@ -869,8 +958,8 @@ void masks_setup_1_elements_setup()
     File_3_button_ms_1->switch_button_textbox_type(ORDINARY_TEXT);
     File_3_button_ms_1->get_button_content_textbox()->set_content("3");
     File_3_button_ms_1->set_size(file_choose_buttons_width_ms_1, file_choose_buttons_height_ms_1);
-    File_3_button_ms_1->on_click = file_3_choose;
-    File_3_button_ms_1->extern_click_permission = file_3_choose_permission;
+    File_3_button_ms_1->on_click = file_3_choose_ms_1;
+    File_3_button_ms_1->extern_click_permission = file_3_choose_ms_1_permission;
     File_3_button_ms_1->set_access_type(BUTTON_EXTERN_CLICK_PERMISSION);
     File_3_button_ms_1->set_border_radius(0);
     File_3_button_ms_1->set_shadow_scale_factor(0);
@@ -881,8 +970,8 @@ void masks_setup_1_elements_setup()
     File_4_button_ms_1->switch_button_textbox_type(ORDINARY_TEXT);
     File_4_button_ms_1->get_button_content_textbox()->set_content("4");
     File_4_button_ms_1->set_size(file_choose_buttons_width_ms_1, file_choose_buttons_height_ms_1);
-    File_4_button_ms_1->on_click = file_4_choose;
-    File_4_button_ms_1->extern_click_permission = file_4_choose_permission;
+    File_4_button_ms_1->on_click = file_4_choose_ms_1;
+    File_4_button_ms_1->extern_click_permission = file_4_choose_ms_1_permission;
     File_4_button_ms_1->set_access_type(BUTTON_EXTERN_CLICK_PERMISSION);
     File_4_button_ms_1->set_border_radius(0);
     File_4_button_ms_1->set_shadow_scale_factor(0);
@@ -893,8 +982,8 @@ void masks_setup_1_elements_setup()
     File_5_button_ms_1->switch_button_textbox_type(ORDINARY_TEXT);
     File_5_button_ms_1->get_button_content_textbox()->set_content("5");
     File_5_button_ms_1->set_size(file_choose_buttons_width_ms_1, file_choose_buttons_height_ms_1);
-    File_5_button_ms_1->on_click = file_5_choose;
-    File_5_button_ms_1->extern_click_permission = file_5_choose_permission;
+    File_5_button_ms_1->on_click = file_5_choose_ms_1;
+    File_5_button_ms_1->extern_click_permission = file_5_choose_ms_1_permission;
     File_5_button_ms_1->set_access_type(BUTTON_EXTERN_CLICK_PERMISSION);
     File_5_button_ms_1->set_border_radius(0);
     File_5_button_ms_1->set_shadow_scale_factor(0);
@@ -905,8 +994,8 @@ void masks_setup_1_elements_setup()
     File_6_button_ms_1->switch_button_textbox_type(ORDINARY_TEXT);
     File_6_button_ms_1->get_button_content_textbox()->set_content("6");
     File_6_button_ms_1->set_size(file_choose_buttons_width_ms_1, file_choose_buttons_height_ms_1);
-    File_6_button_ms_1->on_click = file_6_choose;
-    File_6_button_ms_1->extern_click_permission = file_6_choose_permission;
+    File_6_button_ms_1->on_click = file_6_choose_ms_1;
+    File_6_button_ms_1->extern_click_permission = file_6_choose_ms_1_permission;
     File_6_button_ms_1->set_access_type(BUTTON_EXTERN_CLICK_PERMISSION);
     File_6_button_ms_1->set_border_radius(0);
     File_6_button_ms_1->set_shadow_scale_factor(0);
@@ -1002,7 +1091,7 @@ void masks_setup_1_elements_setup()
     Mask_1_choose_button_ms_1->switch_button_textbox_type(ORDINARY_TEXT);
     Mask_1_choose_button_ms_1->get_button_content_textbox()->set_content("1");
     Mask_1_choose_button_ms_1->set_size(mask_choose_buttons_width, mask_choose_buttons_height);
-    Mask_1_choose_button_ms_1->on_click = mask_1_choose;
+    Mask_1_choose_button_ms_1->on_click = mask_1_choose_ms_1;
     Mask_1_choose_button_ms_1->set_border_radius(0);
     Mask_1_choose_button_ms_1->set_shadow_scale_factor(0);
     Mask_1_choose_button_ms_1->switch_push_mode();
@@ -1012,7 +1101,7 @@ void masks_setup_1_elements_setup()
     Mask_2_choose_button_ms_1->switch_button_textbox_type(ORDINARY_TEXT);
     Mask_2_choose_button_ms_1->get_button_content_textbox()->set_content("2");
     Mask_2_choose_button_ms_1->set_size(mask_choose_buttons_width, mask_choose_buttons_height);
-    Mask_2_choose_button_ms_1->on_click = mask_2_choose;
+    Mask_2_choose_button_ms_1->on_click = mask_2_choose_ms_1;
     Mask_2_choose_button_ms_1->set_border_radius(0);
     Mask_2_choose_button_ms_1->set_shadow_scale_factor(0);
     Mask_2_choose_button_ms_1->switch_push_mode();
@@ -1023,7 +1112,7 @@ void masks_setup_1_elements_setup()
     Mask_3_choose_button_ms_1->switch_button_textbox_type(ORDINARY_TEXT);
     Mask_3_choose_button_ms_1->get_button_content_textbox()->set_content("3");
     Mask_3_choose_button_ms_1->set_size(mask_choose_buttons_width, mask_choose_buttons_height);
-    Mask_3_choose_button_ms_1->on_click = mask_3_choose;
+    Mask_3_choose_button_ms_1->on_click = mask_3_choose_ms_1;
     Mask_3_choose_button_ms_1->set_border_radius(0);
     Mask_3_choose_button_ms_1->set_shadow_scale_factor(0);
     Mask_3_choose_button_ms_1->switch_push_mode();
@@ -1079,7 +1168,7 @@ void masks_setup_1_elements_setup()
     Save_preset_button_ms_1->switch_button_textbox_type(HEADER_3);
     Save_preset_button_ms_1->get_button_content_textbox()->set_content(str_by_dictionary(gd_save_preset));
     Save_preset_button_ms_1->set_size(control_buttons_width, control_buttons_height);
-    Save_preset_button_ms_1->on_click = save_preset;
+    Save_preset_button_ms_1->on_click = save_preset_ms_1;
     Save_preset_button_ms_1->set_border_radius(0);
 
 
@@ -1090,7 +1179,7 @@ void masks_setup_1_elements_setup()
     Load_preset_button_ms_1->switch_button_textbox_type(HEADER_3);
     Load_preset_button_ms_1->get_button_content_textbox()->set_content(str_by_dictionary(gd_load_preset));
     Load_preset_button_ms_1->set_size(control_buttons_width, control_buttons_height);
-    Load_preset_button_ms_1->on_click = load_preset;
+    Load_preset_button_ms_1->on_click = load_preset_ms_1;
     Load_preset_button_ms_1->set_border_radius(0);
 
 
@@ -1100,7 +1189,7 @@ void masks_setup_1_elements_setup()
     file_choose_state_but_ms_1->switch_button_textbox_type(HEADER_3);
     file_choose_state_but_ms_1->get_button_content_textbox()->set_content(str_by_dictionary(gd_masks_setup_exit));
     file_choose_state_but_ms_1->set_size(control_buttons_width, control_buttons_height);
-    file_choose_state_but_ms_1->on_click = previous_state;
+    file_choose_state_but_ms_1->on_click = previous_state_ms_1;
     file_choose_state_but_ms_1->set_border_radius(0);
 
 
@@ -1108,8 +1197,8 @@ void masks_setup_1_elements_setup()
     flow_parameters_calculation_state_but_ms_1->switch_button_textbox_type(HEADER_3);
     flow_parameters_calculation_state_but_ms_1->get_button_content_textbox()->set_content(str_by_dictionary(gd_calculation_start));
     flow_parameters_calculation_state_but_ms_1->set_size(control_buttons_width, control_buttons_height);
-    flow_parameters_calculation_state_but_ms_1->on_click = next_state;
-    flow_parameters_calculation_state_but_ms_1->extern_click_permission = next_state_permission;
+    flow_parameters_calculation_state_but_ms_1->on_click = next_state_ms_1;
+    flow_parameters_calculation_state_but_ms_1->extern_click_permission = next_state_permission_ms_1;
     flow_parameters_calculation_state_but_ms_1->set_access_type(BUTTON_EXTERN_CLICK_PERMISSION);
     flow_parameters_calculation_state_but_ms_1->set_border_radius(0);
 
@@ -1160,7 +1249,7 @@ void masks_setup_1_elements_setup()
     Mask_1_par_4_fader_ms_1->set_slot_size(big_faders_width, big_faders_height * 0.25);
 
     
-    Mask_1_par_5_textbox_ms_1->set_content("Dn:");
+    Mask_1_par_5_textbox_ms_1->set_content("d_n:");
     Mask_1_par_5_textbox_ms_1->switch_textbox_type(ORDINARY_TEXT);
 
     Mask_1_par_5_fader_ms_1->set_knob_border_radius(5);
@@ -1170,13 +1259,13 @@ void masks_setup_1_elements_setup()
 
     // Update textboxes
 
-    x_1_textbox_update_ms_1();
-    y_1_textbox_update_ms_1();
+    m_1_x_1_update_ms_1();
+    m_1_y_1_update_ms_1();
 
-    x_2_textbox_update_ms_1();
-    y_2_textbox_update_ms_1();
+    m_1_x_2_update_ms_1();
+    m_1_y_2_update_ms_1();
 
-    diameter_textbox_update_ms_1();
+    m_1_dn_update_ms_1();
 
 
     Mask_1_setup_panel_ms_1->add_element(
@@ -1751,19 +1840,19 @@ void masks_setup_1_elements_update()
 
     // Update textbox only if value of fader been changed
     if (Mask_1_par_1_fader_ms_1->fader_value_changed_at_last_step())
-        x_1_textbox_update_ms_1();
+        m_1_x_1_update_ms_1();
 
     if (Mask_1_par_2_fader_ms_1->fader_value_changed_at_last_step())
-        y_1_textbox_update_ms_1();
+        m_1_y_1_update_ms_1();
 
     if (Mask_1_par_3_fader_ms_1->fader_value_changed_at_last_step())
-        x_2_textbox_update_ms_1();
+        m_1_x_2_update_ms_1();
 
     if (Mask_1_par_4_fader_ms_1->fader_value_changed_at_last_step())
-        y_2_textbox_update_ms_1();
+        m_1_y_2_update_ms_1();
 
     if (Mask_1_par_5_fader_ms_1->fader_value_changed_at_last_step())
-        diameter_textbox_update_ms_1();
+        m_1_dn_update_ms_1();
 
 
     Mask_1_setup_panel_ms_1->update();
@@ -1798,13 +1887,13 @@ void reset_passed_by_dictionary_textboxes_if_language_switched_ms_1()
 
         Mask_choose_textbox_ms_1->set_content(str_by_dictionary(gd_mask_choose_panel_name));
 
-        x_1_textbox_update_ms_1();
-        y_1_textbox_update_ms_1();
+        m_1_x_1_update_ms_1();
+        m_1_y_1_update_ms_1();
     
-        x_2_textbox_update_ms_1();
-        y_2_textbox_update_ms_1();
+        m_1_x_2_update_ms_1();
+        m_1_y_2_update_ms_1();
 
-        diameter_textbox_update_ms_1();
+        m_1_dn_update_ms_1();
 
     }
 }
@@ -1866,83 +1955,93 @@ void masks_setup_1_elements_render(SDL_Renderer* renderer)
 
 // =========================================================================================== CALLBACKS
 
-void file_1_choose()
+void file_1_choose_ms_1()
 {
     // 
 }
 
 
-void file_2_choose()
+void file_2_choose_ms_1()
 {
     // 
 }
 
 
-void file_3_choose()
+void file_3_choose_ms_1()
 {
     // 
 }
 
 
-void file_4_choose()
+void file_4_choose_ms_1()
 {
     // 
 }
 
 
-void file_5_choose()
+void file_5_choose_ms_1()
 {
     // 
 }
 
 
-void file_6_choose()
-{
-    // 
-}
-
-
-
-void mask_1_choose()
-{
-    // 
-}
-
-
-void mask_2_choose()
-{
-    // 
-}
-
-
-void mask_3_choose()
+void file_6_choose_ms_1()
 {
     // 
 }
 
 
 
-
-void save_preset()
+void mask_1_choose_ms_1()
 {
     // 
 }
 
 
-void load_preset()
+void mask_2_choose_ms_1()
+{
+    // 
+}
+
+
+void mask_3_choose_ms_1()
 {
     // 
 }
 
 
 
-void previous_state()
+
+void save_preset_ms_1()
+{
+    // TEST
+    std::cout << "CALL SAVE CALLBACK" << "\n\n";
+
+    save_mask_preset(1);
+}
+
+
+void load_preset_ms_1()
+{
+    // TEST
+    std::cout << "CALL LOAD CALLBACK" << "\n\n";
+
+    load_mask_preset(1);
+ 
+    // Reinit faders
+    file_masks_faders_init_ms_1();
+
+}
+
+
+
+void previous_state_ms_1()
 {
     // 
 }
 
 
-void next_state()
+void next_state_ms_1()
 {
     // 
 }
@@ -1954,28 +2053,28 @@ void next_state()
 
 // =========================================================================================== CLICK PERMISSION FUNCTIONS
 
-bool file_1_choose_permission()
+bool file_1_choose_ms_1_permission()
 {
     //
     return true;
 }
 
 
-bool file_2_choose_permission()
+bool file_2_choose_ms_1_permission()
 {
     //
     return false;
 }
 
 
-bool file_3_choose_permission()
+bool file_3_choose_ms_1_permission()
 {
     //
     return true;
 }
 
 
-bool file_4_choose_permission()
+bool file_4_choose_ms_1_permission()
 {
     //
 
@@ -1986,7 +2085,7 @@ bool file_4_choose_permission()
 
 
 
-bool file_5_choose_permission()
+bool file_5_choose_ms_1_permission()
 {
     //
 
@@ -1994,7 +2093,7 @@ bool file_5_choose_permission()
 }
 
 
-bool file_6_choose_permission()
+bool file_6_choose_ms_1_permission()
 {
     //
     return true;
@@ -2002,7 +2101,7 @@ bool file_6_choose_permission()
 
 
 
-bool next_state_permission()
+bool next_state_permission_ms_1()
 {
     //
     return true;

@@ -44,7 +44,18 @@ void masks_setup_render(SDL_Renderer* renderer);
 
 // =========================================================================================== DATA
 
-inline constexpr std::array<int, 20> nozzle_diameters = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20};
+
+inline constexpr std::array<int, 20> nozzle_diameters = {
+
+    1, 2, 3,
+    4, 5, 6,
+    7, 8, 9,
+    10, 11, 12,
+    13, 14, 15,
+    16, 17, 18,
+    19, 20
+
+};
 
 // =========================================================================================== DATA
 
@@ -66,7 +77,10 @@ struct nozzle_detection_mask
 
 
     // Nozzle diameter
-    int Dn;
+    int d_n;
+
+    // First update as 50% faders at everything
+    bool initialized = false;
 
 };
 
@@ -85,22 +99,10 @@ struct particle_detection_mask
 };
 
 
-
-enum class mask_state 
-{
-
-    EMPTY_STATE,
-    FILLED_STATE
-
-};
-
-
 // Context for one file
 struct file_masks_data
 {
     bool* file_choose_state;
-
-    mask_state masks_setup_state;
 
 
     nozzle_detection_mask nozzle_mask;
