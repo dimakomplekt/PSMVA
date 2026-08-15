@@ -219,21 +219,6 @@ bool next_state_permission_ms_1();
 
 // =========================================================================================== OPENCV PART OF THE STATE
 
-// ===== Data =====
-
-
-// Global capture
-cv::VideoCapture* video_capture_device_ms_1 = nullptr; 
-
-// Global MAT for capture frames
-cv::Mat* video_cv_mat_ms_1 = nullptr;
-
-// Global texture for test_cv_mat_translation
-SDL_Texture* translated_texture_ms_1 = nullptr; 
-
-bool video_reset_opencv_data_ms_1 = false;
-
-
 
 // ===== Functions =====
 
@@ -244,6 +229,8 @@ void opencv_update_ms_1();
 void opencv_render_by_translator_ms_1(SDL_Renderer* renderer);
 
 void opencv_free_and_nullptr_ms_1();
+
+// ===== Functions =====
 
 // =========================================================================================== OPENCV PART OF THE STATE
 
@@ -522,8 +509,6 @@ void masks_setup_1_enter()
 
     masks_setup_1_elements_setup();
 
-    opencv_setup_ms_1();
-
     // ===== Elements setup =====  
 
     
@@ -553,6 +538,20 @@ void masks_setup_1_exit()
 
 void masks_setup_1_update()
 {
+
+    // ===== OPENCV =====
+
+    // Max speed update not to loose synchronization
+    // TODO: maybe block max speed by timer?
+    if (App_timer_1.can_execute(Execute_zone_ID::HZ_30))
+    {
+        opencv_update_ms_1();
+    }
+
+    // ===== OPENCV =====
+
+
+
     // Update inputs
     if (App_timer_1.can_execute(Execute_zone_ID::HZ_1000))
     {
@@ -565,8 +564,6 @@ void masks_setup_1_update()
 
         masks_setup_1_elements_update();
 
-        opencv_update_ms_1();
-
         masks_setup_1_actions();
 
     }
@@ -578,7 +575,11 @@ void masks_setup_1_render(SDL_Renderer* renderer)
     if (App_timer_1.can_execute(Execute_zone_ID::HZ_120))
     {
         masks_setup_1_elements_render(renderer);
+    }
 
+
+    if (App_timer_1.can_execute(Execute_zone_ID::HZ_60))
+    {
         opencv_render_by_translator_ms_1(renderer);
     }
 }
@@ -859,6 +860,19 @@ int masks_choose_panel_y_ms_1 = file_choose_panel_y_ms_1 + choose_panels_height;
 void masks_setup_1_elements_setup()
 {
     // Masks setup panel
+
+    // ===== OPENCV =====
+
+    // TEST
+    std::cout << "\n\nOPENCV SETUP MS1";
+
+    opencv_setup_ms_1();
+
+
+    // TEST
+    std::cout << "\n\nOPENCV SETUP ENDS MS1";
+
+    // ===== OPENCV =====
 
 
     // ===== !!! =====
@@ -1925,8 +1939,8 @@ void masks_setup_1_elements_render(SDL_Renderer* renderer)
 
     Masks_setup_panel_ms_1->render(renderer);
 
-
-    Video_preview_panel_ms_1->render(renderer);
+    // Renders at opencv part
+    // Video_preview_panel_ms_1->render(renderer);
 
 
     File_choose_panel_ms_1->render(renderer);
@@ -2119,22 +2133,28 @@ bool next_state_permission_ms_1()
 
 void opencv_setup_ms_1()
 {
-    //
+
+    opencv_global_update_ctx.current_file_for_mask_setup = FILE_1_CF;
+    opencv_global_update_ctx.current_mask_for_mask_setup = MASK_1_CM;
+    opencv_global_update_ctx.current_texture_container = Video_preview_texture_ms_1;
+    opencv_global_update_ctx.current_frame_processor = nullptr;
+    opencv_global_update_ctx.need_reset = true;
+
 }
 
 void opencv_update_ms_1()
 {
-    //
+    opencv_global_update();
 }
 
 void opencv_render_by_translator_ms_1(SDL_Renderer* renderer)
 {
-    //
+    Video_preview_panel_ms_1->render(renderer);
 }
 
 void opencv_free_and_nullptr_ms_1()
 {
-    //
+    // Nothing (check 1.2 state header to know why)
 }
 
 // =========================================================================================== OPENCV PART OF THE STATE

@@ -130,6 +130,7 @@ struct files_choose_status_ctx
 
 // Data for file choose - used for files access during the whole analysis (untill the new one)
 inline file_choose_ctx file_choose_info;
+
 inline file_data_choose_ctx file_data_choose_info;
 
 inline files_choose_status_ctx files_choose_status;

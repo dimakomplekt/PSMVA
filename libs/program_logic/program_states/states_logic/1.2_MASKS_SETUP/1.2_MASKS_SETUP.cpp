@@ -69,6 +69,17 @@ void masks_setup_enter()
 
     masks_setup_elements_create();
 
+
+    // !!! WARNING !!!
+    //
+    // CREATE MATs and texture which 
+    // should be deallocated at the 
+    // state 1.4
+    //
+    // !!! WARNING !!!
+
+    opencv_global_setup();
+
     // ===== State allocation =====
 
 
@@ -241,24 +252,353 @@ void masks_setup_elements_render(SDL_Renderer* renderer)
 // =========================================================================================== STATE INNER FUNCTIONS REALIZATION
 
 
+
+// =========================================================================================== OPENCV PART OF THE STATE
+
+// ===== DATA =====
+
+cv::VideoCapture* video_capture_device_global = nullptr;
+
+cv::Mat* video_cv_mat_mask_1_global = nullptr;
+cv::Mat* video_cv_mat_mask_2_global = nullptr;
+cv::Mat* video_cv_mat_mask_3_global = nullptr;
+
+SDL_Texture* translated_texture_global = nullptr;
+
+bool opencv_pipeline_reset_global = false;
+
+opencv_update_ctx opencv_global_update_ctx;
+
+// ===== DATA =====
+
+
+// ===== Functions =====
+
+void opencv_global_setup()
+{
+    // Block of the reinit
+    if (opencv_pipeline_reset_global != true)
+    {
+        video_cv_mat_mask_1_global = new cv::Mat();
+        video_cv_mat_mask_2_global = new cv::Mat();
+        video_cv_mat_mask_3_global = new cv::Mat();
+
+        // Will be reseted (for size correction) at the setup 
+        // of each inner state (1.2.1  1.2.6)
+
+        // Basic setups for state 1 size-s
+        translated_texture_global = SDL_CreateTexture(
+
+            this_app.renderer, 
+            SDL_PIXELFORMAT_RGBA8888, 
+            SDL_TEXTUREACCESS_STREAMING, 
+            files_metadata.video_1_data.width, 
+            files_metadata.video_1_data.height
+
+        );
+
+        opencv_pipeline_reset_global = true;
+    }
+
+    // TEXTURE WORKFLOW for inner states
+
+    /*
+
+        // 1. FREE THE MEMORY
+
+        if (translated_texture_global != nullptr) {
+            SDL_DestroyTexture(translated_texture_global);
+            translated_texture_global = nullptr;
+        }
+
+
+        // 2. CREATE NEW
+
+        translated_texture_global = SDL_CreateTexture(
+            this_app.renderer, 
+            SDL_PIXELFORMAT_RGBA8888, 
+            SDL_TEXTUREACCESS_STREAMING, 
+            new_width,  // Новый размер
+            new_height  // Новый размер
+        );
+
+        // 3. CHECK BEFORE USE
+        
+        if (translated_texture_global == nullptr) {
+            // Обработка ошибки: SDL_GetError()
+        }
+    
+    */
+
+
+    if (TEST_MODE) std::cout << "Mats and texture created\n" << std::endl;   
+}
+
+
+void switch_video(const std::string& new_file_path) 
+{
+    // 1. DELETE old capture device if video is opened
+    if (video_capture_device_global != nullptr)
+    {
+        if (video_capture_device_global->isOpened())
+        {
+            // Close file
+            video_capture_device_global->release();
+        }
+
+        // Free the memory 
+        delete video_capture_device_global;
+        
+        // Free the pointer
+        video_capture_device_global = nullptr;
+    }
+
+    // 2. Create new capture device
+    video_capture_device_global = new cv::VideoCapture(new_file_path);
+
+    // 3. Check
+    if (!video_capture_device_global->isOpened())
+    {
+        std::cerr << "Error: Could not open video " << new_file_path << std::endl;
+    } 
+    else if (TEST_MODE)
+    {
+        std::cout << "Successfully switched to: " << new_file_path << "\n" << std::endl;
+    }
+}
+
+
+
+void opencv_global_update()
+{
+
+    // Current data to work with
+
+    std::string file_path;
+
+    cv::Mat* current_basic_mat_to_show;
+
+    // Which file
+    switch (opencv_global_update_ctx.current_file_for_mask_setup)
+    {
+        case (FILE_1_CF):
+        {
+            file_path =  file_choose_info.file_1_path;
+            break;
+        }
+
+        case (FILE_2_CF):
+        {
+            file_path =  file_choose_info.file_2_path;
+            break;
+        }
+
+        case (FILE_3_CF):
+        {
+            file_path =  file_choose_info.file_3_path;
+            break; 
+        }
+
+        case (FILE_4_CF):
+        {
+            file_path =  file_choose_info.file_4_path;
+            break;
+        }
+
+        case (FILE_5_CF):
+        {
+            file_path =  file_choose_info.file_5_path;
+            break;
+        }
+
+        case (FILE_6_CF):
+        {
+            file_path =  file_choose_info.file_6_path;
+            break;
+        }
+
+        default: break;
+    }
+
+    // Which mask
+    switch (opencv_global_update_ctx.current_mask_for_mask_setup)
+    {
+        case (MASK_1_CM):
+        {
+            current_basic_mat_to_show = video_cv_mat_mask_1_global;
+            break;
+        }
+
+        case (MASK_2_CM):
+        {
+            current_basic_mat_to_show = video_cv_mat_mask_2_global;
+            break;
+        }
+
+        case (MASK_3_CM):
+        {
+            current_basic_mat_to_show = video_cv_mat_mask_3_global;
+            break;
+        }
+
+        default: break;
+    }
+
+
+    if (current_basic_mat_to_show == nullptr)
+    {
+        std::cerr << "ERROR: current_basic_mat_to_show == nullptr\n";
+        return;
+    }
+
+
+    // By container, setted at the inner state start (1.2.1 - 1.2.6)
+    My_SDL_texture* my_texture = opencv_global_update_ctx.current_texture_container;
+
+
+    // First call at the state start
+    // we need to create new VCD
+
+    if (opencv_global_update_ctx.need_reset)
+    {
+        // USE HELPER
+        switch_video(file_path);
+
+        // Block reinits after reset
+        opencv_global_update_ctx.need_reset = false;
+    }
+
+
+    *video_capture_device_global >> *current_basic_mat_to_show;
+
+    if (TEST_MODE) std::cout << "Capture passed to MAT!\n" << std::endl;
+
+
+    // Show from the start (if it's 1st call)
+    if (current_basic_mat_to_show->empty())
+    {
+        SDL_Log("Rewind to the start of the video.");
+        
+        // Rewind
+        video_capture_device_global->set(cv::CAP_PROP_POS_FRAMES, 0);
+        
+        // Read first frame
+        *video_capture_device_global >> *current_basic_mat_to_show;
+    }
+
+    // At the next call frame number will move to the next value
+
+    // BLACKBOX
+    if (opencv_global_update_ctx.current_frame_processor != nullptr)
+    {
+        if (current_basic_mat_to_show != nullptr)
+            // CALL A CALLBACK FOR CURREeNT MATH
+            opencv_global_update_ctx.current_frame_processor(current_basic_mat_to_show);
+    }
+
+
+    // Renew basic texture sizes
+    if (translated_texture_global != nullptr) 
+    {
+        
+        if (TEST_MODE) std::cout << "OPENCV - SDL translation started!\n" << std::endl;
+
+
+        translate_cv_mat_to_sdl_texture(
+
+            current_basic_mat_to_show,
+            translated_texture_global,
+            this_app.renderer
+
+        );
+
+
+        if (TEST_MODE) std::cout << "OPENCV - SDL translation ended!\n" << std::endl;
+
+        if (TEST_MODE) std::cout << "Start texture pass to My_SDL_Texture!\n" << std::endl;
+
+
+        int target_width = my_texture->get_width_size();
+        int target_height = my_texture->get_height_size();
+
+        // Renew my_SDL_texture by link to curr texture with target resize
+        my_texture->set_texture(translated_texture_global, false);
+
+        if (TEST_MODE) std::cout << "Texture pass to My_SDL_Texture complete!\n" << std::endl;
+
+
+        my_texture->set_size(target_width, target_height);
+
+        if (TEST_MODE) std::cout << "Texture sizes changed to target inside My_SDL_Texture!\n" << std::endl;
+
+
+        SDL_SetTextureBlendMode(translated_texture_global, SDL_BLENDMODE_NONE);
+    }
+}
+
+
+void opencv_global_free_and_nullptr()
+{
+    // 1. Clear mats
+
+    if (video_cv_mat_mask_1_global != nullptr)
+    {
+        delete video_cv_mat_mask_1_global;
+
+        video_cv_mat_mask_1_global = nullptr; 
+    }
+
+    if (video_cv_mat_mask_2_global != nullptr)
+    {
+        delete video_cv_mat_mask_2_global;
+
+        video_cv_mat_mask_2_global = nullptr; 
+    }
+
+    if (video_cv_mat_mask_3_global != nullptr)
+    {
+        delete video_cv_mat_mask_3_global;
+
+        video_cv_mat_mask_3_global = nullptr; 
+    }
+
+
+    // 2. Clear texture SDL: by inner destroy function
+    if (translated_texture_global != nullptr)
+    {
+        SDL_DestroyTexture(translated_texture_global); // Clear VRAM и RAM
+
+        translated_texture_global = nullptr; 
+    }
+
+    // Activate reinit
+    opencv_pipeline_reset_global = false;
+}
+
+
+// ===== Functions =====
+
+// =========================================================================================== OPENCV PART OF THE STATE
+
+
+
+
+// =========================================================================================== ADDITIONAL STATES API
+
+
 void masks_setup_2_enter()
 {
     //
 }
-
-
 void masks_setup_2_exit()
 {
     //
 }
 
-
 void masks_setup_2_update()
 {
     //
 }
-
-
 void masks_setup_2_render(SDL_Renderer* renderer)
 {
     //
@@ -269,20 +609,15 @@ void masks_setup_3_enter()
 {
     //
 }
-
-
 void masks_setup_3_exit()
 {
     //
 }
 
-
 void masks_setup_3_update()
 {
     //
 }
-
-
 void masks_setup_3_render(SDL_Renderer* renderer)
 {
     //
@@ -293,20 +628,15 @@ void masks_setup_4_enter()
 {
     //
 }
-
-
 void masks_setup_4_exit()
 {
     //
 }
 
-
 void masks_setup_4_update()
 {
     //
 }
-
-
 void masks_setup_4_render(SDL_Renderer* renderer)
 {
     //
@@ -317,20 +647,15 @@ void masks_setup_5_enter()
 {
     //
 }
-
-
 void masks_setup_5_exit()
 {
     //
 }
 
-
 void masks_setup_5_update()
 {
     //
 }
-
-
 void masks_setup_5_render(SDL_Renderer* renderer)
 {
     //
@@ -341,23 +666,19 @@ void masks_setup_6_enter()
 {
     //
 }
-
-
 void masks_setup_6_exit()
 {
     //
 }
 
-
 void masks_setup_6_update()
 {
     //
 }
-
-
 void masks_setup_6_render(SDL_Renderer* renderer)
 {
     //
 }
 
 
+// =========================================================================================== ADDITIONAL STATES API

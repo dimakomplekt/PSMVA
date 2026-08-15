@@ -13,7 +13,12 @@
 #include "../../../global_data/global_data.h"
 
 
+#include "../../../../program_gui/basic_elements/UI_elements/my_sdl_texture/my_sdl_texture.h"
+
 #include <array>
+
+// For frame processor
+#include <functional>
 
 // =========================================================================================== IMPORT
 
@@ -128,6 +133,150 @@ struct files_masks_data
 inline files_masks_data masks_data;
 
 // =========================================================================================== GLOBAL DATA
+
+
+// =========================================================================================== GLOBAL OPENCV PART
+
+// !!! WARNING !!!
+
+
+// This data is handled using a dynamic memory allocation pattern but is deallocated in a non-standard way
+// (relative to the program's overall style).
+
+// INIT - AT THE STATE 1.2
+// DELETE - AT THE STATE 1.4 (CAUSE THE DATA WILL BE USED AT THE STATES 1.2, 1.3)
+
+// There could be 6 files with 3 equal masks at each
+// so the profitable way to implement them is to
+// create pipeline data for 1 and use it to all 6,
+// just change the parameters of the masks with different states, 
+// but continue to work with 1 video capture, 3 global MATs and 
+// 1 translated texture (with passed MAT change with current mask change)
+
+// !!! All this parts will be initiated (with reinit block) at the ENTER of state 1.2 !!!
+
+// !!! And will be destroyed at the ENTER of state 1.4 !!!
+
+// Basic initialization will be performed in state 1.2.
+// At the states 1.2.1 - 1.2.6 additional settings (like the choose of the masks parameters 
+// for each file, choose of the My_SDL_Texture* which will contain translsated_texture_global) will be performed
+
+
+// !!! WARNING !!!
+
+
+// ===== DATA =====
+
+// Global capture
+extern cv::VideoCapture* video_capture_device_global;
+
+
+// Global MAT for capture frameus
+
+// Nozzle mask
+extern cv::Mat* video_cv_mat_mask_1_global;
+
+// Jet mask
+extern cv::Mat* video_cv_mat_mask_1_global;
+
+// Particle trace mask
+extern cv::Mat* video_cv_mat_mask_3_global;
+
+
+// Global texture for test_cv_mat_translation
+extern SDL_Texture* translated_texture_global;
+
+// Global reinit block flag
+extern bool opencv_pipeline_reset_global;
+
+// ===== DATA =====
+
+
+// ===== Functions =====
+
+
+void opencv_global_setup();
+
+
+
+//Callback which takes the Mat and modify it
+using frame_processor = std::function<void(cv::Mat*)>;
+
+
+enum current_file_ms
+{
+
+    FILE_1_CF,
+    FILE_2_CF,
+    FILE_3_CF,
+    FILE_4_CF,
+    FILE_5_CF,
+    FILE_6_CF,
+
+    LIMIT_CF
+
+};
+
+
+enum current_mask_ms
+{
+
+    MASK_1_CM,
+    MASK_2_CM,
+    MASK_3_CM,
+
+    LIMIT_CM
+
+};
+
+
+// Global variable for current file check
+
+
+struct opencv_update_ctx
+{
+
+    // Current file (uses for translator setup)
+    current_file_ms current_file_for_mask_setup;
+
+    // Current mask (uses for CV::MAT choose)
+    current_mask_ms current_mask_for_mask_setup;
+
+    // Uses for translated_texture_global texture pass
+    // to texture containers at different states
+    My_SDL_texture* current_texture_container;
+
+
+    // Pointer to the frame_processor
+    frame_processor current_frame_processor = nullptr;
+
+
+    // Need reset flag for switch_video call in update function
+    bool need_reset;
+    
+};
+
+
+extern opencv_update_ctx opencv_global_update_ctx;
+
+
+// Helper-function for video switch
+void switch_video(const std::string& new_file_path);
+
+
+// Global update function, which
+// works different in depending of current structure 
+// (opencv_global_update_ctx) data 
+void opencv_global_update();
+
+
+
+void opencv_global_free_and_nullptr();
+
+// ===== Functions =====
+
+// =========================================================================================== GLOBAL OPENCV PART
+
 
 
 // =========================================================================================== ADDITIONAL STATES API
