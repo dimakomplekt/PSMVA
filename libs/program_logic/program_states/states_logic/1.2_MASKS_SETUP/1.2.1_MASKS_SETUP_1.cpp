@@ -59,6 +59,11 @@ My_SDL_panel* Masks_setup_panel_ms_1 = nullptr;
 
 My_SDL_texture* Video_preview_texture_ms_1 = nullptr;
 
+My_SDL_button* Video_backwards_button_ms_1 = nullptr;
+My_SDL_button* Video_play_pause_button_ms_1 = nullptr;
+My_SDL_button* Video_forward_button_ms_1 = nullptr;
+My_SDL_button* Video_kingsize_button_ms_1 = nullptr;
+
 My_SDL_panel* Video_preview_panel_ms_1 = nullptr;
 
 // ===== Video preview =====
@@ -180,6 +185,17 @@ My_SDL_button* flow_parameters_calculation_state_but_ms_1 = nullptr;
 
 
 // =========================================================================================== CALLBACKS
+
+
+void video_rewind_backwards_ms_1();
+
+void video_play_or_pause_ms_1();
+
+void video_rewind_forward_ms_1();
+
+void video_show_kingsize_ms_1();
+
+
 
 void file_1_choose_ms_1();
 void file_2_choose_ms_1();
@@ -604,6 +620,13 @@ void masks_setup_1_elements_create()
 
 
     Video_preview_panel_ms_1 = new My_SDL_panel;
+
+    Video_backwards_button_ms_1 = new My_SDL_button;
+    Video_play_pause_button_ms_1 = new My_SDL_button;
+    Video_forward_button_ms_1 = new My_SDL_button;
+    Video_kingsize_button_ms_1 = new My_SDL_button;
+
+
     Video_preview_texture_ms_1 = new My_SDL_texture;
 
     // ===== File choose =====
@@ -744,6 +767,9 @@ unsigned int video_height_ms_1;
 int video_panel_width_ms_1;
 int video_panel_height_ms_1;
 
+int video_control_buttons_width;
+int video_control_buttons_height;
+
 // ===== !!! =====
 
 // Masks setup panels
@@ -814,13 +840,6 @@ int big_faders_height = big_faders_textboxes_height;
 
 // ===== Main points =====
 
-
-// Video panel
-
-int video_panel_x_ms_1 = 0.25 * BACKGROUND_WIDTH;
-int video_panel_y_ms_1 = 0.25 * BACKGROUND_HEIGHT;
-
-
 // Masks setup panels
 
 int mask_setup_panel_x = BACKGROUND_WIDTH - SCREEN_MARGIN_1 - 0.5 * mask_setup_panel_width;
@@ -886,8 +905,17 @@ void masks_setup_1_elements_setup()
     video_width_ms_1 = files_metadata.video_1_data.width;
     video_height_ms_1 = files_metadata.video_1_data.height; 
 
-    video_panel_width_ms_1 = video_width_ms_1 + 2 * SCREEN_MARGIN_0;
-    video_panel_height_ms_1 = video_height_ms_1 + 2 * SCREEN_MARGIN_0;
+    video_panel_width_ms_1 = mask_setup_panel_width;
+
+    video_panel_height_ms_1 = BACKGROUND_HEIGHT - (4 * SCREEN_MARGIN_1 + 2 * choose_panels_height + control_buttons_height);
+
+    video_control_buttons_width = static_cast<int>(video_panel_width_ms_1 / 4.0);
+    video_control_buttons_height = 0.25 * video_panel_height_ms_1;
+
+    // Video panel
+
+    int video_panel_x_ms_1 = 0.25 * BACKGROUND_WIDTH;
+    int video_panel_y_ms_1 = SCREEN_MARGIN_1 + 0.5 * video_panel_height_ms_1;
 
     // ===== !!! =====
 
@@ -900,19 +928,44 @@ void masks_setup_1_elements_setup()
 
     // Video preview 
 
-    // TEST
-    std::cout << "Size before set: " << video_panel_width_ms_1 << "x" << video_panel_height_ms_1 << std::endl;
-
     Video_preview_panel_ms_1->set_render_point(video_panel_x_ms_1, video_panel_y_ms_1);
     Video_preview_panel_ms_1->set_size(video_panel_width_ms_1, video_panel_height_ms_1);
     Video_preview_panel_ms_1->set_border_radius(0);
+    Video_preview_panel_ms_1->set_shadow_scale_factor(0);
 
 
-    // TEST
-    std::cout << "Video preview panel size: " << video_panel_width_ms_1 << "x" << video_panel_height_ms_1 << std::endl;
-    std::cout << "Passed video size: " << Video_preview_panel_ms_1->get_width_size() << "x" << Video_preview_panel_ms_1->get_height_size() << std::endl;
-    
-    
+    Video_backwards_button_ms_1->switch_button_textbox_type(HEADER_3);
+    Video_backwards_button_ms_1->get_button_content_textbox()->set_content("←");
+    Video_backwards_button_ms_1->set_size(video_control_buttons_width, video_control_buttons_height);
+    Video_backwards_button_ms_1->on_click = video_rewind_backwards_ms_1;
+    Video_backwards_button_ms_1->set_border_radius(0);
+    Video_backwards_button_ms_1->set_shadow_scale_factor(0);
+
+
+    Video_play_pause_button_ms_1->switch_button_textbox_type(HEADER_3);
+    // Init with paused state
+    Video_play_pause_button_ms_1->get_button_content_textbox()->set_content(">");
+    Video_play_pause_button_ms_1->set_size(video_control_buttons_width, video_control_buttons_height);
+    Video_play_pause_button_ms_1->on_click = video_play_or_pause_ms_1;
+    Video_play_pause_button_ms_1->set_border_radius(0);
+    Video_play_pause_button_ms_1->set_shadow_scale_factor(0);
+
+
+    Video_forward_button_ms_1->switch_button_textbox_type(HEADER_3);
+    Video_forward_button_ms_1->get_button_content_textbox()->set_content("→");
+    Video_forward_button_ms_1->set_size(video_control_buttons_width, video_control_buttons_height);
+    Video_forward_button_ms_1->on_click = video_rewind_forward_ms_1;
+    Video_forward_button_ms_1->set_border_radius(0);
+    Video_forward_button_ms_1->set_shadow_scale_factor(0);
+
+
+    Video_kingsize_button_ms_1->switch_button_textbox_type(HEADER_3);
+    Video_kingsize_button_ms_1->get_button_content_textbox()->set_content("[]");
+    Video_kingsize_button_ms_1->set_size(video_control_buttons_width, video_control_buttons_height);
+    Video_kingsize_button_ms_1->on_click = video_show_kingsize_ms_1;
+    Video_kingsize_button_ms_1->set_border_radius(0);
+    Video_kingsize_button_ms_1->set_shadow_scale_factor(0);
+
     
     // Texture
 
@@ -925,12 +978,49 @@ void masks_setup_1_elements_setup()
         
         Video_preview_texture_ms_1,
         video_panel_width_ms_1 * 0.5,
-        video_panel_height_ms_1 * 0.5,
+        video_panel_height_ms_1 * (0.75 * 0.5),
+        1
+    
+    );
+
+
+    Video_preview_panel_ms_1->add_element(
+        
+        Video_backwards_button_ms_1,
+        video_control_buttons_width * 0.5,
+        video_panel_height_ms_1 * (0.75) + video_control_buttons_height * 0.5,
+        1
+    
+    );
+
+    Video_preview_panel_ms_1->add_element(
+        
+        Video_play_pause_button_ms_1,
+        video_control_buttons_width * 1.5,
+        video_panel_height_ms_1 * (0.75) + video_control_buttons_height * 0.5,
+        1
+    
+    );
+
+    Video_preview_panel_ms_1->add_element(
+        
+        Video_forward_button_ms_1,
+        video_control_buttons_width * 2.5,
+        video_panel_height_ms_1 * (0.75) + video_control_buttons_height * 0.5,
+        1
+    
+    );
+
+
+    Video_preview_panel_ms_1->add_element(
+        
+        Video_kingsize_button_ms_1,
+        video_control_buttons_width * 3.5,
+        video_panel_height_ms_1 * (0.75) + video_control_buttons_height * 0.5,
         1
     
     );
     
-
 
     // File choose panel
 
@@ -1223,6 +1313,7 @@ void masks_setup_1_elements_setup()
     Mask_1_setup_panel_ms_1->set_render_point(mask_setup_panel_x, mask_setup_panel_y);
     Mask_1_setup_panel_ms_1->set_size(mask_setup_panel_width, mask_setup_panel_height);
     Mask_1_setup_panel_ms_1->set_border_radius(0);
+    Mask_1_setup_panel_ms_1->set_shadow_scale_factor(0);
 
 
     // Panel 1 elements
@@ -1389,7 +1480,8 @@ void masks_setup_1_elements_setup()
     Mask_2_setup_panel_ms_1->set_render_point(2 * mask_setup_panel_x, mask_setup_panel_y);
     Mask_2_setup_panel_ms_1->set_size(mask_setup_panel_width, mask_setup_panel_height);
     Mask_2_setup_panel_ms_1->set_border_radius(0);
-    
+    Mask_2_setup_panel_ms_1->set_shadow_scale_factor(0);
+
 
     // Panel 2 elements
 
@@ -1517,6 +1609,7 @@ void masks_setup_1_elements_setup()
     Mask_3_setup_panel_ms_1->set_render_point(2 * mask_setup_panel_x, mask_setup_panel_y);
     Mask_3_setup_panel_ms_1->set_size(mask_setup_panel_width, mask_setup_panel_height);
     Mask_3_setup_panel_ms_1->set_border_radius(0);
+    Mask_3_setup_panel_ms_1->set_shadow_scale_factor(0);
 
 
     // Panel 3 element
@@ -1714,6 +1807,11 @@ void masks_setup_1_elements_free_and_nullptr()
     // ===== Video preview =====
 
     Video_preview_texture_ms_1 = nullptr;
+
+    Video_backwards_button_ms_1 = nullptr;
+    Video_play_pause_button_ms_1 = nullptr;
+    Video_forward_button_ms_1 = nullptr;
+    Video_kingsize_button_ms_1 = nullptr;
 
     Video_preview_panel_ms_1 = nullptr;
 
@@ -1969,6 +2067,98 @@ void masks_setup_1_elements_render(SDL_Renderer* renderer)
 
 // =========================================================================================== CALLBACKS
 
+
+void video_rewind_backwards_ms_1()
+{
+    // 10 frames with 0 frame stop if video plays
+    // 1 frame with 0 frame stop if video paused
+
+    if (opencv_global_update_ctx.playback_state == VIDEO_PLAYING_VPS)
+    {
+        opencv_global_update_ctx.current_frame_index -= 10;
+
+        if (opencv_global_update_ctx.current_frame_index < 0)
+            opencv_global_update_ctx.current_frame_index = 0;
+    }
+
+    if (opencv_global_update_ctx.playback_state == VIDEO_PAUSED_VPS)
+    {
+        opencv_global_update_ctx.current_frame_index -= 1;
+
+        if (opencv_global_update_ctx.current_frame_index < 0)
+            opencv_global_update_ctx.current_frame_index = 0;
+    }
+}
+
+
+void video_play_or_pause_ms_1()
+{
+    switch (opencv_global_update_ctx.playback_state)
+    {
+        case VIDEO_PLAYING_VPS:
+        {
+            opencv_global_update_ctx.playback_state = VIDEO_PAUSED_VPS;
+            Video_play_pause_button_ms_1->get_button_content_textbox()->set_content(">");
+
+
+            break;
+        }
+        
+        case VIDEO_PAUSED_VPS:
+        {
+            opencv_global_update_ctx.playback_state = VIDEO_PLAYING_VPS;
+            Video_play_pause_button_ms_1->get_button_content_textbox()->set_content("||");
+
+            break;
+        }
+
+        default:
+        {
+            opencv_global_update_ctx.playback_state = VIDEO_PLAYING_VPS;
+            break;
+        }
+    }
+}
+
+
+void video_rewind_forward_ms_1()
+{
+    // 10 frames with MAX frame stop if video plays
+    // 1 frame with MAX frame stop if video paused
+
+    if (opencv_global_update_ctx.playback_state == VIDEO_PLAYING_VPS)
+    {
+        opencv_global_update_ctx.current_frame_index += 10;
+
+        if (opencv_global_update_ctx.current_frame_index >=
+            opencv_global_update_ctx.total_frame_count)
+        {
+            opencv_global_update_ctx.current_frame_index =
+                opencv_global_update_ctx.total_frame_count - 1;
+        }
+    }
+
+    if (opencv_global_update_ctx.playback_state == VIDEO_PAUSED_VPS)
+    {
+        opencv_global_update_ctx.current_frame_index += 1;
+
+        if (opencv_global_update_ctx.current_frame_index >=
+            opencv_global_update_ctx.total_frame_count)
+        {
+            opencv_global_update_ctx.current_frame_index =
+                opencv_global_update_ctx.total_frame_count - 1;
+        }
+    }
+}
+
+
+void video_show_kingsize_ms_1()
+{
+    opencv_global_update_ctx.show_kingsize = !opencv_global_update_ctx.show_kingsize;
+}
+
+
+
 void file_1_choose_ms_1()
 {
     // 
@@ -2138,9 +2328,15 @@ void opencv_setup_ms_1()
     opencv_global_update_ctx.current_mask_for_mask_setup = MASK_1_CM;
     opencv_global_update_ctx.current_texture_container = Video_preview_texture_ms_1;
     opencv_global_update_ctx.current_frame_processor = nullptr;
+    opencv_global_update_ctx.playback_state = VIDEO_PAUSED_VPS;
+    opencv_global_update_ctx.current_frame_index = 0;
+
     opencv_global_update_ctx.need_reset = true;
+    opencv_global_update_ctx.show_kingsize = false;
+    opencv_global_update_ctx.kingsize_live_transmission = false; 
 
 }
+
 
 void opencv_update_ms_1()
 {

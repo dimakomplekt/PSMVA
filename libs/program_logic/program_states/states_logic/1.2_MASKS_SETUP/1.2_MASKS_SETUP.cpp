@@ -365,12 +365,46 @@ void switch_video(const std::string& new_file_path)
     {
         std::cout << "Successfully switched to: " << new_file_path << "\n" << std::endl;
     }
+
+
+    // 4. Update metadata and starting point
+
+    // Set the 0 index
+    opencv_global_update_ctx.current_frame_index = 0;
+    // Get total frame count
+    opencv_global_update_ctx.total_frame_count = static_cast<int>(video_capture_device_global->get(cv::CAP_PROP_FRAME_COUNT));
+        
+
 }
 
+
+// Helpers for big screen translation
+
+void kingsize_window_init(cv::Mat* mat)
+{
+    cv::namedWindow(
+        "KINGSIZE",
+        cv::WINDOW_NORMAL
+    );
+
+    cv::resizeWindow(
+        "KINGSIZE",
+        mat->cols * 3,
+        mat->rows * 3
+    );
+}
+
+
+void kingsize_window_close()
+{
+    cv::destroyWindow("KINGSIZE");
+}
 
 
 void opencv_global_update()
 {
+
+    // ===== PREPROCESSING =====
 
     // Current data to work with
 
@@ -455,6 +489,10 @@ void opencv_global_update()
     // By container, setted at the inner state start (1.2.1 - 1.2.6)
     My_SDL_texture* my_texture = opencv_global_update_ctx.current_texture_container;
 
+    // ===== PREPROCESSING =====
+
+
+    // ===== DEFAULT TRANSLATION LOGIC =====
 
     // First call at the state start
     // we need to create new VCD
@@ -468,34 +506,124 @@ void opencv_global_update()
         opencv_global_update_ctx.need_reset = false;
     }
 
-
-    *video_capture_device_global >> *current_basic_mat_to_show;
-
-    if (TEST_MODE) std::cout << "Capture passed to MAT!\n" << std::endl;
-
-
-    // Show from the start (if it's 1st call)
-    if (current_basic_mat_to_show->empty())
+    // Play logic (nothing at pause)
+    if (opencv_global_update_ctx.playback_state == VIDEO_PLAYING_VPS)
     {
-        SDL_Log("Rewind to the start of the video.");
-        
-        // Rewind
-        video_capture_device_global->set(cv::CAP_PROP_POS_FRAMES, 0);
-        
-        // Read first frame
+        // Show from the start (if it's 1st call)
+        if (current_basic_mat_to_show->empty())
+        {
+            opencv_global_update_ctx.current_frame_index = 0;
+        }
+    
+        // Rewind to current frame
+        video_capture_device_global->set(
+            cv::CAP_PROP_POS_FRAMES,
+            opencv_global_update_ctx.current_frame_index
+        );
+    
+        // Read current frame
+        *video_capture_device_global >> *current_basic_mat_to_show;
+    
+        // Move to the next frame for the next update()
+        opencv_global_update_ctx.current_frame_index++;
+    }
+    else
+    {
+        // Need to be here to save order read - move inside play state
+        video_capture_device_global->set(
+            cv::CAP_PROP_POS_FRAMES,
+            opencv_global_update_ctx.current_frame_index
+        );
+
+        // Read current frame
         *video_capture_device_global >> *current_basic_mat_to_show;
     }
 
-    // At the next call frame number will move to the next value
 
-    // BLACKBOX
+    if (TEST_MODE) std::cout << "Capture passed to MAT!\n" << std::endl;
+
+    // ===== DEFAULT TRANSLATION LOGIC =====
+
+
+    // ===== BLACKBOX WITH PROCESSING LOGIC BY CALLBACK =====
+
     if (opencv_global_update_ctx.current_frame_processor != nullptr)
     {
         if (current_basic_mat_to_show != nullptr)
-            // CALL A CALLBACK FOR CURREeNT MATH
+            // CALL A CALLBACK FOR CURRENT MAT
+            // THE RENDERER will show the video after processing
             opencv_global_update_ctx.current_frame_processor(current_basic_mat_to_show);
     }
 
+    // ===== BLACKBOX WITH PROCESSING LOGIC BY CALLBACK =====
+
+
+    // ===== SHOW SCALED COPY OF CURRENT MAT INSIDE OTHER WINDOW =====
+
+    // If frame is empty, skip this update
+    if (!current_basic_mat_to_show->empty())
+    {
+        if (opencv_global_update_ctx.show_kingsize)
+        {
+            // First call after activation
+            if (!opencv_global_update_ctx.kingsize_live_transmission)
+            {
+                kingsize_window_init(current_basic_mat_to_show);
+
+                // Block reinit
+                opencv_global_update_ctx.kingsize_live_transmission = true;
+            }
+
+
+            // USER INPUT ERROR HANDLER
+            // Check whether user closed the window manually
+            if (cv::getWindowProperty("KINGSIZE", cv::WND_PROP_VISIBLE) < 1)
+            {
+                opencv_global_update_ctx.show_kingsize = false;
+                opencv_global_update_ctx.kingsize_live_transmission = false;
+
+                return;
+            }
+
+
+            // Create scaled copy
+            cv::Mat kingsize_mat;
+
+            cv::resize(
+                *current_basic_mat_to_show,
+                kingsize_mat,
+                cv::Size(
+                    current_basic_mat_to_show->cols * 3,
+                    current_basic_mat_to_show->rows * 3
+                ),
+                0,
+                0,
+                cv::INTER_NEAREST
+            );
+
+            // Show scaled image
+            cv::imshow(
+                "KINGSIZE",
+                kingsize_mat
+            );
+        }
+        else
+        {
+            // Close window after deactivation
+            if (opencv_global_update_ctx.kingsize_live_transmission)
+            {
+                kingsize_window_close();
+
+                // Allow init on next activation
+                opencv_global_update_ctx.kingsize_live_transmission = false;
+            }
+        }
+    }
+
+    // ===== SHOW SCALED COPY OF CURRENT MAT INSIDE OTHER WINDOW =====
+
+
+    // ===== TRANSLATION FROM OPENCV TO SDL =====
 
     // Renew basic texture sizes
     if (translated_texture_global != nullptr) 
@@ -534,6 +662,8 @@ void opencv_global_update()
 
         SDL_SetTextureBlendMode(translated_texture_global, SDL_BLENDMODE_NONE);
     }
+
+    // ===== TRANSLATION FROM OPENCV TO SDL =====
 }
 
 

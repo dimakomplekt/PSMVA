@@ -230,6 +230,17 @@ enum current_mask_ms
 };
 
 
+enum video_playback_state
+{
+
+    VIDEO_PLAYING_VPS,
+    VIDEO_PAUSED_VPS,
+
+    LIMIT_VPS
+
+};
+
+
 // Global variable for current file check
 
 
@@ -250,9 +261,24 @@ struct opencv_update_ctx
     // Pointer to the frame_processor
     frame_processor current_frame_processor = nullptr;
 
+    // Play or pause
+    video_playback_state playback_state;
+
+    // Current frame number
+    int current_frame_index;
+
+    // Total frame number
+    // initiates at the switch_videp()
+    int total_frame_count;
 
     // Need reset flag for switch_video call in update function
     bool need_reset;
+
+    // Need to show X3 scaled cv::Mat in other window 
+    bool show_kingsize;
+
+    // Flag for other window init logic
+    bool kingsize_live_transmission;
     
 };
 
