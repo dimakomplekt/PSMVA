@@ -1,0 +1,106 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\creator\it\programs\cpp\PSMVA\libs\engine\global_inputs\global_inputs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\creator\it\programs\cpp\PSMVA\libs\engine\lang_state\lang_state.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\creator\it\programs\cpp\PSMVA\libs\engine\special\absolute_by_relative\absolute_by_relative.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\creator\it\programs\cpp\PSMVA\libs\engine\special\absolute_by_relative\platform_routing_lin.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\creator\it\programs\cpp\PSMVA\libs\engine\special\absolute_by_relative\platform_routing_win.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\creator\it\programs\cpp\PSMVA\libs\engine\special\opencv_to_sdl\opencv_to_sdl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\creator\it\programs\cpp\PSMVA\libs\engine\state_machine\state_machine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\creator\it\programs\cpp\PSMVA\libs\program_gui\basic_elements\GUI_functions\drawing\figures_drawing.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\creator\it\programs\cpp\PSMVA\libs\program_gui\basic_elements\GUI_functions\translators\color_translator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\creator\it\programs\cpp\PSMVA\libs\program_gui\basic_elements\UI_elements\my_sdl_button\my_sdl_button.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\creator\it\programs\cpp\PSMVA\libs\program_gui\basic_elements\UI_elements\my_sdl_element\my_sdl_element.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\creator\it\programs\cpp\PSMVA\libs\program_gui\basic_elements\UI_elements\my_sdl_fader\my_sdl_fader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\creator\it\programs\cpp\PSMVA\libs\program_gui\basic_elements\UI_elements\my_sdl_panel\my_sdl_panel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\creator\it\programs\cpp\PSMVA\libs\program_gui\basic_elements\UI_elements\my_sdl_textbox\my_sdl_textbox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\creator\it\programs\cpp\PSMVA\libs\program_gui\basic_elements\UI_elements\my_sdl_texture\my_sdl_texture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\creator\it\programs\cpp\PSMVA\libs\program_gui\basic_elements\global_fonts\global_fonts.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\creator\it\programs\cpp\PSMVA\libs\program_gui\basic_elements\global_palette\global_palette.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\creator\it\programs\cpp\PSMVA\libs\program_logic\app.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\creator\it\programs\cpp\PSMVA\libs\program_logic\global_data\app_timer\app_timer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\creator\it\programs\cpp\PSMVA\libs\program_logic\program_states\program_states.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\creator\it\programs\cpp\PSMVA\libs\program_logic\program_states\states_logic\0.0_START\0.0_START.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\creator\it\programs\cpp\PSMVA\libs\program_logic\program_states\states_logic\1.0_MAIN_MENU\1.0_MAIN_MENU.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\creator\it\programs\cpp\PSMVA\libs\program_logic\program_states\states_logic\1.1_FILE_CHOOSE\1.1_FILE_CHOOSE.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\creator\it\programs\cpp\PSMVA\libs\program_logic\program_states\states_logic\1.1_FILE_CHOOSE\txt_parse.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\creator\it\programs\cpp\PSMVA\libs\program_logic\program_states\states_logic\1.2_MASKS_SETUP\1.2.1_MASKS_SETUP_1.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\creator\it\programs\cpp\PSMVA\libs\program_logic\program_states\states_logic\1.2_MASKS_SETUP\1.2_MASKS_SETUP.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\creator\it\programs\cpp\PSMVA\libs\program_logic\program_states\states_logic\1.2_MASKS_SETUP\1.2_MS_HELPER.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\creator\it\programs\cpp\PSMVA\libs\program_logic\program_states\states_logic\1.3_FLOW_PARAMETERS_CALCULATION\1.3_FLOW_PARAMETERS_CALCULATION.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\creator\it\programs\cpp\PSMVA\libs\program_logic\program_states\states_logic\1.4_REPORT_FORMING\1.4_REPORT_FORMING.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\creator\it\programs\cpp\PSMVA\libs\program_logic\program_states\states_logic\2.0_PROGRAM_END\2.0_PROGRAM_END.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\creator\it\programs\cpp\PSMVA\src\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\creator\it\programs\cpp\PSMVA\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{06E234BB-9BF8-3E36-B0F3-D4FDFA696300}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
