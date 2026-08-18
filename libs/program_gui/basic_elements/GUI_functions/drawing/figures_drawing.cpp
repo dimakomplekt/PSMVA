@@ -11,6 +11,76 @@
 // =========================================================================================== RECTANGLE
 
 
+
+void rectangle_borders_draw_by_color(
+    
+    int x_render_point,
+    int y_render_point,
+
+    unsigned int width,
+    unsigned int height,
+
+    unsigned int line_width,
+    SDL_Color color,
+
+    SDL_Renderer* renderer
+
+)
+{
+    if (width < 1 || height < 1 || line_width < 1)
+    {
+        return;
+    }
+
+    if (line_width >= width || line_width >= height)
+    {
+        rectangle_draw_by_color(x_render_point, y_render_point, width, height, color, renderer);
+        return;
+    }
+
+    SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+
+    int rect_width  = static_cast<int>(width);
+    int rect_height = static_cast<int>(height);
+    int lw          = static_cast<int>(line_width);
+
+
+    int outer_x = x_render_point - rect_width / 2;
+    int outer_y = y_render_point - rect_height / 2;
+
+
+    SDL_FRect rects[4];
+
+    // 1. Upper line
+    rects[0].x = outer_x;
+    rects[0].y = outer_y;
+    rects[0].w = rect_width;
+    rects[0].h = lw;
+
+    // 2. Downer line
+    rects[1].x = outer_x;
+    rects[1].y = outer_y + rect_height - lw;
+    rects[1].w = rect_width;
+    rects[1].h = lw;
+
+    // 3. Left line
+    rects[2].x = outer_x;
+    rects[2].y = outer_y + lw;
+    rects[2].w = lw;
+    rects[2].h = rect_height - (lw * 2);
+
+    // 4. Right line
+    rects[3].x = outer_x + rect_width - lw;
+    rects[3].y = outer_y + lw;
+    rects[3].w = lw;
+    rects[3].h = rect_height - (lw * 2);
+
+    // Render all at once
+    SDL_RenderFillRects(renderer, rects, 4);
+}
+
+
+
 void rectangle_draw_by_color(
     
     int x_render_point,

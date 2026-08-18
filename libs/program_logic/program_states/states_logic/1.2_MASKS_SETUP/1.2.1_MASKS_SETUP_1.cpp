@@ -218,6 +218,66 @@ void next_state_ms_1();
 // =========================================================================================== CALLBACKS
 
 
+// =========================================================================================== OPENCV PIPELINE SETUP FUNCTIONS
+
+// Choosing functions 
+
+// Mask higligths and processing setup (by click on the mask)
+
+void choose_mask_1_ms_1();
+
+void choose_mask_2_ms_1();
+
+void choose_mask_3_ms_1();
+
+// File higligths setup (by init of the state)
+
+void choose_current_file_ms_1();
+
+
+// Processing callbacks for every mask
+void mask_1_processing_ms_1(cv::Mat* frame);
+
+void mask_2_processing_ms_1(cv::Mat* frame);
+
+void mask_3_processing_ms_1(cv::Mat* frame);
+
+// =========================================================================================== OPENCV PIPELINE SETUP FUNCTIONS
+
+
+// =========================================================================================== CHOOSEN MASK AND FILE HIGHLIGHT
+
+struct mask_and_file_highlight_ctx
+{
+    int x_m;
+    int y_m;
+    int w_m;
+    int h_m;
+
+
+    int x_f;
+    int y_f;
+    int w_f;
+    int h_f;
+
+    int highlight_line_width;
+    std::string highlight_hex_color;
+};
+
+mask_and_file_highlight_ctx highlight_ms_1;
+
+void choosen_mask_and_file_init();
+
+void highlight_choosen_mask_ms_1(SDL_Renderer* renderer);
+
+void highlight_choosen_file_ms_1(SDL_Renderer* renderer);
+
+void highlight_video_texture_ms_1(SDL_Renderer* renderer);
+
+// =========================================================================================== CHOOSEN MASK AND FILE HIGHLIGHT
+
+
+
 // =========================================================================================== CLICK PERMISSION FUNCTIONS
 
 bool file_1_choose_ms_1_permission();
@@ -597,6 +657,8 @@ void masks_setup_1_render(SDL_Renderer* renderer)
     if (App_timer_1.can_execute(Execute_zone_ID::HZ_60))
     {
         opencv_render_by_translator_ms_1(renderer);
+
+        highlight_video_texture_ms_1(renderer);
     }
 }
 
@@ -880,19 +942,6 @@ void masks_setup_1_elements_setup()
 {
     // Masks setup panel
 
-    // ===== OPENCV =====
-
-    // TEST
-    std::cout << "\n\nOPENCV SETUP MS1";
-
-    opencv_setup_ms_1();
-
-
-    // TEST
-    std::cout << "\n\nOPENCV SETUP ENDS MS1";
-
-    // ===== OPENCV =====
-
 
     // ===== !!! =====
 
@@ -920,6 +969,9 @@ void masks_setup_1_elements_setup()
     // ===== !!! =====
 
 
+
+    // ===== STATE GUI =====
+
     Masks_setup_panel_ms_1->set_render_point(MAIN_WINDOW_H_SIZE / 2, MAIN_WINDOW_V_SIZE / 2);
     Masks_setup_panel_ms_1->set_size(MAIN_WINDOW_H_SIZE, MAIN_WINDOW_V_SIZE);
     Masks_setup_panel_ms_1->set_border_radius(0);
@@ -935,12 +987,12 @@ void masks_setup_1_elements_setup()
 
 
     Video_backwards_button_ms_1->switch_button_textbox_type(HEADER_3);
-    Video_backwards_button_ms_1->get_button_content_textbox()->set_content("←");
+    Video_backwards_button_ms_1->get_button_content_textbox()->set_content("<-");
     Video_backwards_button_ms_1->set_size(video_control_buttons_width, video_control_buttons_height);
     Video_backwards_button_ms_1->on_click = video_rewind_backwards_ms_1;
     Video_backwards_button_ms_1->set_border_radius(0);
     Video_backwards_button_ms_1->set_shadow_scale_factor(0);
-
+    Video_backwards_button_ms_1->switch_push_mode();
 
     Video_play_pause_button_ms_1->switch_button_textbox_type(HEADER_3);
     // Init with paused state
@@ -949,14 +1001,15 @@ void masks_setup_1_elements_setup()
     Video_play_pause_button_ms_1->on_click = video_play_or_pause_ms_1;
     Video_play_pause_button_ms_1->set_border_radius(0);
     Video_play_pause_button_ms_1->set_shadow_scale_factor(0);
-
+    Video_play_pause_button_ms_1->switch_push_mode();
 
     Video_forward_button_ms_1->switch_button_textbox_type(HEADER_3);
-    Video_forward_button_ms_1->get_button_content_textbox()->set_content("→");
+    Video_forward_button_ms_1->get_button_content_textbox()->set_content("->");
     Video_forward_button_ms_1->set_size(video_control_buttons_width, video_control_buttons_height);
     Video_forward_button_ms_1->on_click = video_rewind_forward_ms_1;
     Video_forward_button_ms_1->set_border_radius(0);
     Video_forward_button_ms_1->set_shadow_scale_factor(0);
+    Video_forward_button_ms_1->switch_push_mode();
 
 
     Video_kingsize_button_ms_1->switch_button_textbox_type(HEADER_3);
@@ -965,7 +1018,7 @@ void masks_setup_1_elements_setup()
     Video_kingsize_button_ms_1->on_click = video_show_kingsize_ms_1;
     Video_kingsize_button_ms_1->set_border_radius(0);
     Video_kingsize_button_ms_1->set_shadow_scale_factor(0);
-
+    Video_kingsize_button_ms_1->switch_push_mode();
     
     // Texture
 
@@ -1042,8 +1095,13 @@ void masks_setup_1_elements_setup()
     File_1_button_ms_1->extern_click_permission = file_1_choose_ms_1_permission;
     File_1_button_ms_1->set_access_type(BUTTON_EXTERN_CLICK_PERMISSION);
     File_1_button_ms_1->set_border_radius(0);
+
+    File_1_button_ms_1->set_access_denied_border_color(App_palette.get_current_palette().basic_border_color);
+    File_1_button_ms_1->set_access_permitted_border_color(App_palette.get_current_palette().basic_border_color);
+
     File_1_button_ms_1->set_shadow_scale_factor(0);
     File_1_button_ms_1->switch_push_mode();
+
 
     // File 2 button
 
@@ -1054,6 +1112,10 @@ void masks_setup_1_elements_setup()
     File_2_button_ms_1->extern_click_permission = file_2_choose_ms_1_permission;
     File_2_button_ms_1->set_access_type(BUTTON_EXTERN_CLICK_PERMISSION);
     File_2_button_ms_1->set_border_radius(0);
+
+    File_2_button_ms_1->set_access_denied_border_color(App_palette.get_current_palette().basic_border_color);
+    File_2_button_ms_1->set_access_permitted_border_color(App_palette.get_current_palette().basic_border_color);
+
     File_2_button_ms_1->set_shadow_scale_factor(0);
     File_2_button_ms_1->switch_push_mode();
 
@@ -1066,6 +1128,10 @@ void masks_setup_1_elements_setup()
     File_3_button_ms_1->extern_click_permission = file_3_choose_ms_1_permission;
     File_3_button_ms_1->set_access_type(BUTTON_EXTERN_CLICK_PERMISSION);
     File_3_button_ms_1->set_border_radius(0);
+
+    File_3_button_ms_1->set_access_denied_border_color(App_palette.get_current_palette().basic_border_color);
+    File_3_button_ms_1->set_access_permitted_border_color(App_palette.get_current_palette().basic_border_color);
+
     File_3_button_ms_1->set_shadow_scale_factor(0);
     File_3_button_ms_1->switch_push_mode();
 
@@ -1078,6 +1144,10 @@ void masks_setup_1_elements_setup()
     File_4_button_ms_1->extern_click_permission = file_4_choose_ms_1_permission;
     File_4_button_ms_1->set_access_type(BUTTON_EXTERN_CLICK_PERMISSION);
     File_4_button_ms_1->set_border_radius(0);
+
+    File_4_button_ms_1->set_access_denied_border_color(App_palette.get_current_palette().basic_border_color);
+    File_4_button_ms_1->set_access_permitted_border_color(App_palette.get_current_palette().basic_border_color);
+
     File_4_button_ms_1->set_shadow_scale_factor(0);
     File_4_button_ms_1->switch_push_mode();
 
@@ -1090,6 +1160,10 @@ void masks_setup_1_elements_setup()
     File_5_button_ms_1->extern_click_permission = file_5_choose_ms_1_permission;
     File_5_button_ms_1->set_access_type(BUTTON_EXTERN_CLICK_PERMISSION);
     File_5_button_ms_1->set_border_radius(0);
+
+    File_5_button_ms_1->set_access_denied_border_color(App_palette.get_current_palette().basic_border_color);
+    File_5_button_ms_1->set_access_permitted_border_color(App_palette.get_current_palette().basic_border_color);
+
     File_5_button_ms_1->set_shadow_scale_factor(0);
     File_5_button_ms_1->switch_push_mode();
 
@@ -1102,6 +1176,10 @@ void masks_setup_1_elements_setup()
     File_6_button_ms_1->extern_click_permission = file_6_choose_ms_1_permission;
     File_6_button_ms_1->set_access_type(BUTTON_EXTERN_CLICK_PERMISSION);
     File_6_button_ms_1->set_border_radius(0);
+
+    File_6_button_ms_1->set_access_denied_border_color(App_palette.get_current_palette().basic_border_color);
+    File_6_button_ms_1->set_access_permitted_border_color(App_palette.get_current_palette().basic_border_color);
+
     File_6_button_ms_1->set_shadow_scale_factor(0);
     File_6_button_ms_1->switch_push_mode();
 
@@ -1730,6 +1808,15 @@ void masks_setup_1_elements_setup()
 
     );
 
+    // ===== STATE GUI =====
+
+
+    // ===== OPENCV =====
+
+    opencv_setup_ms_1();
+
+    // ===== OPENCV =====
+
 }
 
 
@@ -2058,7 +2145,13 @@ void masks_setup_1_elements_render(SDL_Renderer* renderer)
 
     file_choose_state_but_ms_1->render(renderer);
     flow_parameters_calculation_state_but_ms_1->render(renderer);
+
     
+    // Highlight choosen mask and file
+
+    highlight_choosen_mask_ms_1(renderer);
+
+    highlight_choosen_file_ms_1(renderer);
 }
 
 // =========================================================================================== STATE INNER FUNCTIONS REALIZATION
@@ -2198,19 +2291,19 @@ void file_6_choose_ms_1()
 
 void mask_1_choose_ms_1()
 {
-    // 
+    choose_mask_1_ms_1();
 }
 
 
 void mask_2_choose_ms_1()
 {
-    // 
+    choose_mask_2_ms_1();
 }
 
 
 void mask_3_choose_ms_1()
 {
-    // 
+    choose_mask_3_ms_1();
 }
 
 
@@ -2250,9 +2343,269 @@ void next_state_ms_1()
     // 
 }
 
-
-
 // =========================================================================================== CALLBACKS
+
+
+// =========================================================================================== OPENCV PIPELINE SETUP FUNCTIONS
+
+void choose_mask_1_ms_1()
+{
+    // Set highlight
+
+    highlight_ms_1.x_m = Mask_1_choose_button_ms_1->get_x_render_point();
+    
+    highlight_ms_1.y_m = Mask_1_choose_button_ms_1->get_y_render_point();
+
+    highlight_ms_1.w_m = Mask_1_choose_button_ms_1->get_width_size();
+    
+    highlight_ms_1.h_m = Mask_1_choose_button_ms_1->get_height_size();
+
+
+    // Set callback and switch status
+
+    opencv_global_update_ctx.current_mask_for_mask_setup = MASK_1_CM;
+    opencv_global_update_ctx.current_frame_processor = mask_1_processing_ms_1;
+}
+
+
+void choose_mask_2_ms_1()
+{
+    highlight_ms_1.x_m = Mask_2_choose_button_ms_1->get_x_render_point();
+    
+    highlight_ms_1.y_m = Mask_2_choose_button_ms_1->get_y_render_point();
+
+    highlight_ms_1.w_m = Mask_2_choose_button_ms_1->get_width_size();
+    
+    highlight_ms_1.h_m = Mask_2_choose_button_ms_1->get_height_size();
+
+
+    // Set callback and switch status
+
+    opencv_global_update_ctx.current_mask_for_mask_setup = MASK_2_CM;
+    opencv_global_update_ctx.current_frame_processor = mask_2_processing_ms_1;
+}
+
+
+void choose_mask_3_ms_1()
+{
+    highlight_ms_1.x_m = Mask_3_choose_button_ms_1->get_x_render_point();
+    
+    highlight_ms_1.y_m = Mask_3_choose_button_ms_1->get_y_render_point();
+
+    highlight_ms_1.w_m = Mask_3_choose_button_ms_1->get_width_size();
+    
+    highlight_ms_1.h_m = Mask_3_choose_button_ms_1->get_height_size();
+
+
+    // Set callback and switch status
+
+    opencv_global_update_ctx.current_mask_for_mask_setup = MASK_3_CM;
+    opencv_global_update_ctx.current_frame_processor = mask_3_processing_ms_1;
+}
+
+
+void choose_current_file_ms_1()
+{
+    highlight_ms_1.x_f = File_1_button_ms_1->get_x_render_point();
+    
+    highlight_ms_1.y_f = File_1_button_ms_1->get_y_render_point();
+
+    highlight_ms_1.w_f = File_1_button_ms_1->get_width_size();
+    
+    highlight_ms_1.h_f = File_1_button_ms_1->get_height_size();
+
+
+    opencv_global_update_ctx.current_file_for_mask_setup = FILE_1_CF;
+}
+
+
+
+// Processing callbacks for every mask
+void mask_1_processing_ms_1(cv::Mat* frame)
+{
+    if (!frame || frame->empty()) return;
+
+    // Mask processing logic
+
+    const std::string text = "MASK_1";
+
+    int font_face = cv::FONT_HERSHEY_SIMPLEX;
+    double font_scale = 1.0;
+    int thickness = 2;
+
+    int baseline = 0;
+
+    cv::Size text_size = cv::getTextSize(
+        text,
+        font_face,
+        font_scale,
+        thickness,
+        &baseline
+    );
+
+    int x = (frame->cols) - 1 * text_size.width - 10;
+    int y = (frame->rows) - 10;
+
+    cv::putText(
+        *frame,
+        text,
+        cv::Point(x, y),
+        font_face,
+        font_scale,
+        cv::Scalar(0, 255, 0),
+        thickness,
+        cv::LINE_AA
+    );
+
+
+}
+
+void mask_2_processing_ms_1(cv::Mat* frame)
+{
+    if (!frame || frame->empty()) return;
+
+    // Mask processing logic
+
+    const std::string text = "MASK_2";
+
+    int font_face = cv::FONT_HERSHEY_SIMPLEX;
+    double font_scale = 1.0;
+    int thickness = 2;
+
+    int baseline = 0;
+
+    cv::Size text_size = cv::getTextSize(
+        text,
+        font_face,
+        font_scale,
+        thickness,
+        &baseline
+    );
+
+    int x = (frame->cols) - 1 * text_size.width - 10;
+    int y = (frame->rows) - 10;
+
+    cv::putText(
+        *frame,
+        text,
+        cv::Point(x, y),
+        font_face,
+        font_scale,
+        cv::Scalar(0, 255, 0),
+        thickness,
+        cv::LINE_AA
+    );
+
+}
+
+void mask_3_processing_ms_1(cv::Mat* frame)
+{
+    if (!frame || frame->empty()) return;
+
+    // Mask processing logic
+
+    const std::string text = "MASK_3";
+
+    int font_face = cv::FONT_HERSHEY_SIMPLEX;
+    double font_scale = 1.0;
+    int thickness = 2;
+
+    int baseline = 0;
+
+    cv::Size text_size = cv::getTextSize(
+        text,
+        font_face,
+        font_scale,
+        thickness,
+        &baseline
+    );
+
+    int x = (frame->cols) - 1 * text_size.width - 10;
+    int y = (frame->rows) - 10;
+
+    cv::putText(
+        *frame,
+        text,
+        cv::Point(x, y),
+        font_face,
+        font_scale,
+        cv::Scalar(0, 255, 0),
+        thickness,
+        cv::LINE_AA
+    );
+
+}
+
+
+// =========================================================================================== OPENCV PIPELINE SETUP FUNCTIONS
+
+
+// =========================================================================================== CHOOSEN MASK AND FILE HIGHLIGHT
+
+
+void choosen_mask_and_file_init()
+{
+    highlight_ms_1.highlight_hex_color = "#eaff00";
+    highlight_ms_1.highlight_line_width = 5;
+
+    choose_mask_1_ms_1();
+    choose_current_file_ms_1();
+}
+
+
+void highlight_choosen_mask_ms_1(SDL_Renderer* renderer)
+{
+    rectangle_borders_draw_by_color(
+
+        highlight_ms_1.x_m,
+        highlight_ms_1.y_m,
+        highlight_ms_1.w_m,
+        highlight_ms_1.h_m,
+        highlight_ms_1.highlight_line_width,
+        hex_to_sdl_color(highlight_ms_1.highlight_hex_color, 255),
+        renderer
+
+    );
+}
+
+
+void highlight_choosen_file_ms_1(SDL_Renderer* renderer)
+{
+    rectangle_borders_draw_by_color(
+
+        highlight_ms_1.x_f,
+        highlight_ms_1.y_f,
+        highlight_ms_1.w_f,
+        highlight_ms_1.h_f,
+        highlight_ms_1.highlight_line_width,
+        hex_to_sdl_color(highlight_ms_1.highlight_hex_color, 255),
+        renderer
+
+    );
+}
+
+
+void highlight_video_texture_ms_1(SDL_Renderer* renderer)
+{
+    rectangle_borders_draw_by_color(
+
+        Video_preview_texture_ms_1->get_x_render_point(),
+        Video_preview_texture_ms_1->get_y_render_point(),
+        Video_preview_texture_ms_1->get_width_size() + highlight_ms_1.highlight_line_width,
+        Video_preview_texture_ms_1->get_height_size() + highlight_ms_1.highlight_line_width,
+        highlight_ms_1.highlight_line_width,
+        App_palette.get_current_palette().basic_border_color,
+        renderer
+
+    );
+}
+
+
+
+// =========================================================================================== CHOOSEN MASK AND FILE HIGHLIGHT
+
+
+
 
 
 // =========================================================================================== CLICK PERMISSION FUNCTIONS
@@ -2324,10 +2677,14 @@ bool next_state_permission_ms_1()
 void opencv_setup_ms_1()
 {
 
-    opencv_global_update_ctx.current_file_for_mask_setup = FILE_1_CF;
-    opencv_global_update_ctx.current_mask_for_mask_setup = MASK_1_CM;
+    // opencv_global_update_ctx.current_file_for_mask_setup = FILE_1_CF; 
+    // opencv_global_update_ctx.current_mask_for_mask_setup = MASK_1_CM;
+    // opencv_global_update_ctx.current_frame_processor = mask_1_processing_ms_1;
+    choosen_mask_and_file_init();
+
+
     opencv_global_update_ctx.current_texture_container = Video_preview_texture_ms_1;
-    opencv_global_update_ctx.current_frame_processor = nullptr;
+
     opencv_global_update_ctx.playback_state = VIDEO_PAUSED_VPS;
     opencv_global_update_ctx.current_frame_index = 0;
 
