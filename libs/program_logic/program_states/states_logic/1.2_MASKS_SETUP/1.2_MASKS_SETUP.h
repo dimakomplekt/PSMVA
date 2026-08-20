@@ -20,6 +20,9 @@
 // For frame processor
 #include <functional>
 
+#include <cmath>   // Для std::atan2
+#include <cstdio>  // Для std::snprintf
+
 // =========================================================================================== IMPORT
 
 
@@ -67,6 +70,19 @@ inline constexpr std::array<int, 20> nozzle_diameters = {
 
 // =========================================================================================== GLOBAL DATA
 
+
+struct line_coefficients
+{
+
+    float a;
+    float b;
+    float c;
+
+    bool calculated;
+
+};
+
+
 // Mask for the nozzle detection
 struct nozzle_detection_mask
 {
@@ -86,6 +102,15 @@ struct nozzle_detection_mask
 
     // First update as 50% faders at everything
     bool initialized = false;
+
+
+    // Calculated values
+
+    float mm_in_pixel;
+
+    float basic_axe_angle;
+
+    line_coefficients axe_line_coefficients;
 
 };
 

@@ -484,6 +484,16 @@ void file_masks_faders_init_ms_1()
 
         // Block next 50% reinit
         masks_data.file_1_masks.nozzle_mask.initialized = true;
+
+        masks_data.file_1_masks.nozzle_mask.mm_in_pixel = 0.0f;
+
+        masks_data.file_1_masks.nozzle_mask.basic_axe_angle = 0.0f;
+
+        masks_data.file_1_masks.nozzle_mask.axe_line_coefficients.a = 0.0f;
+        masks_data.file_1_masks.nozzle_mask.axe_line_coefficients.b = 0.0f;
+        masks_data.file_1_masks.nozzle_mask.axe_line_coefficients.c = 0.0f;
+
+        masks_data.file_1_masks.nozzle_mask.axe_line_coefficients.calculated = false;
     }
     else
     {
@@ -2427,38 +2437,321 @@ void mask_1_processing_ms_1(cv::Mat* frame)
 
     // Mask processing logic
 
-    const std::string text = "MASK_1";
+
+    // ===== MASK SETUP LOGIC =====
+
+    nozzle_detection_mask* controlled_mask = &masks_data.file_1_masks.nozzle_mask;
+
+    // Need or not to show axe line and precalculate scale
+    // Always show if 2 points are not the same
+    bool show_axe_and_calculate_scale = !(
+
+        (controlled_mask->x_1 == controlled_mask->x_2) && 
+        (controlled_mask->y_1 == controlled_mask->y_2)
+
+    );
+
+    // No more job here in basic case
+    if (!show_axe_and_calculate_scale) 
+    {
+        // reinit
+
+        controlled_mask->mm_in_pixel = 0.0f;
+
+        controlled_mask->basic_axe_angle = 0.0f;
+
+        controlled_mask->axe_line_coefficients.a = 0.0f;
+        controlled_mask->axe_line_coefficients.b = 0.0f;
+        controlled_mask->axe_line_coefficients.c = 0.0f;
+
+        controlled_mask->axe_line_coefficients.calculated = false;
+
+
+        return;
+    }
+
+    // else
+
+    // This mask is only mask with precalculation (no calculation on the next step)
+
+    /*
+
+        0) Put a green and red crosshair at 2 points ((controlled_mask->x_1, controlled_mask->y_1) 
+        and (controlled_mask->x_2, controlled_mask->y_2))
+
+        Crosshair: lines: 5px length, 2px width 2 on 2 pixels Center Dot (Center Gap)
+
+        1) Determine the coefficients of the line equation for the line connecting two selected points.
+
+        2) Find the midpoint between them, then calculate the coefficients of the equation for the line that is
+        perpendicular to the first line and passes through that midpoint.
+
+        3) Identify two points at the edges of the visibility zone that lie on this second line.
+
+        4) Draw a dashed blue line with a thickness of 3 pixels connecting these two points.
+
+        5) Calculate the scale (controlled_mask->mm_in_pixels by distance between 2 choosen points and 
+        controlled_mask->d_n)
+
+        6) Save calculated data
+
+    */
+
+    // === 1st step === 
+
+    auto draw_crosshair = [](cv::Mat& img, int cx, int cy, const cv::Scalar& color) 
+    {
+        int length = 5;
+        int thickness = 2;
+        int gap = 2;
+        cv::Size img_size = img.size();
+
+        // Лямбда для безопасного рисования линии с предварительным клиппингом
+        auto safe_line = [&](cv::Point p_1, cv::Point p_2) 
+        {
+            // clipLine возвращает true, если линия хотя бы частично внутри кадра
+            if (cv::clipLine(img_size, p_1, p_2)) {
+                cv::line(img, p_1, p_2, color, thickness);
+            }
+        };
+
+        // Левая линия
+        safe_line(cv::Point(cx - gap - length, cy), cv::Point(cx - gap, cy));
+        // Правая линия
+        safe_line(cv::Point(cx + gap, cy), cv::Point(cx + gap + length, cy));
+        // Верхняя линия
+        safe_line(cv::Point(cx, cy - gap - length), cv::Point(cx, cy - gap));
+        // Нижняя линия
+        safe_line(cv::Point(cx, cy + gap), cv::Point(cx, cy + gap + length));
+    };
+
+
+    draw_crosshair(*frame, controlled_mask->x_1, controlled_mask->y_1, cv::Scalar(0, 255, 0)); // Зеленый
+    draw_crosshair(*frame, controlled_mask->x_2, controlled_mask->y_2, cv::Scalar(0, 0, 255)); // Красный
+    
+    
+    // === 2nd step === 
+
+    // =========================================================================
+    // 1) Коэффициенты исходной прямой: a_1*x + b_1*y + c_1 = 0
+    // =========================================================================
+
+    double x_1 = controlled_mask->x_1;
+    double y_1 = controlled_mask->y_1;
+    double x_2 = controlled_mask->x_2;
+    double y_2 = controlled_mask->y_2;
+
+    // Формула прямой через две точки: (y_1 - y_2)*x + (x_2 - x_1)*y + (x_1*y_2 - x_2*y_1) = 0
+    double a_1 = y_1 - y_2;
+    double b_1 = x_2 - x_1;
+    double c_1 = x_1 * y_2 - x_2 * y_1;
+
+
+    // =========================================================================
+    // 2) Поиск средней точки и коэффициентов перпендикуляра: a_2*x + b_2*y + c_2 = 0
+    // =========================================================================
+    
+    // Координаты центра между двумя точками
+    double mid_x = (x_1 + x_2) / 2.0;
+    double mid_y = (y_1 + y_2) / 2.0;
+
+    // Для перпендикуляра инвертируем и меняем местами коэффициенты
+    double a_2 = -b_1; 
+    double b_2 = a_1;
+
+    // Находим c_2 из условия прохождения через среднюю точку:
+    double c_2 = -(a_2 * mid_x + b_2 * mid_y);
+
+
+    // === 3rd step === 
+
+    std::vector<cv::Point> edge_points;
+
+    const double epsilon = 1e-5;
+
+    int cols = frame->cols;
+    int rows = frame->rows;
+
+    // Пересечение с левой границей (x = 0)
+    if (std::abs(b_2) > epsilon) 
+    {
+        double y = -c_2 / b_2;
+
+        if (y >= 0 && y < rows) 
+        {
+            edge_points.push_back(cv::Point(0, std::round(y)));
+        }
+    }
+
+    // Пересечение с правой границей (x = cols - 1)
+    if (std::abs(b_2) > epsilon) 
+    {
+        double y = -(a_2 * (cols - 1) + c_2) / b_2;
+
+        if (y >= 0 && y < rows) 
+        {
+            edge_points.push_back(cv::Point(cols - 1, std::round(y)));
+        }
+    }
+
+    // Пересечение с верхней границей (y = 0)
+    if (std::abs(a_2) > epsilon) {
+        double x = -c_2 / a_2;
+        if (x >= 0 && x < cols) {
+            edge_points.push_back(cv::Point(std::round(x), 0));
+        }
+    }
+
+    // Пересечение с нижней границей (y = rows - 1)
+    if (std::abs(a_2) > epsilon) 
+    {
+        double x = -(b_2 * (rows - 1) + c_2) / a_2;
+
+        if (x >= 0 && x < cols) 
+        {
+            edge_points.push_back(cv::Point(std::round(x), rows - 1));
+        }
+    }
+
+
+    // === 4th step === 
+
+    if (edge_points.size() >= 2) 
+    {
+        // Берем первые две найденные точки пересечения с границами
+        cv::Point p_start = edge_points[0];
+        cv::Point p_end = edge_points[1];
+
+        // Инициализируем итератор линии (8-связность для непрерывного прохода)
+        cv::LineIterator line_it(*frame, p_start, p_end, 8);
+        
+        int dash_length = 10;   // Длина закрашенного штриха в пикселях
+        int space_length = 10;  // Длина пустого пространства в пикселях
+        int current_step = 0;
+
+        for (int i = 0; i < line_it.count; ++i, ++line_it) 
+        {
+            // Если мы находимся в пределах длины штриха — рисуем пиксель
+            if (current_step < dash_length) 
+            {
+                // Синий цвет в BGR — cv::Scalar(255, 0, 0)
+                // Толщина 3px создается закрашенным кругом с радиусом 1 (диаметр = 3 пикселя)
+                cv::circle(*frame, line_it.pos(), 1, cv::Scalar(255, 0, 0), -1);
+            }
+            
+            // Сбрасываем шаг по достижении полной длины одного цикла (штрих + пробел)
+            current_step = (current_step + 1) % (dash_length + space_length);
+        }
+    }
+
+
+    // === 5th step === 
+
+    double delta_x = x_2 - x_1;
+    double delta_y = y_2 - y_1;
+    double distance_pixels = std::hypot(delta_x, delta_y);
+    
+    // Защита от деления на ноль (если точки совпали, масштаб равен 0)
+    if (distance_pixels > epsilon) 
+    {
+        // d_n — это реальный диаметр сопла в мм. 
+        // Делим мм на пиксели, чтобы узнать, сколько мм в одном пикселе.
+        controlled_mask->mm_in_pixel = controlled_mask->d_n / distance_pixels;
+    } 
+    else 
+    {
+        controlled_mask->mm_in_pixel = 0.0;
+    }
+
+    // === 6th step === 
+
+    // 1. Запись коэффициентов перпендикулярной (осевой) линии
+    controlled_mask->axe_line_coefficients.a = static_cast<float>(a_2);
+    controlled_mask->axe_line_coefficients.b = static_cast<float>(b_2);
+    controlled_mask->axe_line_coefficients.c = static_cast<float>(c_2);
+    controlled_mask->axe_line_coefficients.calculated = true;
+
+    // 2. Расчет угла наклона оси относительно базовой горизонтали экрана
+    double angle_rad = std::atan2(a_2, -b_2);
+
+    // Переводим радианы в градусы (от -180 до 180) с использованием M_PI из C++17
+    #ifndef M_PI
+    #define M_PI 3.14159265358979323846
+    #endif
+
+    // Need to reverse)
+    controlled_mask->basic_axe_angle = -static_cast<float>(angle_rad * 180.0 / M_PI);
+
+
+    // === Bonus step ===
+
+    // Render main calculated values
+
+    
+    // ===== MASK MAIN CALCULATED VALUES ===== 
 
     int font_face = cv::FONT_HERSHEY_SIMPLEX;
     double font_scale = 1.0;
-    int thickness = 2;
 
-    int baseline = 0;
 
-    cv::Size text_size = cv::getTextSize(
-        text,
-        font_face,
-        font_scale,
-        thickness,
-        &baseline
-    );
+    char scale_str[64];
+    char angle_str[64];
 
-    int x = (frame->cols) - 1 * text_size.width - 10;
-    int y = (frame->rows) - 10;
+    std::snprintf(scale_str, sizeof(scale_str), "Scale: %.4f mm/px", controlled_mask->mm_in_pixel);
+    std::snprintf(angle_str, sizeof(angle_str), "Angle: %.2f deg", controlled_mask->basic_axe_angle);
+
+    // Шрифт в 2 раза меньше базового, толщина 1
+    double text_scale = font_scale * 0.5;
+    int text_thickness = 1; 
+    int text_baseline = 0;
+
+    // Считаем метрики для первой строки, чтобы идеально выровнять по правому краю
+    cv::Size scale_size = cv::getTextSize(scale_str, font_face, text_scale, text_thickness, &text_baseline);
+    cv::Size angle_size = cv::getTextSize(angle_str, font_face, text_scale, text_thickness, &text_baseline);
+
+    // Желтый цвет в формате BGR
+    cv::Scalar yellow_color(0, 255, 255);
+
+    // Координаты для 1-й строки (Масштаб): отступ 10px сверху, выравнивание по правому краю кадра
+    int top_x_scale = frame->cols - scale_size.width - 10;
+    int top_y_scale = scale_size.height + 10; 
 
     cv::putText(
+
         *frame,
-        text,
-        cv::Point(x, y),
+        scale_str,
+        cv::Point(top_x_scale, top_y_scale),
         font_face,
-        font_scale,
-        cv::Scalar(0, 255, 0),
-        thickness,
+        text_scale,
+        yellow_color,
+        text_thickness,
         cv::LINE_AA
+
     );
 
+    // Координаты для 2-й строки (Угол): встает строго под первой строкой с учетом базовой линии
+    int top_x_angle = frame->cols - angle_size.width - 10;
+    int top_y_angle = top_y_scale + angle_size.height + text_baseline + 8; // 8 пикселей — аккуратный межстрочный интервал
+
+    cv::putText(
+
+        *frame,
+        angle_str,
+        cv::Point(top_x_angle, top_y_angle),
+        font_face,
+        text_scale,
+        yellow_color,
+        text_thickness,
+        cv::LINE_AA
+
+    );
+    
+    // ===== MASK MAIN CALCULATED VALUES ===== 
+
+    // ===== MASK SETUP LOGIC =====
 
 }
+
 
 void mask_2_processing_ms_1(cv::Mat* frame)
 {

@@ -103,5 +103,21 @@ target_include_directories(PSMVA PRIVATE ${OpenCV_INCLUDE_DIRS})
 
 )
 
+# ---------------- dll copying for OpenCV ----------------
+
+add_custom_command(TARGET PSMVA POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "C:/opencv/build/bin/opencv_videoio_ffmpeg500_64.dll"
+        "$<TARGET_FILE_DIR:PSMVA>"
+)
+
+add_custom_command(TARGET PSMVA POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "C:/opencv/build/x64/vc16/bin/opencv_world500.dll"
+        "$<TARGET_FILE_DIR:PSMVA>"
+)
+
+
+
 
 target_compile_options(PSMVA PRIVATE /utf-8)

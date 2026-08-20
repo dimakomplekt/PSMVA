@@ -119,7 +119,7 @@
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
     <PostBuildEvent>
-      <Message>			</Message>
+      <Message>					</Message>
       <Command>setlocal
 C:\DEVTOOLS\CMAKE\bin\cmake.exe -E copy_if_different C:/creator/it/programs/cpp/PSMVA/libs/engine/SDL3_image-3.4.4/lib/x64/SDL3_image.dll C:/creator/it/programs/cpp/PSMVA/build/Debug
 if %errorlevel% neq 0 goto :cmEnd
@@ -149,6 +149,24 @@ exit /b %1
 if %errorlevel% neq 0 goto :VCEnd
 setlocal
 C:\DEVTOOLS\CMAKE\bin\cmake.exe -E copy_directory C:/creator/it/programs/cpp/PSMVA/libs/program_gui/basic_elements/content C:/creator/it/programs/cpp/PSMVA/build/Debug/content
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+C:\DEVTOOLS\CMAKE\bin\cmake.exe -E copy_if_different C:/opencv/build/bin/opencv_videoio_ffmpeg500_64.dll C:/creator/it/programs/cpp/PSMVA/build/Debug
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+C:\DEVTOOLS\CMAKE\bin\cmake.exe -E copy_if_different C:/opencv/build/x64/vc16/bin/opencv_world500.dll C:/creator/it/programs/cpp/PSMVA/build/Debug
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -207,7 +225,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
     <PostBuildEvent>
-      <Message>			</Message>
+      <Message>					</Message>
       <Command>setlocal
 C:\DEVTOOLS\CMAKE\bin\cmake.exe -E copy_if_different C:/creator/it/programs/cpp/PSMVA/libs/engine/SDL3_image-3.4.4/lib/x64/SDL3_image.dll C:/creator/it/programs/cpp/PSMVA/build/Release
 if %errorlevel% neq 0 goto :cmEnd
@@ -237,6 +255,24 @@ exit /b %1
 if %errorlevel% neq 0 goto :VCEnd
 setlocal
 C:\DEVTOOLS\CMAKE\bin\cmake.exe -E copy_directory C:/creator/it/programs/cpp/PSMVA/libs/program_gui/basic_elements/content C:/creator/it/programs/cpp/PSMVA/build/Release/content
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+C:\DEVTOOLS\CMAKE\bin\cmake.exe -E copy_if_different C:/opencv/build/bin/opencv_videoio_ffmpeg500_64.dll C:/creator/it/programs/cpp/PSMVA/build/Release
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+C:\DEVTOOLS\CMAKE\bin\cmake.exe -E copy_if_different C:/opencv/build/x64/vc16/bin/opencv_world500.dll C:/creator/it/programs/cpp/PSMVA/build/Release
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -295,7 +331,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
     <PostBuildEvent>
-      <Message>			</Message>
+      <Message>					</Message>
       <Command>setlocal
 C:\DEVTOOLS\CMAKE\bin\cmake.exe -E copy_if_different C:/creator/it/programs/cpp/PSMVA/libs/engine/SDL3_image-3.4.4/lib/x64/SDL3_image.dll C:/creator/it/programs/cpp/PSMVA/build/MinSizeRel
 if %errorlevel% neq 0 goto :cmEnd
@@ -325,6 +361,24 @@ exit /b %1
 if %errorlevel% neq 0 goto :VCEnd
 setlocal
 C:\DEVTOOLS\CMAKE\bin\cmake.exe -E copy_directory C:/creator/it/programs/cpp/PSMVA/libs/program_gui/basic_elements/content C:/creator/it/programs/cpp/PSMVA/build/MinSizeRel/content
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+C:\DEVTOOLS\CMAKE\bin\cmake.exe -E copy_if_different C:/opencv/build/bin/opencv_videoio_ffmpeg500_64.dll C:/creator/it/programs/cpp/PSMVA/build/MinSizeRel
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+C:\DEVTOOLS\CMAKE\bin\cmake.exe -E copy_if_different C:/opencv/build/x64/vc16/bin/opencv_world500.dll C:/creator/it/programs/cpp/PSMVA/build/MinSizeRel
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -382,7 +436,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
     <PostBuildEvent>
-      <Message>			</Message>
+      <Message>					</Message>
       <Command>setlocal
 C:\DEVTOOLS\CMAKE\bin\cmake.exe -E copy_if_different C:/creator/it/programs/cpp/PSMVA/libs/engine/SDL3_image-3.4.4/lib/x64/SDL3_image.dll C:/creator/it/programs/cpp/PSMVA/build/RelWithDebInfo
 if %errorlevel% neq 0 goto :cmEnd
@@ -412,6 +466,24 @@ exit /b %1
 if %errorlevel% neq 0 goto :VCEnd
 setlocal
 C:\DEVTOOLS\CMAKE\bin\cmake.exe -E copy_directory C:/creator/it/programs/cpp/PSMVA/libs/program_gui/basic_elements/content C:/creator/it/programs/cpp/PSMVA/build/RelWithDebInfo/content
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+C:\DEVTOOLS\CMAKE\bin\cmake.exe -E copy_if_different C:/opencv/build/bin/opencv_videoio_ffmpeg500_64.dll C:/creator/it/programs/cpp/PSMVA/build/RelWithDebInfo
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+C:\DEVTOOLS\CMAKE\bin\cmake.exe -E copy_if_different C:/opencv/build/x64/vc16/bin/opencv_world500.dll C:/creator/it/programs/cpp/PSMVA/build/RelWithDebInfo
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
