@@ -118,7 +118,22 @@ struct nozzle_detection_mask
 // Mask for the nozzle detection
 struct jet_detection_mask
 {
+    // Hue limits
+    int h_min;
+    int h_max;
 
+    // Saturation limits
+    int s_min;
+    int s_max;
+
+    // Value limits
+    int v_min;
+    int v_max;
+
+    // First update as 50% faders at everything
+    bool initialized = false;
+
+    // No precalculation here
 };
 
 

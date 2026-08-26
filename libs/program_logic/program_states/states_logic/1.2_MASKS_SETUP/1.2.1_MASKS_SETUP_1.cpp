@@ -144,6 +144,9 @@ My_SDL_fader* Mask_2_par_4_fader_ms_1 = nullptr;
 My_SDL_textbox* Mask_2_par_5_textbox_ms_1 = nullptr;
 My_SDL_fader* Mask_2_par_5_fader_ms_1 = nullptr;
 
+My_SDL_textbox* Mask_2_par_6_textbox_ms_1 = nullptr;
+My_SDL_fader* Mask_2_par_6_fader_ms_1 = nullptr;
+
 
 My_SDL_panel* Mask_2_setup_panel_ms_1 = nullptr;
 
@@ -467,7 +470,7 @@ void m_1_dn_update_ms_1()
 }
 
 
-void file_masks_faders_init_ms_1()
+void mask_1_faders_init_ms_1()
 {
 
     // 1st call / 2nd call
@@ -564,6 +567,368 @@ void file_masks_faders_init_ms_1()
 
 
 
+// ===== MASK 2 =====
+
+void m_2_h_min_update_ms_1()
+{
+    int choosen_h_min = Mask_2_par_1_fader_ms_1->fader_value_to_int_from_range(
+
+        0,
+        179
+
+    );
+
+    // Overcome check
+    if (choosen_h_min >= masks_data.file_1_masks.jet_mask.h_max)
+    {
+        // Correct value
+        choosen_h_min = masks_data.file_1_masks.jet_mask.h_max - 1;
+
+        // Correct fader position
+        Mask_2_par_1_fader_ms_1->set_fader_value_by_int_from_range(
+
+            choosen_h_min,
+            0,
+            179
+        
+        );
+    }
+
+    std::string mask_2_par_1_curr_value_to_show = 
+
+        "HUE minimal: " + 
+        std::to_string(choosen_h_min) + ".";
+
+
+    Mask_2_par_1_textbox_ms_1->set_content(mask_2_par_1_curr_value_to_show);
+
+
+    // Update value
+    masks_data.file_1_masks.jet_mask.h_min = choosen_h_min;
+}
+
+
+void m_2_h_max_update_ms_1()
+{
+    int choosen_h_max = Mask_2_par_2_fader_ms_1->fader_value_to_int_from_range(
+
+        0,
+        179
+
+    );
+
+
+    // Overcome check
+    if (choosen_h_max <= masks_data.file_1_masks.jet_mask.h_min)
+    {
+        // Correct value
+        choosen_h_max = masks_data.file_1_masks.jet_mask.h_min + 1;
+
+        // Correct fader position
+        Mask_2_par_2_fader_ms_1->set_fader_value_by_int_from_range(
+
+            choosen_h_max,
+            0,
+            179
+        
+        );
+    }
+
+
+
+    std::string mask_2_par_2_curr_value_to_show = 
+
+        "HUE maximal: " + 
+        std::to_string(choosen_h_max) + ".";
+
+
+    Mask_2_par_2_textbox_ms_1->set_content(mask_2_par_2_curr_value_to_show);
+
+
+    // Update value
+    masks_data.file_1_masks.jet_mask.h_max = choosen_h_max;
+}
+
+
+void m_2_s_min_update_ms_1()
+{
+    int choosen_s_min = Mask_2_par_3_fader_ms_1->fader_value_to_int_from_range(
+
+        0,
+        255
+
+    );
+
+
+    // Overcome check
+    if (choosen_s_min >= masks_data.file_1_masks.jet_mask.s_max)
+    {
+        // Correct value
+        choosen_s_min = masks_data.file_1_masks.jet_mask.s_max - 1;
+
+        // Correct fader position
+        Mask_2_par_3_fader_ms_1->set_fader_value_by_int_from_range(
+
+            choosen_s_min,
+            0,
+            255
+        
+        );
+    }
+
+
+    std::string mask_2_par_3_curr_value_to_show = 
+
+        "SAT minimal: " + 
+        std::to_string(choosen_s_min) + ".";
+
+
+    Mask_2_par_3_textbox_ms_1->set_content(mask_2_par_3_curr_value_to_show);
+
+
+    // Update value
+    masks_data.file_1_masks.jet_mask.s_min = choosen_s_min;
+}
+
+
+void m_2_s_max_update_ms_1()
+{
+    int choosen_s_max = Mask_2_par_4_fader_ms_1->fader_value_to_int_from_range(
+
+        0,
+        255
+
+    );
+
+
+    // Overcome check
+    if (choosen_s_max <= masks_data.file_1_masks.jet_mask.s_min)
+    {
+        // Correct value
+        choosen_s_max = masks_data.file_1_masks.jet_mask.s_min + 1;
+
+        // Correct fader position
+        Mask_2_par_4_fader_ms_1->set_fader_value_by_int_from_range(
+
+            choosen_s_max,
+            0,
+            255
+        
+        );
+    }
+
+
+    std::string mask_2_par_4_curr_value_to_show = 
+
+        "SAT maximal: " + 
+        std::to_string(choosen_s_max) + ".";
+
+
+    Mask_2_par_4_textbox_ms_1->set_content(mask_2_par_4_curr_value_to_show);
+
+
+    // Update value
+    masks_data.file_1_masks.jet_mask.s_max = choosen_s_max;
+}
+
+
+void m_2_v_min_update_ms_1()
+{
+    int choosen_v_min = Mask_2_par_5_fader_ms_1->fader_value_to_int_from_range(
+
+        0,
+        255
+
+    );
+
+
+    // Overcome check
+    if (choosen_v_min >= masks_data.file_1_masks.jet_mask.v_max)
+    {
+        // Correct value
+        choosen_v_min = masks_data.file_1_masks.jet_mask.v_max - 1;
+
+        // Correct fader position
+        Mask_2_par_5_fader_ms_1->set_fader_value_by_int_from_range(
+
+            choosen_v_min,
+            0,
+            255
+        
+        );
+    }
+
+
+    std::string mask_2_par_5_curr_value_to_show = 
+
+        "VAL minimal: " + 
+        std::to_string(choosen_v_min) + ".";
+
+
+    Mask_2_par_5_textbox_ms_1->set_content(mask_2_par_5_curr_value_to_show);
+
+
+    // Update value
+    masks_data.file_1_masks.jet_mask.v_min = choosen_v_min;
+}
+
+
+void m_2_v_max_update_ms_1()
+{
+    int choosen_v_max = Mask_2_par_6_fader_ms_1->fader_value_to_int_from_range(
+
+        0,
+        255
+
+    );
+
+    // Overcome check
+    if (choosen_v_max <= masks_data.file_1_masks.jet_mask.v_min)
+    {
+        // Correct value
+        choosen_v_max = masks_data.file_1_masks.jet_mask.v_min + 1;
+
+        // Correct fader position
+        Mask_2_par_6_fader_ms_1->set_fader_value_by_int_from_range(
+
+            choosen_v_max,
+            0,
+            255
+        
+        );
+    }
+
+    std::string mask_2_par_6_curr_value_to_show = 
+
+        "VAL maximal: " + 
+        std::to_string(choosen_v_max) + ".";
+
+
+    Mask_2_par_6_textbox_ms_1->set_content(mask_2_par_6_curr_value_to_show);
+
+
+    // Update value
+    masks_data.file_1_masks.jet_mask.v_max = choosen_v_max;
+}
+
+
+
+
+void mask_2_faders_init_ms_1()
+{
+
+    // 1st call / 2nd call
+
+    // ===== MASK 1 =====
+    
+    if (!masks_data.file_1_masks.jet_mask.initialized)
+    {
+        Mask_2_par_1_fader_ms_1->set_fader_value(0.0);
+        Mask_2_par_2_fader_ms_1->set_fader_value(1.0);
+        Mask_2_par_3_fader_ms_1->set_fader_value(0.0);
+        Mask_2_par_4_fader_ms_1->set_fader_value(1.0);
+        Mask_2_par_5_fader_ms_1->set_fader_value(0.0);
+        Mask_2_par_6_fader_ms_1->set_fader_value(1.0);
+
+
+        masks_data.file_1_masks.jet_mask.h_min = 0;
+        masks_data.file_1_masks.jet_mask.h_max = 179;
+
+        masks_data.file_1_masks.jet_mask.s_min = 0;
+        masks_data.file_1_masks.jet_mask.s_max = 255;
+
+        masks_data.file_1_masks.jet_mask.v_min = 0;
+        masks_data.file_1_masks.jet_mask.v_max = 255;
+
+        // Block next 50% reinit
+        masks_data.file_1_masks.jet_mask.initialized = true;
+    }
+    else
+    {
+        // Set the fader know and value, according to the early choosen
+
+        // h_min parameter value
+        Mask_2_par_1_fader_ms_1->set_fader_value_by_int_from_range(
+
+            masks_data.file_1_masks.jet_mask.h_min,
+            0,
+            179
+        
+        );
+
+        // h_max parameter value
+        Mask_2_par_2_fader_ms_1->set_fader_value_by_int_from_range(
+
+            masks_data.file_1_masks.jet_mask.h_max,
+            0,
+            179
+        
+        );
+
+
+        // s_min parameter value
+        Mask_2_par_3_fader_ms_1->set_fader_value_by_int_from_range(
+
+            masks_data.file_1_masks.jet_mask.s_min,
+            0,
+            255
+        
+        );
+
+        // s_max parameter value
+        Mask_2_par_4_fader_ms_1->set_fader_value_by_int_from_range(
+
+            masks_data.file_1_masks.jet_mask.s_max,
+            0,
+            255
+        
+        );
+
+
+        // v_min parameter value
+        Mask_2_par_5_fader_ms_1->set_fader_value_by_int_from_range(
+
+            masks_data.file_1_masks.jet_mask.v_min,
+            0,
+            255
+        
+        );
+
+        // v_max parameter value
+        Mask_2_par_6_fader_ms_1->set_fader_value_by_int_from_range(
+
+            masks_data.file_1_masks.jet_mask.v_max,
+            0,
+            255
+        
+        );
+
+    }
+
+
+    
+    m_2_h_min_update_ms_1();
+    m_2_h_max_update_ms_1();
+
+    m_2_s_min_update_ms_1();
+    m_2_s_max_update_ms_1();
+
+    m_2_v_min_update_ms_1();
+    m_2_v_max_update_ms_1();
+
+
+    // ===== MASK 1 =====
+}
+
+// ===== MASK 2 =====
+
+
+// ===== MASK 3 =====
+
+
+// ===== MASK 3 =====
+
+
 // =========================================================================================== HELPERS
 
 
@@ -586,7 +951,10 @@ void masks_setup_1_enter()
     // ===== Faders initiation / reinitiation =====
 
     // Need to be called before elements_setup
-    file_masks_faders_init_ms_1();
+
+    mask_1_faders_init_ms_1();
+    
+    mask_2_faders_init_ms_1();
 
     // ===== Faders initiation / reinitiation =====
 
@@ -770,6 +1138,12 @@ void masks_setup_1_elements_create()
 
     Mask_2_par_4_textbox_ms_1 = new My_SDL_textbox;
     Mask_2_par_4_fader_ms_1 = new My_SDL_fader;
+
+    Mask_2_par_5_textbox_ms_1 = new My_SDL_textbox;
+    Mask_2_par_5_fader_ms_1 = new My_SDL_fader;
+
+    Mask_2_par_6_textbox_ms_1 = new My_SDL_textbox;
+    Mask_2_par_6_fader_ms_1 = new My_SDL_fader;
 
     Mask_2_setup_panel_ms_1 = new My_SDL_panel;
 
@@ -1396,6 +1770,8 @@ void masks_setup_1_elements_setup()
 
 
 
+    // ====== Panel 1 elements =====
+
     // Mask 1 choose state - active at init
 
     Mask_1_setup_panel_ms_1->set_render_point(mask_setup_panel_x, mask_setup_panel_y);
@@ -1562,7 +1938,7 @@ void masks_setup_1_elements_setup()
 
 
 
-    // Mask 2 choose state - inactive at init
+    // ===== Mask 2 choose state - inactive at init =====
 
     // Out of screen
     Mask_2_setup_panel_ms_1->set_render_point(2 * mask_setup_panel_x, mask_setup_panel_y);
@@ -1573,58 +1949,77 @@ void masks_setup_1_elements_setup()
 
     // Panel 2 elements
 
-    Mask_2_par_1_textbox_ms_1->set_content("P1:");
+    Mask_2_par_1_textbox_ms_1->set_content("h_min:");
     Mask_2_par_1_textbox_ms_1->switch_textbox_type(ORDINARY_TEXT);
 
     Mask_2_par_1_fader_ms_1->set_knob_border_radius(5);
-    Mask_2_par_1_fader_ms_1->set_knob_size(faders_width * 0.15, faders_height);
+    Mask_2_par_1_fader_ms_1->set_knob_size(big_faders_width * 0.1, big_faders_height);
     Mask_2_par_1_fader_ms_1->set_slot_border_width_size(5);
-    Mask_2_par_1_fader_ms_1->set_slot_size(faders_width, faders_height * 0.25);
+    Mask_2_par_1_fader_ms_1->set_slot_size(big_faders_width, big_faders_height * 0.25);
 
 
-    Mask_2_par_2_textbox_ms_1->set_content("P2:");
+    Mask_2_par_2_textbox_ms_1->set_content("h_max:");
     Mask_2_par_2_textbox_ms_1->switch_textbox_type(ORDINARY_TEXT);
 
     Mask_2_par_2_fader_ms_1->set_knob_border_radius(5);
-    Mask_2_par_2_fader_ms_1->set_knob_size(faders_width * 0.15, faders_height);
+    Mask_2_par_2_fader_ms_1->set_knob_size(big_faders_width * 0.1, big_faders_height);
     Mask_2_par_2_fader_ms_1->set_slot_border_width_size(5);
-    Mask_2_par_2_fader_ms_1->set_slot_size(faders_width, faders_height * 0.25);
+    Mask_2_par_2_fader_ms_1->set_slot_size(big_faders_width, big_faders_height * 0.25);
 
 
-    Mask_2_par_3_textbox_ms_1->set_content("P3:");
+    Mask_2_par_3_textbox_ms_1->set_content("s_min:");
     Mask_2_par_3_textbox_ms_1->switch_textbox_type(ORDINARY_TEXT);
 
     Mask_2_par_3_fader_ms_1->set_knob_border_radius(5);
-    Mask_2_par_3_fader_ms_1->set_knob_size(faders_width * 0.15, faders_height);
+    Mask_2_par_3_fader_ms_1->set_knob_size(big_faders_width * 0.1, big_faders_height);
     Mask_2_par_3_fader_ms_1->set_slot_border_width_size(5);
-    Mask_2_par_3_fader_ms_1->set_slot_size(faders_width, faders_height * 0.25);
+    Mask_2_par_3_fader_ms_1->set_slot_size(big_faders_width, big_faders_height * 0.25);
 
 
-    Mask_2_par_4_textbox_ms_1->set_content("P4:");
+    Mask_2_par_4_textbox_ms_1->set_content("s_max:");
     Mask_2_par_4_textbox_ms_1->switch_textbox_type(ORDINARY_TEXT);
 
     Mask_2_par_4_fader_ms_1->set_knob_border_radius(5);
-    Mask_2_par_4_fader_ms_1->set_knob_size(faders_width * 0.15, faders_height);
+    Mask_2_par_4_fader_ms_1->set_knob_size(big_faders_width * 0.1, big_faders_height);
     Mask_2_par_4_fader_ms_1->set_slot_border_width_size(5);
-    Mask_2_par_4_fader_ms_1->set_slot_size(faders_width, faders_height * 0.25);
+    Mask_2_par_4_fader_ms_1->set_slot_size(big_faders_width, big_faders_height * 0.25);
+
+    
+    Mask_2_par_5_textbox_ms_1->set_content("v_min:");
+    Mask_2_par_5_textbox_ms_1->switch_textbox_type(ORDINARY_TEXT);
+
+    Mask_2_par_5_fader_ms_1->set_knob_border_radius(5);
+    Mask_2_par_5_fader_ms_1->set_knob_size(big_faders_width * 0.1, big_faders_height);
+    Mask_2_par_5_fader_ms_1->set_slot_border_width_size(5);
+    Mask_2_par_5_fader_ms_1->set_slot_size(big_faders_width, big_faders_height * 0.25);
 
 
+    Mask_2_par_6_textbox_ms_1->set_content("v_max:");
+    Mask_2_par_6_textbox_ms_1->switch_textbox_type(ORDINARY_TEXT);
 
-    Mask_2_setup_panel_ms_1->add_element(
+    Mask_2_par_6_fader_ms_1->set_knob_border_radius(5);
+    Mask_2_par_6_fader_ms_1->set_knob_size(big_faders_width * 0.1, big_faders_height);
+    Mask_2_par_6_fader_ms_1->set_slot_border_width_size(5);
+    Mask_2_par_6_fader_ms_1->set_slot_size(big_faders_width, big_faders_height * 0.25);
 
-        Mask_2_par_1_textbox_ms_1,
-        1 * SCREEN_MARGIN_0 + 0.5 * faders_textboxes_width,
-        1 * SCREEN_MARGIN_0 + 0.5 *faders_textboxes_height,
-        1
 
-    );
+    // Update textboxes
+
+    m_2_h_min_update_ms_1();
+    m_2_h_max_update_ms_1();
+
+    m_2_s_min_update_ms_1();
+    m_2_s_max_update_ms_1();
+
+    m_2_v_min_update_ms_1();
+    m_2_v_max_update_ms_1();
 
 
     Mask_2_setup_panel_ms_1->add_element(
 
         Mask_2_par_1_fader_ms_1,
-        2 * SCREEN_MARGIN_0 + 1 * faders_textboxes_width + 0.5 * faders_width,
-        1 * SCREEN_MARGIN_0 + 0.5 *faders_textboxes_height,
+        1 * SCREEN_MARGIN_0 + 0.5 * big_faders_width,
+        1 * SCREEN_MARGIN_0 + 0.5 * big_faders_textboxes_height,
         1
 
     );
@@ -1632,9 +2027,9 @@ void masks_setup_1_elements_setup()
 
     Mask_2_setup_panel_ms_1->add_element(
 
-        Mask_2_par_2_textbox_ms_1,
-        1 * SCREEN_MARGIN_0 + 0.5 * faders_textboxes_width,
-        2 * SCREEN_MARGIN_0 + 1.5 * faders_textboxes_height,
+        Mask_2_par_1_textbox_ms_1,
+        2 * SCREEN_MARGIN_0 + 1 * big_faders_width + 0.5 * big_faders_textboxes_width,
+        1 * SCREEN_MARGIN_0 + 0.5 * big_faders_textboxes_height,
         1
 
     );
@@ -1643,8 +2038,8 @@ void masks_setup_1_elements_setup()
     Mask_2_setup_panel_ms_1->add_element(
 
         Mask_2_par_2_fader_ms_1,
-        2 * SCREEN_MARGIN_0 + 1 * faders_textboxes_width + 0.5 * faders_width,
-        2 * SCREEN_MARGIN_0 + 1.5 * faders_textboxes_height,
+        1 * SCREEN_MARGIN_0 + 0.5 * big_faders_width,
+        2 * SCREEN_MARGIN_0 + 1.5 * big_faders_textboxes_height,
         1
 
     );
@@ -1652,9 +2047,9 @@ void masks_setup_1_elements_setup()
 
     Mask_2_setup_panel_ms_1->add_element(
 
-        Mask_2_par_3_textbox_ms_1,
-        0.5 * mask_setup_panel_width + 1 * SCREEN_MARGIN_0 + 0.5 * faders_textboxes_width,
-        1 * SCREEN_MARGIN_0 + 0.5 *faders_textboxes_height,
+        Mask_2_par_2_textbox_ms_1,
+        2 * SCREEN_MARGIN_0 + 1 * big_faders_width + 0.5 * big_faders_textboxes_width,
+        2 * SCREEN_MARGIN_0 + 1.5 * big_faders_textboxes_height,
         1
 
     );
@@ -1663,8 +2058,8 @@ void masks_setup_1_elements_setup()
     Mask_2_setup_panel_ms_1->add_element(
 
         Mask_2_par_3_fader_ms_1,
-        0.5 * mask_setup_panel_width + 2 * SCREEN_MARGIN_0 + 1 * faders_textboxes_width + 0.5 * faders_width,
-        1 * SCREEN_MARGIN_0 + 0.5 *faders_textboxes_height,
+        1 * SCREEN_MARGIN_0 + 0.5 * big_faders_width,
+        3 * SCREEN_MARGIN_0 + 2.5 * big_faders_textboxes_height,
         1
 
     );
@@ -1672,9 +2067,9 @@ void masks_setup_1_elements_setup()
 
     Mask_2_setup_panel_ms_1->add_element(
 
-        Mask_2_par_4_textbox_ms_1,
-        0.5 * mask_setup_panel_width + 1 * SCREEN_MARGIN_0 + 0.5 * faders_textboxes_width,
-        2 * SCREEN_MARGIN_0 + 1.5 * faders_textboxes_height,
+        Mask_2_par_3_textbox_ms_1,
+        2 * SCREEN_MARGIN_0 + 1 * big_faders_width + 0.5 * big_faders_textboxes_width,
+        3 * SCREEN_MARGIN_0 + 2.5 * big_faders_textboxes_height,
         1
 
     );
@@ -1683,11 +2078,65 @@ void masks_setup_1_elements_setup()
     Mask_2_setup_panel_ms_1->add_element(
 
         Mask_2_par_4_fader_ms_1,
-        0.5 * mask_setup_panel_width + 2 * SCREEN_MARGIN_0 + 1 * faders_textboxes_width + 0.5 * faders_width,
-        2 * SCREEN_MARGIN_0 + 1.5 * faders_textboxes_height,
+        1 * SCREEN_MARGIN_0 + 0.5 * big_faders_width,
+        4 * SCREEN_MARGIN_0 + 3.5 * big_faders_textboxes_height,
         1
 
     );
+
+
+    Mask_2_setup_panel_ms_1->add_element(
+
+        Mask_2_par_4_textbox_ms_1,
+        2 * SCREEN_MARGIN_0 + 1 * big_faders_width + 0.5 * big_faders_textboxes_width,
+        4 * SCREEN_MARGIN_0 + 3.5 * big_faders_textboxes_height,
+        1
+
+    );
+
+    
+    Mask_2_setup_panel_ms_1->add_element(
+
+        Mask_2_par_5_fader_ms_1,
+        1 * SCREEN_MARGIN_0 + 0.5 * big_faders_width,
+        5 * SCREEN_MARGIN_0 + 4.5 * big_faders_textboxes_height,
+        1
+
+    );
+
+
+    Mask_2_setup_panel_ms_1->add_element(
+
+        Mask_2_par_5_textbox_ms_1,
+        2 * SCREEN_MARGIN_0 + 1 * big_faders_width + 0.5 * big_faders_textboxes_width,
+        5 * SCREEN_MARGIN_0 + 4.5 * big_faders_textboxes_height,
+        1
+
+    );
+
+
+    Mask_2_setup_panel_ms_1->add_element(
+
+        Mask_2_par_6_fader_ms_1,
+        1 * SCREEN_MARGIN_0 + 0.5 * big_faders_width,
+        6 * SCREEN_MARGIN_0 + 5.5 * big_faders_textboxes_height,
+        1
+
+    );
+
+
+    Mask_2_setup_panel_ms_1->add_element(
+
+        Mask_2_par_6_textbox_ms_1,
+        2 * SCREEN_MARGIN_0 + 1 * big_faders_width + 0.5 * big_faders_textboxes_width,
+        6 * SCREEN_MARGIN_0 + 5.5 * big_faders_textboxes_height,
+        1
+
+    );
+
+
+
+
 
 
 
@@ -2048,6 +2497,7 @@ void masks_setup_1_elements_update()
 
 
     // Update textbox only if value of fader been changed
+
     if (Mask_1_par_1_fader_ms_1->fader_value_changed_at_last_step())
         m_1_x_1_update_ms_1();
 
@@ -2066,6 +2516,24 @@ void masks_setup_1_elements_update()
 
     Mask_1_setup_panel_ms_1->update();
 
+
+    if (Mask_2_par_1_fader_ms_1->fader_value_changed_at_last_step())
+        m_2_h_min_update_ms_1();
+
+    if (Mask_2_par_2_fader_ms_1->fader_value_changed_at_last_step())
+        m_2_h_max_update_ms_1();
+
+    if (Mask_2_par_3_fader_ms_1->fader_value_changed_at_last_step())
+        m_2_s_min_update_ms_1();
+
+    if (Mask_2_par_4_fader_ms_1->fader_value_changed_at_last_step())
+        m_2_s_max_update_ms_1();
+
+    if (Mask_2_par_5_fader_ms_1->fader_value_changed_at_last_step())
+        m_2_v_min_update_ms_1();
+
+    if (Mask_2_par_6_fader_ms_1->fader_value_changed_at_last_step())
+        m_2_v_max_update_ms_1();
 
 
     Mask_2_setup_panel_ms_1->update();
@@ -2336,8 +2804,8 @@ void load_preset_ms_1()
     load_mask_preset(1);
  
     // Reinit faders
-    file_masks_faders_init_ms_1();
-
+    mask_1_faders_init_ms_1();
+    mask_2_faders_init_ms_1();
 }
 
 
@@ -2375,6 +2843,36 @@ void choose_mask_1_ms_1()
 
     opencv_global_update_ctx.current_mask_for_mask_setup = MASK_1_CM;
     opencv_global_update_ctx.current_frame_processor = mask_1_processing_ms_1;
+
+
+    // ===== Move panels =====
+
+    Mask_1_setup_panel_ms_1->move_to_point(
+
+        mask_setup_panel_x,
+        mask_setup_panel_y,
+        EXPONENTIAL,
+        300
+
+    );
+
+    Mask_2_setup_panel_ms_1->move_to_point(
+
+        2 * mask_setup_panel_x,
+        mask_setup_panel_y,
+        EXPONENTIAL,
+        300
+
+    );
+
+    Mask_3_setup_panel_ms_1->move_to_point(
+
+        2 * mask_setup_panel_x,
+        mask_setup_panel_y,
+        EXPONENTIAL,
+        300
+
+    );
 }
 
 
@@ -2393,6 +2891,36 @@ void choose_mask_2_ms_1()
 
     opencv_global_update_ctx.current_mask_for_mask_setup = MASK_2_CM;
     opencv_global_update_ctx.current_frame_processor = mask_2_processing_ms_1;
+
+
+    // ===== Move panels =====
+
+    Mask_1_setup_panel_ms_1->move_to_point(
+
+        2 * mask_setup_panel_x,
+        mask_setup_panel_y,
+        EXPONENTIAL,
+        300
+
+    );
+
+    Mask_2_setup_panel_ms_1->move_to_point(
+
+        mask_setup_panel_x,
+        mask_setup_panel_y,
+        EXPONENTIAL,
+        300
+
+    );
+
+    Mask_3_setup_panel_ms_1->move_to_point(
+
+        2 * mask_setup_panel_x,
+        mask_setup_panel_y,
+        EXPONENTIAL,
+        300
+
+    );
 }
 
 
@@ -2411,6 +2939,36 @@ void choose_mask_3_ms_1()
 
     opencv_global_update_ctx.current_mask_for_mask_setup = MASK_3_CM;
     opencv_global_update_ctx.current_frame_processor = mask_3_processing_ms_1;
+
+
+    // ===== Move panels =====
+
+    Mask_1_setup_panel_ms_1->move_to_point(
+
+        2 * mask_setup_panel_x,
+        mask_setup_panel_y,
+        EXPONENTIAL,
+        300
+
+    );
+
+    Mask_2_setup_panel_ms_1->move_to_point(
+
+        2 * mask_setup_panel_x,
+        mask_setup_panel_y,
+        EXPONENTIAL,
+        300
+
+    );
+
+    Mask_3_setup_panel_ms_1->move_to_point(
+
+        mask_setup_panel_x,
+        mask_setup_panel_y,
+        EXPONENTIAL,
+        300
+
+    );
 }
 
 
@@ -2753,43 +3311,189 @@ void mask_1_processing_ms_1(cv::Mat* frame)
 }
 
 
+// =========================================================================================== MASK 2 PROCESSING
+// =========================================================================================== MASK 2 PROCESSING
+
 void mask_2_processing_ms_1(cv::Mat* frame)
 {
-    if (!frame || frame->empty()) return;
+    if (!frame || frame->empty())
+        return;
 
-    // Mask processing logic
 
-    const std::string text = "MASK_2";
+    // =======================================================================================
+    // GET CONTROLLED MASK
 
-    int font_face = cv::FONT_HERSHEY_SIMPLEX;
-    double font_scale = 1.0;
-    int thickness = 2;
+    // Get current jet mask settings.
+    //
+    // This context contains the HSV boundaries selected by the user
+    // or loaded from a preset.
 
-    int baseline = 0;
+    jet_detection_mask* controlled_mask = &masks_data.file_1_masks.jet_mask;
 
-    cv::Size text_size = cv::getTextSize(
-        text,
-        font_face,
-        font_scale,
-        thickness,
-        &baseline
-    );
+    // =======================================================================================
+    // GET CONTROLLED MASK
 
-    int x = (frame->cols) - 1 * text_size.width - 10;
-    int y = (frame->rows) - 10;
 
-    cv::putText(
+    // =======================================================================================
+    // CHECK HSV RANGE
+
+    // The lower boundary must be strictly smaller than the upper boundary.
+    //
+    // H: 0..179
+    // S: 0..255
+    // V: 0..255
+
+    if (
+        controlled_mask->h_min >= controlled_mask->h_max ||
+        controlled_mask->s_min >= controlled_mask->s_max ||
+        controlled_mask->v_min >= controlled_mask->v_max
+    )
+    {
+        return;
+    }
+
+    // =======================================================================================
+    // CHECK HSV RANGE
+
+
+    // =======================================================================================
+    // BGR -> HSV
+
+    // Convert the source frame from BGR to HSV.
+    //
+    // HSV allows us to independently control:
+    //
+    //      H = Hue
+    //      S = Saturation
+    //      V = Value
+
+    cv::Mat image_hsv;
+
+    cv::cvtColor(
         *frame,
-        text,
-        cv::Point(x, y),
-        font_face,
-        font_scale,
-        cv::Scalar(0, 255, 0),
-        thickness,
-        cv::LINE_AA
+        image_hsv,
+        cv::COLOR_BGR2HSV
     );
 
+    // =======================================================================================
+    // BGR -> HSV
+
+
+    // =======================================================================================
+    // LIGHT GAUSSIAN BLUR
+
+    // Apply a very small blur to suppress small pixel-to-pixel
+    // fluctuations around the jet boundary.
+    //
+    // 3x3 is intentionally small.
+    //
+    // The purpose is to make the resulting binary boundary more stable
+    // without significantly changing the geometry of the detected jet.
+
+    cv::GaussianBlur(
+        image_hsv,
+        image_hsv,
+        cv::Size(3, 3),
+        0
+    );
+
+    // =======================================================================================
+    // LIGHT GAUSSIAN BLUR
+
+
+    // =======================================================================================
+    // CREATE HSV RANGE
+
+    cv::Scalar lower_color(
+
+        controlled_mask->h_min,
+        controlled_mask->s_min,
+        controlled_mask->v_min
+
+    );
+
+    cv::Scalar upper_color(
+
+        controlled_mask->h_max,
+        controlled_mask->s_max,
+        controlled_mask->v_max
+
+    );
+
+    // =======================================================================================
+    // CREATE HSV RANGE
+
+
+    // =======================================================================================
+    // CREATE BINARY MASK
+
+    // Pixels inside the selected HSV range become 255.
+    // Pixels outside the range become 0.
+    //
+    // Result:
+    //
+    //      255 = detected jet
+    //        0 = background
+
+    cv::Mat image_mask;
+
+    cv::inRange(
+        image_hsv,
+        lower_color,
+        upper_color,
+        image_mask
+    );
+
+    // =======================================================================================
+    // CREATE BINARY MASK
+
+
+    // =======================================================================================
+    // MASK -> BGR
+
+    // image_mask is CV_8UC1.
+    //
+    // The rest of the current rendering pipeline expects the frame
+    // to remain a 3-channel BGR image.
+    //
+    // Therefore convert the binary mask back to BGR before writing it
+    // into the main frame.
+    //
+    // Result:
+    //
+    //      detected jet  -> (255,255,255)
+    //      background    -> (0,0,0)
+
+    cv::Mat image_mask_bgr;
+
+    cv::cvtColor(
+
+        image_mask,
+        image_mask_bgr,
+        cv::COLOR_GRAY2BGR
+
+    );
+
+    // =======================================================================================
+    // MASK -> BGR
+
+
+    // =======================================================================================
+    // WRITE RESULT BACK TO FRAME
+
+    // Replace the current frame with the processed jet mask.
+    //
+    // IMPORTANT:
+    // frame remains CV_8UC3 BGR, so the next processing stage
+    // and the OpenCV -> SDL translation can continue working
+    // with the same image format.
+
+    image_mask_bgr.copyTo(*frame);
+
+    // =======================================================================================
+    // WRITE RESULT BACK TO FRAME
 }
+
 
 void mask_3_processing_ms_1(cv::Mat* frame)
 {
