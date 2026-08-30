@@ -335,7 +335,7 @@ void switch_video(const std::string& new_file_path);
 // (opencv_global_update_ctx) data 
 void opencv_global_update();
 
-
+void kingsize_window_close();
 
 void opencv_global_free_and_nullptr();
 

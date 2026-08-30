@@ -3704,7 +3704,12 @@ void opencv_render_by_translator_ms_1(SDL_Renderer* renderer)
 
 void opencv_free_and_nullptr_ms_1()
 {
-    // Nothing (check 1.2 state header to know why)
+    // Nothing more (check 1.2 state header to know why)
+    
+    kingsize_window_close();
+    
+    opencv_global_update_ctx.show_kingsize = false;
+    opencv_global_update_ctx.kingsize_live_transmission = false; 
 }
 
 // =========================================================================================== OPENCV PART OF THE STATE
