@@ -569,6 +569,8 @@ void mask_1_faders_init_ms_1()
 
 // ===== MASK 2 =====
 
+// Parameters update
+
 void m_2_h_min_update_ms_1()
 {
     int choosen_h_min = Mask_2_par_1_fader_ms_1->fader_value_to_int_from_range(
@@ -812,14 +814,12 @@ void m_2_v_max_update_ms_1()
 }
 
 
-
-
 void mask_2_faders_init_ms_1()
 {
 
     // 1st call / 2nd call
 
-    // ===== MASK 1 =====
+    // ===== MASK 2 =====
     
     if (!masks_data.file_1_masks.jet_mask.initialized)
     {
@@ -917,13 +917,40 @@ void mask_2_faders_init_ms_1()
     m_2_v_max_update_ms_1();
 
 
-    // ===== MASK 1 =====
+    // ===== MASK 2 =====
 }
 
 // ===== MASK 2 =====
 
 
 // ===== MASK 3 =====
+
+/*
+
+    PARTICLE DETECTION MASK
+    │
+    ├── PART 1: PIXEL FILTERING
+    │   ├── Brightness Min
+    │   ├── Brightness Max
+    │   ├── B Min
+    │   ├── B Max
+    │   ├── G Min
+    │   ├── G Max
+    │   ├── R Min
+    │   └── R Max
+    │
+    └── PART 2: TRAJECTORY FILTERING
+        ├── Canny Low
+        ├── Canny High
+        ├── Dilate Size
+        ├── Dilate Iterations
+        ├── Length Min
+        ├── Length Max
+        ├── Area Min
+        └── Area Max
+
+*/
+
 
 
 // ===== MASK 3 =====
@@ -945,7 +972,6 @@ void masks_setup_1_enter()
     masks_setup_1_elements_create();
 
     // ===== State allocation =====
-
 
 
     // ===== Faders initiation / reinitiation =====
@@ -3497,6 +3523,53 @@ void mask_2_processing_ms_1(cv::Mat* frame)
 
 void mask_3_processing_ms_1(cv::Mat* frame)
 {
+    /*
+                    ORIGINAL IMAGE
+                          │
+                          ▼
+                ┌───────────────────┐
+                │ Light Blur        │
+                │ optional          │
+                │ 1×1 / OFF         │
+                └─────────┬─────────┘
+                          │
+                          ▼
+              ┌───────────────────────┐
+              │ Brightness Threshold  │
+              │                       │
+              │ V > V_min             │
+              └───────────┬───────────┘
+                          │
+                          ▼
+              ┌───────────────────────┐
+              │ Color Filter          │
+              │                       │
+              │ B/G/R min/max         │
+              └───────────┬───────────┘
+                          │
+                          ▼
+                    FIRST MASK
+                          │
+                          │
+                    ──────┼──────
+                          │
+                          ▼
+                        CANNY
+                          │
+                          ▼
+                        DILATE
+                          │
+                          ▼
+                    AREA / LENGTH FILTERING
+                 min area / max area
+                 min length / max length
+                          │
+                          ▼
+                    FINAL MASK
+    
+    */
+
+
     if (!frame || frame->empty()) return;
 
     // Mask processing logic

@@ -137,10 +137,55 @@ struct jet_detection_mask
 };
 
 
-// Mask for the nozzle detection
+// Mask for the particle trajectory detection
 struct particle_detection_mask
 {
+    // =================================================
+    // Mask part 1 - pixel filtering
+    // =================================================
 
+    // Brightness limits
+    int brightness_min;
+    int brightness_max;
+
+    // Blue channel limits
+    int b_min;
+    int b_max;
+
+    // Green channel limits
+    int g_min;
+    int g_max;
+
+    // Red channel limits
+    int r_min;
+    int r_max;
+
+
+    // =================================================
+    // Mask part 2 - trajectory filtering
+    // =================================================
+
+    // Canny thresholds
+    int canny_low;
+    int canny_high;
+
+    // Dilate parameters
+    int dilate_size;
+    int dilate_iterations;
+
+    // Trajectory length limits
+    int length_min;
+    int length_max;
+
+    // Area limits
+    int area_min;
+    int area_max;
+
+
+    // First update as 50% faders at everything
+    bool initialized = false;
+
+    // No precalculation here
 };
 
 
