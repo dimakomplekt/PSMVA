@@ -146,7 +146,9 @@ enum controlled_submask_mask_3
     SUBMASK_2_CSM3,
 
     LIMIT_CSM3
-}
+    
+};
+
 
 // Mask for the particle trajectory detection
 struct particle_detection_mask
@@ -203,6 +205,7 @@ struct particle_detection_mask
 
     // No precalculation here
 };
+
 
 // Context for one file
 struct file_masks_data

@@ -212,8 +212,8 @@ My_SDL_fader* Mask_3_par_16_fader_ms_1 = nullptr;
 
 // Control submasks
 
-My_SDL_button Mask_3_first_part_but = nullptr;
-My_SDL_button Mask_3_second_part_but = nullptr;
+My_SDL_button* Mask_3_first_part_but = nullptr;
+My_SDL_button* Mask_3_second_part_but = nullptr;
 
 
 My_SDL_panel* Mask_3_setup_panel_ms_1 = nullptr;
@@ -313,15 +313,13 @@ struct mask_and_file_highlight_ctx
     int w_f;
     int h_f;
 
-    int highlight_line_width;
-    SDL_Color highlight_color;
+    int highlight_line_width = 5;
+    SDL_Color highlight_color = hex_to_sdl_color("#eaff00", 255);
 
 };
 
 mask_and_file_highlight_ctx highlight_mf_ms_1;
 
-highlight_mf_ms_1.highlight_color = hex_to_sdl_color("#eaff00", 255);
-highlight_mf_ms_1.highlight_line_width = 5;
 
 struct submask_highlight_ctx
 {
@@ -331,15 +329,13 @@ struct submask_highlight_ctx
     int w_sm;
     int h_sm;
 
-    int highlight_line_width;
-    SDL_Color highlight_color;
+    int highlight_line_width = 5;
+    SDL_Color highlight_color = hex_to_sdl_color("#eaff00", 255);
 
 };
 
-submask_highlight_ctx highlight_sm_ms_1;
 
-highlight_sm_ms_1.highlight_color = highlight_mf_ms_1.highlight_color;
-highlight_sm_ms_1.highlight_line_width = 5;
+submask_highlight_ctx highlight_sm_ms_1;
 
 
 void choosen_mask_and_file_init();
@@ -397,6 +393,8 @@ void opencv_free_and_nullptr_ms_1();
 
 
 // =========================================================================================== STATE INNER FUNCTIONS PREDECLARATION
+
+void mask_3_faders_init_ms_1();
 
 void masks_setup_1_elements_create();
 
@@ -552,7 +550,7 @@ void mask_1_faders_init_ms_1()
     // 1st call / 2nd call
 
     // ===== MASK 1 =====
-    
+
     if (!masks_data.file_1_masks.nozzle_mask.initialized)
     {
         Mask_1_par_1_fader_ms_1->set_fader_value(0.5);
@@ -1052,10 +1050,11 @@ void m_3_b_h_update_ms_1()
     
     );
 
+    std::string mask_3_par_1_curr_value_to_show;
 
     if (choosen_b_h != 0)
     {
-        std::string mask_3_par_1_curr_value_to_show = 
+        mask_3_par_1_curr_value_to_show = 
 
             "Blur horizontal: " + 
             std::to_string(choosen_b_h) + ".";
@@ -1098,10 +1097,11 @@ void m_3_b_v_update_ms_1()
     
     );
 
+    std::string mask_3_par_2_curr_value_to_show;
 
     if (choosen_b_v != 0)
     {
-        std::string mask_3_par_2_curr_value_to_show = 
+        mask_3_par_2_curr_value_to_show = 
 
             "Blur vertical: " + 
             std::to_string(choosen_b_v) + ".";
@@ -1708,44 +1708,56 @@ void mask_3_faders_init_ms_1()
 
     // ===== MASK 3 =====
     
-    if (!masks_data.file_1_masks.jet_mask.initialized)
+    if (!masks_data.file_1_masks.particle_mask.initialized)
     {
-        Mask_3_par_1_fader_ms_1->set_fader_value(0.5);
-        Mask_3_par_2_fader_ms_1->set_fader_value(0.5);
+        Mask_3_par_1_fader_ms_1->set_fader_value(0.0);
+        Mask_3_par_2_fader_ms_1->set_fader_value(0.0);
+
         Mask_3_par_3_fader_ms_1->set_fader_value(0.0);
         Mask_3_par_4_fader_ms_1->set_fader_value(1.0);
+
         Mask_3_par_5_fader_ms_1->set_fader_value(0.0);
         Mask_3_par_6_fader_ms_1->set_fader_value(1.0);
+
         Mask_3_par_7_fader_ms_1->set_fader_value(0.0);
         Mask_3_par_8_fader_ms_1->set_fader_value(1.0);
 
 
         Mask_3_par_9_fader_ms_1->set_fader_value(0.0);
         Mask_3_par_10_fader_ms_1->set_fader_value(1.0);
+
         Mask_3_par_11_fader_ms_1->set_fader_value(0.0);
         Mask_3_par_12_fader_ms_1->set_fader_value(0.0);
+
         Mask_3_par_13_fader_ms_1->set_fader_value(0.0);
         Mask_3_par_14_fader_ms_1->set_fader_value(1.0);
+
         Mask_3_par_15_fader_ms_1->set_fader_value(0.0);
         Mask_3_par_16_fader_ms_1->set_fader_value(1.0);
 
 
         masks_data.file_1_masks.particle_mask.b_h = 0;
-        masks_data.file_1_masks.particle_mask.b_v = 255;
+        masks_data.file_1_masks.particle_mask.b_v = 0;
+
         masks_data.file_1_masks.particle_mask.h_min = 0;
         masks_data.file_1_masks.particle_mask.h_max = 179;
+
         masks_data.file_1_masks.particle_mask.s_min = 0;
         masks_data.file_1_masks.particle_mask.s_max = 255;
+
         masks_data.file_1_masks.particle_mask.v_min = 0;
         masks_data.file_1_masks.particle_mask.v_max = 255; 
 
 
         masks_data.file_1_masks.particle_mask.canny_low = 0;
         masks_data.file_1_masks.particle_mask.canny_high = 255;
+
         masks_data.file_1_masks.particle_mask.dilate_size = 1;
         masks_data.file_1_masks.particle_mask.dilate_iterations = 1;
+
         masks_data.file_1_masks.particle_mask.length_min = 0;
         masks_data.file_1_masks.particle_mask.length_max = 100;
+        
         masks_data.file_1_masks.particle_mask.area_min = 0;
         masks_data.file_1_masks.particle_mask.area_max = 200;
 
@@ -1954,6 +1966,8 @@ void masks_setup_1_enter()
     mask_1_faders_init_ms_1();
     
     mask_2_faders_init_ms_1();
+
+    mask_3_faders_init_ms_1();
 
     // ===== Faders initiation / reinitiation =====
 
@@ -2324,7 +2338,7 @@ int big_faders_height = big_faders_textboxes_height;
 
 int p_3_margin = 15;
 
-int p_3_buttons_width = static_cast<int>(std::round((mask_setup_panel_width / 2.0));
+int p_3_buttons_width = static_cast<int>(std::round((mask_setup_panel_width / 2.0)));
 int p_3_buttons_height = 50;
 
 int p_3_margins_quantity_h = 9;
@@ -3299,8 +3313,7 @@ void masks_setup_1_elements_setup()
     Mask_3_par_9_fader_ms_1->set_knob_size(faders_width * 0.15, p_3_faders_knob_height);
     Mask_3_par_9_fader_ms_1->set_slot_border_width_size(1);
     Mask_3_par_9_fader_ms_1->set_slot_size(faders_width, p_3_faders_slot_height);
-    Mask_3_par_9_textbox_ms_1->set_visible_flag(false);
-    Mask_3_par_9_fader_ms_1->set_visible_flag(false);
+
 
 
     Mask_3_par_10_textbox_ms_1->set_content("C_HIGH:");
@@ -3309,8 +3322,7 @@ void masks_setup_1_elements_setup()
     Mask_3_par_10_fader_ms_1->set_knob_size(faders_width * 0.15, p_3_faders_knob_height);
     Mask_3_par_10_fader_ms_1->set_slot_border_width_size(1);
     Mask_3_par_10_fader_ms_1->set_slot_size(faders_width, p_3_faders_slot_height);
-    Mask_3_par_10_textbox_ms_1->set_visible_flag(false);
-    Mask_3_par_10_fader_ms_1->set_visible_flag(false);
+
 
 
     Mask_3_par_11_textbox_ms_1->set_content("D_SIZE:");
@@ -3319,8 +3331,6 @@ void masks_setup_1_elements_setup()
     Mask_3_par_11_fader_ms_1->set_knob_size(faders_width * 0.15, p_3_faders_knob_height);
     Mask_3_par_11_fader_ms_1->set_slot_border_width_size(1);
     Mask_3_par_11_fader_ms_1->set_slot_size(faders_width, p_3_faders_slot_height);
-    Mask_3_par_11_textbox_ms_1->set_visible_flag(false);
-    Mask_3_par_11_fader_ms_1->set_visible_flag(false);
 
 
     Mask_3_par_12_textbox_ms_1->set_content("D_ITER:");
@@ -3329,9 +3339,7 @@ void masks_setup_1_elements_setup()
     Mask_3_par_12_fader_ms_1->set_knob_size(faders_width * 0.15, p_3_faders_knob_height);
     Mask_3_par_12_fader_ms_1->set_slot_border_width_size(1);
     Mask_3_par_12_fader_ms_1->set_slot_size(faders_width, p_3_faders_slot_height);
-    Mask_3_par_12_textbox_ms_1->set_visible_flag(false);
-    Mask_3_par_12_fader_ms_1->set_visible_flag(false);
-
+   
 
     Mask_3_par_13_textbox_ms_1->set_content("L_MIN:");
     Mask_3_par_13_textbox_ms_1->switch_textbox_type(ORDINARY_TEXT);
@@ -3339,8 +3347,7 @@ void masks_setup_1_elements_setup()
     Mask_3_par_13_fader_ms_1->set_knob_size(faders_width * 0.15, p_3_faders_knob_height);
     Mask_3_par_13_fader_ms_1->set_slot_border_width_size(1);
     Mask_3_par_13_fader_ms_1->set_slot_size(faders_width, p_3_faders_slot_height);
-    Mask_3_par_13_textbox_ms_1->set_visible_flag(false);
-    Mask_3_par_13_fader_ms_1->set_visible_flag(false);
+    
 
     
     Mask_3_par_14_textbox_ms_1->set_content("L_MAX:");
@@ -3349,9 +3356,7 @@ void masks_setup_1_elements_setup()
     Mask_3_par_14_fader_ms_1->set_knob_size(faders_width * 0.15, p_3_faders_knob_height);
     Mask_3_par_14_fader_ms_1->set_slot_border_width_size(1);
     Mask_3_par_14_fader_ms_1->set_slot_size(faders_width, p_3_faders_slot_height);
-    Mask_3_par_14_textbox_ms_1->set_visible_flag(false);
-    Mask_3_par_14_fader_ms_1->set_visible_flag(false);
-
+   
 
     Mask_3_par_15_textbox_ms_1->set_content("A_MIN:");
     Mask_3_par_15_textbox_ms_1->switch_textbox_type(ORDINARY_TEXT);
@@ -3359,19 +3364,15 @@ void masks_setup_1_elements_setup()
     Mask_3_par_15_fader_ms_1->set_knob_size(faders_width * 0.15, p_3_faders_knob_height);
     Mask_3_par_15_fader_ms_1->set_slot_border_width_size(1);
     Mask_3_par_15_fader_ms_1->set_slot_size(faders_width, p_3_faders_slot_height);
-    Mask_3_par_15_textbox_ms_1->set_visible_flag(false);
-    Mask_3_par_15_fader_ms_1->set_visible_flag(false);
-
-
+    
+    
     Mask_3_par_16_textbox_ms_1->set_content("A_MAX:");
     Mask_3_par_16_textbox_ms_1->switch_textbox_type(ORDINARY_TEXT);
     Mask_3_par_16_fader_ms_1->set_knob_border_radius(1);
     Mask_3_par_16_fader_ms_1->set_knob_size(faders_width * 0.15, p_3_faders_knob_height);
     Mask_3_par_16_fader_ms_1->set_slot_border_width_size(1);
     Mask_3_par_16_fader_ms_1->set_slot_size(faders_width, p_3_faders_slot_height);
-    Mask_3_par_16_textbox_ms_1->set_visible_flag(false);
-    Mask_3_par_16_fader_ms_1->set_visible_flag(false);
-
+    
 
     // Switch submask buttons
 
@@ -3751,7 +3752,7 @@ void masks_setup_1_elements_setup()
 
         Mask_3_first_part_but,
         p_3_buttons_width * 0.5,
-        9 * p_3_margin + 8 * p_3_faders_knob_height + p_3_buttons_height * 0.5,
+        Mask_3_setup_panel_ms_1->get_height_size() - p_3_buttons_height * 0.5,
         1
 
     );
@@ -3761,10 +3762,28 @@ void masks_setup_1_elements_setup()
 
         Mask_3_second_part_but,
         p_3_buttons_width * 1.5,
-        9 * p_3_margin + 8 * p_3_faders_knob_height + p_3_buttons_height * 0.5,
+        Mask_3_setup_panel_ms_1->get_height_size() - p_3_buttons_height * 0.5,
         1
 
     );
+
+        
+    Mask_3_par_9_textbox_ms_1->set_visible_flag(false);
+    Mask_3_par_9_fader_ms_1->set_visible_flag(false);
+    Mask_3_par_10_textbox_ms_1->set_visible_flag(false);
+    Mask_3_par_10_fader_ms_1->set_visible_flag(false);
+    Mask_3_par_11_textbox_ms_1->set_visible_flag(false);
+    Mask_3_par_11_fader_ms_1->set_visible_flag(false);
+    Mask_3_par_12_textbox_ms_1->set_visible_flag(false);
+    Mask_3_par_12_fader_ms_1->set_visible_flag(false);
+    Mask_3_par_13_textbox_ms_1->set_visible_flag(false);
+    Mask_3_par_13_fader_ms_1->set_visible_flag(false);
+    Mask_3_par_14_textbox_ms_1->set_visible_flag(false);
+    Mask_3_par_14_fader_ms_1->set_visible_flag(false);
+    Mask_3_par_15_textbox_ms_1->set_visible_flag(false);
+    Mask_3_par_15_fader_ms_1->set_visible_flag(false);
+    Mask_3_par_16_textbox_ms_1->set_visible_flag(false);
+    Mask_3_par_16_fader_ms_1->set_visible_flag(false);
 
 
     // ===== Fill the panel 3 =====
@@ -4522,6 +4541,7 @@ void load_preset_ms_1()
     // Reinit faders
     mask_1_faders_init_ms_1();
     mask_2_faders_init_ms_1();
+    mask_3_faders_init_ms_1();
 }
 
 
@@ -5316,7 +5336,7 @@ void mask_3_processing_ms_1(cv::Mat* frame)
     // 0x0 means that blur is disabled.
     // 1x1 / 3x3 are valid blur sizes.
 
-    bool do_blur = !(controlled_mask->b_h == 0 && controlled_mask->b_v == 0);
+    bool do_blur = !(controlled_mask->b_h == 0 || controlled_mask->b_v == 0);
 
     if (do_blur)
     {
@@ -5394,6 +5414,9 @@ void mask_3_processing_ms_1(cv::Mat* frame)
                     │
                     ▼
                 AREA / LENGTH
+                    │
+                    ▼
+                  ERODE
                     │
                     ▼
                 FINAL MASK

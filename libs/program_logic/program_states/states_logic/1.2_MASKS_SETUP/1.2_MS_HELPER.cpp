@@ -722,6 +722,7 @@ bool load_mask_2_preset(
     // FORMAT CHECK
 
     bool jet_mask_found = false;
+    bool particle_mask_found = false;
 
     bool h_min_found = false;
     bool h_max_found = false;
@@ -760,10 +761,16 @@ bool load_mask_2_preset(
             jet_mask_found = true;
         }
 
+        else if (current_line == "PARTICLE_MASK")
+        {
+            particle_mask_found = true;
+        }
+
 
         // ===== H MIN =====
 
-        else if (current_line.rfind("H_MIN:", 0) == 0)
+        else if (current_line.rfind("H_MIN:", 0) == 0 &&
+             jet_mask_found && !particle_mask_found)
         {
             if (h_min_found)
             {
@@ -792,7 +799,8 @@ bool load_mask_2_preset(
 
         // ===== H MAX =====
 
-        else if (current_line.rfind("H_MAX:", 0) == 0)
+        else if (current_line.rfind("H_MAX:", 0) == 0 &&
+             jet_mask_found && !particle_mask_found)
         {
             if (h_max_found)
             {
@@ -821,7 +829,8 @@ bool load_mask_2_preset(
 
         // ===== S MIN =====
 
-        else if (current_line.rfind("S_MIN:", 0) == 0)
+        else if (current_line.rfind("S_MIN:", 0) == 0 &&
+             jet_mask_found && !particle_mask_found)
         {
             if (s_min_found)
             {
@@ -850,7 +859,8 @@ bool load_mask_2_preset(
 
         // ===== S MAX =====
 
-        else if (current_line.rfind("S_MAX:", 0) == 0)
+        else if (current_line.rfind("S_MAX:", 0) == 0 &&
+             jet_mask_found && !particle_mask_found)
         {
             if (s_max_found)
             {
@@ -879,7 +889,8 @@ bool load_mask_2_preset(
 
         // ===== V MIN =====
 
-        else if (current_line.rfind("V_MIN:", 0) == 0)
+        else if (current_line.rfind("V_MIN:", 0) == 0 &&
+             jet_mask_found && !particle_mask_found)
         {
             if (v_min_found)
             {
@@ -908,7 +919,8 @@ bool load_mask_2_preset(
 
         // ===== V MAX =====
 
-        else if (current_line.rfind("V_MAX:", 0) == 0)
+        else if (current_line.rfind("V_MAX:", 0) == 0 &&
+             jet_mask_found && !particle_mask_found)
         {
             if (v_max_found)
             {
@@ -1295,7 +1307,7 @@ bool load_mask_3_preset(
                 return false;
             }
 
-            tmp_b_h = current_line.substr(6);
+            tmp_b_h = current_line.substr(4);
 
             size_t first_not_space = tmp_b_h.find_first_not_of(' ');
 
@@ -1324,7 +1336,7 @@ bool load_mask_3_preset(
                 return false;
             }
 
-            tmp_b_v = current_line.substr(6);
+            tmp_b_v = current_line.substr(4);
 
             size_t first_not_space = tmp_b_v.find_first_not_of(' ');
 
@@ -1517,7 +1529,7 @@ bool load_mask_3_preset(
 
         // ===== CANNY LOW =====
 
-        else if (current_line.rfind("CANNY_LOW:", 0) == 0)
+        else if (current_line.rfind("CANNY_LOW:", 0) == 0 && particle_mask_found)
         {
             if (c_low_found)
             {
@@ -1546,7 +1558,7 @@ bool load_mask_3_preset(
 
         // ===== CANNY HIGH =====
 
-        else if (current_line.rfind("CANNY_HIGH:", 0) == 0)
+        else if (current_line.rfind("CANNY_HIGH:", 0) == 0 && particle_mask_found)
         {
             if (c_high_found)
             {
@@ -1575,7 +1587,7 @@ bool load_mask_3_preset(
 
         // ===== DILATE SIZE =====
 
-        else if (current_line.rfind("DILATE_SIZE:", 0) == 0)
+        else if (current_line.rfind("DILATE_SIZE:", 0) == 0 && particle_mask_found)
         {
             if (d_s_found)
             {
@@ -1604,7 +1616,7 @@ bool load_mask_3_preset(
 
         // ===== DILATE ITERATIONS =====
 
-        else if (current_line.rfind("DILATE_ITERATIONS:", 0) == 0)
+        else if (current_line.rfind("DILATE_ITERATIONS:", 0) == 0 && particle_mask_found)
         {
             if (d_i_found)
             {
@@ -1633,7 +1645,7 @@ bool load_mask_3_preset(
 
         // ===== LENGTH MIN =====
 
-        else if (current_line.rfind("LENGTH_MIN:", 0) == 0)
+        else if (current_line.rfind("LENGTH_MIN:", 0) == 0 && particle_mask_found)
         {
             if (l_min_found)
             {
@@ -1662,7 +1674,7 @@ bool load_mask_3_preset(
 
         // ===== LENGTH MAX =====
 
-        else if (current_line.rfind("LENGTH_MAX:", 0) == 0)
+        else if (current_line.rfind("LENGTH_MAX:", 0) == 0 && particle_mask_found)
         {
             if (l_max_found)
             {
@@ -1691,7 +1703,7 @@ bool load_mask_3_preset(
 
         // ===== AREA MIN =====
 
-        else if (current_line.rfind("AREA_MIN:", 0) == 0)
+        else if (current_line.rfind("AREA_MIN:", 0) == 0 && particle_mask_found)
         {
             if (a_min_found)
             {
@@ -1720,7 +1732,7 @@ bool load_mask_3_preset(
 
         // ===== AREA MAX =====
 
-        else if (current_line.rfind("AREA_MAX:", 0) == 0)
+        else if (current_line.rfind("AREA_MAX:", 0) == 0 && particle_mask_found)
         {
             if (a_max_found)
             {
@@ -2436,6 +2448,7 @@ void load_mask_preset(int file_number)
 
     decltype(file_masks_data::nozzle_mask) nozzle_mask_for_pass;
     decltype(file_masks_data::jet_mask) jet_mask_for_pass;
+    decltype(file_masks_data::particle_mask) particle_mask_for_pass;
 
     // =======================================================================================
     // TEMPORARY DATA
@@ -2462,7 +2475,7 @@ void load_mask_preset(int file_number)
         load_mask_3_preset(
             file_number,
             txt_lines,
-            used_file->particle_mask);
+            particle_mask_for_pass);
 
 
     // =======================================================================================
