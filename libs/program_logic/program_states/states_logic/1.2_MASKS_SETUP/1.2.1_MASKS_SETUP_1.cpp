@@ -41,6 +41,7 @@
 #define MASKS_QUANTITY 3
 
 #define MASK_1_FADERS_QUANTITY 6
+
 // =========================================================================================== DEFINES
 
 
@@ -153,8 +154,9 @@ My_SDL_panel* Mask_2_setup_panel_ms_1 = nullptr;
 // ===== MASK 2 panel =====
 
 
-
 // ===== MASK 3 panel =====
+
+// 1st submask
 
 My_SDL_textbox* Mask_3_par_1_textbox_ms_1 = nullptr;
 My_SDL_fader* Mask_3_par_1_fader_ms_1 = nullptr;
@@ -168,11 +170,55 @@ My_SDL_fader* Mask_3_par_3_fader_ms_1 = nullptr;
 My_SDL_textbox* Mask_3_par_4_textbox_ms_1 = nullptr;
 My_SDL_fader* Mask_3_par_4_fader_ms_1 = nullptr;
 
+My_SDL_textbox* Mask_3_par_5_textbox_ms_1 = nullptr;
+My_SDL_fader* Mask_3_par_5_fader_ms_1 = nullptr;
+
+My_SDL_textbox* Mask_3_par_6_textbox_ms_1 = nullptr;
+My_SDL_fader* Mask_3_par_6_fader_ms_1 = nullptr;
+
+My_SDL_textbox* Mask_3_par_7_textbox_ms_1 = nullptr;
+My_SDL_fader* Mask_3_par_7_fader_ms_1 = nullptr;
+
+My_SDL_textbox* Mask_3_par_8_textbox_ms_1 = nullptr;
+My_SDL_fader* Mask_3_par_8_fader_ms_1 = nullptr;
+
+
+// 2nd submask
+
+My_SDL_textbox* Mask_3_par_9_textbox_ms_1 = nullptr;
+My_SDL_fader* Mask_3_par_9_fader_ms_1 = nullptr;
+
+My_SDL_textbox* Mask_3_par_10_textbox_ms_1 = nullptr;
+My_SDL_fader* Mask_3_par_10_fader_ms_1 = nullptr;
+
+My_SDL_textbox* Mask_3_par_11_textbox_ms_1 = nullptr;
+My_SDL_fader* Mask_3_par_11_fader_ms_1 = nullptr;
+
+My_SDL_textbox* Mask_3_par_12_textbox_ms_1 = nullptr;
+My_SDL_fader* Mask_3_par_12_fader_ms_1 = nullptr;
+
+My_SDL_textbox* Mask_3_par_13_textbox_ms_1 = nullptr;
+My_SDL_fader* Mask_3_par_13_fader_ms_1 = nullptr;
+
+My_SDL_textbox* Mask_3_par_14_textbox_ms_1 = nullptr;
+My_SDL_fader* Mask_3_par_14_fader_ms_1 = nullptr;
+
+My_SDL_textbox* Mask_3_par_15_textbox_ms_1 = nullptr;
+My_SDL_fader* Mask_3_par_15_fader_ms_1 = nullptr;
+
+My_SDL_textbox* Mask_3_par_16_textbox_ms_1 = nullptr;
+My_SDL_fader* Mask_3_par_16_fader_ms_1 = nullptr;
+
+
+// Control submasks
+
+My_SDL_button Mask_3_first_part_but = nullptr;
+My_SDL_button Mask_3_second_part_but = nullptr;
+
 
 My_SDL_panel* Mask_3_setup_panel_ms_1 = nullptr;
 
 // ===== MASK 3 panel =====
-
 
 
 // ===== State change =====
@@ -210,6 +256,10 @@ void file_6_choose_ms_1();
 void mask_1_choose_ms_1();
 void mask_2_choose_ms_1();
 void mask_3_choose_ms_1();
+
+
+void switch_submask_1_ms_1();
+void switch_submask_2_ms_1();
 
 
 void save_preset_ms_1();
@@ -264,16 +314,42 @@ struct mask_and_file_highlight_ctx
     int h_f;
 
     int highlight_line_width;
-    std::string highlight_hex_color;
+    SDL_Color highlight_color;
+
 };
 
-mask_and_file_highlight_ctx highlight_ms_1;
+mask_and_file_highlight_ctx highlight_mf_ms_1;
+
+highlight_mf_ms_1.highlight_color = hex_to_sdl_color("#eaff00", 255);
+highlight_mf_ms_1.highlight_line_width = 5;
+
+struct submask_highlight_ctx
+{
+    
+    int x_sm;
+    int y_sm;
+    int w_sm;
+    int h_sm;
+
+    int highlight_line_width;
+    SDL_Color highlight_color;
+
+};
+
+submask_highlight_ctx highlight_sm_ms_1;
+
+highlight_sm_ms_1.highlight_color = highlight_mf_ms_1.highlight_color;
+highlight_sm_ms_1.highlight_line_width = 5;
+
 
 void choosen_mask_and_file_init();
 
 void highlight_choosen_mask_ms_1(SDL_Renderer* renderer);
 
 void highlight_choosen_file_ms_1(SDL_Renderer* renderer);
+
+void highlight_choosen_submask_ms_1(SDL_Renderer* renderer);
+
 
 void highlight_video_texture_ms_1(SDL_Renderer* renderer);
 
@@ -951,7 +1027,904 @@ void mask_2_faders_init_ms_1()
 
 */
 
+void m_3_b_h_update_ms_1()
+{
 
+    int choosen_b_h = Mask_3_par_1_fader_ms_1->fader_value_to_int_from_range(
+
+        0,
+        5
+
+    );
+
+
+    // No overcome check - only odd or zero
+
+    // Odd or zero
+    choosen_b_h = (choosen_b_h == 0) ? 0 : (choosen_b_h % 2 == 0 ? choosen_b_h - 1 : choosen_b_h);
+
+    // Correct fader position
+    Mask_3_par_1_fader_ms_1->set_fader_value_by_int_from_range(
+
+        choosen_b_h,
+        0,
+        5
+    
+    );
+
+
+    if (choosen_b_h != 0)
+    {
+        std::string mask_3_par_1_curr_value_to_show = 
+
+            "Blur horizontal: " + 
+            std::to_string(choosen_b_h) + ".";
+    }
+    else
+    {
+        mask_3_par_1_curr_value_to_show = "Blur horizontal: OFF.";
+    }
+
+
+    Mask_3_par_1_textbox_ms_1->set_content(mask_3_par_1_curr_value_to_show);
+
+
+    // Update value
+    masks_data.file_1_masks.particle_mask.b_h = choosen_b_h;
+
+}
+
+
+void m_3_b_v_update_ms_1()
+{
+    int choosen_b_v = Mask_3_par_2_fader_ms_1->fader_value_to_int_from_range(
+
+        0,
+        5
+
+    );
+
+
+    // Odd or 0
+    choosen_b_v = (choosen_b_v == 0) ? 0 : (choosen_b_v % 2 == 0 ? choosen_b_v - 1 : choosen_b_v);
+
+
+    // Correct fader position
+    Mask_3_par_2_fader_ms_1->set_fader_value_by_int_from_range(
+
+        choosen_b_v,
+        0,
+        5
+    
+    );
+
+
+    if (choosen_b_v != 0)
+    {
+        std::string mask_3_par_2_curr_value_to_show = 
+
+            "Blur vertical: " + 
+            std::to_string(choosen_b_v) + ".";
+    }
+    else
+    {
+        mask_3_par_2_curr_value_to_show = "Blur vertical: OFF.";
+    }
+
+    Mask_3_par_2_textbox_ms_1->set_content(mask_3_par_2_curr_value_to_show);
+
+    // Update value
+    masks_data.file_1_masks.particle_mask.b_v = choosen_b_v;
+}
+
+
+void m_3_h_min_update_ms_1()
+{
+
+    int choosen_h_min = Mask_3_par_3_fader_ms_1->fader_value_to_int_from_range(
+
+        0,
+        179
+
+    );
+
+
+    // Overcome check
+    if (choosen_h_min >= masks_data.file_1_masks.particle_mask.h_max)
+    {
+        // Correct value
+        choosen_h_min = masks_data.file_1_masks.particle_mask.h_max - 1;
+
+        // Correct fader position
+        Mask_3_par_3_fader_ms_1->set_fader_value_by_int_from_range(
+
+            choosen_h_min,
+            0,
+            179
+        
+        );
+    }
+
+
+    std::string mask_3_par_3_curr_value_to_show = 
+
+        "Hue minimal: " + 
+        std::to_string(choosen_h_min) + ".";
+
+
+    Mask_3_par_3_textbox_ms_1->set_content(mask_3_par_3_curr_value_to_show);
+
+
+    // Update value
+    masks_data.file_1_masks.particle_mask.h_min = choosen_h_min;
+
+}
+
+
+void m_3_h_max_update_ms_1()
+{
+
+    int choosen_h_max = Mask_3_par_4_fader_ms_1->fader_value_to_int_from_range(
+
+        0,
+        179
+
+    );
+
+
+    // Overcome check
+    if (choosen_h_max <= masks_data.file_1_masks.particle_mask.h_min)
+    {
+        // Correct value
+        choosen_h_max = masks_data.file_1_masks.particle_mask.h_min + 1;
+
+        // Correct fader position
+        Mask_3_par_4_fader_ms_1->set_fader_value_by_int_from_range(
+
+            choosen_h_max,
+            0,
+            179
+        
+        );
+    }
+
+
+    std::string mask_3_par_4_curr_value_to_show = 
+
+        "Hue maximal: " + 
+        std::to_string(choosen_h_max) + ".";
+
+
+    Mask_3_par_4_textbox_ms_1->set_content(mask_3_par_4_curr_value_to_show);
+
+
+    // Update value
+    masks_data.file_1_masks.particle_mask.h_max = choosen_h_max;
+
+}
+
+
+void m_3_s_min_update_ms_1()
+{
+
+    int choosen_s_min = Mask_3_par_5_fader_ms_1->fader_value_to_int_from_range(
+
+        0,
+        255
+
+    );
+
+
+    // Overcome check
+    if (choosen_s_min >= masks_data.file_1_masks.particle_mask.s_max)
+    {
+        // Correct value
+        choosen_s_min = masks_data.file_1_masks.particle_mask.s_max - 1;
+
+        // Correct fader position
+        Mask_3_par_5_fader_ms_1->set_fader_value_by_int_from_range(
+
+            choosen_s_min,
+            0,
+            255
+        
+        );
+    }
+
+
+    std::string mask_3_par_5_curr_value_to_show = 
+
+        "Saturation minimal: " + 
+        std::to_string(choosen_s_min) + ".";
+
+
+    Mask_3_par_5_textbox_ms_1->set_content(mask_3_par_5_curr_value_to_show);
+
+
+    // Update value
+    masks_data.file_1_masks.particle_mask.s_min = choosen_s_min;
+
+}
+
+
+void m_3_s_max_update_ms_1()
+{
+
+    int choosen_s_max = Mask_3_par_6_fader_ms_1->fader_value_to_int_from_range(
+
+        0,
+        255
+
+    );
+
+
+    // Overcome check
+    if (choosen_s_max <= masks_data.file_1_masks.particle_mask.s_min)
+    {
+        // Correct value
+        choosen_s_max = masks_data.file_1_masks.particle_mask.s_min + 1;
+
+        // Correct fader position
+        Mask_3_par_6_fader_ms_1->set_fader_value_by_int_from_range(
+
+            choosen_s_max,
+            0,
+            255
+        
+        );
+    }
+
+
+    std::string mask_3_par_6_curr_value_to_show = 
+
+        "Saturation maximal: " + 
+        std::to_string(choosen_s_max) + ".";
+
+
+    Mask_3_par_6_textbox_ms_1->set_content(mask_3_par_6_curr_value_to_show);
+
+
+    // Update value
+    masks_data.file_1_masks.particle_mask.s_max = choosen_s_max;
+
+}
+
+
+void m_3_v_min_update_ms_1()
+{
+
+    int choosen_v_min = Mask_3_par_7_fader_ms_1->fader_value_to_int_from_range(
+
+        0,
+        255
+
+    );
+
+
+    // Overcome check
+    if (choosen_v_min >= masks_data.file_1_masks.particle_mask.v_max)
+    {
+        // Correct value
+        choosen_v_min = masks_data.file_1_masks.particle_mask.v_max - 1;
+
+        // Correct fader position
+        Mask_3_par_7_fader_ms_1->set_fader_value_by_int_from_range(
+
+            choosen_v_min,
+            0,
+            255
+        
+        );
+    }
+
+
+    std::string mask_3_par_7_curr_value_to_show = 
+
+        "Value minimal: " + 
+        std::to_string(choosen_v_min) + ".";
+
+
+    Mask_3_par_7_textbox_ms_1->set_content(mask_3_par_7_curr_value_to_show);
+
+
+    // Update value
+    masks_data.file_1_masks.particle_mask.v_min = choosen_v_min;
+
+}
+
+
+void m_3_v_max_update_ms_1()
+{
+
+    int choosen_v_max = Mask_3_par_8_fader_ms_1->fader_value_to_int_from_range(
+
+        0,
+        255
+
+    );
+
+
+    // Overcome check
+    if (choosen_v_max <= masks_data.file_1_masks.particle_mask.v_min)
+    {
+        // Correct value
+        choosen_v_max = masks_data.file_1_masks.particle_mask.v_min + 1;
+
+        // Correct fader position
+        Mask_3_par_8_fader_ms_1->set_fader_value_by_int_from_range(
+
+            choosen_v_max,
+            0,
+            255
+        
+        );
+    }
+
+
+    std::string mask_3_par_8_curr_value_to_show = 
+
+        "Value maximal: " + 
+        std::to_string(choosen_v_max) + ".";
+
+
+    Mask_3_par_8_textbox_ms_1->set_content(mask_3_par_8_curr_value_to_show);
+
+
+    // Update value
+    masks_data.file_1_masks.particle_mask.v_max = choosen_v_max;
+
+}
+
+
+// Submask 2
+
+void m_3_canny_low_update_ms_1()
+{
+
+    int choosen_canny_low = Mask_3_par_9_fader_ms_1->fader_value_to_int_from_range(
+
+        0,
+        255
+
+    );
+
+
+    // Overcome check
+    if (choosen_canny_low >= masks_data.file_1_masks.particle_mask.canny_high)
+    {
+        // Correct value
+        choosen_canny_low = masks_data.file_1_masks.particle_mask.canny_high - 1;
+
+        // Correct fader position
+        Mask_3_par_9_fader_ms_1->set_fader_value_by_int_from_range(
+
+            choosen_canny_low,
+            0,
+            255
+        
+        );
+    }
+
+
+    std::string mask_3_par_9_curr_value_to_show = 
+
+        "Canny low: " + 
+        std::to_string(choosen_canny_low) + ".";
+
+
+    Mask_3_par_9_textbox_ms_1->set_content(mask_3_par_9_curr_value_to_show);
+
+
+    // Update value
+    masks_data.file_1_masks.particle_mask.canny_low = choosen_canny_low;
+
+}
+
+
+void m_3_canny_high_update_ms_1()
+{
+
+    int choosen_canny_high = Mask_3_par_10_fader_ms_1->fader_value_to_int_from_range(
+
+        0,
+        255
+
+    );
+
+
+    // Overcome check
+    if (choosen_canny_high <= masks_data.file_1_masks.particle_mask.canny_low)
+    {
+        // Correct value
+        choosen_canny_high = masks_data.file_1_masks.particle_mask.canny_low + 1;
+
+        // Correct fader position
+        Mask_3_par_10_fader_ms_1->set_fader_value_by_int_from_range(
+
+            choosen_canny_high,
+            0,
+            255
+        
+        );
+    }
+
+
+    std::string mask_3_par_10_curr_value_to_show = 
+
+        "Canny high: " + 
+        std::to_string(choosen_canny_high) + ".";
+
+
+    Mask_3_par_10_textbox_ms_1->set_content(mask_3_par_10_curr_value_to_show);
+
+
+    // Update value
+    masks_data.file_1_masks.particle_mask.canny_high = choosen_canny_high;
+
+}
+
+
+void m_3_dilate_size_update_ms_1()
+{
+
+    int choosen_dilate_size = Mask_3_par_11_fader_ms_1->fader_value_to_int_from_range(
+
+        1,
+        9
+
+    );
+
+
+    // Round to nearest odd value
+    choosen_dilate_size = ((choosen_dilate_size + 1) / 2) * 2 - 1;
+
+
+    // Correct fader position
+    Mask_3_par_11_fader_ms_1->set_fader_value_by_int_from_range(
+
+        choosen_dilate_size,
+        1,
+        9
+    
+    );
+
+    std::string mask_3_par_11_curr_value_to_show = 
+
+        "Dilate size: " + 
+        std::to_string(choosen_dilate_size) + ".";
+
+
+    Mask_3_par_11_textbox_ms_1->set_content(mask_3_par_11_curr_value_to_show);
+
+
+    // Update value
+    masks_data.file_1_masks.particle_mask.dilate_size = choosen_dilate_size;
+
+}
+
+
+void m_3_dilate_iterations_update_ms_1()
+{
+
+    int choosen_dilate_iterations = Mask_3_par_12_fader_ms_1->fader_value_to_int_from_range(
+
+        1,
+        3
+
+    );
+
+
+    std::string mask_3_par_12_curr_value_to_show = 
+
+        "Dilate iterations: " + 
+        std::to_string(choosen_dilate_iterations) + ".";
+
+
+    Mask_3_par_12_textbox_ms_1->set_content(mask_3_par_12_curr_value_to_show);
+
+
+    // Update value
+    masks_data.file_1_masks.particle_mask.dilate_iterations = choosen_dilate_iterations;
+
+}
+
+
+void m_3_length_min_update_ms_1()
+{
+
+    int choosen_length_min = Mask_3_par_13_fader_ms_1->fader_value_to_int_from_range(
+
+        0,
+        100
+
+    );
+
+
+    // Overcome check
+    if (choosen_length_min >= masks_data.file_1_masks.particle_mask.length_max)
+    {
+        // Correct value
+        choosen_length_min = masks_data.file_1_masks.particle_mask.length_max - 1;
+
+        // Correct fader position
+        Mask_3_par_13_fader_ms_1->set_fader_value_by_int_from_range(
+
+            choosen_length_min,
+            0,
+            100
+        
+        );
+    }
+
+
+    std::string mask_3_par_13_curr_value_to_show = 
+
+        "Length minimal: " + 
+        std::to_string(choosen_length_min) + ".";
+
+
+    Mask_3_par_13_textbox_ms_1->set_content(mask_3_par_13_curr_value_to_show);
+
+
+    // Update value
+    masks_data.file_1_masks.particle_mask.length_min = choosen_length_min;
+
+}
+
+
+void m_3_length_max_update_ms_1()
+{
+
+    int choosen_length_max = Mask_3_par_14_fader_ms_1->fader_value_to_int_from_range(
+
+        0,
+        100
+
+    );
+
+
+    // Overcome check
+    if (choosen_length_max <= masks_data.file_1_masks.particle_mask.length_min)
+    {
+        // Correct value
+        choosen_length_max = masks_data.file_1_masks.particle_mask.length_min + 1;
+
+        // Correct fader position
+        Mask_3_par_14_fader_ms_1->set_fader_value_by_int_from_range(
+
+            choosen_length_max,
+            0,
+            100
+        
+        );
+    }
+
+
+    std::string mask_3_par_14_curr_value_to_show = 
+
+        "Length maximal: " + 
+        std::to_string(choosen_length_max) + ".";
+
+
+    Mask_3_par_14_textbox_ms_1->set_content(mask_3_par_14_curr_value_to_show);
+
+
+    // Update value
+    masks_data.file_1_masks.particle_mask.length_max = choosen_length_max;
+
+}
+
+
+void m_3_area_min_update_ms_1()
+{
+
+    int choosen_area_min = Mask_3_par_15_fader_ms_1->fader_value_to_int_from_range(
+
+        0,
+        200
+
+    );
+
+
+    // Overcome check
+    if (choosen_area_min >= masks_data.file_1_masks.particle_mask.area_max)
+    {
+        // Correct value
+        choosen_area_min = masks_data.file_1_masks.particle_mask.area_max - 1;
+
+        // Correct fader position
+        Mask_3_par_15_fader_ms_1->set_fader_value_by_int_from_range(
+
+            choosen_area_min,
+            0,
+            200
+        
+        );
+    }
+
+
+    std::string mask_3_par_15_curr_value_to_show = 
+
+        "Area minimal: " + 
+        std::to_string(choosen_area_min) + ".";
+
+
+    Mask_3_par_15_textbox_ms_1->set_content(mask_3_par_15_curr_value_to_show);
+
+
+    // Update value
+    masks_data.file_1_masks.particle_mask.area_min = choosen_area_min;
+
+}
+
+
+void m_3_area_max_update_ms_1()
+{
+
+    int choosen_area_max = Mask_3_par_16_fader_ms_1->fader_value_to_int_from_range(
+
+        0,
+        200
+
+    );
+
+
+    // Overcome check
+    if (choosen_area_max <= masks_data.file_1_masks.particle_mask.area_min)
+    {
+        // Correct value
+        choosen_area_max = masks_data.file_1_masks.particle_mask.area_min + 1;
+
+        // Correct fader position
+        Mask_3_par_16_fader_ms_1->set_fader_value_by_int_from_range(
+
+            choosen_area_max,
+            0,
+            200
+        
+        );
+    }
+
+
+    std::string mask_3_par_16_curr_value_to_show = 
+
+        "Area maximal: " + 
+        std::to_string(choosen_area_max) + ".";
+
+
+    Mask_3_par_16_textbox_ms_1->set_content(mask_3_par_16_curr_value_to_show);
+
+
+    // Update value
+    masks_data.file_1_masks.particle_mask.area_max = choosen_area_max;
+
+}
+
+
+void mask_3_faders_init_ms_1()
+{
+
+    // 1st call / 2nd call
+
+    // ===== MASK 3 =====
+    
+    if (!masks_data.file_1_masks.jet_mask.initialized)
+    {
+        Mask_3_par_1_fader_ms_1->set_fader_value(0.5);
+        Mask_3_par_2_fader_ms_1->set_fader_value(0.5);
+        Mask_3_par_3_fader_ms_1->set_fader_value(0.0);
+        Mask_3_par_4_fader_ms_1->set_fader_value(1.0);
+        Mask_3_par_5_fader_ms_1->set_fader_value(0.0);
+        Mask_3_par_6_fader_ms_1->set_fader_value(1.0);
+        Mask_3_par_7_fader_ms_1->set_fader_value(0.0);
+        Mask_3_par_8_fader_ms_1->set_fader_value(1.0);
+
+
+        Mask_3_par_9_fader_ms_1->set_fader_value(0.0);
+        Mask_3_par_10_fader_ms_1->set_fader_value(1.0);
+        Mask_3_par_11_fader_ms_1->set_fader_value(0.0);
+        Mask_3_par_12_fader_ms_1->set_fader_value(0.0);
+        Mask_3_par_13_fader_ms_1->set_fader_value(0.0);
+        Mask_3_par_14_fader_ms_1->set_fader_value(1.0);
+        Mask_3_par_15_fader_ms_1->set_fader_value(0.0);
+        Mask_3_par_16_fader_ms_1->set_fader_value(1.0);
+
+
+        masks_data.file_1_masks.particle_mask.b_h = 0;
+        masks_data.file_1_masks.particle_mask.b_v = 255;
+        masks_data.file_1_masks.particle_mask.h_min = 0;
+        masks_data.file_1_masks.particle_mask.h_max = 179;
+        masks_data.file_1_masks.particle_mask.s_min = 0;
+        masks_data.file_1_masks.particle_mask.s_max = 255;
+        masks_data.file_1_masks.particle_mask.v_min = 0;
+        masks_data.file_1_masks.particle_mask.v_max = 255; 
+
+
+        masks_data.file_1_masks.particle_mask.canny_low = 0;
+        masks_data.file_1_masks.particle_mask.canny_high = 255;
+        masks_data.file_1_masks.particle_mask.dilate_size = 1;
+        masks_data.file_1_masks.particle_mask.dilate_iterations = 1;
+        masks_data.file_1_masks.particle_mask.length_min = 0;
+        masks_data.file_1_masks.particle_mask.length_max = 100;
+        masks_data.file_1_masks.particle_mask.area_min = 0;
+        masks_data.file_1_masks.particle_mask.area_max = 200;
+
+
+        // Block next 50% reinit
+        masks_data.file_1_masks.particle_mask.initialized = true;
+    }
+    else
+    {
+        // Set the fader know and value, according to the early choosen
+
+        // Submask 1
+
+        Mask_3_par_1_fader_ms_1->set_fader_value_by_int_from_range(
+
+            masks_data.file_1_masks.particle_mask.b_h,
+            0,
+            5
+        
+        );
+
+        Mask_3_par_2_fader_ms_1->set_fader_value_by_int_from_range(
+
+            masks_data.file_1_masks.particle_mask.b_v,
+            0,
+            5
+        
+        );
+
+
+        Mask_3_par_3_fader_ms_1->set_fader_value_by_int_from_range(
+
+            masks_data.file_1_masks.particle_mask.h_min,
+            0,
+            179
+        
+        );
+
+        Mask_3_par_4_fader_ms_1->set_fader_value_by_int_from_range(
+
+            masks_data.file_1_masks.particle_mask.h_max,
+            0,
+            179
+        
+        );
+
+        Mask_3_par_5_fader_ms_1->set_fader_value_by_int_from_range(
+
+            masks_data.file_1_masks.particle_mask.s_min,
+            0,
+            255
+        
+        );
+
+        Mask_3_par_6_fader_ms_1->set_fader_value_by_int_from_range(
+
+            masks_data.file_1_masks.particle_mask.s_max,
+            0,
+            255
+        
+        );
+
+        Mask_3_par_7_fader_ms_1->set_fader_value_by_int_from_range(
+
+            masks_data.file_1_masks.particle_mask.v_min,
+            0,
+            255
+        
+        );
+
+        Mask_3_par_8_fader_ms_1->set_fader_value_by_int_from_range(
+
+            masks_data.file_1_masks.particle_mask.v_max,
+            0,
+            255
+        
+        );
+
+        // Submask 2
+
+        Mask_3_par_9_fader_ms_1->set_fader_value_by_int_from_range(
+
+            masks_data.file_1_masks.particle_mask.canny_low,
+            0,
+            255
+        
+        );
+
+        Mask_3_par_10_fader_ms_1->set_fader_value_by_int_from_range(
+
+            masks_data.file_1_masks.particle_mask.canny_high,
+            0,
+            255
+        
+        );
+
+        Mask_3_par_11_fader_ms_1->set_fader_value_by_int_from_range(
+
+            masks_data.file_1_masks.particle_mask.dilate_size,
+            0,
+            9
+        
+        );
+
+        Mask_3_par_12_fader_ms_1->set_fader_value_by_int_from_range(
+
+            masks_data.file_1_masks.particle_mask.dilate_iterations,
+            0,
+            3
+        
+        );
+
+        Mask_3_par_13_fader_ms_1->set_fader_value_by_int_from_range(
+
+            masks_data.file_1_masks.particle_mask.length_min,
+            0,
+            100
+        
+        );
+
+        Mask_3_par_14_fader_ms_1->set_fader_value_by_int_from_range(
+
+            masks_data.file_1_masks.particle_mask.length_max,
+            0,
+            100
+        
+        );
+
+        Mask_3_par_15_fader_ms_1->set_fader_value_by_int_from_range(
+
+            masks_data.file_1_masks.particle_mask.area_min,
+            0,
+            200
+        
+        );
+
+        Mask_3_par_16_fader_ms_1->set_fader_value_by_int_from_range(
+
+            masks_data.file_1_masks.particle_mask.area_max,
+            0,
+            200
+        
+        );
+
+    }
+
+
+    // Submask 1
+
+    m_3_b_h_update_ms_1();
+    m_3_b_v_update_ms_1();
+
+    m_3_h_min_update_ms_1();
+    m_3_h_max_update_ms_1();
+
+    m_3_s_min_update_ms_1();
+    m_3_s_max_update_ms_1();
+
+    m_3_v_min_update_ms_1();
+    m_3_v_max_update_ms_1();
+
+
+    // Submask 2
+
+    m_3_canny_low_update_ms_1();
+    m_3_canny_high_update_ms_1();
+
+    m_3_dilate_size_update_ms_1();
+    m_3_dilate_iterations_update_ms_1();
+
+    m_3_length_min_update_ms_1();
+    m_3_length_max_update_ms_1();
+
+    m_3_area_min_update_ms_1();
+    m_3_area_max_update_ms_1();
+
+
+    // ===== MASK 3 =====
+}
 
 // ===== MASK 3 =====
 
@@ -1191,6 +2164,48 @@ void masks_setup_1_elements_create()
     Mask_3_par_4_textbox_ms_1 = new My_SDL_textbox;
     Mask_3_par_4_fader_ms_1 = new My_SDL_fader;
 
+    Mask_3_par_5_textbox_ms_1 = new My_SDL_textbox;
+    Mask_3_par_5_fader_ms_1 = new My_SDL_fader;
+
+    Mask_3_par_6_textbox_ms_1 = new My_SDL_textbox;
+    Mask_3_par_6_fader_ms_1 = new My_SDL_fader;
+
+    Mask_3_par_7_textbox_ms_1 = new My_SDL_textbox;
+    Mask_3_par_7_fader_ms_1 = new My_SDL_fader;
+
+    Mask_3_par_8_textbox_ms_1 = new My_SDL_textbox;
+    Mask_3_par_8_fader_ms_1 = new My_SDL_fader;
+
+
+    Mask_3_par_9_textbox_ms_1 = new My_SDL_textbox;
+    Mask_3_par_9_fader_ms_1 = new My_SDL_fader;
+
+    Mask_3_par_10_textbox_ms_1 = new My_SDL_textbox;
+    Mask_3_par_10_fader_ms_1 = new My_SDL_fader;
+
+    Mask_3_par_11_textbox_ms_1 = new My_SDL_textbox;
+    Mask_3_par_11_fader_ms_1 = new My_SDL_fader;
+
+    Mask_3_par_12_textbox_ms_1 = new My_SDL_textbox;
+    Mask_3_par_12_fader_ms_1 = new My_SDL_fader;
+
+    Mask_3_par_13_textbox_ms_1 = new My_SDL_textbox;
+    Mask_3_par_13_fader_ms_1 = new My_SDL_fader;
+
+    Mask_3_par_14_textbox_ms_1 = new My_SDL_textbox;
+    Mask_3_par_14_fader_ms_1 = new My_SDL_fader;
+
+    Mask_3_par_15_textbox_ms_1 = new My_SDL_textbox;
+    Mask_3_par_15_fader_ms_1 = new My_SDL_fader;
+
+    Mask_3_par_16_textbox_ms_1 = new My_SDL_textbox;
+    Mask_3_par_16_fader_ms_1 = new My_SDL_fader;
+
+
+    Mask_3_first_part_but = new My_SDL_button;
+    Mask_3_second_part_but = new My_SDL_button;
+
+
     Mask_3_setup_panel_ms_1 = new My_SDL_panel;
 
     // ===== MASK 3 panel =====
@@ -1305,6 +2320,31 @@ int big_faders_width = 0.5 * (mask_setup_panel_width - 3 * SCREEN_MARGIN_0);
 int big_faders_height = big_faders_textboxes_height;
 
 
+// Panel 3 data
+
+int p_3_margin = 15;
+
+int p_3_buttons_width = static_cast<int>(std::round((mask_setup_panel_width / 2.0));
+int p_3_buttons_height = 50;
+
+int p_3_margins_quantity_h = 9;
+int p_3_faders_quantity_h = 8;
+int p_3_buttons_quantity_h = 1;
+
+
+int p_3_faders_knob_height = (
+
+    mask_setup_panel_height - 
+
+    (p_3_margins_quantity_h * p_3_margin +
+    p_3_buttons_quantity_h * p_3_buttons_height)
+
+    ) /  p_3_faders_quantity_h;
+
+int p_3_faders_slot_height = p_3_faders_knob_height * 0.25;
+
+
+// Panel 3 data
 
 // ===== Main sizes =====
 
@@ -2162,10 +3202,6 @@ void masks_setup_1_elements_setup()
 
 
 
-
-
-
-
     // Mask 3 choose state - inactive at init
 
     // Out of screen
@@ -2177,68 +3213,235 @@ void masks_setup_1_elements_setup()
 
     // Panel 3 element
 
-    Mask_3_par_1_textbox_ms_1->set_content("P1:");
+    // Submask 1 active at init
+
+    // Activate 1st submask at state init
+    masks_data.file_1_masks.particle_mask.controlled_submask = SUBMASK_1_CSM3;
+    
+
+    Mask_3_par_1_textbox_ms_1->set_content("b_h:");
     Mask_3_par_1_textbox_ms_1->switch_textbox_type(ORDINARY_TEXT);
 
-    Mask_3_par_1_fader_ms_1->set_knob_border_radius(5);
-    Mask_3_par_1_fader_ms_1->set_knob_size(faders_width * 0.15, faders_height);
-    Mask_3_par_1_fader_ms_1->set_slot_border_width_size(5);
-    Mask_3_par_1_fader_ms_1->set_slot_size(faders_width, faders_height * 0.25);
+    Mask_3_par_1_fader_ms_1->set_knob_border_radius(1);
+    Mask_3_par_1_fader_ms_1->set_knob_size(faders_width * 0.15, p_3_faders_knob_height);
+    Mask_3_par_1_fader_ms_1->set_slot_border_width_size(1);
+    Mask_3_par_1_fader_ms_1->set_slot_size(faders_width, p_3_faders_slot_height);
 
 
-    Mask_3_par_2_textbox_ms_1->set_content("P2:");
+    Mask_3_par_2_textbox_ms_1->set_content("b_v:");
     Mask_3_par_2_textbox_ms_1->switch_textbox_type(ORDINARY_TEXT);
 
-    Mask_3_par_2_fader_ms_1->set_knob_border_radius(5);
-    Mask_3_par_2_fader_ms_1->set_knob_size(faders_width * 0.15, faders_height);
-    Mask_3_par_2_fader_ms_1->set_slot_border_width_size(5);
-    Mask_3_par_2_fader_ms_1->set_slot_size(faders_width, faders_height * 0.25);
+    Mask_3_par_2_fader_ms_1->set_knob_border_radius(1);
+    Mask_3_par_2_fader_ms_1->set_knob_size(faders_width * 0.15, p_3_faders_knob_height);
+    Mask_3_par_2_fader_ms_1->set_slot_border_width_size(1);
+    Mask_3_par_2_fader_ms_1->set_slot_size(faders_width, p_3_faders_slot_height);
 
-
-    Mask_3_par_3_textbox_ms_1->set_content("P3:");
+    
+    Mask_3_par_3_textbox_ms_1->set_content("H_MIN:");
     Mask_3_par_3_textbox_ms_1->switch_textbox_type(ORDINARY_TEXT);
 
-    Mask_3_par_3_fader_ms_1->set_knob_border_radius(5);
-    Mask_3_par_3_fader_ms_1->set_knob_size(faders_width * 0.15, faders_height);
-    Mask_3_par_3_fader_ms_1->set_slot_border_width_size(5);
-    Mask_3_par_3_fader_ms_1->set_slot_size(faders_width, faders_height * 0.25);
+    Mask_3_par_3_fader_ms_1->set_knob_border_radius(1);
+    Mask_3_par_3_fader_ms_1->set_knob_size(faders_width * 0.15, p_3_faders_knob_height);
+    Mask_3_par_3_fader_ms_1->set_slot_border_width_size(1);
+    Mask_3_par_3_fader_ms_1->set_slot_size(faders_width, p_3_faders_slot_height);
 
 
-    Mask_3_par_4_textbox_ms_1->set_content("P4:");
+    Mask_3_par_4_textbox_ms_1->set_content("H_MAX:");
     Mask_3_par_4_textbox_ms_1->switch_textbox_type(ORDINARY_TEXT);
 
-    Mask_3_par_4_fader_ms_1->set_knob_border_radius(5);
-    Mask_3_par_4_fader_ms_1->set_knob_size(faders_width * 0.15, faders_height);
-    Mask_3_par_4_fader_ms_1->set_slot_border_width_size(5);
-    Mask_3_par_4_fader_ms_1->set_slot_size(faders_width, faders_height * 0.25);
+    Mask_3_par_4_fader_ms_1->set_knob_border_radius(1);
+    Mask_3_par_4_fader_ms_1->set_knob_size(faders_width * 0.15, p_3_faders_knob_height);
+    Mask_3_par_4_fader_ms_1->set_slot_border_width_size(1);
+    Mask_3_par_4_fader_ms_1->set_slot_size(faders_width, p_3_faders_slot_height);
 
+
+    Mask_3_par_5_textbox_ms_1->set_content("S_MIN:");
+    Mask_3_par_5_textbox_ms_1->switch_textbox_type(ORDINARY_TEXT);
+
+    Mask_3_par_5_fader_ms_1->set_knob_border_radius(1);
+    Mask_3_par_5_fader_ms_1->set_knob_size(faders_width * 0.15, p_3_faders_knob_height);
+    Mask_3_par_5_fader_ms_1->set_slot_border_width_size(1);
+    Mask_3_par_5_fader_ms_1->set_slot_size(faders_width, p_3_faders_slot_height);
+
+
+    Mask_3_par_6_textbox_ms_1->set_content("S_MAX:");
+    Mask_3_par_6_textbox_ms_1->switch_textbox_type(ORDINARY_TEXT);
+
+    Mask_3_par_6_fader_ms_1->set_knob_border_radius(1);
+    Mask_3_par_6_fader_ms_1->set_knob_size(faders_width * 0.15, p_3_faders_knob_height);
+    Mask_3_par_6_fader_ms_1->set_slot_border_width_size(1);
+    Mask_3_par_6_fader_ms_1->set_slot_size(faders_width, p_3_faders_slot_height);
+
+
+    Mask_3_par_7_textbox_ms_1->set_content("V_MIN:");
+    Mask_3_par_7_textbox_ms_1->switch_textbox_type(ORDINARY_TEXT);
+    
+    Mask_3_par_7_fader_ms_1->set_knob_border_radius(1);
+    Mask_3_par_7_fader_ms_1->set_knob_size(faders_width * 0.15, p_3_faders_knob_height);
+    Mask_3_par_7_fader_ms_1->set_slot_border_width_size(1);
+    Mask_3_par_7_fader_ms_1->set_slot_size(faders_width, p_3_faders_slot_height);
+
+
+    Mask_3_par_8_textbox_ms_1->set_content("V_MAX:");
+    Mask_3_par_8_textbox_ms_1->switch_textbox_type(ORDINARY_TEXT);
+
+    Mask_3_par_8_fader_ms_1->set_knob_border_radius(1);
+    Mask_3_par_8_fader_ms_1->set_knob_size(faders_width * 0.15, p_3_faders_knob_height);
+    Mask_3_par_8_fader_ms_1->set_slot_border_width_size(1);
+    Mask_3_par_8_fader_ms_1->set_slot_size(faders_width, p_3_faders_slot_height);
+
+    
+    // Submask 2 - inactive at init
+
+    Mask_3_par_9_textbox_ms_1->set_content("C_LOW:");
+    Mask_3_par_9_textbox_ms_1->switch_textbox_type(ORDINARY_TEXT);
+    Mask_3_par_9_fader_ms_1->set_knob_border_radius(1);
+    Mask_3_par_9_fader_ms_1->set_knob_size(faders_width * 0.15, p_3_faders_knob_height);
+    Mask_3_par_9_fader_ms_1->set_slot_border_width_size(1);
+    Mask_3_par_9_fader_ms_1->set_slot_size(faders_width, p_3_faders_slot_height);
+    Mask_3_par_9_textbox_ms_1->set_visible_flag(false);
+    Mask_3_par_9_fader_ms_1->set_visible_flag(false);
+
+
+    Mask_3_par_10_textbox_ms_1->set_content("C_HIGH:");
+    Mask_3_par_10_textbox_ms_1->switch_textbox_type(ORDINARY_TEXT);
+    Mask_3_par_10_fader_ms_1->set_knob_border_radius(1);
+    Mask_3_par_10_fader_ms_1->set_knob_size(faders_width * 0.15, p_3_faders_knob_height);
+    Mask_3_par_10_fader_ms_1->set_slot_border_width_size(1);
+    Mask_3_par_10_fader_ms_1->set_slot_size(faders_width, p_3_faders_slot_height);
+    Mask_3_par_10_textbox_ms_1->set_visible_flag(false);
+    Mask_3_par_10_fader_ms_1->set_visible_flag(false);
+
+
+    Mask_3_par_11_textbox_ms_1->set_content("D_SIZE:");
+    Mask_3_par_11_textbox_ms_1->switch_textbox_type(ORDINARY_TEXT);
+    Mask_3_par_11_fader_ms_1->set_knob_border_radius(1);
+    Mask_3_par_11_fader_ms_1->set_knob_size(faders_width * 0.15, p_3_faders_knob_height);
+    Mask_3_par_11_fader_ms_1->set_slot_border_width_size(1);
+    Mask_3_par_11_fader_ms_1->set_slot_size(faders_width, p_3_faders_slot_height);
+    Mask_3_par_11_textbox_ms_1->set_visible_flag(false);
+    Mask_3_par_11_fader_ms_1->set_visible_flag(false);
+
+
+    Mask_3_par_12_textbox_ms_1->set_content("D_ITER:");
+    Mask_3_par_12_textbox_ms_1->switch_textbox_type(ORDINARY_TEXT);
+    Mask_3_par_12_fader_ms_1->set_knob_border_radius(1);
+    Mask_3_par_12_fader_ms_1->set_knob_size(faders_width * 0.15, p_3_faders_knob_height);
+    Mask_3_par_12_fader_ms_1->set_slot_border_width_size(1);
+    Mask_3_par_12_fader_ms_1->set_slot_size(faders_width, p_3_faders_slot_height);
+    Mask_3_par_12_textbox_ms_1->set_visible_flag(false);
+    Mask_3_par_12_fader_ms_1->set_visible_flag(false);
+
+
+    Mask_3_par_13_textbox_ms_1->set_content("L_MIN:");
+    Mask_3_par_13_textbox_ms_1->switch_textbox_type(ORDINARY_TEXT);
+    Mask_3_par_13_fader_ms_1->set_knob_border_radius(1);
+    Mask_3_par_13_fader_ms_1->set_knob_size(faders_width * 0.15, p_3_faders_knob_height);
+    Mask_3_par_13_fader_ms_1->set_slot_border_width_size(1);
+    Mask_3_par_13_fader_ms_1->set_slot_size(faders_width, p_3_faders_slot_height);
+    Mask_3_par_13_textbox_ms_1->set_visible_flag(false);
+    Mask_3_par_13_fader_ms_1->set_visible_flag(false);
+
+    
+    Mask_3_par_14_textbox_ms_1->set_content("L_MAX:");
+    Mask_3_par_14_textbox_ms_1->switch_textbox_type(ORDINARY_TEXT);
+    Mask_3_par_14_fader_ms_1->set_knob_border_radius(1);
+    Mask_3_par_14_fader_ms_1->set_knob_size(faders_width * 0.15, p_3_faders_knob_height);
+    Mask_3_par_14_fader_ms_1->set_slot_border_width_size(1);
+    Mask_3_par_14_fader_ms_1->set_slot_size(faders_width, p_3_faders_slot_height);
+    Mask_3_par_14_textbox_ms_1->set_visible_flag(false);
+    Mask_3_par_14_fader_ms_1->set_visible_flag(false);
+
+
+    Mask_3_par_15_textbox_ms_1->set_content("A_MIN:");
+    Mask_3_par_15_textbox_ms_1->switch_textbox_type(ORDINARY_TEXT);
+    Mask_3_par_15_fader_ms_1->set_knob_border_radius(1);
+    Mask_3_par_15_fader_ms_1->set_knob_size(faders_width * 0.15, p_3_faders_knob_height);
+    Mask_3_par_15_fader_ms_1->set_slot_border_width_size(1);
+    Mask_3_par_15_fader_ms_1->set_slot_size(faders_width, p_3_faders_slot_height);
+    Mask_3_par_15_textbox_ms_1->set_visible_flag(false);
+    Mask_3_par_15_fader_ms_1->set_visible_flag(false);
+
+
+    Mask_3_par_16_textbox_ms_1->set_content("A_MAX:");
+    Mask_3_par_16_textbox_ms_1->switch_textbox_type(ORDINARY_TEXT);
+    Mask_3_par_16_fader_ms_1->set_knob_border_radius(1);
+    Mask_3_par_16_fader_ms_1->set_knob_size(faders_width * 0.15, p_3_faders_knob_height);
+    Mask_3_par_16_fader_ms_1->set_slot_border_width_size(1);
+    Mask_3_par_16_fader_ms_1->set_slot_size(faders_width, p_3_faders_slot_height);
+    Mask_3_par_16_textbox_ms_1->set_visible_flag(false);
+    Mask_3_par_16_fader_ms_1->set_visible_flag(false);
+
+
+    // Switch submask buttons
+
+    Mask_3_first_part_but->switch_button_textbox_type(HEADER_3);
+    Mask_3_first_part_but->get_button_content_textbox()->set_content("1 / 2");
+    Mask_3_first_part_but->set_size(p_3_buttons_width, p_3_buttons_height);
+    Mask_3_first_part_but->on_click = switch_submask_1_ms_1;
+    Mask_3_first_part_but->set_border_radius(0);
+    Mask_3_first_part_but->set_shadow_scale_factor(0);
+    Mask_3_first_part_but->switch_push_mode();
+
+
+    Mask_3_second_part_but->switch_button_textbox_type(HEADER_3);
+    Mask_3_second_part_but->get_button_content_textbox()->set_content("2 / 2");
+    Mask_3_second_part_but->set_size(p_3_buttons_width, p_3_buttons_height);
+    Mask_3_second_part_but->on_click = switch_submask_2_ms_1;
+    Mask_3_second_part_but->set_border_radius(0);
+    Mask_3_second_part_but->set_shadow_scale_factor(0);
+    Mask_3_second_part_but->switch_push_mode();
+
+
+    // Init textboxes update 
+
+    // Submask 1
+
+    m_3_b_h_update_ms_1();
+    m_3_b_v_update_ms_1();
+
+    m_3_h_min_update_ms_1();
+    m_3_h_max_update_ms_1();
+
+    m_3_s_min_update_ms_1();
+    m_3_s_max_update_ms_1();
+
+    m_3_v_min_update_ms_1();
+    m_3_v_max_update_ms_1();
+
+
+    // Submask 2
+
+    m_3_canny_low_update_ms_1();
+    m_3_canny_high_update_ms_1();
+
+    m_3_dilate_size_update_ms_1();
+    m_3_dilate_iterations_update_ms_1();
+
+    m_3_length_min_update_ms_1();
+    m_3_length_max_update_ms_1();
+
+    m_3_area_min_update_ms_1();
+    m_3_area_max_update_ms_1();
+
+
+    // ===== Fill the panel 3 =====
+    
+    Mask_3_setup_panel_ms_1->add_element(
+
+        Mask_3_par_1_fader_ms_1,
+        1 * p_3_margin + 0.5 * big_faders_width,
+        1 * p_3_margin + 0.5 * p_3_faders_knob_height,
+        1
+
+    );
 
 
     Mask_3_setup_panel_ms_1->add_element(
 
         Mask_3_par_1_textbox_ms_1,
-        1 * SCREEN_MARGIN_0 + 0.5 * faders_textboxes_width,
-        1 * SCREEN_MARGIN_0 + 0.5 *faders_textboxes_height,
-        1
-
-    );
-
-
-    Mask_3_setup_panel_ms_1->add_element(
-
-        Mask_3_par_1_fader_ms_1,
-        2 * SCREEN_MARGIN_0 + 1 * faders_textboxes_width + 0.5 * faders_width,
-        1 * SCREEN_MARGIN_0 + 0.5 *faders_textboxes_height,
-        1
-
-    );
-
-
-    Mask_3_setup_panel_ms_1->add_element(
-
-        Mask_3_par_2_textbox_ms_1,
-        1 * SCREEN_MARGIN_0 + 0.5 * faders_textboxes_width,
-        2 * SCREEN_MARGIN_0 + 1.5 * faders_textboxes_height,
+        2 * p_3_margin + 1 * big_faders_width + 0.5 * big_faders_textboxes_width,
+        1 * p_3_margin + 0.5 * p_3_faders_knob_height,
         1
 
     );
@@ -2247,8 +3450,8 @@ void masks_setup_1_elements_setup()
     Mask_3_setup_panel_ms_1->add_element(
 
         Mask_3_par_2_fader_ms_1,
-        2 * SCREEN_MARGIN_0 + 1 * faders_textboxes_width + 0.5 * faders_width,
-        2 * SCREEN_MARGIN_0 + 1.5 * faders_textboxes_height,
+        1 * p_3_margin + 0.5 * big_faders_width,
+        2 * p_3_margin + 1.5 * p_3_faders_knob_height,
         1
 
     );
@@ -2256,9 +3459,9 @@ void masks_setup_1_elements_setup()
 
     Mask_3_setup_panel_ms_1->add_element(
 
-        Mask_3_par_3_textbox_ms_1,
-        0.5 * mask_setup_panel_width + 1 * SCREEN_MARGIN_0 + 0.5 * faders_textboxes_width,
-        1 * SCREEN_MARGIN_0 + 0.5 *faders_textboxes_height,
+        Mask_3_par_2_textbox_ms_1,
+        2 * p_3_margin + 1 * big_faders_width + 0.5 * big_faders_textboxes_width,
+        2 * p_3_margin + 1.5 * p_3_faders_knob_height,
         1
 
     );
@@ -2267,8 +3470,8 @@ void masks_setup_1_elements_setup()
     Mask_3_setup_panel_ms_1->add_element(
 
         Mask_3_par_3_fader_ms_1,
-        0.5 * mask_setup_panel_width + 2 * SCREEN_MARGIN_0 + 1 * faders_textboxes_width + 0.5 * faders_width,
-        1 * SCREEN_MARGIN_0 + 0.5 *faders_textboxes_height,
+        1 * p_3_margin + 0.5 * big_faders_width,
+        3 * p_3_margin + 2.5 * p_3_faders_knob_height,
         1
 
     );
@@ -2276,9 +3479,9 @@ void masks_setup_1_elements_setup()
 
     Mask_3_setup_panel_ms_1->add_element(
 
-        Mask_3_par_4_textbox_ms_1,
-        0.5 * mask_setup_panel_width + 1 * SCREEN_MARGIN_0 + 0.5 * faders_textboxes_width,
-        2 * SCREEN_MARGIN_0 + 1.5 * faders_textboxes_height,
+        Mask_3_par_3_textbox_ms_1,
+        2 * p_3_margin + 1 * big_faders_width + 0.5 * big_faders_textboxes_width,
+        3 * p_3_margin + 2.5 * p_3_faders_knob_height,
         1
 
     );
@@ -2287,11 +3490,285 @@ void masks_setup_1_elements_setup()
     Mask_3_setup_panel_ms_1->add_element(
 
         Mask_3_par_4_fader_ms_1,
-        0.5 * mask_setup_panel_width + 2 * SCREEN_MARGIN_0 + 1 * faders_textboxes_width + 0.5 * faders_width,
-        2 * SCREEN_MARGIN_0 + 1.5 * faders_textboxes_height,
+        1 * p_3_margin + 0.5 * big_faders_width,
+        4 * p_3_margin + 3.5 * p_3_faders_knob_height,
         1
 
     );
+
+
+    Mask_3_setup_panel_ms_1->add_element(
+
+        Mask_3_par_4_textbox_ms_1,
+        2 * p_3_margin + 1 * big_faders_width + 0.5 * big_faders_textboxes_width,
+        4 * p_3_margin + 3.5 * p_3_faders_knob_height,
+        1
+
+    );
+
+
+    Mask_3_setup_panel_ms_1->add_element(
+
+        Mask_3_par_5_fader_ms_1,
+        1 * p_3_margin + 0.5 * big_faders_width,
+        5 * p_3_margin + 4.5 * p_3_faders_knob_height,
+        1
+
+    );
+
+
+    Mask_3_setup_panel_ms_1->add_element(
+
+        Mask_3_par_5_textbox_ms_1,
+        2 * p_3_margin + 1 * big_faders_width + 0.5 * big_faders_textboxes_width,
+        5 * p_3_margin + 4.5 * p_3_faders_knob_height,
+        1
+
+    );
+
+
+    Mask_3_setup_panel_ms_1->add_element(
+
+        Mask_3_par_6_fader_ms_1,
+        1 * p_3_margin + 0.5 * big_faders_width,
+        6 * p_3_margin + 5.5 * p_3_faders_knob_height,
+        1
+
+    );
+
+
+    Mask_3_setup_panel_ms_1->add_element(
+
+        Mask_3_par_6_textbox_ms_1,
+        2 * p_3_margin + 1 * big_faders_width + 0.5 * big_faders_textboxes_width,
+        6 * p_3_margin + 5.5 * p_3_faders_knob_height,
+        1
+
+    );
+
+
+    Mask_3_setup_panel_ms_1->add_element(
+
+        Mask_3_par_7_fader_ms_1,
+        1 * p_3_margin + 0.5 * big_faders_width,
+        7 * p_3_margin + 6.5 * p_3_faders_knob_height,
+        1
+
+    );
+
+
+    Mask_3_setup_panel_ms_1->add_element(
+
+        Mask_3_par_7_textbox_ms_1,
+        2 * p_3_margin + 1 * big_faders_width + 0.5 * big_faders_textboxes_width,
+        7 * p_3_margin + 6.5 * p_3_faders_knob_height,
+        1
+
+    );
+
+
+    Mask_3_setup_panel_ms_1->add_element(
+
+        Mask_3_par_8_fader_ms_1,
+        1 * p_3_margin + 0.5 * big_faders_width,
+        8 * p_3_margin + 7.5 * p_3_faders_knob_height,
+        1
+
+    );
+
+
+    Mask_3_setup_panel_ms_1->add_element(
+
+        Mask_3_par_8_textbox_ms_1,
+        2 * p_3_margin + 1 * big_faders_width + 0.5 * big_faders_textboxes_width,
+        8 * p_3_margin + 7.5 * p_3_faders_knob_height,
+        1
+
+    );
+
+
+    Mask_3_setup_panel_ms_1->add_element(
+
+        Mask_3_par_9_fader_ms_1,
+        1 * p_3_margin + 0.5 * big_faders_width,
+        1 * p_3_margin + 0.5 * p_3_faders_knob_height,
+        1
+
+    );
+
+
+    Mask_3_setup_panel_ms_1->add_element(
+
+        Mask_3_par_9_textbox_ms_1,
+        2 * p_3_margin + 1 * big_faders_width + 0.5 * big_faders_textboxes_width,
+        1 * p_3_margin + 0.5 * p_3_faders_knob_height,
+        1
+
+    );
+
+
+    Mask_3_setup_panel_ms_1->add_element(
+
+        Mask_3_par_10_fader_ms_1,
+        1 * p_3_margin + 0.5 * big_faders_width,
+        2 * p_3_margin + 1.5 * p_3_faders_knob_height,
+        1
+
+    );
+
+
+    Mask_3_setup_panel_ms_1->add_element(
+
+        Mask_3_par_10_textbox_ms_1,
+        2 * p_3_margin + 1 * big_faders_width + 0.5 * big_faders_textboxes_width,
+        2 * p_3_margin + 1.5 * p_3_faders_knob_height,
+        1
+
+    );
+
+
+    Mask_3_setup_panel_ms_1->add_element(
+
+        Mask_3_par_11_fader_ms_1,
+        1 * p_3_margin + 0.5 * big_faders_width,
+        3 * p_3_margin + 2.5 * p_3_faders_knob_height,
+        1
+
+    );
+
+
+    Mask_3_setup_panel_ms_1->add_element(
+
+        Mask_3_par_11_textbox_ms_1,
+        2 * p_3_margin + 1 * big_faders_width + 0.5 * big_faders_textboxes_width,
+        3 * p_3_margin + 2.5 * p_3_faders_knob_height,
+        1
+
+    );
+
+
+    Mask_3_setup_panel_ms_1->add_element(
+
+        Mask_3_par_12_fader_ms_1,
+        1 * p_3_margin + 0.5 * big_faders_width,
+        4 * p_3_margin + 3.5 * p_3_faders_knob_height,
+        1
+
+    );
+
+
+    Mask_3_setup_panel_ms_1->add_element(
+
+        Mask_3_par_12_textbox_ms_1,
+        2 * p_3_margin + 1 * big_faders_width + 0.5 * big_faders_textboxes_width,
+        4 * p_3_margin + 3.5 * p_3_faders_knob_height,
+        1
+
+    );
+
+
+    Mask_3_setup_panel_ms_1->add_element(
+
+        Mask_3_par_13_fader_ms_1,
+        1 * p_3_margin + 0.5 * big_faders_width,
+        5 * p_3_margin + 4.5 * p_3_faders_knob_height,
+        1
+
+    );
+
+
+    Mask_3_setup_panel_ms_1->add_element(
+
+        Mask_3_par_13_textbox_ms_1,
+        2 * p_3_margin + 1 * big_faders_width + 0.5 * big_faders_textboxes_width,
+        5 * p_3_margin + 4.5 * p_3_faders_knob_height,
+        1
+
+    );
+
+
+    Mask_3_setup_panel_ms_1->add_element(
+
+        Mask_3_par_14_fader_ms_1,
+        1 * p_3_margin + 0.5 * big_faders_width,
+        6 * p_3_margin + 5.5 * p_3_faders_knob_height,
+        1
+
+    );
+
+
+    Mask_3_setup_panel_ms_1->add_element(
+
+        Mask_3_par_14_textbox_ms_1,
+        2 * p_3_margin + 1 * big_faders_width + 0.5 * big_faders_textboxes_width,
+        6 * p_3_margin + 5.5 * p_3_faders_knob_height,
+        1
+
+    );
+
+
+    Mask_3_setup_panel_ms_1->add_element(
+
+        Mask_3_par_15_fader_ms_1,
+        1 * p_3_margin + 0.5 * big_faders_width,
+        7 * p_3_margin + 6.5 * p_3_faders_knob_height,
+        1
+
+    );
+
+
+    Mask_3_setup_panel_ms_1->add_element(
+
+        Mask_3_par_15_textbox_ms_1,
+        2 * p_3_margin + 1 * big_faders_width + 0.5 * big_faders_textboxes_width,
+        7 * p_3_margin + 6.5 * p_3_faders_knob_height,
+        1
+
+    );
+
+
+    Mask_3_setup_panel_ms_1->add_element(
+
+        Mask_3_par_16_fader_ms_1,
+        1 * p_3_margin + 0.5 * big_faders_width,
+        8 * p_3_margin + 7.5 * p_3_faders_knob_height,
+        1
+
+    );
+
+
+    Mask_3_setup_panel_ms_1->add_element(
+
+        Mask_3_par_16_textbox_ms_1,
+        2 * p_3_margin + 1 * big_faders_width + 0.5 * big_faders_textboxes_width,
+        8 * p_3_margin + 7.5 * p_3_faders_knob_height,
+        1
+
+    );
+
+
+    Mask_3_setup_panel_ms_1->add_element(
+
+        Mask_3_first_part_but,
+        p_3_buttons_width * 0.5,
+        9 * p_3_margin + 8 * p_3_faders_knob_height + p_3_buttons_height * 0.5,
+        1
+
+    );
+
+
+    Mask_3_setup_panel_ms_1->add_element(
+
+        Mask_3_second_part_but,
+        p_3_buttons_width * 1.5,
+        9 * p_3_margin + 8 * p_3_faders_knob_height + p_3_buttons_height * 0.5,
+        1
+
+    );
+
+
+    // ===== Fill the panel 3 =====
+
 
     // ===== STATE GUI =====
 
@@ -2462,6 +3939,12 @@ void masks_setup_1_elements_free_and_nullptr()
     Mask_2_par_4_textbox_ms_1 = nullptr;
     Mask_2_par_4_fader_ms_1 = nullptr;
 
+    Mask_2_par_5_textbox_ms_1 = nullptr;
+    Mask_2_par_5_fader_ms_1 = nullptr;
+
+    Mask_2_par_6_textbox_ms_1 = nullptr;
+    Mask_2_par_6_fader_ms_1 = nullptr;
+
 
     Mask_2_setup_panel_ms_1 = nullptr;
 
@@ -2483,6 +3966,46 @@ void masks_setup_1_elements_free_and_nullptr()
     Mask_3_par_4_textbox_ms_1 = nullptr;
     Mask_3_par_4_fader_ms_1 = nullptr;
 
+    Mask_3_par_5_textbox_ms_1 = nullptr;
+    Mask_3_par_5_fader_ms_1 = nullptr;
+
+    Mask_3_par_6_textbox_ms_1 = nullptr;
+    Mask_3_par_6_fader_ms_1 = nullptr;
+
+    Mask_3_par_7_textbox_ms_1 = nullptr;
+    Mask_3_par_7_fader_ms_1 = nullptr;
+
+    Mask_3_par_8_textbox_ms_1 = nullptr;
+    Mask_3_par_8_fader_ms_1 = nullptr;
+
+
+    Mask_3_par_9_textbox_ms_1 = nullptr;
+    Mask_3_par_9_fader_ms_1 = nullptr;
+
+    Mask_3_par_10_textbox_ms_1 = nullptr;
+    Mask_3_par_10_fader_ms_1 = nullptr;
+
+    Mask_3_par_11_textbox_ms_1 = nullptr;
+    Mask_3_par_11_fader_ms_1 = nullptr;
+
+    Mask_3_par_12_textbox_ms_1 = nullptr;
+    Mask_3_par_12_fader_ms_1 = nullptr;
+
+    Mask_3_par_13_textbox_ms_1 = nullptr;
+    Mask_3_par_13_fader_ms_1 = nullptr;
+
+    Mask_3_par_14_textbox_ms_1 = nullptr;
+    Mask_3_par_14_fader_ms_1 = nullptr;
+
+    Mask_3_par_15_textbox_ms_1 = nullptr;
+    Mask_3_par_15_fader_ms_1 = nullptr;
+
+    Mask_3_par_16_textbox_ms_1 = nullptr;
+    Mask_3_par_16_fader_ms_1 = nullptr;
+
+
+    Mask_3_first_part_but = nullptr;
+    Mask_3_second_part_but = nullptr;
 
     Mask_3_setup_panel_ms_1 = nullptr;
 
@@ -2522,6 +4045,8 @@ void masks_setup_1_elements_update()
     Load_preset_button_ms_1->update();
 
 
+    // ===== Mask 1 =====
+
     // Update textbox only if value of fader been changed
 
     if (Mask_1_par_1_fader_ms_1->fader_value_changed_at_last_step())
@@ -2541,7 +4066,11 @@ void masks_setup_1_elements_update()
 
 
     Mask_1_setup_panel_ms_1->update();
+    
+    // ===== Mask 1 =====
 
+
+    // ===== Mask 2 =====
 
     if (Mask_2_par_1_fader_ms_1->fader_value_changed_at_last_step())
         m_2_h_min_update_ms_1();
@@ -2563,6 +4092,66 @@ void masks_setup_1_elements_update()
 
 
     Mask_2_setup_panel_ms_1->update();
+
+    // ===== Mask 2 =====
+
+
+    // ===== Mask 3 =====
+
+    // Submask 1
+
+    if (Mask_3_par_1_fader_ms_1->fader_value_changed_at_last_step())
+        m_3_b_h_update_ms_1();
+
+    if (Mask_3_par_2_fader_ms_1->fader_value_changed_at_last_step())
+        m_3_b_v_update_ms_1();
+
+    if (Mask_3_par_3_fader_ms_1->fader_value_changed_at_last_step())
+        m_3_h_min_update_ms_1();
+
+    if (Mask_3_par_4_fader_ms_1->fader_value_changed_at_last_step())
+        m_3_h_max_update_ms_1();
+
+    if (Mask_3_par_5_fader_ms_1->fader_value_changed_at_last_step())
+        m_3_s_min_update_ms_1();
+
+    if (Mask_3_par_6_fader_ms_1->fader_value_changed_at_last_step())
+        m_3_s_max_update_ms_1();
+
+    if (Mask_3_par_7_fader_ms_1->fader_value_changed_at_last_step())
+        m_3_v_min_update_ms_1();
+
+    if (Mask_3_par_8_fader_ms_1->fader_value_changed_at_last_step())
+        m_3_v_max_update_ms_1();
+
+
+    // Submask 2
+
+    if (Mask_3_par_9_fader_ms_1->fader_value_changed_at_last_step())
+        m_3_canny_low_update_ms_1();
+
+    if (Mask_3_par_10_fader_ms_1->fader_value_changed_at_last_step())
+        m_3_canny_high_update_ms_1();
+
+    if (Mask_3_par_11_fader_ms_1->fader_value_changed_at_last_step())
+        m_3_dilate_size_update_ms_1();
+
+    if (Mask_3_par_12_fader_ms_1->fader_value_changed_at_last_step())
+        m_3_dilate_iterations_update_ms_1();
+
+    if (Mask_3_par_13_fader_ms_1->fader_value_changed_at_last_step())
+        m_3_length_min_update_ms_1();
+
+    if (Mask_3_par_14_fader_ms_1->fader_value_changed_at_last_step())
+        m_3_length_max_update_ms_1();
+
+    if (Mask_3_par_15_fader_ms_1->fader_value_changed_at_last_step())
+        m_3_area_min_update_ms_1();
+
+    if (Mask_3_par_16_fader_ms_1->fader_value_changed_at_last_step())
+        m_3_area_max_update_ms_1();
+
+    // ===== Mask 3 =====
 
     Mask_3_setup_panel_ms_1->update();
 
@@ -2656,6 +4245,10 @@ void masks_setup_1_elements_render(SDL_Renderer* renderer)
     highlight_choosen_mask_ms_1(renderer);
 
     highlight_choosen_file_ms_1(renderer);
+
+    // Render submask choose highlighter if 3rd mask setup is active
+    if (opencv_global_update_ctx.current_mask_for_mask_setup == MASK_3_CM)
+        highlight_choosen_submask_ms_1(renderer);
 }
 
 // =========================================================================================== STATE INNER FUNCTIONS REALIZATION
@@ -2812,6 +4405,103 @@ void mask_3_choose_ms_1()
 
 
 
+void switch_submask_1_ms_1()
+{
+    // Change controlled submask
+    masks_data.file_1_masks.particle_mask.controlled_submask = SUBMASK_1_CSM3;
+
+
+    // Change active flags at GUI elements
+
+    Mask_3_par_1_textbox_ms_1->set_visible_flag(true);
+    Mask_3_par_1_fader_ms_1->set_visible_flag(true);
+    Mask_3_par_2_textbox_ms_1->set_visible_flag(true);
+    Mask_3_par_2_fader_ms_1->set_visible_flag(true);
+    Mask_3_par_3_textbox_ms_1->set_visible_flag(true);
+    Mask_3_par_3_fader_ms_1->set_visible_flag(true);
+    Mask_3_par_4_textbox_ms_1->set_visible_flag(true);
+    Mask_3_par_4_fader_ms_1->set_visible_flag(true);
+    Mask_3_par_5_textbox_ms_1->set_visible_flag(true);
+    Mask_3_par_5_fader_ms_1->set_visible_flag(true);
+    Mask_3_par_6_textbox_ms_1->set_visible_flag(true);
+    Mask_3_par_6_fader_ms_1->set_visible_flag(true);
+    Mask_3_par_7_textbox_ms_1->set_visible_flag(true);
+    Mask_3_par_7_fader_ms_1->set_visible_flag(true);
+    Mask_3_par_8_textbox_ms_1->set_visible_flag(true);
+    Mask_3_par_8_fader_ms_1->set_visible_flag(true);
+
+
+    Mask_3_par_9_textbox_ms_1->set_visible_flag(false);
+    Mask_3_par_9_fader_ms_1->set_visible_flag(false);
+    Mask_3_par_10_textbox_ms_1->set_visible_flag(false);
+    Mask_3_par_10_fader_ms_1->set_visible_flag(false);
+    Mask_3_par_11_textbox_ms_1->set_visible_flag(false);
+    Mask_3_par_11_fader_ms_1->set_visible_flag(false);
+    Mask_3_par_12_textbox_ms_1->set_visible_flag(false);
+    Mask_3_par_12_fader_ms_1->set_visible_flag(false);
+    Mask_3_par_13_textbox_ms_1->set_visible_flag(false);
+    Mask_3_par_13_fader_ms_1->set_visible_flag(false);
+    Mask_3_par_14_textbox_ms_1->set_visible_flag(false);
+    Mask_3_par_14_fader_ms_1->set_visible_flag(false);
+    Mask_3_par_15_textbox_ms_1->set_visible_flag(false);
+    Mask_3_par_15_fader_ms_1->set_visible_flag(false);
+    Mask_3_par_16_textbox_ms_1->set_visible_flag(false);
+    Mask_3_par_16_fader_ms_1->set_visible_flag(false);
+
+
+    // Highlighter position will be change in render function automatically
+
+}
+
+
+void switch_submask_2_ms_1()
+{
+    // Change controlled submask
+    masks_data.file_1_masks.particle_mask.controlled_submask = SUBMASK_2_CSM3;
+
+
+    // Change active flags at GUI elements
+
+    Mask_3_par_1_textbox_ms_1->set_visible_flag(false);
+    Mask_3_par_1_fader_ms_1->set_visible_flag(false);
+    Mask_3_par_2_textbox_ms_1->set_visible_flag(false);
+    Mask_3_par_2_fader_ms_1->set_visible_flag(false);
+    Mask_3_par_3_textbox_ms_1->set_visible_flag(false);
+    Mask_3_par_3_fader_ms_1->set_visible_flag(false);
+    Mask_3_par_4_textbox_ms_1->set_visible_flag(false);
+    Mask_3_par_4_fader_ms_1->set_visible_flag(false);
+    Mask_3_par_5_textbox_ms_1->set_visible_flag(false);
+    Mask_3_par_5_fader_ms_1->set_visible_flag(false);
+    Mask_3_par_6_textbox_ms_1->set_visible_flag(false);
+    Mask_3_par_6_fader_ms_1->set_visible_flag(false);
+    Mask_3_par_7_textbox_ms_1->set_visible_flag(false);
+    Mask_3_par_7_fader_ms_1->set_visible_flag(false);
+    Mask_3_par_8_textbox_ms_1->set_visible_flag(false);
+    Mask_3_par_8_fader_ms_1->set_visible_flag(false);
+
+
+    Mask_3_par_9_textbox_ms_1->set_visible_flag(true);
+    Mask_3_par_9_fader_ms_1->set_visible_flag(true);
+    Mask_3_par_10_textbox_ms_1->set_visible_flag(true);
+    Mask_3_par_10_fader_ms_1->set_visible_flag(true);
+    Mask_3_par_11_textbox_ms_1->set_visible_flag(true);
+    Mask_3_par_11_fader_ms_1->set_visible_flag(true);
+    Mask_3_par_12_textbox_ms_1->set_visible_flag(true);
+    Mask_3_par_12_fader_ms_1->set_visible_flag(true);
+    Mask_3_par_13_textbox_ms_1->set_visible_flag(true);
+    Mask_3_par_13_fader_ms_1->set_visible_flag(true);
+    Mask_3_par_14_textbox_ms_1->set_visible_flag(true);
+    Mask_3_par_14_fader_ms_1->set_visible_flag(true);
+    Mask_3_par_15_textbox_ms_1->set_visible_flag(true);
+    Mask_3_par_15_fader_ms_1->set_visible_flag(true);
+    Mask_3_par_16_textbox_ms_1->set_visible_flag(true);
+    Mask_3_par_16_fader_ms_1->set_visible_flag(true);
+
+
+    // Highlighter position will be change in render function automatically
+
+}
+
 
 void save_preset_ms_1()
 {
@@ -2856,13 +4546,13 @@ void choose_mask_1_ms_1()
 {
     // Set highlight
 
-    highlight_ms_1.x_m = Mask_1_choose_button_ms_1->get_x_render_point();
+    highlight_mf_ms_1.x_m = Mask_1_choose_button_ms_1->get_x_render_point();
     
-    highlight_ms_1.y_m = Mask_1_choose_button_ms_1->get_y_render_point();
+    highlight_mf_ms_1.y_m = Mask_1_choose_button_ms_1->get_y_render_point();
 
-    highlight_ms_1.w_m = Mask_1_choose_button_ms_1->get_width_size();
+    highlight_mf_ms_1.w_m = Mask_1_choose_button_ms_1->get_width_size();
     
-    highlight_ms_1.h_m = Mask_1_choose_button_ms_1->get_height_size();
+    highlight_mf_ms_1.h_m = Mask_1_choose_button_ms_1->get_height_size();
 
 
     // Set callback and switch status
@@ -2904,13 +4594,13 @@ void choose_mask_1_ms_1()
 
 void choose_mask_2_ms_1()
 {
-    highlight_ms_1.x_m = Mask_2_choose_button_ms_1->get_x_render_point();
+    highlight_mf_ms_1.x_m = Mask_2_choose_button_ms_1->get_x_render_point();
     
-    highlight_ms_1.y_m = Mask_2_choose_button_ms_1->get_y_render_point();
+    highlight_mf_ms_1.y_m = Mask_2_choose_button_ms_1->get_y_render_point();
 
-    highlight_ms_1.w_m = Mask_2_choose_button_ms_1->get_width_size();
+    highlight_mf_ms_1.w_m = Mask_2_choose_button_ms_1->get_width_size();
     
-    highlight_ms_1.h_m = Mask_2_choose_button_ms_1->get_height_size();
+    highlight_mf_ms_1.h_m = Mask_2_choose_button_ms_1->get_height_size();
 
 
     // Set callback and switch status
@@ -2952,13 +4642,13 @@ void choose_mask_2_ms_1()
 
 void choose_mask_3_ms_1()
 {
-    highlight_ms_1.x_m = Mask_3_choose_button_ms_1->get_x_render_point();
+    highlight_mf_ms_1.x_m = Mask_3_choose_button_ms_1->get_x_render_point();
     
-    highlight_ms_1.y_m = Mask_3_choose_button_ms_1->get_y_render_point();
+    highlight_mf_ms_1.y_m = Mask_3_choose_button_ms_1->get_y_render_point();
 
-    highlight_ms_1.w_m = Mask_3_choose_button_ms_1->get_width_size();
+    highlight_mf_ms_1.w_m = Mask_3_choose_button_ms_1->get_width_size();
     
-    highlight_ms_1.h_m = Mask_3_choose_button_ms_1->get_height_size();
+    highlight_mf_ms_1.h_m = Mask_3_choose_button_ms_1->get_height_size();
 
 
     // Set callback and switch status
@@ -3000,13 +4690,13 @@ void choose_mask_3_ms_1()
 
 void choose_current_file_ms_1()
 {
-    highlight_ms_1.x_f = File_1_button_ms_1->get_x_render_point();
+    highlight_mf_ms_1.x_f = File_1_button_ms_1->get_x_render_point();
     
-    highlight_ms_1.y_f = File_1_button_ms_1->get_y_render_point();
+    highlight_mf_ms_1.y_f = File_1_button_ms_1->get_y_render_point();
 
-    highlight_ms_1.w_f = File_1_button_ms_1->get_width_size();
+    highlight_mf_ms_1.w_f = File_1_button_ms_1->get_width_size();
     
-    highlight_ms_1.h_f = File_1_button_ms_1->get_height_size();
+    highlight_mf_ms_1.h_f = File_1_button_ms_1->get_height_size();
 
 
     opencv_global_update_ctx.current_file_for_mask_setup = FILE_1_CF;
@@ -3533,25 +5223,23 @@ void mask_3_processing_ms_1(cv::Mat* frame)
                 │ 1×1 / OFF         │
                 └─────────┬─────────┘
                           │
-                          ▼
-              ┌───────────────────────┐
-              │ Brightness Threshold  │
-              │                       │
-              │ V > V_min             │
-              └───────────┬───────────┘
                           │
                           ▼
               ┌───────────────────────┐
               │ Color Filter          │
               │                       │
-              │ B/G/R min/max         │
+              │ H/S/V min/max         │
               └───────────┬───────────┘
                           │
                           ▼
                     FIRST MASK
                           │
                           │
-                    ──────┼──────
+                    ──────┼────── 
+                NEXT STEPS ARE INACTIVE IF 
+    masks_data.CURR_FILE_MASKS.particle_mask.controlled_submask != SUBMASK_2_CSM3
+                SO IF IT's SUBMASK_1_CSM3 we translate FIRST SUBMASK and stop processing
+                IT IT's SUBMASK_2_CSM3 we continue processing and apply the next steps
                           │
                           ▼
                         CANNY
@@ -3568,42 +5256,660 @@ void mask_3_processing_ms_1(cv::Mat* frame)
                     FINAL MASK
     
     */
+    if (!frame || frame->empty())
+        return;
+
+        
+    // =======================================================================================
+    // GET CONTROLLED MASK
+
+    // Get current particle mask settings.
+
+    particle_detection_mask* controlled_mask = &masks_data.file_1_masks.particle_mask;
 
 
-    if (!frame || frame->empty()) return;
+    // =======================================================================================
+    // CHECK HSV RANGE
 
-    // Mask processing logic
+    // The lower boundary must be strictly smaller than the upper boundary.
+    //
+    // H: 0..179
+    // S: 0..255
+    // V: 0..255
 
-    const std::string text = "MASK_3";
+    if (
+        controlled_mask->h_min >= controlled_mask->h_max ||
+        controlled_mask->s_min >= controlled_mask->s_max ||
+        controlled_mask->v_min >= controlled_mask->v_max
+    )
+    {
+        return;
+    }
 
-    int font_face = cv::FONT_HERSHEY_SIMPLEX;
-    double font_scale = 1.0;
-    int thickness = 2;
 
-    int baseline = 0;
+    // =======================================================================================
+    // BGR -> HSV
 
-    cv::Size text_size = cv::getTextSize(
-        text,
-        font_face,
-        font_scale,
-        thickness,
-        &baseline
-    );
+    // Convert the source frame from BGR to HSV with coloring.
+    //
+    // HSV allows us to independently control:
+    //
+    //      H = Hue
+    //      S = Saturation
+    //      V = Value
 
-    int x = (frame->cols) - 1 * text_size.width - 10;
-    int y = (frame->rows) - 10;
+    cv::Mat image_hsv;
 
-    cv::putText(
+    cv::cvtColor(
         *frame,
-        text,
-        cv::Point(x, y),
-        font_face,
-        font_scale,
-        cv::Scalar(0, 255, 0),
-        thickness,
-        cv::LINE_AA
+        image_hsv,
+        cv::COLOR_BGR2HSV
     );
 
+
+    // =======================================================================================
+    // LIGHT GAUSSIAN BLUR - could be deactivated
+
+    // Apply a very small blur to suppress small pixel-to-pixel
+    // fluctuations around the particles boundary.
+    //
+    // 0x0 means that blur is disabled.
+    // 1x1 / 3x3 are valid blur sizes.
+
+    bool do_blur = !(controlled_mask->b_h == 0 && controlled_mask->b_v == 0);
+
+    if (do_blur)
+    {
+        cv::GaussianBlur(
+            image_hsv,
+            image_hsv,
+            cv::Size(
+                controlled_mask->b_h,
+                controlled_mask->b_v
+            ),
+            0
+        );
+    }
+
+
+    // =======================================================================================
+    // CREATE COLOR RANGE
+
+    cv::Mat first_mask;
+
+    cv::Scalar lower_color(
+        controlled_mask->h_min,
+        controlled_mask->s_min,
+        controlled_mask->v_min
+    );
+
+    cv::Scalar upper_color(
+        controlled_mask->h_max,
+        controlled_mask->s_max,
+        controlled_mask->v_max
+    );
+
+    cv::inRange(
+        image_hsv,
+        lower_color,
+        upper_color,
+        first_mask
+    );
+
+
+    // =======================================================================================
+    // DESIDE SHOW OR CONTINUE TO PROCESSING
+
+    bool to_proc = controlled_mask->controlled_submask == SUBMASK_2_CSM3;
+
+    if (to_proc)
+    {
+        /*
+            На этом этапе FIRST MASK уже содержит результат HSV-фильтрации.
+
+            То есть:
+
+                ORIGINAL IMAGE
+                    │
+                    ▼
+                BGR -> HSV
+                    │
+                    ▼
+                optional BLUR
+                    │
+                    ▼
+                HSV inRange
+                    │
+                    ▼
+                FIRST MASK
+                    │
+                    │
+                    │  ЧЁРНО-БЕЛОЕ ИЗОБРАЖЕНИЕ:
+                    │
+                    │  WHITE (255) = пиксель прошёл HSV-фильтр
+                    │  BLACK (0)   = пиксель не прошёл HSV-фильтр
+                    │
+                    ▼
+                CANNY -> DILATE -> CONTOURS
+                    │
+                    ▼
+                AREA / LENGTH
+                    │
+                    ▼
+                FINAL MASK
+
+            Поэтому все следующие операции работают уже НЕ с исходным
+            цветным изображением, а только с областями, которые были
+            предварительно выделены HSV-фильтром.
+        */
+
+
+        // =======================================================================================
+        // CANNY EDGE DETECTION
+        //
+        // INPUT:
+        //
+        //     first_mask
+        //
+        //     Это бинарная маска после HSV-фильтрации.
+        //
+        //     WHITE = нужный цвет / область
+        //     BLACK = всё остальное
+        //
+        //
+        // Что делает Canny:
+        //
+        //     Canny ищет границы (edges) внутри этой бинарной маски.
+        //
+        //     В результате вместо самой области мы получаем в основном
+        //     её границы.
+        //
+        //
+        // OUTPUT:
+        //
+        //     canny_mask
+        //
+        //     Это новая бинарная маска, где:
+        //
+        //     WHITE = найденная граница
+        //     BLACK = отсутствие границы
+        //
+        //     https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQbLUmt-YA19XxyVH8QtIEFEu8fRLbSSSlO--yMj9Rz_g&s
+        //
+        //     То есть данные проходят так:
+        //
+        //         FIRST MASK
+        //             │
+        //             │ HSV-selected regions
+        //             ▼
+        //           CANNY
+        //             │
+        //             │ edges of selected regions
+        //             ▼
+        //         CANNY MASK
+
+
+        cv::Mat canny_mask;
+
+        cv::Canny(
+
+            first_mask,
+            canny_mask,
+            controlled_mask->canny_low,
+            controlled_mask->canny_high
+
+        );
+
+
+        // =======================================================================================
+        // DILATE
+        //
+        // INPUT:
+        //
+        //     canny_mask
+        //
+        //     Это результат Canny, то есть тонкие линии/границы,
+        //     найденные внутри HSV-маски.
+        //
+        //
+        // WHAT DILATE DOES:
+        //
+        //     Dilate расширяет белые области изображения.
+        //
+        //     Для нашего случая это нужно для того, чтобы:
+        //
+        //     1. сделать найденные Canny-границы толще;
+        //     2. соединить близко расположенные участки границы;
+        //     3. уменьшить вероятность того, что одна траектория
+        //        будет разбита на несколько отдельных частей.
+        //
+        //
+        //     Размер kernel определяет, насколько сильно расширяется
+        //     белая область за одну итерацию.
+        //
+        //     Количество iterations определяет, сколько раз выполняется
+        //     операция расширения.
+        //
+        //
+        // OUTPUT:
+        //
+        //     dilated_mask
+        //
+        //     Это всё ещё бинарная маска.
+        //
+        //     Но теперь Canny-линии становятся толще и/или соединяются.
+        //     
+        //     https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS_yfLnZ1NkpUn-dMEWJHbk6fGtTYYy6_bGfxPiF0iuK5tbP_UUy5wRAE19&s=10
+        //
+        //     То есть:
+        //
+        //         CANNY MASK
+        //             │
+        //             │ thin edges
+        //             ▼
+        //           DILATE
+        //             │
+        //             │ thicker / connected edges
+        //             ▼
+        //         DILATED MASK
+
+
+        cv::Mat dilated_mask;
+
+        cv::Mat dilate_kernel = cv::getStructuringElement(
+            cv::MORPH_RECT,
+            cv::Size(
+
+                controlled_mask->dilate_size,
+                controlled_mask->dilate_size
+                
+            )
+        );
+
+        cv::dilate(
+            canny_mask,
+            dilated_mask,
+            dilate_kernel,
+            cv::Point(-1, -1),
+            controlled_mask->dilate_iterations
+        );
+
+
+        // =======================================================================================
+        // FIND CONTOURS
+        //
+        // INPUT:
+        //
+        //     dilated_mask
+        //
+        //     На этом этапе у нас уже есть подготовленная бинарная маска
+        //     с расширенными Canny-границами.
+        //
+        //
+        // WHAT FINDCONTOURS DOES:
+        //
+        //     findContours ищет связанные между собой белые области
+        //     и превращает каждую найденную область в набор точек.
+        //
+        //     Каждая такая последовательность точек называется contour.
+        //
+        //
+        //     Например:
+        //
+        //         DILATED MASK
+        //
+        //             ███
+        //               ███
+        //                  ██
+        //
+        //     становится примерно:
+        //
+        //         contour = [P1, P2, P3, P4, ...]
+        //
+        //
+        // RETR_EXTERNAL:
+        //
+        //     Нас интересуют только внешние контуры.
+        //     Вложенные внутренние контуры не собираются.
+        //
+        //
+        // CHAIN_APPROX_NONE:
+        //
+        //     Сохраняет все точки контура без дополнительного
+        //     упрощения последовательности.
+        //
+        //     Это важно для последующего измерения геометрии
+        //     траектории.
+        //
+        //
+        // OUTPUT:
+        //
+        //     contours
+        //
+        //     vector всех найденных контуров.
+        //
+        //     Каждый contour содержит набор cv::Point.
+        //
+        //
+        //     То есть:
+        //
+        //         DILATED MASK
+        //             │
+        //             │ connected white regions
+        //             ▼
+        //       FIND CONTOURS
+        //             │
+        //             │ vector<vector<Point>>
+        //             ▼
+        //          CONTOURS
+
+
+        std::vector<std::vector<cv::Point>> contours;
+
+        cv::findContours(
+            dilated_mask,
+            contours,
+            cv::RETR_EXTERNAL,
+            cv::CHAIN_APPROX_NONE
+        );
+
+
+        // =======================================================================================
+        // AREA / LENGTH FILTERING
+        //
+        // Здесь мы уже работаем не с изображением напрямую,
+        // а с отдельными найденными CONTOURS.
+        //
+        //
+        // INPUT:
+        //
+        //     contours
+        //
+        //     Каждый contour представляет одну отдельную найденную
+        //     связанную область/траекторию.
+        //
+        //
+        // Задача этого этапа:
+        //
+        //     определить, какие из найденных контуров действительно
+        //     подходят под параметры particle trajectory.
+        //
+        //
+        // Для этого каждый contour проверяется по двум независимым
+        // геометрическим характеристикам:
+        //
+        //     1. AREA   = площадь контура
+        //     2. LENGTH = длина контура
+        //
+        //
+        // Если contour не проходит хотя бы один из фильтров,
+        // он полностью отбрасывается.
+        //
+        //
+        // Если contour проходит оба фильтра,
+        // он переносится в FINAL MASK.
+        //
+        //
+        //     CONTOURS
+        //        │
+        //        ├── contour #1 -> AREA -> LENGTH -> ACCEPT
+        //        │
+        //        ├── contour #2 -> AREA -> REJECT
+        //        │
+        //        ├── contour #3 -> AREA -> LENGTH -> ACCEPT
+        //        │
+        //        └── contour #4 -> LENGTH -> REJECT
+        //        │
+        //        ▼
+        //     FINAL MASK
+        //
+        //
+        // Создаём пустую маску того же размера,
+        // что и предыдущий этап.
+        //
+        // В неё попадут ТОЛЬКО принятые контуры.
+        //
+        // BLACK = contour не прошёл фильтрацию
+        // WHITE = contour принят
+
+
+        // Final mask init 
+
+        cv::Mat final_mask = cv::Mat::zeros(
+            dilated_mask.size(),
+            CV_8UC1
+        );
+
+
+        for (const auto& contour : contours)
+        {
+            // -------------------------------------------------------------------------------
+            // AREA
+            //
+            // INPUT:
+            //
+            //     contour
+            //
+            //     Один конкретный contour из общего списка contours.
+            //
+            //
+            // WHAT:
+            //
+            //     contourArea вычисляет площадь области,
+            //     ограниченной данным contour.
+            //
+            //
+            // Это позволяет отсечь:
+            //
+            //     слишком маленькие объекты / шум
+            //     слишком большие области, которые не могут быть
+            //     нужной частицей или траекторией.
+            //
+            //
+            // Если площадь находится вне допустимого диапазона,
+            // contour сразу отбрасывается.
+            //
+            //
+            //     contour
+            //        │
+            //        ▼
+            //     AREA CHECK
+            //        │
+            //        ├── too small -> REJECT
+            //        │
+            //        ├── too large -> REJECT
+            //        │
+            //        └── valid     -> NEXT CHECK (LENGTH)
+
+
+            double contour_area = cv::contourArea(
+                contour
+            );
+
+            if (
+                contour_area < controlled_mask->area_min ||
+                contour_area > controlled_mask->area_max
+            )
+            {
+                continue;
+            }
+
+
+            // -------------------------------------------------------------------------------
+            // LENGTH
+            //
+            // INPUT:
+            //
+            //     Тот же contour, но только если он уже прошёл
+            //     проверку AREA.
+            //
+            //
+            // WHAT:
+            //
+            //     arcLength вычисляет длину контура.
+            //
+            //     false означает, что контур рассматривается
+            //     как незамкнутый при вычислении длины.
+            //
+            //
+            // Это позволяет дополнительно отсечь:
+            //
+            //     слишком короткие контуры
+            //     слишком длинные контуры
+            //
+            // Например, маленький случайный объект может иметь
+            // подходящую площадь, но при этом иметь недостаточную
+            // длину для реальной траектории.
+            //
+            //
+            // Поэтому AREA и LENGTH работают вместе:
+            //
+            //     AREA  отвечает за размер области
+            //     LENGTH отвечает за протяжённость контура
+            //
+            //
+            //     contour
+            //        │
+            //        ▼
+            //     LENGTH CHECK
+            //        │
+            //        ├── too short -> REJECT
+            //        │
+            //        ├── too long  -> REJECT
+            //        │
+            //        └── valid     -> ACCEPT
+
+
+            double contour_length = cv::arcLength(
+                contour,
+                false
+            );
+
+            if (
+                contour_length < controlled_mask->length_min ||
+                contour_length > controlled_mask->length_max
+            )
+            {
+                continue;
+            }
+
+
+            // -------------------------------------------------------------------------------
+            // ACCEPT CONTOUR
+            //
+            // Если выполнение дошло сюда, contour успешно прошёл:
+            //
+            //     1. AREA filter
+            //     2. LENGTH filter
+            //
+            //
+            // Теперь этот contour считается подходящим.
+            //
+            // Мы переносим его в final_mask.
+            //
+            //
+            // Важно:
+            //
+            //     final_mask изначально полностью BLACK.
+            //
+            //     Поэтому сюда попадают только те контуры,
+            //     которые были явно приняты фильтрами.
+            //
+            //
+            // FILLED означает, что внутренняя область контура
+            // также заполняется белым цветом.
+            //
+            //
+            //     ACCEPTED CONTOUR
+            //           │
+            //           ▼
+            //      DRAW TO MASK
+            //           │
+            //           ▼
+            //       FINAL MASK
+            //
+            //     WHITE = accepted trajectory
+            //     BLACK = everything rejected
+
+
+            // Fill final mask by founded countours 
+            
+            cv::drawContours(
+                final_mask,
+                std::vector{ contour },
+                -1,
+                cv::Scalar(255),
+                cv::FILLED
+            );
+
+        }
+
+
+        // =======================================================================================
+        // REPLACE FIRST MASK
+        //
+        // До этого момента first_mask содержал результат ТОЛЬКО HSV-фильтрации.
+        //
+        //
+        // Но поскольку controlled_submask == SUBMASK_2_CSM3,
+        // мы прошли дополнительную цепочку:
+        //
+        //     FIRST MASK
+        //         ↓
+        //       CANNY
+        //         ↓
+        //       DILATE
+        //         ↓
+        //     CONTOURS
+        //         ↓
+        //     AREA FILTER
+        //         ↓
+        //     LENGTH FILTER
+        //         ↓
+        //     FINAL MASK
+        //
+        //
+        // Поэтому теперь FINAL MASK становится новым FIRST MASK.
+        //
+        // Это удобно, потому что ниже по pipeline уже не нужно
+        // создавать отдельную переменную для результата:
+        //
+        //     first_mask
+        //
+        // просто начинает означать "итоговую маску текущего этапа".
+        //
+        //
+        // После этой строки:
+        //
+        //     first_mask
+        //
+        // содержит только те области, которые:
+        //
+        //     1. прошли HSV-фильтр;
+        //     2. дали Canny-контур;
+        //     3. после DILATE сформировали contour;
+        //     4. прошли AREA;
+        //     5. прошли LENGTH.
+        //
+        //
+        // То есть это уже очищенный FINAL RESULT.
+
+
+        first_mask = final_mask;
+    }
+
+    // =======================================================================================
+    // TRANSLATE BACK TO BGR AND SHOW
+
+    cv::Mat final_mask_bgr;
+
+    cv::cvtColor(
+        first_mask,
+        final_mask_bgr,
+        cv::COLOR_GRAY2BGR
+    );
+
+    final_mask_bgr.copyTo(*frame);
 }
 
 
@@ -3615,9 +5921,6 @@ void mask_3_processing_ms_1(cv::Mat* frame)
 
 void choosen_mask_and_file_init()
 {
-    highlight_ms_1.highlight_hex_color = "#eaff00";
-    highlight_ms_1.highlight_line_width = 5;
-
     choose_mask_1_ms_1();
     choose_current_file_ms_1();
 }
@@ -3627,12 +5930,12 @@ void highlight_choosen_mask_ms_1(SDL_Renderer* renderer)
 {
     rectangle_borders_draw_by_color(
 
-        highlight_ms_1.x_m,
-        highlight_ms_1.y_m,
-        highlight_ms_1.w_m,
-        highlight_ms_1.h_m,
-        highlight_ms_1.highlight_line_width,
-        hex_to_sdl_color(highlight_ms_1.highlight_hex_color, 255),
+        highlight_mf_ms_1.x_m,
+        highlight_mf_ms_1.y_m,
+        highlight_mf_ms_1.w_m,
+        highlight_mf_ms_1.h_m,
+        highlight_mf_ms_1.highlight_line_width,
+        highlight_mf_ms_1.highlight_color,
         renderer
 
     );
@@ -3643,12 +5946,58 @@ void highlight_choosen_file_ms_1(SDL_Renderer* renderer)
 {
     rectangle_borders_draw_by_color(
 
-        highlight_ms_1.x_f,
-        highlight_ms_1.y_f,
-        highlight_ms_1.w_f,
-        highlight_ms_1.h_f,
-        highlight_ms_1.highlight_line_width,
-        hex_to_sdl_color(highlight_ms_1.highlight_hex_color, 255),
+        highlight_mf_ms_1.x_f,
+        highlight_mf_ms_1.y_f,
+        highlight_mf_ms_1.w_f,
+        highlight_mf_ms_1.h_f,
+        highlight_mf_ms_1.highlight_line_width,
+        highlight_mf_ms_1.highlight_color,
+        renderer
+
+    );
+}
+
+
+void highlight_choosen_submask_ms_1(SDL_Renderer* renderer)
+{
+    // Could be anywhere at the moove moment 
+    // so it's better to always recalculate by switch
+
+    switch (masks_data.file_1_masks.particle_mask.controlled_submask)
+    {
+        case SUBMASK_1_CSM3:
+
+            highlight_sm_ms_1.x_sm = Mask_3_first_part_but->get_x_render_point();
+            highlight_sm_ms_1.y_sm = Mask_3_first_part_but->get_y_render_point();
+            highlight_sm_ms_1.w_sm = Mask_3_first_part_but->get_width_size();
+            highlight_sm_ms_1.h_sm = Mask_3_first_part_but->get_height_size();
+
+            break;
+
+        case SUBMASK_2_CSM3:
+            
+            highlight_sm_ms_1.x_sm = Mask_3_second_part_but->get_x_render_point();
+            highlight_sm_ms_1.y_sm = Mask_3_second_part_but->get_y_render_point();
+            highlight_sm_ms_1.w_sm = Mask_3_second_part_but->get_width_size();
+            highlight_sm_ms_1.h_sm = Mask_3_second_part_but->get_height_size();
+
+            break;
+
+        default:
+            break;
+    }
+
+
+    // Draw rect
+
+    rectangle_borders_draw_by_color(
+
+        highlight_sm_ms_1.x_sm,
+        highlight_sm_ms_1.y_sm,
+        highlight_sm_ms_1.w_sm,
+        highlight_sm_ms_1.h_sm,
+        highlight_sm_ms_1.highlight_line_width,
+        highlight_sm_ms_1.highlight_color,
         renderer
 
     );
@@ -3661,9 +6010,9 @@ void highlight_video_texture_ms_1(SDL_Renderer* renderer)
 
         Video_preview_texture_ms_1->get_x_render_point(),
         Video_preview_texture_ms_1->get_y_render_point(),
-        Video_preview_texture_ms_1->get_width_size() + highlight_ms_1.highlight_line_width,
-        Video_preview_texture_ms_1->get_height_size() + highlight_ms_1.highlight_line_width,
-        highlight_ms_1.highlight_line_width,
+        Video_preview_texture_ms_1->get_width_size() + highlight_mf_ms_1.highlight_line_width,
+        Video_preview_texture_ms_1->get_height_size() + highlight_mf_ms_1.highlight_line_width,
+        highlight_mf_ms_1.highlight_line_width,
         App_palette.get_current_palette().basic_border_color,
         renderer
 

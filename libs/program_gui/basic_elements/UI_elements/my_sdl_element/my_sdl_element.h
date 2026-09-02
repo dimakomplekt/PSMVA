@@ -208,6 +208,9 @@ class My_SDL_element
         My_SDL_panel* get_element_container() const;
 
         
+        
+        // TODO: LATER LOGIC SHOULD BE DEVIDED TO SET_ACTIVE AND SET_VISIBLE, NOT ALL IN ONE
+
         // Element visible condition setter
         virtual void set_visible_flag(bool new_flag);
 

@@ -238,11 +238,42 @@ void save_mask_preset(int file_number)
 
     // ===== Write JET MASK =====
 
-    
+
+    // ===== Write PARTICLE MASK =====
+
+    file << "PARTICLE_MASK\n";
+    file << "\n";
+
+    file << "B_H: " << used_file->particle_mask.b_h << "\n";
+    file << "B_V: " << used_file->particle_mask.b_v << "\n";
+
+    file << "H_MIN: " << used_file->particle_mask.h_min << "\n";
+    file << "H_MAX: " << used_file->particle_mask.h_max << "\n";
+
+    file << "S_MIN: " << used_file->particle_mask.s_min << "\n";
+    file << "S_MAX: " << used_file->particle_mask.s_max << "\n";
+
+    file << "V_MIN: " << used_file->particle_mask.v_min << "\n";
+    file << "V_MAX: " << used_file->particle_mask.v_max << "\n";
+
+    file << "CANNY_LOW: " << used_file->particle_mask.canny_low << "\n";
+    file << "CANNY_HIGH: " << used_file->particle_mask.canny_high << "\n";
+
+    file << "DILATE_SIZE: " << used_file->particle_mask.dilate_size << "\n";
+    file << "DILATE_ITERATIONS: " << used_file->particle_mask.dilate_iterations << "\n";
+
+    file << "LENGTH_MIN: " << used_file->particle_mask.length_min << "\n";
+    file << "LENGTH_MAX: " << used_file->particle_mask.length_max << "\n";
+
+    file << "AREA_MIN: " << used_file->particle_mask.area_min << "\n";
+    file << "AREA_MAX: " << used_file->particle_mask.area_max << "\n";
+
+    file << "\n";
+
     // ===== Write =====
 
-    file.close();
 
+    file.close();
 }
 
 
@@ -460,12 +491,16 @@ bool load_mask_1_preset(
 
     // ===== CHECK REQUIRED FIELDS =====
 
-    if (!nozzle_mask_found ||
+    if (
+
+        !nozzle_mask_found ||
         !x_1_found ||
         !y_1_found ||
         !x_2_found ||
         !y_2_found ||
-        !d_n_found)
+        !d_n_found
+
+    )
     {
         std::cout << "Wrong NOZZLE_MASK preset format!\n"
                   << std::endl;
@@ -1162,6 +1197,1177 @@ bool load_mask_2_preset(
 }
 
 
+bool load_mask_3_preset(
+
+    int file_number,
+    const std::vector<std::string>& txt_lines,
+    decltype(file_masks_data::particle_mask)& output
+
+)
+{
+    // Load with check of required fields and their values.
+
+    (void)file_number;
+
+
+    // =======================================================================================
+    // FORMAT CHECK
+
+    bool particle_mask_found = false;
+
+    bool b_h_found = false;
+    bool b_v_found = false;
+
+    bool h_min_found = false;
+    bool h_max_found = false;
+
+    bool s_min_found = false;
+    bool s_max_found = false;
+
+    bool v_min_found = false;
+    bool v_max_found = false;
+
+    bool c_low_found = false;
+    bool c_high_found = false;
+
+    bool d_s_found = false;
+    bool d_i_found = false;
+
+    bool l_min_found = false;
+    bool l_max_found = false;
+
+    bool a_min_found = false;
+    bool a_max_found = false;
+
+
+    std::string tmp_b_h;
+    std::string tmp_b_v;
+
+    std::string tmp_h_min;
+    std::string tmp_h_max;
+
+    std::string tmp_s_min;
+    std::string tmp_s_max;
+
+    std::string tmp_v_min;
+    std::string tmp_v_max;
+
+    std::string tmp_c_low;
+    std::string tmp_c_high;
+
+    std::string tmp_d_s;
+    std::string tmp_d_i;
+
+    std::string tmp_l_min;
+    std::string tmp_l_max;
+
+    std::string tmp_a_min;
+    std::string tmp_a_max;
+
+
+    for (const std::string& current_line : txt_lines)
+    {
+        // ===== PARTICLE MASK =====
+
+        if (current_line == "PARTICLE_MASK")
+        {
+            if (particle_mask_found)
+            {
+                std::cout << "Duplicate PARTICLE_MASK section!\n"
+                          << std::endl;
+
+                return false;
+            }
+
+            particle_mask_found = true;
+        }
+
+
+        // ===== B H =====
+
+        else if (current_line.rfind("B_H:", 0) == 0 && particle_mask_found)
+        {
+            if (b_h_found)
+            {
+                std::cout << "Duplicate B_H field!\n"
+                          << std::endl;
+
+                return false;
+            }
+
+            tmp_b_h = current_line.substr(6);
+
+            size_t first_not_space = tmp_b_h.find_first_not_of(' ');
+
+            if (first_not_space != std::string::npos)
+            {
+                tmp_b_h = tmp_b_h.substr(first_not_space);
+            }
+            else
+            {
+                tmp_b_h.clear();
+            }
+
+            b_h_found = true;
+        }
+
+
+        // ===== B V =====
+
+        else if (current_line.rfind("B_V:", 0) == 0 && particle_mask_found)
+        {
+            if (b_v_found)
+            {
+                std::cout << "Duplicate B_V field!\n"
+                          << std::endl;
+
+                return false;
+            }
+
+            tmp_b_v = current_line.substr(6);
+
+            size_t first_not_space = tmp_b_v.find_first_not_of(' ');
+
+            if (first_not_space != std::string::npos)
+            {
+                tmp_b_v = tmp_b_v.substr(first_not_space);
+            }
+            else
+            {
+                tmp_b_v.clear();
+            }
+
+            b_v_found = true;
+        }
+
+
+        // ===== H MIN =====
+
+        else if (current_line.rfind("H_MIN:", 0) == 0 && particle_mask_found)
+        {
+            if (h_min_found)
+            {
+                std::cout << "Duplicate H_MIN field!\n"
+                          << std::endl;
+
+                return false;
+            }
+
+            tmp_h_min = current_line.substr(6);
+
+            size_t first_not_space = tmp_h_min.find_first_not_of(' ');
+
+            if (first_not_space != std::string::npos)
+            {
+                tmp_h_min = tmp_h_min.substr(first_not_space);
+            }
+            else
+            {
+                tmp_h_min.clear();
+            }
+
+            h_min_found = true;
+        }
+
+
+        // ===== H MAX =====
+
+        else if (current_line.rfind("H_MAX:", 0) == 0 && particle_mask_found)
+        {
+            if (h_max_found)
+            {
+                std::cout << "Duplicate H_MAX field!\n"
+                          << std::endl;
+
+                return false;
+            }
+
+            tmp_h_max = current_line.substr(6);
+
+            size_t first_not_space = tmp_h_max.find_first_not_of(' ');
+
+            if (first_not_space != std::string::npos)
+            {
+                tmp_h_max = tmp_h_max.substr(first_not_space);
+            }
+            else
+            {
+                tmp_h_max.clear();
+            }
+
+            h_max_found = true;
+        }
+
+
+        // ===== S MIN =====
+
+        else if (current_line.rfind("S_MIN:", 0) == 0 && particle_mask_found)
+        {
+            if (s_min_found)
+            {
+                std::cout << "Duplicate S_MIN field!\n"
+                          << std::endl;
+
+                return false;
+            }
+
+            tmp_s_min = current_line.substr(6);
+
+            size_t first_not_space = tmp_s_min.find_first_not_of(' ');
+
+            if (first_not_space != std::string::npos)
+            {
+                tmp_s_min = tmp_s_min.substr(first_not_space);
+            }
+            else
+            {
+                tmp_s_min.clear();
+            }
+
+            s_min_found = true;
+        }
+
+
+        // ===== S MAX =====
+
+        else if (current_line.rfind("S_MAX:", 0) == 0 && particle_mask_found)
+        {
+            if (s_max_found)
+            {
+                std::cout << "Duplicate S_MAX field!\n"
+                          << std::endl;
+
+                return false;
+            }
+
+            tmp_s_max = current_line.substr(6);
+
+            size_t first_not_space = tmp_s_max.find_first_not_of(' ');
+
+            if (first_not_space != std::string::npos)
+            {
+                tmp_s_max = tmp_s_max.substr(first_not_space);
+            }
+            else
+            {
+                tmp_s_max.clear();
+            }
+
+            s_max_found = true;
+        }
+
+
+        // ===== V MIN =====
+
+        else if (current_line.rfind("V_MIN:", 0) == 0 && particle_mask_found)
+        {
+            if (v_min_found)
+            {
+                std::cout << "Duplicate V_MIN field!\n"
+                          << std::endl;
+
+                return false;
+            }
+
+            tmp_v_min = current_line.substr(6);
+
+            size_t first_not_space = tmp_v_min.find_first_not_of(' ');
+
+            if (first_not_space != std::string::npos)
+            {
+                tmp_v_min = tmp_v_min.substr(first_not_space);
+            }
+            else
+            {
+                tmp_v_min.clear();
+            }
+
+            v_min_found = true;
+        }
+
+
+        // ===== V MAX =====
+
+        else if (current_line.rfind("V_MAX:", 0) == 0 && particle_mask_found)
+        {
+            if (v_max_found)
+            {
+                std::cout << "Duplicate V_MAX field!\n"
+                          << std::endl;
+
+                return false;
+            }
+
+            tmp_v_max = current_line.substr(6);
+
+            size_t first_not_space = tmp_v_max.find_first_not_of(' ');
+
+            if (first_not_space != std::string::npos)
+            {
+                tmp_v_max = tmp_v_max.substr(first_not_space);
+            }
+            else
+            {
+                tmp_v_max.clear();
+            }
+
+            v_max_found = true;
+        }
+
+
+        // ===== CANNY LOW =====
+
+        else if (current_line.rfind("CANNY_LOW:", 0) == 0)
+        {
+            if (c_low_found)
+            {
+                std::cout << "Duplicate CANNY_LOW field!\n"
+                          << std::endl;
+
+                return false;
+            }
+
+            tmp_c_low = current_line.substr(10);
+
+            size_t first_not_space = tmp_c_low.find_first_not_of(' ');
+
+            if (first_not_space != std::string::npos)
+            {
+                tmp_c_low = tmp_c_low.substr(first_not_space);
+            }
+            else
+            {
+                tmp_c_low.clear();
+            }
+
+            c_low_found = true;
+        }
+
+
+        // ===== CANNY HIGH =====
+
+        else if (current_line.rfind("CANNY_HIGH:", 0) == 0)
+        {
+            if (c_high_found)
+            {
+                std::cout << "Duplicate CANNY_HIGH field!\n"
+                          << std::endl;
+
+                return false;
+            }
+
+            tmp_c_high = current_line.substr(11);
+
+            size_t first_not_space = tmp_c_high.find_first_not_of(' ');
+
+            if (first_not_space != std::string::npos)
+            {
+                tmp_c_high = tmp_c_high.substr(first_not_space);
+            }
+            else
+            {
+                tmp_c_high.clear();
+            }
+
+            c_high_found = true;
+        }
+
+
+        // ===== DILATE SIZE =====
+
+        else if (current_line.rfind("DILATE_SIZE:", 0) == 0)
+        {
+            if (d_s_found)
+            {
+                std::cout << "Duplicate DILATE_SIZE field!\n"
+                          << std::endl;
+
+                return false;
+            }
+
+            tmp_d_s = current_line.substr(12);
+
+            size_t first_not_space = tmp_d_s.find_first_not_of(' ');
+
+            if (first_not_space != std::string::npos)
+            {
+                tmp_d_s = tmp_d_s.substr(first_not_space);
+            }
+            else
+            {
+                tmp_d_s.clear();
+            }
+
+            d_s_found = true;
+        }
+
+
+        // ===== DILATE ITERATIONS =====
+
+        else if (current_line.rfind("DILATE_ITERATIONS:", 0) == 0)
+        {
+            if (d_i_found)
+            {
+                std::cout << "Duplicate DILATE_ITERATIONS field!\n"
+                          << std::endl;
+
+                return false;
+            }
+
+            tmp_d_i = current_line.substr(18);
+
+            size_t first_not_space = tmp_d_i.find_first_not_of(' ');
+
+            if (first_not_space != std::string::npos)
+            {
+                tmp_d_i = tmp_d_i.substr(first_not_space);
+            }
+            else
+            {
+                tmp_d_i.clear();
+            }
+
+            d_i_found = true;
+        }
+
+
+        // ===== LENGTH MIN =====
+
+        else if (current_line.rfind("LENGTH_MIN:", 0) == 0)
+        {
+            if (l_min_found)
+            {
+                std::cout << "Duplicate LENGTH_MIN field!\n"
+                          << std::endl;
+
+                return false;
+            }
+
+            tmp_l_min = current_line.substr(11);
+
+            size_t first_not_space = tmp_l_min.find_first_not_of(' ');
+
+            if (first_not_space != std::string::npos)
+            {
+                tmp_l_min = tmp_l_min.substr(first_not_space);
+            }
+            else
+            {
+                tmp_l_min.clear();
+            }
+
+            l_min_found = true;
+        }
+
+
+        // ===== LENGTH MAX =====
+
+        else if (current_line.rfind("LENGTH_MAX:", 0) == 0)
+        {
+            if (l_max_found)
+            {
+                std::cout << "Duplicate LENGTH_MAX field!\n"
+                          << std::endl;
+
+                return false;
+            }
+
+            tmp_l_max = current_line.substr(11);
+
+            size_t first_not_space = tmp_l_max.find_first_not_of(' ');
+
+            if (first_not_space != std::string::npos)
+            {
+                tmp_l_max = tmp_l_max.substr(first_not_space);
+            }
+            else
+            {
+                tmp_l_max.clear();
+            }
+
+            l_max_found = true;
+        }
+
+
+        // ===== AREA MIN =====
+
+        else if (current_line.rfind("AREA_MIN:", 0) == 0)
+        {
+            if (a_min_found)
+            {
+                std::cout << "Duplicate AREA_MIN field!\n"
+                          << std::endl;
+
+                return false;
+            }
+
+            tmp_a_min = current_line.substr(9);
+
+            size_t first_not_space = tmp_a_min.find_first_not_of(' ');
+
+            if (first_not_space != std::string::npos)
+            {
+                tmp_a_min = tmp_a_min.substr(first_not_space);
+            }
+            else
+            {
+                tmp_a_min.clear();
+            }
+
+            a_min_found = true;
+        }
+
+
+        // ===== AREA MAX =====
+
+        else if (current_line.rfind("AREA_MAX:", 0) == 0)
+        {
+            if (a_max_found)
+            {
+                std::cout << "Duplicate AREA_MAX field!\n"
+                          << std::endl;
+
+                return false;
+            }
+
+            tmp_a_max = current_line.substr(9);
+
+            size_t first_not_space = tmp_a_max.find_first_not_of(' ');
+
+            if (first_not_space != std::string::npos)
+            {
+                tmp_a_max = tmp_a_max.substr(first_not_space);
+            }
+            else
+            {
+                tmp_a_max.clear();
+            }
+
+            a_max_found = true;
+        }
+    }
+
+
+    // ===== CHECK REQUIRED FIELDS =====
+
+    if (!particle_mask_found ||
+        !b_h_found ||
+        !b_v_found ||
+        !h_min_found ||
+        !h_max_found ||
+        !s_min_found ||
+        !s_max_found ||
+        !v_min_found ||
+        !v_max_found ||
+        !c_low_found ||
+        !c_high_found ||
+        !d_s_found ||
+        !d_i_found ||
+        !l_min_found ||
+        !l_max_found ||
+        !a_min_found ||
+        !a_max_found)
+    {
+        std::cout << "Wrong PARTICLE_MASK preset format!\n"
+                  << std::endl;
+
+        return false;
+    }
+
+    // =======================================================================================
+    // FORMAT CHECK
+
+
+    // =======================================================================================
+    // DATA CHECK
+
+    int b_h_for_pass;
+    int b_v_for_pass;
+
+    int h_min_for_pass;
+    int h_max_for_pass;
+
+    int s_min_for_pass;
+    int s_max_for_pass;
+
+    int v_min_for_pass;
+    int v_max_for_pass;
+
+    int c_low_for_pass;
+    int c_high_for_pass;
+
+    int d_s_for_pass;
+    int d_i_for_pass;
+
+    int l_min_for_pass;
+    int l_max_for_pass;
+
+    int a_min_for_pass;
+    int a_max_for_pass;
+
+
+    // =======================================================================================
+    // CHECK B H
+
+    if (tmp_b_h.empty() ||
+        tmp_b_h.find_first_not_of("0123456789") != std::string::npos)
+    {
+        std::cout << "Wrong B_H value!\n"
+                  << std::endl;
+
+        return false;
+    }
+
+    b_h_for_pass = std::stoi(tmp_b_h);
+
+    if (b_h_for_pass < 0 ||
+        b_h_for_pass > 5)
+    {
+        std::cout << "Wrong B_H value!\n"
+                  << std::endl;
+
+        return false;
+    }
+
+    if (b_h_for_pass % 2 == 0)
+    {
+        if (b_h_for_pass != 0)
+        {
+            std::cout << "B_H value must be odd or 0!\n"
+                    << std::endl;
+
+            return false;
+        }
+    }
+
+    // =======================================================================================
+    // CHECK B H
+
+
+    // =======================================================================================
+    // CHECK B V
+
+    if (tmp_b_v.empty() ||
+        tmp_b_v.find_first_not_of("0123456789") != std::string::npos)
+    {
+        std::cout << "Wrong B_V value!\n"
+                  << std::endl;
+
+        return false;
+    }
+
+    b_v_for_pass = std::stoi(tmp_b_v);
+
+    if (b_v_for_pass < 0 ||
+        b_v_for_pass > 5)
+    {
+        std::cout << "Wrong B_V value!\n"
+                  << std::endl;
+
+        return false;
+    }
+
+    
+    if (b_v_for_pass % 2 == 0)
+    {
+        if (b_v_for_pass != 0)
+        {
+            std::cout << "B_V value must be odd or 0!\n"
+                    << std::endl;
+
+            return false;
+        }
+    }
+
+    // =======================================================================================
+    // CHECK B V
+
+
+    // =======================================================================================
+    // CHECK H MIN
+
+    if (tmp_h_min.empty() ||
+        tmp_h_min.find_first_not_of("0123456789") != std::string::npos)
+    {
+        std::cout << "Wrong H_MIN value!\n"
+                  << std::endl;
+
+        return false;
+    }
+
+    h_min_for_pass = std::stoi(tmp_h_min);
+
+    if (h_min_for_pass < 0 ||
+        h_min_for_pass > 179)
+    {
+        std::cout << "Wrong H_MIN value!\n"
+                  << std::endl;
+
+        return false;
+    }
+
+    // =======================================================================================
+    // CHECK H MIN
+
+
+    // =======================================================================================
+    // CHECK H MAX
+
+    if (tmp_h_max.empty() ||
+        tmp_h_max.find_first_not_of("0123456789") != std::string::npos)
+    {
+        std::cout << "Wrong H_MAX value!\n"
+                  << std::endl;
+
+        return false;
+    }
+
+    h_max_for_pass = std::stoi(tmp_h_max);
+
+    if (h_max_for_pass < 0 ||
+        h_max_for_pass > 179 ||
+        h_min_for_pass >= h_max_for_pass)
+    {
+        std::cout << "Wrong H_MAX value!\n"
+                  << std::endl;
+
+        return false;
+    }
+
+    // =======================================================================================
+    // CHECK H MAX
+
+
+    // =======================================================================================
+    // CHECK S MIN
+
+    if (tmp_s_min.empty() ||
+        tmp_s_min.find_first_not_of("0123456789") != std::string::npos)
+    {
+        std::cout << "Wrong S_MIN value!\n"
+                  << std::endl;
+
+        return false;
+    }
+
+    s_min_for_pass = std::stoi(tmp_s_min);
+
+    if (s_min_for_pass < 0 ||
+        s_min_for_pass > 255)
+    {
+        std::cout << "Wrong S_MIN value!\n"
+                  << std::endl;
+
+        return false;
+    }
+
+    // =======================================================================================
+    // CHECK S MIN
+
+
+    // =======================================================================================
+    // CHECK S MAX
+
+    if (tmp_s_max.empty() ||
+        tmp_s_max.find_first_not_of("0123456789") != std::string::npos)
+    {
+        std::cout << "Wrong S_MAX value!\n"
+                  << std::endl;
+
+        return false;
+    }
+
+    s_max_for_pass = std::stoi(tmp_s_max);
+
+    if (s_max_for_pass < 0 ||
+        s_max_for_pass > 255 ||
+        s_min_for_pass >= s_max_for_pass)
+    {
+        std::cout << "Wrong S_MAX value!\n"
+                  << std::endl;
+
+        return false;
+    }
+
+    // =======================================================================================
+    // CHECK S MAX
+
+
+    // =======================================================================================
+    // CHECK V MIN
+
+    if (tmp_v_min.empty() ||
+        tmp_v_min.find_first_not_of("0123456789") != std::string::npos)
+    {
+        std::cout << "Wrong V_MIN value!\n"
+                  << std::endl;
+
+        return false;
+    }
+
+    v_min_for_pass = std::stoi(tmp_v_min);
+
+    if (v_min_for_pass < 0 ||
+        v_min_for_pass > 255)
+    {
+        std::cout << "Wrong V_MIN value!\n"
+                  << std::endl;
+
+        return false;
+    }
+
+    // =======================================================================================
+    // CHECK V MIN
+
+
+    // =======================================================================================
+    // CHECK V MAX
+
+    if (tmp_v_max.empty() ||
+        tmp_v_max.find_first_not_of("0123456789") != std::string::npos)
+    {
+        std::cout << "Wrong V_MAX value!\n"
+                  << std::endl;
+
+        return false;
+    }
+
+    v_max_for_pass = std::stoi(tmp_v_max);
+
+    if (v_max_for_pass < 0 ||
+        v_max_for_pass > 255 ||
+        v_min_for_pass >= v_max_for_pass)
+    {
+        std::cout << "Wrong V_MAX value!\n"
+                  << std::endl;
+
+        return false;
+    }
+
+    // =======================================================================================
+    // CHECK V MAX
+
+
+    // =======================================================================================
+    // CHECK CANNY LOW
+
+    if (tmp_c_low.empty() ||
+        tmp_c_low.find_first_not_of("0123456789") != std::string::npos)
+    {
+        std::cout << "Wrong CANNY_LOW value!\n"
+                  << std::endl;
+
+        return false;
+    }
+
+    c_low_for_pass = std::stoi(tmp_c_low);
+
+    if (c_low_for_pass < 0 ||
+        c_low_for_pass > 255)
+    {
+        std::cout << "Wrong CANNY_LOW value!\n"
+                  << std::endl;
+
+        return false;
+    }
+
+    // =======================================================================================
+    // CHECK CANNY LOW
+
+
+    // =======================================================================================
+    // CHECK CANNY HIGH
+
+    if (tmp_c_high.empty() ||
+        tmp_c_high.find_first_not_of("0123456789") != std::string::npos)
+    {
+        std::cout << "Wrong CANNY_HIGH value!\n"
+                  << std::endl;
+
+        return false;
+    }
+
+    c_high_for_pass = std::stoi(tmp_c_high);
+
+    if (c_high_for_pass < 0 ||
+        c_high_for_pass > 255 ||
+        c_low_for_pass >= c_high_for_pass)
+    {
+        std::cout << "Wrong CANNY_HIGH value!\n"
+                  << std::endl;
+
+        return false;
+    }
+
+    // =======================================================================================
+    // CHECK CANNY HIGH
+
+
+    // =======================================================================================
+    // CHECK DILATE SIZE
+
+    if (tmp_d_s.empty() ||
+        tmp_d_s.find_first_not_of("0123456789") != std::string::npos)
+    {
+        std::cout << "Wrong DILATE_SIZE value!\n"
+                  << std::endl;
+
+        return false;
+    }
+
+    d_s_for_pass = std::stoi(tmp_d_s);
+
+    if (d_s_for_pass < 1 ||
+        d_s_for_pass > 9 ||
+        d_s_for_pass % 2 == 0)
+    {
+        std::cout << "Wrong DILATE_SIZE value!\n"
+                  << std::endl;
+
+        return false;
+    }
+
+    // =======================================================================================
+    // CHECK DILATE SIZE
+
+
+    // =======================================================================================
+    // CHECK DILATE ITERATIONS
+
+    if (tmp_d_i.empty() ||
+        tmp_d_i.find_first_not_of("0123456789") != std::string::npos)
+    {
+        std::cout << "Wrong DILATE_ITERATIONS value!\n"
+                  << std::endl;
+
+        return false;
+    }
+
+    d_i_for_pass = std::stoi(tmp_d_i);
+
+    if (d_i_for_pass < 1 ||
+        d_i_for_pass > 3)
+    {
+        std::cout << "Wrong DILATE_ITERATIONS value!\n"
+                  << std::endl;
+
+        return false;
+    }
+
+    // =======================================================================================
+    // CHECK DILATE ITERATIONS
+
+
+    // =======================================================================================
+    // CHECK LENGTH MIN
+
+    if (tmp_l_min.empty() ||
+        tmp_l_min.find_first_not_of("0123456789") != std::string::npos)
+    {
+        std::cout << "Wrong LENGTH_MIN value!\n"
+                  << std::endl;
+
+        return false;
+    }
+
+    l_min_for_pass = std::stoi(tmp_l_min);
+
+    if (l_min_for_pass < 0 ||
+        l_min_for_pass > 100)
+    {
+        std::cout << "Wrong LENGTH_MIN value!\n"
+                  << std::endl;
+
+        return false;
+    }
+
+    // =======================================================================================
+    // CHECK LENGTH MIN
+
+
+    // =======================================================================================
+    // CHECK LENGTH MAX
+
+    if (tmp_l_max.empty() ||
+        tmp_l_max.find_first_not_of("0123456789") != std::string::npos)
+    {
+        std::cout << "Wrong LENGTH_MAX value!\n"
+                  << std::endl;
+
+        return false;
+    }
+
+    l_max_for_pass = std::stoi(tmp_l_max);
+
+    if (l_max_for_pass < 0 ||
+        l_max_for_pass > 100 ||
+        l_min_for_pass >= l_max_for_pass)
+    {
+        std::cout << "Wrong LENGTH_MAX value!\n"
+                  << std::endl;
+
+        return false;
+    }
+
+    // =======================================================================================
+    // CHECK LENGTH MAX
+
+
+    // =======================================================================================
+    // CHECK AREA MIN
+
+    if (tmp_a_min.empty() ||
+        tmp_a_min.find_first_not_of("0123456789") != std::string::npos)
+    {
+        std::cout << "Wrong AREA_MIN value!\n"
+                  << std::endl;
+
+        return false;
+    }
+
+    a_min_for_pass = std::stoi(tmp_a_min);
+
+    if (a_min_for_pass < 0 ||
+        a_min_for_pass > 200)
+    {
+        std::cout << "Wrong AREA_MIN value!\n"
+                  << std::endl;
+
+        return false;
+    }
+
+    // =======================================================================================
+    // CHECK AREA MIN
+
+
+    // =======================================================================================
+    // CHECK AREA MAX
+
+    if (tmp_a_max.empty() ||
+        tmp_a_max.find_first_not_of("0123456789") != std::string::npos)
+    {
+        std::cout << "Wrong AREA_MAX value!\n"
+                  << std::endl;
+
+        return false;
+    }
+
+    a_max_for_pass = std::stoi(tmp_a_max);
+
+    if (a_max_for_pass < 0 ||
+        a_max_for_pass > 200 ||
+        a_min_for_pass >= a_max_for_pass)
+    {
+        std::cout << "Wrong AREA_MAX value!\n"
+                  << std::endl;
+
+        return false;
+    }
+
+    // =======================================================================================
+    // CHECK AREA MAX
+
+
+    // =======================================================================================
+    // CHECK RANGES
+
+    if (b_h_for_pass > b_v_for_pass)
+    {
+        std::cout << "B_H can't be greater than B_V!\n"
+                  << std::endl;
+
+        return false;
+    }
+
+    if (h_min_for_pass > h_max_for_pass)
+    {
+        std::cout << "H_MIN can't be greater than H_MAX!\n"
+                  << std::endl;
+
+        return false;
+    }
+
+    if (s_min_for_pass > s_max_for_pass)
+    {
+        std::cout << "S_MIN can't be greater than S_MAX!\n"
+                  << std::endl;
+
+        return false;
+    }
+
+    if (v_min_for_pass > v_max_for_pass)
+    {
+        std::cout << "V_MIN can't be greater than V_MAX!\n"
+                  << std::endl;
+
+        return false;
+    }
+
+    if (c_low_for_pass > c_high_for_pass)
+    {
+        std::cout << "CANNY_LOW can't be greater than CANNY_HIGH!\n"
+                  << std::endl;
+
+        return false;
+    }
+
+    if (l_min_for_pass > l_max_for_pass)
+    {
+        std::cout << "LENGTH_MIN can't be greater than LENGTH_MAX!\n"
+                  << std::endl;
+
+        return false;
+    }
+
+    if (a_min_for_pass > a_max_for_pass)
+    {
+        std::cout << "AREA_MIN can't be greater than AREA_MAX!\n"
+                  << std::endl;
+
+        return false;
+    }
+
+    // =======================================================================================
+    // CHECK RANGES
+
+
+    // =======================================================================================
+    // OUTPUT
+
+    output.b_h = b_h_for_pass;
+    output.b_v = b_v_for_pass;
+
+    output.h_min = h_min_for_pass;
+    output.h_max = h_max_for_pass;
+
+    output.s_min = s_min_for_pass;
+    output.s_max = s_max_for_pass;
+
+    output.v_min = v_min_for_pass;
+    output.v_max = v_max_for_pass;
+
+    output.canny_low = c_low_for_pass;
+    output.canny_high = c_high_for_pass;
+
+    output.dilate_size = d_s_for_pass;
+    output.dilate_iterations = d_i_for_pass;
+
+    output.length_min = l_min_for_pass;
+    output.length_max = l_max_for_pass;
+
+    output.area_min = a_min_for_pass;
+    output.area_max = a_max_for_pass;
+
+    output.initialized = true;
+
+    // =======================================================================================
+    // OUTPUT
+
+
+    return true;
+}
+
+
 // ===========================================================================================
 
 
@@ -1251,6 +2457,14 @@ void load_mask_preset(int file_number)
             txt_lines,
             jet_mask_for_pass);
 
+
+    bool particle_mask_loaded =
+        load_mask_3_preset(
+            file_number,
+            txt_lines,
+            used_file->particle_mask);
+
+
     // =======================================================================================
     // LOAD MASKS
 
@@ -1259,7 +2473,8 @@ void load_mask_preset(int file_number)
     // FINAL CHECK
 
     if (!nozzle_mask_loaded ||
-        !jet_mask_loaded)
+        !jet_mask_loaded ||
+        !particle_mask_loaded)
     {
         std::cout << "Preset loading failed!\n"
                   << "No mask data was changed.\n"
@@ -1281,6 +2496,7 @@ void load_mask_preset(int file_number)
 
     used_file->nozzle_mask = nozzle_mask_for_pass;
     used_file->jet_mask = jet_mask_for_pass;
+    used_file->particle_mask = particle_mask_for_pass;
 
     // =======================================================================================
     // FINAL FILL

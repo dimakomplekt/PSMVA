@@ -137,28 +137,44 @@ struct jet_detection_mask
 };
 
 
+// Mini-state machine enum
+// used inside GUI and mask processing
+// during setup
+enum controlled_submask_mask_3
+{
+    SUBMASK_1_CSM3,
+    SUBMASK_2_CSM3,
+
+    LIMIT_CSM3
+}
+
 // Mask for the particle trajectory detection
 struct particle_detection_mask
 {
+    // Which submask control is active
+    controlled_submask_mask_3 controlled_submask;
+    
+
     // =================================================
     // Mask part 1 - pixel filtering
     // =================================================
 
-    // Brightness limits
-    int brightness_min;
-    int brightness_max;
+    // Blur limits
+    int b_h;                // min: 0, max: 5
+    int b_v;                // min: 0, max: 5
 
-    // Blue channel limits
-    int b_min;
-    int b_max;
 
-    // Green channel limits
-    int g_min;
-    int g_max;
+    // Hue limits
+    int h_min;              // min: 0, max: h_max - 1
+    int h_max;              // min: h_min + 1, max: 179
 
-    // Red channel limits
-    int r_min;
-    int r_max;
+    // Saturation limits
+    int s_min;              // min: 0, max: s_max - 1
+    int s_max;              // min: s_min + 1, max: 255
+
+    // Value limits
+    int v_min;              // min: 0, max: v_max - 1
+    int v_max;              // min: v_min + 1, max: 255
 
 
     // =================================================
@@ -166,28 +182,27 @@ struct particle_detection_mask
     // =================================================
 
     // Canny thresholds
-    int canny_low;
-    int canny_high;
+    int canny_low;          // min: 0, max: canny_high - 1
+    int canny_high;         // min: canny_low + 1, max: 255
 
     // Dilate parameters
-    int dilate_size;
-    int dilate_iterations;
+    int dilate_size;        // min: 1, max: 9 - row 1, 3, 5, 7, 9 (odd values)
+    int dilate_iterations;  // min: 1, max: 3
 
     // Trajectory length limits
-    int length_min;
-    int length_max;
+    int length_min;         // min: 0, max: length_max - 1
+    int length_max;         // min: length_min + 1, max: 100
 
     // Area limits
-    int area_min;
-    int area_max;
+    int area_min;           // min: 0, max: area_max - 1
+    int area_max;           // min: area_min + 1, max: 200
 
 
-    // First update as 50% faders at everything
+    // First update as 50% (or 0% and 100%) faders at everything
     bool initialized = false;
 
     // No precalculation here
 };
-
 
 // Context for one file
 struct file_masks_data
