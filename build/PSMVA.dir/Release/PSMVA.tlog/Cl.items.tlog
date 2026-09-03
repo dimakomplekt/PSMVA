@@ -23,6 +23,11 @@ C:\creator\it\programs\cpp\PSMVA\libs\program_logic\program_states\states_logic\
 C:\creator\it\programs\cpp\PSMVA\libs\program_logic\program_states\states_logic\1.1_FILE_CHOOSE\1.1_FILE_CHOOSE.cpp;C:\creator\it\programs\cpp\PSMVA\build\PSMVA.dir\Release\1.1_FILE_CHOOSE.obj
 C:\creator\it\programs\cpp\PSMVA\libs\program_logic\program_states\states_logic\1.1_FILE_CHOOSE\txt_parse.cpp;C:\creator\it\programs\cpp\PSMVA\build\PSMVA.dir\Release\txt_parse.obj
 C:\creator\it\programs\cpp\PSMVA\libs\program_logic\program_states\states_logic\1.2_MASKS_SETUP\1.2.1_MASKS_SETUP_1.cpp;C:\creator\it\programs\cpp\PSMVA\build\PSMVA.dir\Release\1.2.1_MASKS_SETUP_1.obj
+C:\creator\it\programs\cpp\PSMVA\libs\program_logic\program_states\states_logic\1.2_MASKS_SETUP\1.2.2_MASKS_SETUP_2.cpp;C:\creator\it\programs\cpp\PSMVA\build\PSMVA.dir\Release\1.2.2_MASKS_SETUP_2.obj
+C:\creator\it\programs\cpp\PSMVA\libs\program_logic\program_states\states_logic\1.2_MASKS_SETUP\1.2.3_MASKS_SETUP_3.cpp;C:\creator\it\programs\cpp\PSMVA\build\PSMVA.dir\Release\1.2.3_MASKS_SETUP_3.obj
+C:\creator\it\programs\cpp\PSMVA\libs\program_logic\program_states\states_logic\1.2_MASKS_SETUP\1.2.4_MASKS_SETUP_4.cpp;C:\creator\it\programs\cpp\PSMVA\build\PSMVA.dir\Release\1.2.4_MASKS_SETUP_4.obj
+C:\creator\it\programs\cpp\PSMVA\libs\program_logic\program_states\states_logic\1.2_MASKS_SETUP\1.2.5_MASKS_SETUP_5.cpp;C:\creator\it\programs\cpp\PSMVA\build\PSMVA.dir\Release\1.2.5_MASKS_SETUP_5.obj
+C:\creator\it\programs\cpp\PSMVA\libs\program_logic\program_states\states_logic\1.2_MASKS_SETUP\1.2.6_MASKS_SETUP_6.cpp;C:\creator\it\programs\cpp\PSMVA\build\PSMVA.dir\Release\1.2.6_MASKS_SETUP_6.obj
 C:\creator\it\programs\cpp\PSMVA\libs\program_logic\program_states\states_logic\1.2_MASKS_SETUP\1.2_MASKS_SETUP.cpp;C:\creator\it\programs\cpp\PSMVA\build\PSMVA.dir\Release\1.2_MASKS_SETUP.obj
 C:\creator\it\programs\cpp\PSMVA\libs\program_logic\program_states\states_logic\1.2_MASKS_SETUP\1.2_MS_HELPER.cpp;C:\creator\it\programs\cpp\PSMVA\build\PSMVA.dir\Release\1.2_MS_HELPER.obj
 C:\creator\it\programs\cpp\PSMVA\libs\program_logic\program_states\states_logic\1.3_FLOW_PARAMETERS_CALCULATION\1.3_FLOW_PARAMETERS_CALCULATION.cpp;C:\creator\it\programs\cpp\PSMVA\build\PSMVA.dir\Release\1.3_FLOW_PARAMETERS_CALCULATION.obj

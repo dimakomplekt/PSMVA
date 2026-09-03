@@ -402,6 +402,10 @@ void kingsize_window_close();
 
 void opencv_global_free_and_nullptr();
 
+extern bool masks_setup_calculation_allowed;
+void update_masks_setup_calculation_permission();
+bool are_masks_setup_masks_initialized();
+
 // ===== Functions =====
 
 // =========================================================================================== GLOBAL OPENCV PART

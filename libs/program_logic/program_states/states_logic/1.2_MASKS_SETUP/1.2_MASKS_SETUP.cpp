@@ -26,6 +26,8 @@
 
 // =========================================================================================== IMPORT
 
+bool masks_setup_calculation_allowed = false;
+
 
 // =========================================================================================== STATE DATA
 
@@ -86,6 +88,7 @@ void masks_setup_enter()
     // Elements setup
 
     masks_setup_elements_setup();
+    update_masks_setup_calculation_permission();
 
 }
 
@@ -122,6 +125,7 @@ void masks_setup_update()
         masks_setup_elements_update();
 
         masks_setup_actions();
+        update_masks_setup_calculation_permission();
 
     }
 }
@@ -353,6 +357,13 @@ void switch_video(const std::string& new_file_path)
         video_capture_device_global = nullptr;
     }
 
+    if (new_file_path.empty())
+    {
+        std::cerr << "Error: video path is empty\n";
+        opencv_global_update_ctx.total_frame_count = 0;
+        return;
+    }
+
     // 2. Create new capture device
     video_capture_device_global = new cv::VideoCapture(new_file_path);
 
@@ -372,7 +383,10 @@ void switch_video(const std::string& new_file_path)
     // Set the 0 index
     opencv_global_update_ctx.current_frame_index = 0;
     // Get total frame count
-    opencv_global_update_ctx.total_frame_count = static_cast<int>(video_capture_device_global->get(cv::CAP_PROP_FRAME_COUNT));
+    opencv_global_update_ctx.total_frame_count =
+        video_capture_device_global->isOpened()
+            ? static_cast<int>(video_capture_device_global->get(cv::CAP_PROP_FRAME_COUNT))
+            : 0;
         
 
 }
@@ -397,7 +411,11 @@ void kingsize_window_init(cv::Mat* mat)
 
 void kingsize_window_close()
 {
-    cv::destroyWindow("KINGSIZE");
+    if (opencv_global_update_ctx.kingsize_live_transmission)
+    {
+        cv::destroyWindow("KINGSIZE");
+        opencv_global_update_ctx.kingsize_live_transmission = false;
+    }
 }
 
 
@@ -410,7 +428,7 @@ void opencv_global_update()
 
     std::string file_path;
 
-    cv::Mat* current_basic_mat_to_show;
+    cv::Mat* current_basic_mat_to_show = nullptr;
 
     // Which file
     switch (opencv_global_update_ctx.current_file_for_mask_setup)
@@ -486,6 +504,13 @@ void opencv_global_update()
     }
 
 
+    // TEST
+    std::cout <<"\n\n";
+    std::cout << "Current file: " << file_path << std::endl;
+    std::cout << "Current mask: " << opencv_global_update_ctx.current_mask_for_mask_setup << std::endl;
+    std::cout <<"\n\n";
+    
+
     // By container, setted at the inner state start (1.2.1 - 1.2.6)
     My_SDL_texture* my_texture = opencv_global_update_ctx.current_texture_container;
 
@@ -504,6 +529,20 @@ void opencv_global_update()
 
         // Block reinits after reset
         opencv_global_update_ctx.need_reset = false;
+
+        if (video_capture_device_global == nullptr ||
+            !video_capture_device_global->isOpened())
+        {
+            opencv_global_update_ctx.need_reset = true;
+            return;
+        }
+    }
+
+    if (video_capture_device_global == nullptr ||
+        !video_capture_device_global->isOpened())
+    {
+        opencv_global_update_ctx.need_reset = true;
+        return;
     }
 
     // Play logic (nothing at pause)
@@ -716,98 +755,61 @@ void opencv_global_free_and_nullptr()
 // =========================================================================================== ADDITIONAL STATES API
 
 
-void masks_setup_2_enter()
+bool are_masks_setup_masks_initialized()
 {
-    //
-}
-void masks_setup_2_exit()
-{
-    //
-}
+    const file_masks_data* masks[] = {
+        &masks_data.file_1_masks, &masks_data.file_2_masks,
+        &masks_data.file_3_masks, &masks_data.file_4_masks,
+        &masks_data.file_5_masks, &masks_data.file_6_masks
+    };
+    const bool* chosen[] = {
+        &files_choose_status.file_1_choosen, &files_choose_status.file_2_choosen,
+        &files_choose_status.file_3_choosen, &files_choose_status.file_4_choosen,
+        &files_choose_status.file_5_choosen, &files_choose_status.file_6_choosen
+    };
 
-void masks_setup_2_update()
-{
-    //
-}
-void masks_setup_2_render(SDL_Renderer* renderer)
-{
-    //
-}
-
-
-void masks_setup_3_enter()
-{
-    //
-}
-void masks_setup_3_exit()
-{
-    //
-}
-
-void masks_setup_3_update()
-{
-    //
-}
-void masks_setup_3_render(SDL_Renderer* renderer)
-{
-    //
+    for (unsigned int i = 0; i < 6; ++i)
+    {
+        if (*chosen[i] &&
+            ((masks[i]->nozzle_mask.x_1 == masks[i]->nozzle_mask.x_2 &&
+              masks[i]->nozzle_mask.y_1 == masks[i]->nozzle_mask.y_2) ||
+             !masks[i]->nozzle_mask.initialized ||
+             !masks[i]->jet_mask.initialized ||
+             !masks[i]->particle_mask.initialized))
+            return false;
+    }
+    return true;
 }
 
 
-void masks_setup_4_enter()
+void update_masks_setup_calculation_permission()
 {
-    //
-}
-void masks_setup_4_exit()
-{
-    //
-}
+    const file_choose_panel_state* files[] = {
+        &file_choose_info.panels_states.file_1_panel_state,
+        &file_choose_info.panels_states.file_2_panel_state,
+        &file_choose_info.panels_states.file_3_panel_state,
+        &file_choose_info.panels_states.file_4_panel_state,
+        &file_choose_info.panels_states.file_5_panel_state,
+        &file_choose_info.panels_states.file_6_panel_state
+    };
+    const file_choose_panel_state* data[] = {
+        &file_data_choose_info.panels_states.file_1_data_panel_state,
+        &file_data_choose_info.panels_states.file_2_data_panel_state,
+        &file_data_choose_info.panels_states.file_3_data_panel_state,
+        &file_data_choose_info.panels_states.file_4_data_panel_state,
+        &file_data_choose_info.panels_states.file_5_data_panel_state,
+        &file_data_choose_info.panels_states.file_6_data_panel_state
+    };
 
-void masks_setup_4_update()
-{
-    //
-}
-void masks_setup_4_render(SDL_Renderer* renderer)
-{
-    //
-}
-
-
-void masks_setup_5_enter()
-{
-    //
-}
-void masks_setup_5_exit()
-{
-    //
-}
-
-void masks_setup_5_update()
-{
-    //
-}
-void masks_setup_5_render(SDL_Renderer* renderer)
-{
-    //
-}
-
-
-void masks_setup_6_enter()
-{
-    //
-}
-void masks_setup_6_exit()
-{
-    //
-}
-
-void masks_setup_6_update()
-{
-    //
-}
-void masks_setup_6_render(SDL_Renderer* renderer)
-{
-    //
+    bool valid = *files[0] == file_choose_panel_state::CHOSEN_STATE;
+    for (unsigned int i = 0; i < 6; ++i)
+    {
+        const bool file_chosen = *files[i] == file_choose_panel_state::CHOSEN_STATE;
+        const bool data_chosen = *data[i] == file_choose_panel_state::CHOSEN_STATE;
+        if (file_chosen != data_chosen || (i == 0 && !file_chosen))
+            valid = false;
+    }
+    masks_setup_calculation_allowed = valid && are_masks_setup_masks_initialized();
 }
 
 

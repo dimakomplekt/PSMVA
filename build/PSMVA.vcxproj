@@ -589,6 +589,11 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClCompile Include="C:\creator\it\programs\cpp\PSMVA\libs\program_logic\program_states\states_logic\1.1_FILE_CHOOSE\1.1_FILE_CHOOSE.cpp" />
     <ClCompile Include="C:\creator\it\programs\cpp\PSMVA\libs\program_logic\program_states\states_logic\1.1_FILE_CHOOSE\txt_parse.cpp" />
     <ClCompile Include="C:\creator\it\programs\cpp\PSMVA\libs\program_logic\program_states\states_logic\1.2_MASKS_SETUP\1.2.1_MASKS_SETUP_1.cpp" />
+    <ClCompile Include="C:\creator\it\programs\cpp\PSMVA\libs\program_logic\program_states\states_logic\1.2_MASKS_SETUP\1.2.2_MASKS_SETUP_2.cpp" />
+    <ClCompile Include="C:\creator\it\programs\cpp\PSMVA\libs\program_logic\program_states\states_logic\1.2_MASKS_SETUP\1.2.3_MASKS_SETUP_3.cpp" />
+    <ClCompile Include="C:\creator\it\programs\cpp\PSMVA\libs\program_logic\program_states\states_logic\1.2_MASKS_SETUP\1.2.4_MASKS_SETUP_4.cpp" />
+    <ClCompile Include="C:\creator\it\programs\cpp\PSMVA\libs\program_logic\program_states\states_logic\1.2_MASKS_SETUP\1.2.5_MASKS_SETUP_5.cpp" />
+    <ClCompile Include="C:\creator\it\programs\cpp\PSMVA\libs\program_logic\program_states\states_logic\1.2_MASKS_SETUP\1.2.6_MASKS_SETUP_6.cpp" />
     <ClCompile Include="C:\creator\it\programs\cpp\PSMVA\libs\program_logic\program_states\states_logic\1.2_MASKS_SETUP\1.2_MASKS_SETUP.cpp" />
     <ClCompile Include="C:\creator\it\programs\cpp\PSMVA\libs\program_logic\program_states\states_logic\1.2_MASKS_SETUP\1.2_MS_HELPER.cpp" />
     <ClCompile Include="C:\creator\it\programs\cpp\PSMVA\libs\program_logic\program_states\states_logic\1.3_FLOW_PARAMETERS_CALCULATION\1.3_FLOW_PARAMETERS_CALCULATION.cpp" />

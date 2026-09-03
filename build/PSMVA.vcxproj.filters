@@ -76,6 +76,21 @@
     <ClCompile Include="C:\creator\it\programs\cpp\PSMVA\libs\program_logic\program_states\states_logic\1.2_MASKS_SETUP\1.2.1_MASKS_SETUP_1.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="C:\creator\it\programs\cpp\PSMVA\libs\program_logic\program_states\states_logic\1.2_MASKS_SETUP\1.2.2_MASKS_SETUP_2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\creator\it\programs\cpp\PSMVA\libs\program_logic\program_states\states_logic\1.2_MASKS_SETUP\1.2.3_MASKS_SETUP_3.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\creator\it\programs\cpp\PSMVA\libs\program_logic\program_states\states_logic\1.2_MASKS_SETUP\1.2.4_MASKS_SETUP_4.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\creator\it\programs\cpp\PSMVA\libs\program_logic\program_states\states_logic\1.2_MASKS_SETUP\1.2.5_MASKS_SETUP_5.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\creator\it\programs\cpp\PSMVA\libs\program_logic\program_states\states_logic\1.2_MASKS_SETUP\1.2.6_MASKS_SETUP_6.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="C:\creator\it\programs\cpp\PSMVA\libs\program_logic\program_states\states_logic\1.2_MASKS_SETUP\1.2_MASKS_SETUP.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
