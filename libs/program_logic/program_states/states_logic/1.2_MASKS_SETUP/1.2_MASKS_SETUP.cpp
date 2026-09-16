@@ -146,7 +146,6 @@ void masks_setup_render(SDL_Renderer* renderer)
 
 
 
-
 // =========================================================================================== INNER STATE FUNCTIONS
 
 
@@ -503,13 +502,6 @@ void opencv_global_update()
         return;
     }
 
-
-    // TEST
-    std::cout <<"\n\n";
-    std::cout << "Current file: " << file_path << std::endl;
-    std::cout << "Current mask: " << opencv_global_update_ctx.current_mask_for_mask_setup << std::endl;
-    std::cout <<"\n\n";
-    
 
     // By container, setted at the inner state start (1.2.1 - 1.2.6)
     My_SDL_texture* my_texture = opencv_global_update_ctx.current_texture_container;

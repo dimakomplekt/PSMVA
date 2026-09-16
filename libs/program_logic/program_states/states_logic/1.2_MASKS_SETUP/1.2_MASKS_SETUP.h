@@ -280,7 +280,7 @@ extern cv::VideoCapture* video_capture_device_global;
 extern cv::Mat* video_cv_mat_mask_1_global;
 
 // Jet mask
-extern cv::Mat* video_cv_mat_mask_1_global;
+extern cv::Mat* video_cv_mat_mask_2_global;
 
 // Particle trace mask
 extern cv::Mat* video_cv_mat_mask_3_global;
