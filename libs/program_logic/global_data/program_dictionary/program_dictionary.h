@@ -270,3 +270,35 @@ inline Lang_string_type gd_masks_setup_1_info = {
 // =========================================================================================== STATE 1.2 DICTIONARY
 
 
+
+
+// =========================================================================================== STATE 1.3 DICTIONARY
+
+
+inline Lang_string_type gd_calculation_file = {
+
+    "File: ",
+    "Файл: "
+
+};
+
+
+inline Lang_string_type gd_calculation_mask = {
+
+    "Mask: ",
+    "Маска: "
+
+};
+
+
+inline Lang_string_type gd_calculation_frame = {
+
+    "Frame: ",
+    "Кадр: "
+
+};
+
+
+
+
+// =========================================================================================== STATE 1.3 DICTIONARY

@@ -16,6 +16,24 @@ file(GLOB_RECURSE PROJECT_SOURCES CONFIGURE_DEPENDS
 add_executable(PSMVA ${PROJECT_SOURCES})
 
 
+# ==============================================================================
+# ФИКС ОШИБКИ C1083: Принудительно даем MSVC пути к стандартной библиотеке C++ и SDK
+# ==============================================================================
+if(MSVC)
+    target_include_directories(PSMVA SYSTEM PRIVATE
+        # Путь к STL (string, array, limits)
+        "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.43.34808/include"
+        
+        # Пути к Windows SDK (stdarg.h и системные вызовы). 
+        # ВНИМАНИЕ: Проверьте номер папки (у меня указана 10.0.22621.0, у вас может быть 10.0.19041.0 или другая!)
+        "C:/Program Files (x86)/Windows Kits/10/Include/10.0.22621.0/ucrt"
+        "C:/Program Files (x86)/Windows Kits/10/Include/10.0.22621.0/um"
+        "C:/Program Files (x86)/Windows Kits/10/Include/10.0.22621.0/shared"
+    )
+endif()
+# ==============================================================================
+
+
 # ---------------- SDL ----------------
 
 # Include SDL

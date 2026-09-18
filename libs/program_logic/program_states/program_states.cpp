@@ -18,7 +18,7 @@
 #include "states_logic/1.0_MAIN_MENU/1.0_MAIN_MENU.h"
 #include "states_logic/1.1_FILE_CHOOSE/1.1_FILE_CHOOSE.h"
 #include "states_logic/1.2_MASKS_SETUP/1.2_MASKS_SETUP.h"
-// #include "states_logic/1.3_FLOW_PARAMETERS_CALCULATION/1.3_FLOW_PARAMETERS_CALCULATION.h"
+#include "states_logic/1.3_FLOW_PARAMETERS_CALCULATION/1.3_FLOW_PARAMETERS_CALCULATION.h"
 // #include "states_logic/1.4_REPORT_FORMING/1.4_REPORT_FORMING.h"
 // #include "states_logic/2.0_PROGRAM_END/2.0_PROGRAM_END.h"
 
@@ -184,6 +184,22 @@ void init_program_states(State_machine& app_state_machine)
     }
 
     // === MASKS_SETUP ===
+
+
+    // === FLOW_PARAMETERS_CALCULATION ===
+
+    app_state_machine.initiate_state(FLOW_PARAMETERS_CALCULATION_ID, "FLOW_PARAMETERS_CALCULATION");
+
+    if (auto* s = app_state_machine.get_state(FLOW_PARAMETERS_CALCULATION_ID))
+    {
+        s->on_enter = flow_parameters_calculation_enter;          // Actions on the state entering 
+        s->on_exit  = flow_parameters_calculation_exit;           // Actions on the state exit
+        s->state_update = flow_parameters_calculation_update;     // Actions on the state update
+        s->state_render = flow_parameters_calculation_render;     // Rendering for the state
+    }
+
+
+    // === FLOW_PARAMETERS_CALCULATION ===
 
 
     // === EXIT_PROGRAM ===

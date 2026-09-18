@@ -30,11 +30,21 @@
 
 // =========================================================================================== STATE DATA
 
+files_processing_data global_processing_data;
+
+flow_calculation_progress_bar state_progress_bar;
+
+
 // RAII + lifecycle management
 
 My_SDL_panel* flow_parameters_calculation_panel = nullptr;
 
-My_SDL_textbox* flow_parameters_calculation_textbox = nullptr;
+My_SDL_textbox* percentage_textbox;
+My_SDL_textbox* file_textbox;
+My_SDL_textbox* mask_textbox;
+My_SDL_textbox* frame_textbox;
+
+My_SDL_button* next_state_button;
 
 // =========================================================================================== STATE DATA
 
@@ -98,6 +108,8 @@ void flow_parameters_calculation_exit()
 
     flow_parameters_calculation_elements_free_and_nullptr();
 
+    opencv_calculation_global_free_and_nullptr();
+
     // ===== State deallocation =====
 
 
@@ -124,6 +136,10 @@ void flow_parameters_calculation_update()
 
         flow_parameters_calculation_actions();
     }
+
+    // Update OPENCV calculations part without freq limits
+    opencv_calculation_global_update();
+
 }
 
 
@@ -138,6 +154,43 @@ void flow_parameters_calculation_render(SDL_Renderer* renderer)
 // =========================================================================================== MAIN STATE API
 
 
+// =========================================================================================== DATA
+
+int WINDOW_WIDTH = MAIN_WINDOW_H_SIZE;
+int WINDOW_HEIGHT = MAIN_WINDOW_V_SIZE;
+
+
+// Rectangle
+
+SDL_Color progress_bar_fill_color = hex_to_sdl_color("#ff891a", 255);
+
+int progress_bar_width = WINDOW_WIDTH;
+int progress_bar_height = static_cast<int>(0.1 * WINDOW_HEIGHT);
+
+
+int pb_x_1 = WINDOW_WIDTH / 2;
+int pb_y_1 = WINDOW_HEIGHT / 2;
+
+// Lines
+SDL_Color progress_bar_border_color = hex_to_sdl_color("#090400", 255);
+int progress_bar_lines_width = 10;
+
+int pb_l_1_x_1 = 0;
+int pb_l_1_y_1 = WINDOW_HEIGHT / 2 - progress_bar_height / 2;
+
+int pb_l_1_x_2 = progress_bar_width;
+int pb_l_1_y_2 = WINDOW_HEIGHT / 2 - progress_bar_height / 2;
+
+
+int pb_l_2_x_1 = 0;
+int pb_l_2_y_1 = WINDOW_HEIGHT / 2 + progress_bar_height / 2;
+
+int pb_l_2_x_2 = progress_bar_width;
+int pb_l_2_y_2 = WINDOW_HEIGHT / 2 + progress_bar_height / 2;
+
+
+// =========================================================================================== DATA
+
 
 // =========================================================================================== INNER STATE FUNCTIONS
 
@@ -149,8 +202,14 @@ void flow_parameters_calculation_elements_create()
     // flow_parameters_calculation panel create
     flow_parameters_calculation_panel = new My_SDL_panel();
 
-    // flow_parameters_calculation textbox create
-    flow_parameters_calculation_textbox = new My_SDL_textbox();
+
+    percentage_textbox = new My_SDL_textbox();
+    file_textbox = new My_SDL_textbox();
+    mask_textbox = new My_SDL_textbox();
+    frame_textbox = new My_SDL_textbox();
+
+    next_state_button = new My_SDL_button();
+
 }
 
 
@@ -162,24 +221,18 @@ void flow_parameters_calculation_elements_setup()
     flow_parameters_calculation_panel->set_size(MAIN_WINDOW_H_SIZE, MAIN_WINDOW_V_SIZE);
     flow_parameters_calculation_panel->set_border_radius(0);
 
-    // flow_parameters_calculation textbox setup
-    flow_parameters_calculation_textbox->switch_textbox_type(HEADER_2);
 
-    flow_parameters_calculation_textbox->set_content(str_by_dictionary(gd_flow_parameters_calculation_info));
+    percentage_textbox->switch_textbox_type(ORDINARY_TEXT);
+    percentage_textbox->set_render_point(pb_x_1, pb_y_1);
 
-    flow_parameters_calculation_textbox->switch_blinking_mode_flag(true);
+    file_textbox->switch_textbox_type(SMALL_TEXT);
+    file_textbox->set_render_point(0.1 * WINDOW_WIDTH, 0.6 * WINDOW_HEIGHT);
 
+    mask_textbox->switch_textbox_type(SMALL_TEXT);
+    mask_textbox->set_render_point(0.1 * WINDOW_WIDTH, 0.65 * WINDOW_HEIGHT);
 
-
-    // Put the texture inside the middle of the panel
-
-    flow_parameters_calculation_panel->add_element(
-
-        flow_parameters_calculation_textbox,
-         (flow_parameters_calculation_panel->get_width_size()) * 0.5,
-          (flow_parameters_calculation_panel->get_height_size()) * 0.5,
-           1
-    );
+    frame_textbox->switch_textbox_type(SMALL_TEXT);
+    frame_textbox->set_render_point(0.1 * WINDOW_WIDTH, 0.7 * WINDOW_HEIGHT);
 
 }
 
@@ -190,10 +243,25 @@ void flow_parameters_calculation_elements_free_and_nullptr()
 
     flow_parameters_calculation_panel->delete_element();
 
+    percentage_textbox->delete_element();
+    file_textbox->delete_element();
+    mask_textbox->delete_element();
+    frame_textbox->delete_element();
+
+    next_state_button->delete_element();
+
+
     // Nullptr the pointers
 
     flow_parameters_calculation_panel = nullptr;
-    flow_parameters_calculation_textbox = nullptr;
+
+
+    percentage_textbox = nullptr;
+    file_textbox = nullptr;
+    mask_textbox = nullptr;
+    frame_textbox = nullptr;
+
+    next_state_button = nullptr;
     
 }
 
@@ -201,20 +269,23 @@ void flow_parameters_calculation_elements_free_and_nullptr()
 void flow_parameters_calculation_elements_update()
 {
     // Check if textboxes need content renew
-    reset_passed_by_dictionary_textboxes_if_language_switched_ms();
+    reset_passed_by_dictionary_textboxes_if_language_switched_fpc();
 
     // Update all elements
     flow_parameters_calculation_panel->update();
 
+    // Update progress bar
+    progress_bar_update();
 }
 
 
-void reset_passed_by_dictionary_textboxes_if_language_switched_ms()
+void reset_passed_by_dictionary_textboxes_if_language_switched_fpc()
 {
     // Repeat content set if language switched
     if (App_lang.get_lang_reset_flag())
     {
-        flow_parameters_calculation_textbox->set_content(str_by_dictionary(gd_flow_parameters_calculation_info));
+        // All textboxes here
+        progress_bar_update();
     }
 }
 
@@ -222,8 +293,17 @@ void reset_passed_by_dictionary_textboxes_if_language_switched_ms()
 void flow_parameters_calculation_actions()
 {
     // Switch the state to EXIT if EXIT pressed
+    if (App_inputs.is_just_released(Key_actions::EXIT))
+    {
+        this_app.app_sm.request_state_change(MASKS_SETUP_ID_1);
+    }
 
 
+    // TEST
+    if (App_inputs.is_just_released(Key_actions::ENTER))
+    {
+        
+    }
 }
 
 
@@ -231,6 +311,9 @@ void flow_parameters_calculation_elements_render(SDL_Renderer* renderer)
 {
     // Render all elements
     flow_parameters_calculation_panel->render(renderer);
+
+    // Progress bar render
+    progress_bar_render(renderer);
 
 }
 
@@ -244,7 +327,7 @@ void flow_parameters_calculation_elements_render(SDL_Renderer* renderer)
 
 // ===== DATA =====
 
-cv::VideoCapture* video_capture_device_global = nullptr;
+cv::VideoCapture* video_capture_device_global_fpc = nullptr;
 
 cv::Mat* calculation_cv_mat_mask_1_global = nullptr;
 cv::Mat* calculation_cv_mat_mask_2_global = nullptr;
@@ -260,10 +343,10 @@ opencv_calculation_update_ctx opencv_global_calculation_update_ctx;
 
 // ===== Functions =====
 
-void opencv_global_setup()
+void opencv_calculation_global_setup()
 {
     // Block of the reinit
-    if (opencv_pipeline_reset_global != true)
+    if (opencv_calculation_pipeline_reset_global != true)
     {
         calculation_cv_mat_mask_1_global = new cv::Mat();
         calculation_cv_mat_mask_2_global = new cv::Mat();
@@ -273,13 +356,70 @@ void opencv_global_setup()
         // of each inner state (1.2.1  1.2.6)
 
 
-        // ===== PROGRESS BAR INIT =====
+        // ===== FILES DATA INIT =====
+
+        bool file_1_need_init = (masks_data.file_1_masks.file_choose_state != nullptr) 
+                                && *(masks_data.file_1_masks.file_choose_state);
+
+        bool file_2_need_init = (masks_data.file_2_masks.file_choose_state != nullptr) 
+                                && *(masks_data.file_2_masks.file_choose_state);
+
+        bool file_3_need_init = (masks_data.file_3_masks.file_choose_state != nullptr) 
+                                && *(masks_data.file_3_masks.file_choose_state);
+
+        bool file_4_need_init = (masks_data.file_4_masks.file_choose_state != nullptr) 
+                                && *(masks_data.file_4_masks.file_choose_state);
+
+        bool file_5_need_init = (masks_data.file_5_masks.file_choose_state != nullptr) 
+                                && *(masks_data.file_5_masks.file_choose_state);
+
+        bool file_6_need_init = (masks_data.file_6_masks.file_choose_state != nullptr) 
+                                && *(masks_data.file_6_masks.file_choose_state);
+
+
+        if (file_1_need_init) global_processing_data.file_1.using_flag = true;
+        if (file_2_need_init) global_processing_data.file_2.using_flag = true;
+        if (file_3_need_init) global_processing_data.file_3.using_flag = true;
+        if (file_4_need_init) global_processing_data.file_4.using_flag = true;
+        if (file_5_need_init) global_processing_data.file_5.using_flag = true;
+        if (file_6_need_init) global_processing_data.file_6.using_flag = true;
+
+
+        // ===== FILES DATA INIT =====
 
 
         // ===== PROGRESS BAR INIT =====
 
+        
+        state_progress_bar.frames_quantity = files_metadata.video_1_data.frames_quantity;
 
-        opencv_pipeline_reset_global = true;
+        unsigned int total_frames = 0;
+
+        // 1 pass for 1, 2, 3.1 and 1 pass for 3.2
+
+        if (file_1_need_init) total_frames += 2 * files_metadata.video_1_data.frames_quantity;
+        if (file_2_need_init) total_frames += 2 * files_metadata.video_2_data.frames_quantity;
+        if (file_3_need_init) total_frames += 2 * files_metadata.video_3_data.frames_quantity;
+        if (file_4_need_init) total_frames += 2 * files_metadata.video_4_data.frames_quantity;
+        if (file_5_need_init) total_frames += 2 * files_metadata.video_5_data.frames_quantity;
+        if (file_6_need_init) total_frames += 2 * files_metadata.video_6_data.frames_quantity;
+
+        state_progress_bar.operations_count = total_frames;
+
+        // ===== PROGRESS BAR INIT =====
+
+
+        opencv_calculation_pipeline_reset_global = true;
+
+
+        // TEST
+        opencv_global_calculation_update_ctx.current_frame_processor = processing_1;
+
+        if (FPC_TEST_MODE)
+        {
+            opencv_global_calculation_update_ctx.show_kingsize = true;
+            opencv_global_calculation_update_ctx.kingsize_live_transmission = false;
+        }
     }
 
     if (TEST_MODE) std::cout << "Mats and texture created\n" << std::endl;   
@@ -289,19 +429,19 @@ void opencv_global_setup()
 void switch_video_for_calculation(const std::string& new_file_path) 
 {
     // 1. DELETE old capture device if video is opened
-    if (video_capture_device_global != nullptr)
+    if (video_capture_device_global_fpc != nullptr)
     {
-        if (video_capture_device_global->isOpened())
+        if (video_capture_device_global_fpc->isOpened())
         {
             // Close file
-            video_capture_device_global->release();
+            video_capture_device_global_fpc->release();
         }
 
         // Free the memory 
-        delete video_capture_device_global;
+        delete video_capture_device_global_fpc;
         
         // Free the pointer
-        video_capture_device_global = nullptr;
+        video_capture_device_global_fpc = nullptr;
     }
 
     if (new_file_path.empty())
@@ -312,10 +452,10 @@ void switch_video_for_calculation(const std::string& new_file_path)
     }
 
     // 2. Create new capture device
-    video_capture_device_global = new cv::VideoCapture(new_file_path);
+    video_capture_device_global_fpc = new cv::VideoCapture(new_file_path);
 
     // 3. Check
-    if (!video_capture_device_global->isOpened())
+    if (!video_capture_device_global_fpc->isOpened())
     {
         std::cerr << "Error: Could not open video " << new_file_path << std::endl;
     } 
@@ -331,13 +471,42 @@ void switch_video_for_calculation(const std::string& new_file_path)
     opencv_global_calculation_update_ctx.current_frame_index = 0;
     // Get total frame count
     opencv_global_calculation_update_ctx.total_frame_count =
-        video_capture_device_global->isOpened()
-            ? static_cast<int>(video_capture_device_global->get(cv::CAP_PROP_FRAME_COUNT))
+        video_capture_device_global_fpc->isOpened()
+            ? static_cast<int>(video_capture_device_global_fpc->get(cv::CAP_PROP_FRAME_COUNT))
             : 0;
 }
 
 
-void opencv_global_update()
+
+
+// Helpers for big screen translation
+
+void kingsize_window_init_fpc(cv::Mat* mat)
+{
+    cv::namedWindow(
+        "KINGSIZE_TEST",
+        cv::WINDOW_NORMAL
+    );
+
+    cv::resizeWindow(
+        "KINGSIZE_TEST",
+        mat->cols * 3,
+        mat->rows * 3
+    );
+}
+
+
+void kingsize_window_close_fpc()
+{
+    if (opencv_global_calculation_update_ctx.kingsize_live_transmission)
+    {
+        cv::destroyWindow("KINGSIZE_TEST");
+        opencv_global_calculation_update_ctx.kingsize_live_transmission = false;
+    }
+}
+
+
+void opencv_calculation_global_update()
 {
 
     // ===== PREPROCESSING =====
@@ -390,22 +559,25 @@ void opencv_global_update()
         default: break;
     }
 
+
     // Which mask
-    switch (opencv_global_calculation_update_ctx.current_mask_for_mask_setup)
+    switch (opencv_global_calculation_update_ctx.operation)
     {
-        case (MASK_1_CM):
+        case (MASK_1_PROCESSING_CO):
         {
             current_basic_mat_to_process = calculation_cv_mat_mask_1_global;
             break;
         }
 
-        case (MASK_2_CM):
+        case (MASK_2_PROCESSING_CO):
         {
             current_basic_mat_to_process = calculation_cv_mat_mask_2_global;
             break;
         }
 
-        case (MASK_3_CM):
+        
+        case MASK_3_1_PROCESSING_CO: [[fallthrough]]; // явно говорим, что так и задумано
+        case MASK_3_2_PROCESSING_CO:
         {
             current_basic_mat_to_process = calculation_cv_mat_mask_3_global;
             break;
@@ -438,16 +610,16 @@ void opencv_global_update()
         // Block reinits after reset
         opencv_global_calculation_update_ctx.need_reset = false;
 
-        if (video_capture_device_global == nullptr ||
-            !video_capture_device_global->isOpened())
+        if (video_capture_device_global_fpc == nullptr ||
+            !video_capture_device_global_fpc->isOpened())
         {
             opencv_global_calculation_update_ctx.need_reset = true;
             return;
         }
     }
 
-    if (video_capture_device_global == nullptr ||
-        !video_capture_device_global->isOpened())
+    if (video_capture_device_global_fpc == nullptr ||
+        !video_capture_device_global_fpc->isOpened())
     {
         opencv_global_calculation_update_ctx.need_reset = true;
         return;
@@ -462,13 +634,13 @@ void opencv_global_update()
         }
     
         // Rewind to current frame
-        video_capture_device_global->set(
+        video_capture_device_global_fpc->set(
             cv::CAP_PROP_POS_FRAMES,
             opencv_global_calculation_update_ctx.current_frame_index
         );
     
         // Read current frame
-        *video_capture_device_global >> *current_basic_mat_to_process;
+        *video_capture_device_global_fpc >> *current_basic_mat_to_process;
     
         // Move to the next frame for the next update()
         opencv_global_calculation_update_ctx.current_frame_index++;
@@ -491,6 +663,80 @@ void opencv_global_update()
     }
 
     // ===== BLACKBOX WITH PROCESSING LOGIC BY CALLBACK =====
+
+
+    
+
+    // ===== SHOW SCALED COPY OF CURRENT MAT INSIDE OTHER WINDOW =====
+
+    // Development stage
+    if (FPC_TEST_MODE)
+    {
+        // If frame is empty, skip this update
+        if (!current_basic_mat_to_process->empty())
+        {
+            if (opencv_global_calculation_update_ctx.show_kingsize)
+            {
+                // First call after activation
+                if (!opencv_global_calculation_update_ctx.kingsize_live_transmission)
+                {
+                    kingsize_window_init_fpc(current_basic_mat_to_process);
+
+                    // Block reinit
+                    opencv_global_calculation_update_ctx.kingsize_live_transmission = true;
+                }
+
+
+                // USER INPUT ERROR HANDLER
+                // Check whether user closed the window manually
+                if (cv::getWindowProperty("KINGSIZE_TEST", cv::WND_PROP_VISIBLE) < 1)
+                {
+                    opencv_global_calculation_update_ctx.show_kingsize = false;
+                    opencv_global_calculation_update_ctx.kingsize_live_transmission = false;
+
+                    return;
+                }
+
+
+                // Create scaled copy
+                cv::Mat kingsize_mat;
+
+                cv::resize(
+                    *current_basic_mat_to_process,
+                    kingsize_mat,
+                    cv::Size(
+                        current_basic_mat_to_process->cols * 3,
+                        current_basic_mat_to_process->rows * 3
+                    ),
+                    0,
+                    0,
+                    cv::INTER_NEAREST
+                );
+
+                // Show scaled image
+                cv::imshow(
+                    "KINGSIZE_TEST",
+                    kingsize_mat
+                );
+
+                cv::waitKey(1);
+            }
+            else
+            {
+                // Close window after deactivation
+                if (opencv_global_calculation_update_ctx.kingsize_live_transmission)
+                {
+                    kingsize_window_close_fpc();
+
+                    // Allow init on next activation
+                    opencv_global_calculation_update_ctx.kingsize_live_transmission = false;
+                }
+            }
+        }
+    }
+
+    // ===== SHOW SCALED COPY OF CURRENT MAT INSIDE OTHER WINDOW =====
+
 }
 
 
@@ -523,7 +769,7 @@ void opencv_calculation_global_free_and_nullptr()
 
     // Activate reinit
     // TODO:??? Need or not?>
-    opencv_pipeline_reset_global = false;
+    opencv_calculation_pipeline_reset_global = false;
 }
 
 
@@ -532,7 +778,244 @@ void opencv_calculation_global_free_and_nullptr()
 // =========================================================================================== OPENCV PART OF THE STATE
 
 
+// =========================================================================================== PROCESSING FUNCTIONS
 
 
+void processing_1(cv::Mat* current_mat)
+{
+    processing_stage_1(current_mat);
+    processing_stage_2(current_mat);
+    processing_stage_3_1(current_mat);
+}
+
+
+void processing_2(cv::Mat* current_mat)
+{
+    processing_stage_3_2(current_mat);
+}
+
+
+void processing_stage_1(cv::Mat* current_mat)
+{
+    // TEST
+    state_progress_bar.current_frame = 1 + (state_progress_bar.current_frame) % 8000;
+}
+
+void processing_stage_2(cv::Mat* current_mat)
+{
+
+}
+
+void processing_stage_3_1(cv::Mat* current_mat)
+{
+
+}
+
+void processing_stage_3_2(cv::Mat* current_mat)
+{
+
+}
+
+
+// =========================================================================================== PROCESSING FUNCTIONS
+
+
+
+// =========================================================================================== PROGRESS BAR
+
+void progress_bar_update()
+{
+
+    /*
+    state_progress_bar.percentage = static_cast<unsigned int>(
+        (static_cast<double>(state_progress_bar.operations_counter) / state_progress_bar.operations_count) * 100.0
+    );
+    */
+    state_progress_bar.percentage += 0.25;
+
+    if (state_progress_bar.percentage > 100) state_progress_bar.percentage = 0;
+    
+    std::string percentage_string =
+        std::to_string(static_cast<int>(std::round(state_progress_bar.percentage))) + "%.";
+
+
+    std::string file_number;
+
+    std::string mask_number;
+
+    std::string frame_number;
+
+
+    switch (opencv_global_calculation_update_ctx.current_file_for_mask_setup)
+    {
+        case FILE_1_CF:
+        {
+            file_number = "1";
+            break;
+        }
+
+        case FILE_2_CF:
+        {
+            file_number = "2";
+            break;
+        }
+
+
+        case FILE_3_CF:
+        {
+            file_number = "3";
+            break;
+        }
+
+
+        case FILE_4_CF:
+        {
+            file_number = "4";
+            break;
+        }
+
+        case FILE_5_CF:
+        {
+            file_number = "5";
+            break;
+        }
+
+        case FILE_6_CF:
+        {
+            file_number = "6";
+            break;
+        }
+
+        default: break;
+    }
+
+
+    switch (opencv_global_calculation_update_ctx.operation)
+    {
+        case MASK_1_PROCESSING_CO:
+        {
+            mask_number = "1";
+            break;
+        }
+
+        case MASK_2_PROCESSING_CO:
+        {
+            mask_number = "2";
+            break;
+        }
+
+
+        case MASK_3_1_PROCESSING_CO:
+        {
+            mask_number = "3";
+            break;
+        }
+
+
+        case MASK_3_2_PROCESSING_CO:
+        {
+            mask_number = "4";
+            break;
+        }
+
+        default: break;
+    }
+
+
+    frame_number = std::to_string(state_progress_bar.current_frame) +
+                   " / " +
+                   std::to_string(state_progress_bar.frames_quantity);
+
+
+    std::string file_string = str_by_dictionary(gd_calculation_file) + file_number;
+
+    std::string mask_string = str_by_dictionary(gd_calculation_mask) + mask_number;
+    
+    std::string frame_string = str_by_dictionary(gd_calculation_frame) + frame_number;
+
+
+    // Set the textboxes slots
+
+    percentage_textbox->set_content(percentage_string);
+    file_textbox->set_content(file_string);
+    mask_textbox->set_content(mask_string);
+    frame_textbox->set_content(frame_string);
+
+}
+
+
+void progress_bar_render(SDL_Renderer* renderer)
+{
+
+    int current_width = static_cast<int>(
+        (static_cast<double>(state_progress_bar.percentage) / 100.0)
+        * progress_bar_width
+    );
+    // Render rectangle
+
+
+    if (current_width != 0)
+    {
+        rectangle_draw_by_color(
+
+            pb_x_1,
+            pb_y_1,
+            current_width,
+            progress_bar_height,
+            progress_bar_fill_color,
+            renderer
+
+        );
+    }
+
+    // Render 2 lines
+
+    line_draw(
+
+        pb_l_1_x_1, 
+        pb_l_1_y_1,
+
+        pb_l_1_x_2, 
+        pb_l_1_y_2,
+
+
+        progress_bar_lines_width,
+
+        progress_bar_border_color,
+
+        renderer
+
+    );
+
+
+    
+    line_draw(
+
+        pb_l_2_x_1, 
+        pb_l_2_y_1,
+
+        pb_l_2_x_2, 
+        pb_l_2_y_2,
+
+
+        progress_bar_lines_width,
+
+        progress_bar_border_color,
+
+        renderer
+
+    );
+
+
+
+    // Render textboxes
+
+    percentage_textbox->render(renderer);
+    file_textbox->render(renderer);
+    mask_textbox->render(renderer);
+    frame_textbox->render(renderer);
+}
+
+// =========================================================================================== PROGRESS BAR
 
 

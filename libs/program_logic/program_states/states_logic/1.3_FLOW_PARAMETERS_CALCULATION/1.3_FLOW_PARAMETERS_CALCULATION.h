@@ -28,6 +28,13 @@
 // =========================================================================================== IMPORT
 
 
+// =========================================================================================== DEFINES
+
+#define FPC_TEST_MODE 1
+
+// =========================================================================================== DEFINES
+
+
 // =========================================================================================== MAIN STATE API
 
 /**
@@ -98,7 +105,7 @@ void flow_parameters_calculation_render(SDL_Renderer* renderer);
 // ===== DATA =====
 
 // Global capture
-extern cv::VideoCapture* video_capture_device_global;
+extern cv::VideoCapture* video_capture_device_global_fpc;
 
 
 // Global MAT for capture frameus
@@ -136,7 +143,8 @@ enum current_operation
 
     MASK_1_PROCESSING_CO,
     MASK_2_PROCESSING_CO,
-    MASK_3_PROCESSING_CO
+    MASK_3_1_PROCESSING_CO,
+    MASK_3_2_PROCESSING_CO
 
 };
 
@@ -146,10 +154,10 @@ struct opencv_calculation_update_ctx
 {
 
     // Current file (uses for translator setup)
-    current_file_ms current_file_for_mask_setup;
+    current_file_ms current_file_for_mask_setup = FILE_1_CF;
 
     // Current operation
-    current_operation operation;
+    current_operation operation = MASK_1_PROCESSING_CO;
 
 
     // Pointer to the frame_processor
@@ -157,7 +165,7 @@ struct opencv_calculation_update_ctx
 
 
     // Current frame number
-    int current_frame_index;
+    int current_frame_index = 0;
 
     // Total frame number
     // initiates at the switch_videp()
@@ -165,7 +173,16 @@ struct opencv_calculation_update_ctx
 
 
     // Need reset flag for switch_video call in update function
-    bool need_reset;
+    bool need_reset = true;
+
+
+    // TEST MODE FLAGS 
+
+    // Need to show X3 scaled cv::Mat in other window 
+    bool show_kingsize;
+
+    // Flag for other window init logic
+    bool kingsize_live_transmission;
     
 };
 
@@ -184,6 +201,84 @@ void opencv_calculation_global_free_and_nullptr();
 // ===== Functions =====
 
 // =========================================================================================== GLOBAL OPENCV PART
+
+
+// =========================================================================================== PROCESSING
+
+// ===== PROCESSING CTX =====
+
+struct processing_1_data
+{
+
+};
+
+
+struct processing_2_data
+{
+
+};
+
+
+struct processing_3_data
+{
+
+};
+
+
+
+struct file_processing_data
+{
+    // Updates at init stage of the state
+    bool using_flag = false;
+
+
+    processing_1_data processing_1;
+    processing_1_data processing_2;
+    processing_3_data processing_3;
+
+};
+
+
+struct files_processing_data
+{
+
+    file_processing_data file_1;
+    file_processing_data file_2;
+    file_processing_data file_3;
+    file_processing_data file_4;
+    file_processing_data file_5;
+    file_processing_data file_6;
+
+};
+
+
+extern files_processing_data global_processing_data;
+
+
+// ===== PROCESSING CTX =====
+
+
+
+// ===== PROCESSING FUNCTIONS =====
+
+void processing_1(cv::Mat* current_mat);
+
+void processing_2(cv::Mat* current_mat);
+
+
+void processing_stage_1(cv::Mat* current_mat);
+
+void processing_stage_2(cv::Mat* current_mat);
+
+void processing_stage_3_1(cv::Mat* current_mat);
+
+void processing_stage_3_2(cv::Mat* current_mat);
+
+
+// ===== PROCESSING FUNCTIONS =====
+
+
+// =========================================================================================== PROCESSING
 
 
 // =========================================================================================== PROGRESS BAR
@@ -209,17 +304,25 @@ void opencv_calculation_global_free_and_nullptr();
 struct flow_calculation_progress_bar
 {
 
-    unsigned int percentage;
+    float percentage = 0.0f;
 
-    unsigned int operations_counter;
-    unsigned int operations_count;
 
-    std::string current_file;
-    std::string current_mask;
+    unsigned int operations_counter = 0;
 
-    unsigned int current_frame;
-    unsigned int frames_quantity;
+    unsigned int operations_count = 0;          //  SUm of File_frames * 2 
+
+
+    unsigned int current_frame = 0; 
+    unsigned int frames_quantity = 0;           // Current file frame
 
 };
+
+
+extern flow_calculation_progress_bar state_progress_bar;
+
+
+void progress_bar_update();
+
+void progress_bar_render(SDL_Renderer* renderer);
 
 // =========================================================================================== PROGRESS BAR
