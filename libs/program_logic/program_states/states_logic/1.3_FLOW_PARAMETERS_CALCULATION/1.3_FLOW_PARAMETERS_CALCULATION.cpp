@@ -172,7 +172,7 @@ int pb_x_1 = WINDOW_WIDTH / 2;
 int pb_y_1 = WINDOW_HEIGHT / 2;
 
 // Lines
-SDL_Color progress_bar_border_color = hex_to_sdl_color("#090400", 255);
+SDL_Color progress_bar_border_color = App_palette.get_current_palette().basic_border_color;         // hex_to_sdl_color("#090400", 255);
 int progress_bar_lines_width = 10;
 
 int pb_l_1_x_1 = 0;
@@ -799,6 +799,7 @@ void processing_stage_1(cv::Mat* current_mat)
 {
     // TEST
     state_progress_bar.current_frame = 1 + (state_progress_bar.current_frame) % 8000;
+    state_progress_bar.operations_counter += 1;
 }
 
 void processing_stage_2(cv::Mat* current_mat)
@@ -826,15 +827,20 @@ void processing_stage_3_2(cv::Mat* current_mat)
 void progress_bar_update()
 {
 
-    /*
     state_progress_bar.percentage = static_cast<unsigned int>(
         (static_cast<double>(state_progress_bar.operations_counter) / state_progress_bar.operations_count) * 100.0
     );
-    */
-    state_progress_bar.percentage += 0.25;
 
-    if (state_progress_bar.percentage > 100) state_progress_bar.percentage = 0;
+
+    /*
+
+        state_progress_bar.percentage += 0.25;
+
+        if (state_progress_bar.percentage > 100) state_progress_bar.percentage = 0;
     
+    */
+
+
     std::string percentage_string =
         std::to_string(static_cast<int>(std::round(state_progress_bar.percentage))) + "%.";
 
@@ -949,7 +955,7 @@ void progress_bar_render(SDL_Renderer* renderer)
 
     int current_width = static_cast<int>(
         (static_cast<double>(state_progress_bar.percentage) / 100.0)
-        * progress_bar_width
+        * (progress_bar_width - 2 * flow_parameters_calculation_panel->get_border_width_size())
     );
     // Render rectangle
 

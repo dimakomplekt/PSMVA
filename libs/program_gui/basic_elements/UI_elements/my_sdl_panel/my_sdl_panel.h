@@ -249,6 +249,15 @@ class My_SDL_panel : public My_SDL_element
 
 
         /**
+         * @brief Border width getter.
+         *
+         * 
+         */
+        const unsigned int get_border_width_size_size();
+
+
+
+        /**
          * @brief Sets the border radius for rounded corners.
          *
          * @param new_radius_size New border radius in pixels

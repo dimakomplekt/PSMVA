@@ -284,6 +284,11 @@ void My_SDL_panel::set_border_width_size(unsigned int new_size)
     this->render_data_reset();
 }
 
+const unsigned int get_border_width_size_size()
+{
+    return this->border_width_size; 
+}
+
 
 void My_SDL_panel::set_border_radius(unsigned int new_size)
 {
