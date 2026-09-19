@@ -253,7 +253,7 @@ class My_SDL_panel : public My_SDL_element
          *
          * 
          */
-        const unsigned int get_border_width_size_size();
+        const unsigned int get_border_width_size();
 
 
 

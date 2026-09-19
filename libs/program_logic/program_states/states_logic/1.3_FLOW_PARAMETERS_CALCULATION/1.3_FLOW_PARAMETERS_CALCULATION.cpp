@@ -162,7 +162,7 @@ int WINDOW_HEIGHT = MAIN_WINDOW_V_SIZE;
 
 // Rectangle
 
-SDL_Color progress_bar_fill_color = hex_to_sdl_color("#ff891a", 255);
+
 
 int progress_bar_width = WINDOW_WIDTH;
 int progress_bar_height = static_cast<int>(0.1 * WINDOW_HEIGHT);
@@ -171,8 +171,9 @@ int progress_bar_height = static_cast<int>(0.1 * WINDOW_HEIGHT);
 int pb_x_1 = WINDOW_WIDTH / 2;
 int pb_y_1 = WINDOW_HEIGHT / 2;
 
+
 // Lines
-SDL_Color progress_bar_border_color = App_palette.get_current_palette().basic_border_color;         // hex_to_sdl_color("#090400", 255);
+
 int progress_bar_lines_width = 10;
 
 int pb_l_1_x_1 = 0;
@@ -358,23 +359,23 @@ void opencv_calculation_global_setup()
 
         // ===== FILES DATA INIT =====
 
-        bool file_1_need_init = (masks_data.file_1_masks.file_choose_state != nullptr) 
-                                && *(masks_data.file_1_masks.file_choose_state);
+        bool file_1_need_init = file_choose_info.panels_states.file_1_panel_state ==
+                                file_choose_panel_state::CHOSEN_STATE;
 
-        bool file_2_need_init = (masks_data.file_2_masks.file_choose_state != nullptr) 
-                                && *(masks_data.file_2_masks.file_choose_state);
+        bool file_2_need_init = file_choose_info.panels_states.file_2_panel_state ==
+                                file_choose_panel_state::CHOSEN_STATE;
 
-        bool file_3_need_init = (masks_data.file_3_masks.file_choose_state != nullptr) 
-                                && *(masks_data.file_3_masks.file_choose_state);
+        bool file_3_need_init = file_choose_info.panels_states.file_3_panel_state ==
+                                file_choose_panel_state::CHOSEN_STATE;
 
-        bool file_4_need_init = (masks_data.file_4_masks.file_choose_state != nullptr) 
-                                && *(masks_data.file_4_masks.file_choose_state);
+        bool file_4_need_init = file_choose_info.panels_states.file_4_panel_state ==
+                                file_choose_panel_state::CHOSEN_STATE;
 
-        bool file_5_need_init = (masks_data.file_5_masks.file_choose_state != nullptr) 
-                                && *(masks_data.file_5_masks.file_choose_state);
+        bool file_5_need_init = file_choose_info.panels_states.file_5_panel_state ==
+                                file_choose_panel_state::CHOSEN_STATE;
 
-        bool file_6_need_init = (masks_data.file_6_masks.file_choose_state != nullptr) 
-                                && *(masks_data.file_6_masks.file_choose_state);
+        bool file_6_need_init = file_choose_info.panels_states.file_6_panel_state ==
+                                file_choose_panel_state::CHOSEN_STATE;
 
 
         if (file_1_need_init) global_processing_data.file_1.using_flag = true;
@@ -800,6 +801,17 @@ void processing_stage_1(cv::Mat* current_mat)
     // TEST
     state_progress_bar.current_frame = 1 + (state_progress_bar.current_frame) % 8000;
     state_progress_bar.operations_counter += 1;
+
+
+    if (state_progress_bar.operations_counter % 100 == 0)
+    {
+        std::cout
+            << "operations_counter = "
+            << state_progress_bar.operations_counter
+            << " / "
+            << state_progress_bar.operations_count
+            << std::endl;
+    }
 }
 
 void processing_stage_2(cv::Mat* current_mat)
@@ -826,11 +838,23 @@ void processing_stage_3_2(cv::Mat* current_mat)
 
 void progress_bar_update()
 {
+    if (state_progress_bar.operations_count == 0)
+    {
+        state_progress_bar.percentage = 0.0f;
+        return;
+    }
+    else
+    {
+            
+        state_progress_bar.percentage =
 
-    state_progress_bar.percentage = static_cast<unsigned int>(
-        (static_cast<double>(state_progress_bar.operations_counter) / state_progress_bar.operations_count) * 100.0
-    );
+                (static_cast<float>(state_progress_bar.operations_counter)
+                / static_cast<float>(state_progress_bar.operations_count))
+                * 100.0f;
+    }
 
+
+    if (state_progress_bar.percentage >= 100) state_progress_bar.percentage = 100;
 
     /*
 
@@ -842,7 +866,9 @@ void progress_bar_update()
 
 
     std::string percentage_string =
-        std::to_string(static_cast<int>(std::round(state_progress_bar.percentage))) + "%.";
+        std::to_string(
+            static_cast<int>(std::round(state_progress_bar.percentage))
+        ) + "%.";
 
 
     std::string file_number;
@@ -952,6 +978,11 @@ void progress_bar_update()
 
 void progress_bar_render(SDL_Renderer* renderer)
 {
+
+    SDL_Color progress_bar_fill_color = hex_to_sdl_color("#ff891a", 255);
+
+    SDL_Color progress_bar_border_color = App_palette.get_current_palette().basic_border_color;         // hex_to_sdl_color("#090400", 255);
+    
 
     int current_width = static_cast<int>(
         (static_cast<double>(state_progress_bar.percentage) / 100.0)
