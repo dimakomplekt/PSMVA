@@ -283,10 +283,10 @@ inline Lang_string_type gd_calculation_file = {
 };
 
 
-inline Lang_string_type gd_calculation_mask = {
+inline Lang_string_type gd_calculation_stage = {
 
-    "Mask: ",
-    "Маска: "
+    "Stage: ",
+    "Стадия: "
 
 };
 

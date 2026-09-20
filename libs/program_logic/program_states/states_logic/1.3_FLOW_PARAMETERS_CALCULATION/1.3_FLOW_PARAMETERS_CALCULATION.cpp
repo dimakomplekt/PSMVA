@@ -28,6 +28,54 @@
 // =========================================================================================== IMPORT
 
 
+
+
+// =========================================================================================== NOTE
+
+
+/**
+*        enter
+*        │
+*        ├─ create UI
+*        ├─ opencv_calculation_global_setup()
+*        │    ├─ определить используемые файлы
+*        │    ├─ заполнить global_processing_data
+*        │    ├─ посчитать operations_count
+*        │    └─ создать 3 Mat
+*        │
+*        └─ setup UI
+*            │
+*        update ─────────────────────────────────────┐
+*        │                                           │
+*        ├─ UI @240                                  │
+*        │    ├─ elements_update                     │
+*        │    │    └─ progress_bar_update            │
+*        │    │                                      |
+*        │    └─ actions                             │
+*        │                                           │
+*        └─ opencv_calculation_global_update()       │
+*            │                                       │
+*            ├─ выбрать текущий файл                 │
+*            ├─ при need_reset открыть видео         │
+*            ├─ прочитать frame                      │
+*            ├─ processing_stage_1                   │
+*            ├─ processing_stage_2                   │
+*            ├─ processing_stage_3_1                 │
+*            ├─ обновить frame                       │
+*            ├─ определить конец pass                │
+*            └─ перейти к следующему файлу           │
+*                                                    │
+*        render @120                                 │
+*        ├─ panel                                    │
+*        └─ progress bar                             │
+*
+*
+*/
+
+
+// =========================================================================================== NOTE
+
+
 // =========================================================================================== STATE DATA
 
 files_processing_data global_processing_data;
@@ -434,9 +482,9 @@ void opencv_calculation_global_setup()
 
 
         // ===== PROGRESS BAR INIT =====
-
         
         state_progress_bar.frames_quantity = files_metadata.video_1_data.frames_quantity;
+
 
         unsigned int total_frames = 0;
 
@@ -458,13 +506,7 @@ void opencv_calculation_global_setup()
 
 
         // TEST
-        opencv_global_calculation_update_ctx.current_frame_processor = processing_1;
-
-        if (FPC_TEST_MODE)
-        {
-            opencv_global_calculation_update_ctx.show_kingsize = true;
-            opencv_global_calculation_update_ctx.kingsize_live_transmission = false;
-        }
+        opencv_global_calculation_update_ctx.current_frame_processor = processing_stage_1;
     }
 
     if (TEST_MODE) std::cout << "Mats and texture created\n" << std::endl;   
@@ -514,11 +556,17 @@ void switch_video_for_calculation(const std::string& new_file_path)
 
     // Set the 0 index
     opencv_global_calculation_update_ctx.current_frame_index = 0;
+
     // Get total frame count
     opencv_global_calculation_update_ctx.total_frame_count =
         video_capture_device_global_fpc->isOpened()
             ? static_cast<int>(video_capture_device_global_fpc->get(cv::CAP_PROP_FRAME_COUNT))
             : 0;
+
+
+    // Reset the progress bar data
+    state_progress_bar.current_frame = opencv_global_calculation_update_ctx.current_frame_index;
+    state_progress_bar.frames_quantity = opencv_global_calculation_update_ctx.total_frame_count;
 }
 
 
@@ -543,16 +591,22 @@ void kingsize_window_init_fpc(cv::Mat* mat)
 
 void kingsize_window_close_fpc()
 {
-    if (opencv_global_calculation_update_ctx.kingsize_live_transmission)
-    {
-        cv::destroyWindow("KINGSIZE_TEST");
-        opencv_global_calculation_update_ctx.kingsize_live_transmission = false;
-    }
+    cv::destroyWindow("KINGSIZE_TEST");
 }
 
 
+
+bool global_calculation_end_flag = false;
+
 void opencv_calculation_global_update()
 {
+    static bool calculation_ends = false;
+
+    if (calculation_ends) 
+    {
+        global_calculation_end_flag = true;
+        return;
+    }
 
     // ===== PREPROCESSING =====
 
@@ -562,7 +616,7 @@ void opencv_calculation_global_update()
 
     std::string file_path;
 
-    file_processing_data* data_to_control;
+    file_processing_data* data_to_control = nullptr;
 
 
     std::array<file_processing_data*, 6> files = {
@@ -587,11 +641,19 @@ void opencv_calculation_global_update()
 
             data_to_control = file;
 
-
             // Drop for cycle till the file data ain't calculated
             break;
         }
     }
+
+     
+    // Calculation ended or not possible
+    if (data_to_control == nullptr)
+    {
+        calculation_ends = true;
+        return;
+    }
+
 
     nozzle_detection_mask curr_ndm;
     jet_detection_mask curr_jdm;
@@ -602,6 +664,8 @@ void opencv_calculation_global_update()
     {
         case FILE_1_CF:
         {
+            opencv_global_calculation_update_ctx.current_file_for_mask_setup = FILE_1_CF;
+
             curr_ndm = masks_data.file_1_masks.nozzle_mask;
             curr_jdm = masks_data.file_1_masks.jet_mask;
             curr_pdm = masks_data.file_1_masks.particle_mask;
@@ -611,6 +675,8 @@ void opencv_calculation_global_update()
 
         case FILE_2_CF:
         {
+            opencv_global_calculation_update_ctx.current_file_for_mask_setup = FILE_2_CF;
+
             curr_ndm = masks_data.file_2_masks.nozzle_mask;
             curr_jdm = masks_data.file_2_masks.jet_mask;
             curr_pdm = masks_data.file_2_masks.particle_mask;
@@ -621,6 +687,8 @@ void opencv_calculation_global_update()
 
         case FILE_3_CF:
         {
+            opencv_global_calculation_update_ctx.current_file_for_mask_setup = FILE_3_CF;
+
             curr_ndm = masks_data.file_3_masks.nozzle_mask;
             curr_jdm = masks_data.file_3_masks.jet_mask;
             curr_pdm = masks_data.file_3_masks.particle_mask;
@@ -631,6 +699,8 @@ void opencv_calculation_global_update()
 
         case FILE_4_CF:
         {
+            opencv_global_calculation_update_ctx.current_file_for_mask_setup = FILE_4_CF;
+
             curr_ndm = masks_data.file_4_masks.nozzle_mask;
             curr_jdm = masks_data.file_4_masks.jet_mask;
             curr_pdm = masks_data.file_4_masks.particle_mask;
@@ -641,6 +711,8 @@ void opencv_calculation_global_update()
 
         case FILE_5_CF:
         {
+            opencv_global_calculation_update_ctx.current_file_for_mask_setup = FILE_5_CF;
+
             curr_ndm = masks_data.file_5_masks.nozzle_mask;
             curr_jdm = masks_data.file_5_masks.jet_mask;
             curr_pdm = masks_data.file_5_masks.particle_mask;
@@ -650,6 +722,8 @@ void opencv_calculation_global_update()
 
         case FILE_6_CF:
         {
+            opencv_global_calculation_update_ctx.current_file_for_mask_setup = FILE_6_CF;
+
             curr_ndm = masks_data.file_6_masks.nozzle_mask;
             curr_jdm = masks_data.file_6_masks.jet_mask;
             curr_pdm = masks_data.file_6_masks.particle_mask;
@@ -681,6 +755,13 @@ void opencv_calculation_global_update()
         // USE HELPER
         switch_video_for_calculation(file_path);
 
+        // TODO:
+        // FALSE AT INIT. NEED IT?
+        // Set calculation stages status
+        // data_to_control->stage_1_end = false;
+        // data_to_control->stage_2_end = false;
+        
+
         // Block reinits after reset
         opencv_global_calculation_update_ctx.need_reset = false;
 
@@ -704,6 +785,22 @@ void opencv_calculation_global_update()
 
     // Play logic (nothing at pause)
 
+    /**
+     * 
+     *           frame 123
+     *               │
+     *       ┌───────┼───────┐
+     *       ▼       ▼       ▼
+     *     clone   clone    clone
+     *       │       │       │
+     *       ▼       ▼       ▼
+     *    stage1   stage2  stage3.1
+     *       │       │       │
+     *       ▼       ▼       ▼
+     *    result1  result2  result3
+     * 
+     */
+
     {
         // Show from the start (if it's 1st call)
         if (calculation_cv_mat_mask_1_global->empty())
@@ -717,11 +814,22 @@ void opencv_calculation_global_update()
             opencv_global_calculation_update_ctx.current_frame_index
         );
     
-        // Read current frame
+
+        // Read current frame to work with
         *video_capture_device_global_fpc >> *calculation_cv_mat_mask_1_global;
-    
-        // Move to the next frame for the next update()
-        opencv_global_calculation_update_ctx.current_frame_index++;
+
+
+        if (calculation_cv_mat_mask_1_global->empty())
+        {
+            // EOF / read error
+            return;
+        }
+
+
+        // Create independent copies of the original frame
+        *calculation_cv_mat_mask_2_global = calculation_cv_mat_mask_1_global->clone();
+
+        *calculation_cv_mat_mask_3_global = calculation_cv_mat_mask_1_global->clone();
     }
 
 
@@ -743,23 +851,87 @@ void opencv_calculation_global_update()
             // THE RENDERER will show the video after processing
             if (!data_to_control->stage_1_end && !data_to_control->stage_2_end)
             {
+                opencv_global_calculation_update_ctx.global_operation = PROCESSING_STAGE_1_CGO;
+
+                opencv_global_calculation_update_ctx.operation = MASK_1_PROCESSING_CO;
                 opencv_global_calculation_update_ctx.current_frame_processor = processing_stage_1;
                 opencv_global_calculation_update_ctx.current_frame_processor(calculation_cv_mat_mask_1_global);
 
+
+                opencv_global_calculation_update_ctx.operation = MASK_2_PROCESSING_CO;
                 opencv_global_calculation_update_ctx.current_frame_processor = processing_stage_2;
                 opencv_global_calculation_update_ctx.current_frame_processor(calculation_cv_mat_mask_2_global);
 
+                opencv_global_calculation_update_ctx.operation = MASK_3_1_PROCESSING_CO;
                 opencv_global_calculation_update_ctx.current_frame_processor = processing_stage_3_1;
                 opencv_global_calculation_update_ctx.current_frame_processor(calculation_cv_mat_mask_3_global);
+
+
+                // Update frame
+                opencv_global_calculation_update_ctx.current_frame_index += 1;
+
+                
+                // Check if wee need to over 1st stage
+
+                if (opencv_global_calculation_update_ctx.current_frame_index == opencv_global_calculation_update_ctx.total_frame_count)
+                {
+                    data_to_control->stage_1_end = true;
+                    opencv_global_calculation_update_ctx.current_frame_index = 0;
+                }
+
+
+                // Operations counter update
+                state_progress_bar.operations_counter += 1;
             }
 
-            if (data_to_control->stage_1_end && !data_to_control->stage_2_end)
+            else if (data_to_control->stage_1_end && !data_to_control->stage_2_end)
             {
-                opencv_global_calculation_update_ctx.current_frame_processor = processing_stage_3_1;
-                opencv_global_calculation_update_ctx.current_frame_processor(calculation_cv_mat_mask_3_global);
-            }
-        }
+                opencv_global_calculation_update_ctx.global_operation = PROCESSING_STAGE_2_CGO;
 
+
+                opencv_global_calculation_update_ctx.operation = MASK_3_2_PROCESSING_CO;
+                opencv_global_calculation_update_ctx.current_frame_processor = processing_stage_3_2;
+                opencv_global_calculation_update_ctx.current_frame_processor(calculation_cv_mat_mask_3_global);
+
+
+                opencv_global_calculation_update_ctx.current_frame_index += 1;
+
+
+                // Check if wee need to over 2nd stage
+
+                if (opencv_global_calculation_update_ctx.current_frame_index == opencv_global_calculation_update_ctx.total_frame_count)
+                {
+                    data_to_control->stage_2_end = true;
+
+
+                    // 2nd stage ended - so we set the flag to switch the video
+                    // inside the for-loop at the start of this function
+                    // The next update cycle will select another using file.
+                    data_to_control->calculated_flag = true;
+
+
+                    // For the next video
+                    opencv_global_calculation_update_ctx.need_reset = true;
+
+                    // Basic
+                    opencv_global_calculation_update_ctx.global_operation = PROCESSING_STAGE_1_CGO;
+
+                    // Current operation
+                    opencv_global_calculation_update_ctx.operation = MASK_1_PROCESSING_CO;
+
+
+                    // Drop the data to control for calculation end or reinit
+                    data_to_control = nullptr;
+                }
+
+
+                // Operations counter update
+                state_progress_bar.operations_counter += 1;
+            }
+
+            // Update progress bar
+            state_progress_bar.current_frame = opencv_global_calculation_update_ctx.current_frame_index;
+        }
     }
 
     // ===== BLACKBOX WITH PROCESSING LOGIC BY CALLBACK =====
@@ -769,110 +941,101 @@ void opencv_calculation_global_update()
 
     // ===== SHOW SCALED COPY OF CURRENT MAT INSIDE OTHER WINDOW =====
 
-
-    // Development stage
-    if (FPC_TEST_MODE)
+   if (FPC_TEST_MODE)
     {
-        // Show 1st or 2nd or 3rd       
-        cv::Mat* current_basic_mat_to_process;
+        static bool kingsize_live_transmission = false;
 
-        if (state_progress_bar.operations_counter % 100 == 0)
-        
+        static std::size_t mat_index = 0;
+
+        static float last_mat_switch_time = App_timer_1.get_current_time();
+
+        constexpr float MAT_SWITCH_INTERVAL = 3.0f;
 
 
-        // If frame is empty, skip this update
+        // ============================================================
+        // SELECT MAT
+        // ============================================================
+
+        const float current_time = App_timer_1.get_current_time();
+
+
+        if (current_time - last_mat_switch_time >= MAT_SWITCH_INTERVAL)
+        {
+            mat_index = (mat_index + 1) % 3;
+
+            last_mat_switch_time = current_time;
+        }
+
+        if (opencv_global_calculation_update_ctx.global_operation == PROCESSING_STAGE_2_CGO) mat_index = 2;
+
+
+        const std::array<cv::Mat*, 3> test_mats =
+        {
+
+            calculation_cv_mat_mask_1_global,
+            calculation_cv_mat_mask_2_global,
+            calculation_cv_mat_mask_3_global
+
+        };
+
+
+        cv::Mat* current_basic_mat_to_process = test_mats[mat_index];
+
+
+        // ============================================================
+        // SHOW MAT
+        // ============================================================
+
         if (!current_basic_mat_to_process->empty())
         {
-            if (opencv_global_calculation_update_ctx.show_kingsize)
+            if (!kingsize_live_transmission)
             {
-                // First call after activation
-                if (!opencv_global_calculation_update_ctx.kingsize_live_transmission)
-                {
-                    kingsize_window_init_fpc(current_basic_mat_to_process);
-
-                    // Block reinit
-                    opencv_global_calculation_update_ctx.kingsize_live_transmission = true;
-                }
-
-
-                // USER INPUT ERROR HANDLER
-                // Check whether user closed the window manually
-                if (cv::getWindowProperty("KINGSIZE_TEST", cv::WND_PROP_VISIBLE) < 1)
-                {
-                    opencv_global_calculation_update_ctx.show_kingsize = false;
-                    opencv_global_calculation_update_ctx.kingsize_live_transmission = false;
-
-                    return;
-                }
-
-
-                // Create scaled copy
-                cv::Mat kingsize_mat;
-
-                cv::resize(
-                    *current_basic_mat_to_process,
-                    kingsize_mat,
-                    cv::Size(
-                        current_basic_mat_to_process->cols * 3,
-                        current_basic_mat_to_process->rows * 3
-                    ),
-                    0,
-                    0,
-                    cv::INTER_NEAREST
+                kingsize_window_init_fpc(
+                    current_basic_mat_to_process
                 );
 
-                // Show scaled image
-                cv::imshow(
+                kingsize_live_transmission = true;
+            }
+
+
+            // USER INPUT ERROR HANDLER
+            if (cv::getWindowProperty(
                     "KINGSIZE_TEST",
-                    kingsize_mat
-                );
-
-                cv::waitKey(1);
-            }
-            else
+                    cv::WND_PROP_VISIBLE
+                ) < 1)
             {
-                // Close window after deactivation
-                if (opencv_global_calculation_update_ctx.kingsize_live_transmission)
-                {
-                    kingsize_window_close_fpc();
+                kingsize_live_transmission = false;
 
-                    // Allow init on next activation
-                    opencv_global_calculation_update_ctx.kingsize_live_transmission = false;
-                }
+                return;
             }
+
+
+            cv::Mat kingsize_mat;
+
+            cv::resize(
+                *current_basic_mat_to_process,
+                kingsize_mat,
+                cv::Size(
+                    current_basic_mat_to_process->cols * 3,
+                    current_basic_mat_to_process->rows * 3
+                ),
+                0,
+                0,
+                cv::INTER_NEAREST
+            );
+
+
+            cv::imshow(
+                "KINGSIZE_TEST",
+                kingsize_mat
+            );
+
+            cv::waitKey(1);
         }
     }
 
     // ===== SHOW SCALED COPY OF CURRENT MAT INSIDE OTHER WINDOW =====
 
-
-
-    // ===== SWITCH THE CURRENT FILE TO PROCESS BY STATE MACHINE =====
-
-
-
-    if (data_to_control->stage_1_end && data_to_control->stage_2_end)
-    {
-        data_to_control->calculated_flag = true;;
-    }
-
-    if (data_to_control->calculated_flag)
-    {
-        // For the next video
-        opencv_global_calculation_update_ctx.need_reset = true;
-
-
-        // Basic
-
-        opencv_global_calculation_update_ctx.global_operation = PROCESSING_STAGE_1_CGO;
-
-        // Current operation
-        opencv_global_calculation_update_ctx.operation = MASK_1_PROCESSING_CO;
-
-    }
-
-    
-    // ===== SWITCH THE CURRENT FILE TO PROCESS BY STATE MACHINE =====
 }
 
 
@@ -924,35 +1087,1919 @@ particle_detection_mask particle_mask_to_process;
 
 void processing_stage_1(cv::Mat* current_mat)
 {
-    // TEST
-    state_progress_bar.current_frame = 1 + (state_progress_bar.current_frame) % 8000;
-    state_progress_bar.operations_counter += 1;
+    if (!current_mat || current_mat->empty()) return;
+
+    // Mask processing logic
 
 
-    if (state_progress_bar.operations_counter % 100 == 0)
+    // ===== MASK SETUP LOGIC =====
+
+    nozzle_detection_mask* controlled_mask = &nozzle_mask_to_process;
+
+
+    // Need or not to show axe line and precalculate scale
+    // Always show if 2 points are not the same
+    bool show_axe_and_calculate_scale = !(
+
+        (controlled_mask->x_1 == controlled_mask->x_2) && 
+        (controlled_mask->y_1 == controlled_mask->y_2)
+
+    );
+
+    // No more job here in basic case
+    if (!show_axe_and_calculate_scale) 
     {
-        std::cout
-            << "operations_counter = "
-            << state_progress_bar.operations_counter
-            << " / "
-            << state_progress_bar.operations_count
-            << std::endl;
+        // reinit
+
+        controlled_mask->mm_in_pixel = 0.0f;
+
+        controlled_mask->basic_axe_angle = 0.0f;
+
+        controlled_mask->axe_line_coefficients.a = 0.0f;
+        controlled_mask->axe_line_coefficients.b = 0.0f;
+        controlled_mask->axe_line_coefficients.c = 0.0f;
+
+        controlled_mask->axe_line_coefficients.calculated = false;
+
+
+        return;
     }
+
+    // else
+
+    // This mask is only mask with precalculation (no calculation on the next step)
+
+    /*
+
+        0) Put a green and red crosshair at 2 points ((controlled_mask->x_1, controlled_mask->y_1) 
+        and (controlled_mask->x_2, controlled_mask->y_2))
+
+        Crosshair: lines: 5px length, 2px width 2 on 2 pixels Center Dot (Center Gap)
+
+        1) Determine the coefficients of the line equation for the line connecting two selected points.
+
+        2) Find the midpoint between them, then calculate the coefficients of the equation for the line that is
+        perpendicular to the first line and passes through that midpoint.
+
+        3) Identify two points at the edges of the visibility zone that lie on this second line.
+
+        4) Draw a dashed blue line with a thickness of 3 pixels connecting these two points.
+
+        5) Calculate the scale (controlled_mask->mm_in_pixels by distance between 2 choosen points and 
+        controlled_mask->d_n)
+
+        6) Save calculated data
+
+    */
+
+    // === 1st step === 
+
+    auto draw_crosshair = [](cv::Mat& img, int cx, int cy, const cv::Scalar& color) 
+    {
+        int length = 5;
+        int thickness = 2;
+        int gap = 2;
+        cv::Size img_size = img.size();
+
+        // Лямбда для безопасного рисования линии с предварительным клиппингом
+        auto safe_line = [&](cv::Point p_1, cv::Point p_2) 
+        {
+            // clipLine возвращает true, если линия хотя бы частично внутри кадра
+            if (cv::clipLine(img_size, p_1, p_2)) {
+                cv::line(img, p_1, p_2, color, thickness);
+            }
+        };
+
+        // Левая линия
+        safe_line(cv::Point(cx - gap - length, cy), cv::Point(cx - gap, cy));
+        // Правая линия
+        safe_line(cv::Point(cx + gap, cy), cv::Point(cx + gap + length, cy));
+        // Верхняя линия
+        safe_line(cv::Point(cx, cy - gap - length), cv::Point(cx, cy - gap));
+        // Нижняя линия
+        safe_line(cv::Point(cx, cy + gap), cv::Point(cx, cy + gap + length));
+    };
+
+
+    draw_crosshair(*current_mat, controlled_mask->x_1, controlled_mask->y_1, cv::Scalar(0, 255, 0)); // Зеленый
+    draw_crosshair(*current_mat, controlled_mask->x_2, controlled_mask->y_2, cv::Scalar(0, 0, 255)); // Красный
+    
+    
+    // === 2nd step === 
+
+    // =========================================================================
+    // 1) Коэффициенты исходной прямой: a_1*x + b_1*y + c_1 = 0
+    // =========================================================================
+
+    double x_1 = controlled_mask->x_1;
+    double y_1 = controlled_mask->y_1;
+    double x_2 = controlled_mask->x_2;
+    double y_2 = controlled_mask->y_2;
+
+    // Формула прямой через две точки: (y_1 - y_2)*x + (x_2 - x_1)*y + (x_1*y_2 - x_2*y_1) = 0
+    double a_1 = y_1 - y_2;
+    double b_1 = x_2 - x_1;
+    double c_1 = x_1 * y_2 - x_2 * y_1;
+
+
+    // =========================================================================
+    // 2) Поиск средней точки и коэффициентов перпендикуляра: a_2*x + b_2*y + c_2 = 0
+    // =========================================================================
+    
+    // Координаты центра между двумя точками
+    double mid_x = (x_1 + x_2) / 2.0;
+    double mid_y = (y_1 + y_2) / 2.0;
+
+    // Для перпендикуляра инвертируем и меняем местами коэффициенты
+    double a_2 = -b_1; 
+    double b_2 = a_1;
+
+    // Находим c_2 из условия прохождения через среднюю точку:
+    double c_2 = -(a_2 * mid_x + b_2 * mid_y);
+
+
+    // === 3rd step === 
+
+    std::vector<cv::Point> edge_points;
+
+    const double epsilon = 1e-5;
+
+    int cols = current_mat->cols;
+    int rows = current_mat->rows;
+
+    // Пересечение с левой границей (x = 0)
+    if (std::abs(b_2) > epsilon) 
+    {
+        double y = -c_2 / b_2;
+
+        if (y >= 0 && y < rows) 
+        {
+            edge_points.push_back(cv::Point(0, std::round(y)));
+        }
+    }
+
+    // Пересечение с правой границей (x = cols - 1)
+    if (std::abs(b_2) > epsilon) 
+    {
+        double y = -(a_2 * (cols - 1) + c_2) / b_2;
+
+        if (y >= 0 && y < rows) 
+        {
+            edge_points.push_back(cv::Point(cols - 1, std::round(y)));
+        }
+    }
+
+    // Пересечение с верхней границей (y = 0)
+    if (std::abs(a_2) > epsilon) {
+        double x = -c_2 / a_2;
+        if (x >= 0 && x < cols) {
+            edge_points.push_back(cv::Point(std::round(x), 0));
+        }
+    }
+
+    // Пересечение с нижней границей (y = rows - 1)
+    if (std::abs(a_2) > epsilon) 
+    {
+        double x = -(b_2 * (rows - 1) + c_2) / a_2;
+
+        if (x >= 0 && x < cols) 
+        {
+            edge_points.push_back(cv::Point(std::round(x), rows - 1));
+        }
+    }
+
+
+    // === 4th step === 
+
+    if (edge_points.size() >= 2) 
+    {
+        // Берем первые две найденные точки пересечения с границами
+        cv::Point p_start = edge_points[0];
+        cv::Point p_end = edge_points[1];
+
+        // Инициализируем итератор линии (8-связность для непрерывного прохода)
+        cv::LineIterator line_it(*current_mat, p_start, p_end, 8);
+        
+        int dash_length = 10;   // Длина закрашенного штриха в пикселях
+        int space_length = 10;  // Длина пустого пространства в пикселях
+        int current_step = 0;
+
+        for (int i = 0; i < line_it.count; ++i, ++line_it) 
+        {
+            // Если мы находимся в пределах длины штриха — рисуем пиксель
+            if (current_step < dash_length) 
+            {
+                // Синий цвет в BGR — cv::Scalar(255, 0, 0)
+                // Толщина 3px создается закрашенным кругом с радиусом 1 (диаметр = 3 пикселя)
+                cv::circle(*current_mat, line_it.pos(), 1, cv::Scalar(255, 0, 0), -1);
+            }
+            
+            // Сбрасываем шаг по достижении полной длины одного цикла (штрих + пробел)
+            current_step = (current_step + 1) % (dash_length + space_length);
+        }
+    }
+
+
+    // === 5th step === 
+
+    double delta_x = x_2 - x_1;
+    double delta_y = y_2 - y_1;
+    double distance_pixels = std::hypot(delta_x, delta_y);
+    
+    // Защита от деления на ноль (если точки совпали, масштаб равен 0)
+    if (distance_pixels > epsilon) 
+    {
+        // d_n — это реальный диаметр сопла в мм. 
+        // Делим мм на пиксели, чтобы узнать, сколько мм в одном пикселе.
+        controlled_mask->mm_in_pixel = controlled_mask->d_n / distance_pixels;
+    } 
+    else 
+    {
+        controlled_mask->mm_in_pixel = 0.0;
+    }
+
+    // === 6th step === 
+
+    // 1. Запись коэффициентов перпендикулярной (осевой) линии
+    controlled_mask->axe_line_coefficients.a = static_cast<float>(a_2);
+    controlled_mask->axe_line_coefficients.b = static_cast<float>(b_2);
+    controlled_mask->axe_line_coefficients.c = static_cast<float>(c_2);
+    controlled_mask->axe_line_coefficients.calculated = true;
+
+    // 2. Расчет угла наклона оси относительно базовой горизонтали экрана
+    double angle_rad = std::atan2(a_2, -b_2);
+
+    // Переводим радианы в градусы (от -180 до 180) с использованием M_PI из C++17
+    #ifndef M_PI
+    #define M_PI 3.14159265358979323846
+    #endif
+
+    // Need to reverse)
+    controlled_mask->basic_axe_angle = -static_cast<float>(angle_rad * 180.0 / M_PI);
+
+
+    // === Bonus step ===
+
+    // Render main calculated values
+
+    
+    // ===== MASK MAIN CALCULATED VALUES ===== 
+
+    int font_face = cv::FONT_HERSHEY_SIMPLEX;
+    double font_scale = 1.0;
+
+
+    char scale_str[64];
+    char angle_str[64];
+
+    std::snprintf(scale_str, sizeof(scale_str), "Scale: %.4f mm/px", controlled_mask->mm_in_pixel);
+    std::snprintf(angle_str, sizeof(angle_str), "Angle: %.2f deg", controlled_mask->basic_axe_angle);
+
+    // Шрифт в 2 раза меньше базового, толщина 1
+    double text_scale = font_scale * 0.5;
+    int text_thickness = 1; 
+    int text_baseline = 0;
+
+    // Считаем метрики для первой строки, чтобы идеально выровнять по правому краю
+    cv::Size scale_size = cv::getTextSize(scale_str, font_face, text_scale, text_thickness, &text_baseline);
+    cv::Size angle_size = cv::getTextSize(angle_str, font_face, text_scale, text_thickness, &text_baseline);
+
+    // Желтый цвет в формате BGR
+    cv::Scalar yellow_color(0, 255, 255);
+
+    // Координаты для 1-й строки (Масштаб): отступ 10px сверху, выравнивание по правому краю кадра
+    int top_x_scale = current_mat->cols - scale_size.width - 10;
+    int top_y_scale = scale_size.height + 10; 
+
+    cv::putText(
+
+        *current_mat,
+        scale_str,
+        cv::Point(top_x_scale, top_y_scale),
+        font_face,
+        text_scale,
+        yellow_color,
+        text_thickness,
+        cv::LINE_AA
+
+    );
+
+    // Координаты для 2-й строки (Угол): встает строго под первой строкой с учетом базовой линии
+    int top_x_angle = current_mat->cols - angle_size.width - 10;
+    int top_y_angle = top_y_scale + angle_size.height + text_baseline + 8; // 8 пикселей — аккуратный межстрочный интервал
+
+    cv::putText(
+
+        *current_mat,
+        angle_str,
+        cv::Point(top_x_angle, top_y_angle),
+        font_face,
+        text_scale,
+        yellow_color,
+        text_thickness,
+        cv::LINE_AA
+
+    );
+    
+    // ===== MASK MAIN CALCULATED VALUES ===== 
+
+    // ===== MASK SETUP LOGIC =====
 }
+
+
 
 void processing_stage_2(cv::Mat* current_mat)
 {
+    if (!current_mat || current_mat->empty())
+        return;
+
+
+    // =======================================================================================
+    // GET CONTROLLED MASK
+
+    // Get current jet mask settings.
+    //
+    // This context contains the HSV boundaries selected by the user
+    // or loaded from a preset.
+
+    jet_detection_mask* controlled_mask = &jet_mask_to_process;
+
+    // =======================================================================================
+    // GET CONTROLLED MASK
+
+
+    // =======================================================================================
+    // CHECK HSV RANGE
+
+    // The lower boundary must be strictly smaller than the upper boundary.
+    //
+    // H: 0..179
+    // S: 0..255
+    // V: 0..255
+
+    if (
+        controlled_mask->h_min >= controlled_mask->h_max ||
+        controlled_mask->s_min >= controlled_mask->s_max ||
+        controlled_mask->v_min >= controlled_mask->v_max
+    )
+    {
+        return;
+    }
+
+    // =======================================================================================
+    // CHECK HSV RANGE
+
+
+    // =======================================================================================
+    // BGR -> HSV
+
+    // Convert the source current_mat from BGR to HSV.
+    //
+    // HSV allows us to independently control:
+    //
+    //      H = Hue
+    //      S = Saturation
+    //      V = Value
+
+    cv::Mat image_hsv;
+
+    cv::cvtColor(
+        *current_mat,
+        image_hsv,
+        cv::COLOR_BGR2HSV
+    );
+
+    // =======================================================================================
+    // BGR -> HSV
+
+
+    // =======================================================================================
+    // LIGHT GAUSSIAN BLUR
+
+    // Apply a very small blur to suppress small pixel-to-pixel
+    // fluctuations around the jet boundary.
+    //
+    // 3x3 is intentionally small.
+    //
+    // The purpose is to make the resulting binary boundary more stable
+    // without significantly changing the geometry of the detected jet.
+
+    cv::GaussianBlur(
+        image_hsv,
+        image_hsv,
+        cv::Size(3, 3),
+        0
+    );
+
+    // =======================================================================================
+    // LIGHT GAUSSIAN BLUR
+
+
+    // =======================================================================================
+    // CREATE HSV RANGE
+
+    cv::Scalar lower_color(
+
+        controlled_mask->h_min,
+        controlled_mask->s_min,
+        controlled_mask->v_min
+
+    );
+
+    cv::Scalar upper_color(
+
+        controlled_mask->h_max,
+        controlled_mask->s_max,
+        controlled_mask->v_max
+
+    );
+
+    // =======================================================================================
+    // CREATE HSV RANGE
+
+
+    // =======================================================================================
+    // CREATE BINARY MASK
+
+    // Pixels inside the selected HSV range become 255.
+    // Pixels outside the range become 0.
+    //
+    // Result:
+    //
+    //      255 = detected jet
+    //        0 = background
+
+    cv::Mat image_mask;
+
+    cv::inRange(
+        image_hsv,
+        lower_color,
+        upper_color,
+        image_mask
+    );
+
+    // =======================================================================================
+    // CREATE BINARY MASK
+
+
+    // =======================================================================================
+    // MASK -> BGR
+
+    // image_mask is CV_8UC1.
+    //
+    // The rest of the current rendering pipeline expects the current_mat
+    // to remain a 3-channel BGR image.
+    //
+    // Therefore convert the binary mask back to BGR before writing it
+    // into the main current_mat.
+    //
+    // Result:
+    //
+    //      detected jet  -> (255,255,255)
+    //      background    -> (0,0,0)
+
+    cv::Mat image_mask_bgr;
+
+    cv::cvtColor(
+
+        image_mask,
+        image_mask_bgr,
+        cv::COLOR_GRAY2BGR
+
+    );
+
+    // =======================================================================================
+    // MASK -> BGR
+
+
+    // =======================================================================================
+    // WRITE RESULT BACK TO current_mat
+
+    // Replace the current current_mat with the processed jet mask.
+    //
+    // IMPORTANT:
+    // current_mat remains CV_8UC3 BGR, so the next processing stage
+    // and the OpenCV -> SDL translation can continue working
+    // with the same image format.
+
+    image_mask_bgr.copyTo(*current_mat);
+
+    // =======================================================================================
+    // WRITE RESULT BACK TO FRAME
 
 }
+
+
 
 void processing_stage_3_1(cv::Mat* current_mat)
 {
+   /*
+                    ORIGINAL IMAGE
+                          │
+                          ▼
+                ┌───────────────────┐
+                │ Light Blur        │
+                │ optional          │
+                │ 1×1 / OFF         │
+                └─────────┬─────────┘
+                          │
+                          │
+                          ▼
+              ┌───────────────────────┐
+              │ Color Filter          │
+              │                       │
+              │ H/S/V min/max         │
+              └───────────┬───────────┘
+                          │
+                          ▼
+                    FIRST MASK
+                          │
+                          │
+                    ──────┼────── 
+                NEXT STEPS ARE INACTIVE IF 
+    masks_data.CURR_FILE_MASKS.particle_mask.controlled_submask != SUBMASK_2_CSM3
+                SO IF IT's SUBMASK_1_CSM3 we translate FIRST SUBMASK and stop processing
+                IT IT's SUBMASK_2_CSM3 we continue processing and apply the next steps
+                          │
+                          ▼
+                        CANNY
+                          │
+                          ▼
+                        DILATE
+                          │
+                          ▼
+                    AREA / LENGTH FILTERING
+                 min area / max area
+                 min length / max length
+                          │
+                          ▼
+                    FINAL MASK
+    
+    */
+    if (!current_mat || current_mat->empty())
+        return;
 
+        
+    // =======================================================================================
+    // GET CONTROLLED MASK
+
+    // Get current particle mask settings.
+
+    particle_detection_mask* controlled_mask = &particle_mask_to_process;
+
+
+    // =======================================================================================
+    // CHECK HSV RANGE
+
+    // The lower boundary must be strictly smaller than the upper boundary.
+    //
+    // H: 0..179
+    // S: 0..255
+    // V: 0..255
+
+    if (
+        controlled_mask->h_min >= controlled_mask->h_max ||
+        controlled_mask->s_min >= controlled_mask->s_max ||
+        controlled_mask->v_min >= controlled_mask->v_max
+    )
+    {
+        return;
+    }
+
+
+    // =======================================================================================
+    // BGR -> HSV
+
+    // Convert the source current_mat from BGR to HSV with coloring.
+    //
+    // HSV allows us to independently control:
+    //
+    //      H = Hue
+    //      S = Saturation
+    //      V = Value
+
+    cv::Mat image_hsv;
+
+    cv::cvtColor(
+        *current_mat,
+        image_hsv,
+        cv::COLOR_BGR2HSV
+    );
+
+
+    // =======================================================================================
+    // LIGHT GAUSSIAN BLUR - could be deactivated
+
+    // Apply a very small blur to suppress small pixel-to-pixel
+    // fluctuations around the particles boundary.
+    //
+    // 0x0 means that blur is disabled.
+    // 1x1 / 3x3 are valid blur sizes.
+
+    bool do_blur = !(controlled_mask->b_h == 0 || controlled_mask->b_v == 0);
+
+    if (do_blur)
+    {
+        cv::GaussianBlur(
+            image_hsv,
+            image_hsv,
+            cv::Size(
+                controlled_mask->b_h,
+                controlled_mask->b_v
+            ),
+            0
+        );
+    }
+
+
+    // =======================================================================================
+    // CREATE COLOR RANGE
+
+    cv::Mat first_mask;
+
+    cv::Scalar lower_color(
+        controlled_mask->h_min,
+        controlled_mask->s_min,
+        controlled_mask->v_min
+    );
+
+    cv::Scalar upper_color(
+        controlled_mask->h_max,
+        controlled_mask->s_max,
+        controlled_mask->v_max
+    );
+
+    cv::inRange(
+        image_hsv,
+        lower_color,
+        upper_color,
+        first_mask
+    );
+
+
+    // =======================================================================================
+    // DESIDE SHOW OR CONTINUE TO PROCESSING
+
+    // We work with 2nd part of the mask, so it's always true
+    bool to_proc = true;
+
+    if (to_proc)
+    {
+        /*
+            На этом этапе FIRST MASK уже содержит результат HSV-фильтрации.
+
+            То есть:
+
+                ORIGINAL IMAGE
+                    │
+                    ▼
+                BGR -> HSV
+                    │
+                    ▼
+                optional BLUR
+                    │
+                    ▼
+                HSV inRange
+                    │
+                    ▼
+                FIRST MASK
+                    │
+                    │
+                    │  ЧЁРНО-БЕЛОЕ ИЗОБРАЖЕНИЕ:
+                    │
+                    │  WHITE (255) = пиксель прошёл HSV-фильтр
+                    │  BLACK (0)   = пиксель не прошёл HSV-фильтр
+                    │
+                    ▼
+                CANNY -> DILATE -> CONTOURS
+                    │
+                    ▼
+                AREA / LENGTH
+                    │
+                    ▼
+                  ERODE
+                    │
+                    ▼
+                FINAL MASK
+
+            Поэтому все следующие операции работают уже НЕ с исходным
+            цветным изображением, а только с областями, которые были
+            предварительно выделены HSV-фильтром.
+        */
+
+
+        // =======================================================================================
+        // CANNY EDGE DETECTION
+        //
+        // INPUT:
+        //
+        //     first_mask
+        //
+        //     Это бинарная маска после HSV-фильтрации.
+        //
+        //     WHITE = нужный цвет / область
+        //     BLACK = всё остальное
+        //
+        //
+        // Что делает Canny:
+        //
+        //     Canny ищет границы (edges) внутри этой бинарной маски.
+        //
+        //     В результате вместо самой области мы получаем в основном
+        //     её границы.
+        //
+        //
+        // OUTPUT:
+        //
+        //     canny_mask
+        //
+        //     Это новая бинарная маска, где:
+        //
+        //     WHITE = найденная граница
+        //     BLACK = отсутствие границы
+        //
+        //     https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQbLUmt-YA19XxyVH8QtIEFEu8fRLbSSSlO--yMj9Rz_g&s
+        //
+        //     То есть данные проходят так:
+        //
+        //         FIRST MASK
+        //             │
+        //             │ HSV-selected regions
+        //             ▼
+        //           CANNY
+        //             │
+        //             │ edges of selected regions
+        //             ▼
+        //         CANNY MASK
+
+
+        cv::Mat canny_mask;
+
+        cv::Canny(
+
+            first_mask,
+            canny_mask,
+            controlled_mask->canny_low,
+            controlled_mask->canny_high
+
+        );
+
+
+        // =======================================================================================
+        // DILATE
+        //
+        // INPUT:
+        //
+        //     canny_mask
+        //
+        //     Это результат Canny, то есть тонкие линии/границы,
+        //     найденные внутри HSV-маски.
+        //
+        //
+        // WHAT DILATE DOES:
+        //
+        //     Dilate расширяет белые области изображения.
+        //
+        //     Для нашего случая это нужно для того, чтобы:
+        //
+        //     1. сделать найденные Canny-границы толще;
+        //     2. соединить близко расположенные участки границы;
+        //     3. уменьшить вероятность того, что одна траектория
+        //        будет разбита на несколько отдельных частей.
+        //
+        //
+        //     Размер kernel определяет, насколько сильно расширяется
+        //     белая область за одну итерацию.
+        //
+        //     Количество iterations определяет, сколько раз выполняется
+        //     операция расширения.
+        //
+        //
+        // OUTPUT:
+        //
+        //     dilated_mask
+        //
+        //     Это всё ещё бинарная маска.
+        //
+        //     Но теперь Canny-линии становятся толще и/или соединяются.
+        //     
+        //     https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS_yfLnZ1NkpUn-dMEWJHbk6fGtTYYy6_bGfxPiF0iuK5tbP_UUy5wRAE19&s=10
+        //
+        //     То есть:
+        //
+        //         CANNY MASK
+        //             │
+        //             │ thin edges
+        //             ▼
+        //           DILATE
+        //             │
+        //             │ thicker / connected edges
+        //             ▼
+        //         DILATED MASK
+
+
+        cv::Mat dilated_mask;
+
+        cv::Mat dilate_kernel = cv::getStructuringElement(
+            cv::MORPH_RECT,
+            cv::Size(
+
+                controlled_mask->dilate_size,
+                controlled_mask->dilate_size
+                
+            )
+        );
+
+        cv::dilate(
+            canny_mask,
+            dilated_mask,
+            dilate_kernel,
+            cv::Point(-1, -1),
+            controlled_mask->dilate_iterations
+        );
+
+
+        // =======================================================================================
+        // FIND CONTOURS
+        //
+        // INPUT:
+        //
+        //     dilated_mask
+        //
+        //     На этом этапе у нас уже есть подготовленная бинарная маска
+        //     с расширенными Canny-границами.
+        //
+        //
+        // WHAT FINDCONTOURS DOES:
+        //
+        //     findContours ищет связанные между собой белые области
+        //     и превращает каждую найденную область в набор точек.
+        //
+        //     Каждая такая последовательность точек называется contour.
+        //
+        //
+        //     Например:
+        //
+        //         DILATED MASK
+        //
+        //             ███
+        //               ███
+        //                  ██
+        //
+        //     становится примерно:
+        //
+        //         contour = [P1, P2, P3, P4, ...]
+        //
+        //
+        // RETR_EXTERNAL:
+        //
+        //     Нас интересуют только внешние контуры.
+        //     Вложенные внутренние контуры не собираются.
+        //
+        //
+        // CHAIN_APPROX_NONE:
+        //
+        //     Сохраняет все точки контура без дополнительного
+        //     упрощения последовательности.
+        //
+        //     Это важно для последующего измерения геометрии
+        //     траектории.
+        //
+        //
+        // OUTPUT:
+        //
+        //     contours
+        //
+        //     vector всех найденных контуров.
+        //
+        //     Каждый contour содержит набор cv::Point.
+        //
+        //
+        //     То есть:
+        //
+        //         DILATED MASK
+        //             │
+        //             │ connected white regions
+        //             ▼
+        //       FIND CONTOURS
+        //             │
+        //             │ vector<vector<Point>>
+        //             ▼
+        //          CONTOURS
+
+
+        std::vector<std::vector<cv::Point>> contours;
+
+        cv::findContours(
+            dilated_mask,
+            contours,
+            cv::RETR_EXTERNAL,
+            cv::CHAIN_APPROX_NONE
+        );
+
+
+        // =======================================================================================
+        // AREA / LENGTH FILTERING
+        //
+        // Здесь мы уже работаем не с изображением напрямую,
+        // а с отдельными найденными CONTOURS.
+        //
+        //
+        // INPUT:
+        //
+        //     contours
+        //
+        //     Каждый contour представляет одну отдельную найденную
+        //     связанную область/траекторию.
+        //
+        //
+        // Задача этого этапа:
+        //
+        //     определить, какие из найденных контуров действительно
+        //     подходят под параметры particle trajectory.
+        //
+        //
+        // Для этого каждый contour проверяется по двум независимым
+        // геометрическим характеристикам:
+        //
+        //     1. AREA   = площадь контура
+        //     2. LENGTH = длина контура
+        //
+        //
+        // Если contour не проходит хотя бы один из фильтров,
+        // он полностью отбрасывается.
+        //
+        //
+        // Если contour проходит оба фильтра,
+        // он переносится в FINAL MASK.
+        //
+        //
+        //     CONTOURS
+        //        │
+        //        ├── contour #1 -> AREA -> LENGTH -> ACCEPT
+        //        │
+        //        ├── contour #2 -> AREA -> REJECT
+        //        │
+        //        ├── contour #3 -> AREA -> LENGTH -> ACCEPT
+        //        │
+        //        └── contour #4 -> LENGTH -> REJECT
+        //        │
+        //        ▼
+        //     FINAL MASK
+        //
+        //
+        // Создаём пустую маску того же размера,
+        // что и предыдущий этап.
+        //
+        // В неё попадут ТОЛЬКО принятые контуры.
+        //
+        // BLACK = contour не прошёл фильтрацию
+        // WHITE = contour принят
+
+
+        // Final mask init 
+
+        cv::Mat final_mask = cv::Mat::zeros(
+            dilated_mask.size(),
+            CV_8UC1
+        );
+
+
+        for (const auto& contour : contours)
+        {
+            // -------------------------------------------------------------------------------
+            // AREA
+            //
+            // INPUT:
+            //
+            //     contour
+            //
+            //     Один конкретный contour из общего списка contours.
+            //
+            //
+            // WHAT:
+            //
+            //     contourArea вычисляет площадь области,
+            //     ограниченной данным contour.
+            //
+            //
+            // Это позволяет отсечь:
+            //
+            //     слишком маленькие объекты / шум
+            //     слишком большие области, которые не могут быть
+            //     нужной частицей или траекторией.
+            //
+            //
+            // Если площадь находится вне допустимого диапазона,
+            // contour сразу отбрасывается.
+            //
+            //
+            //     contour
+            //        │
+            //        ▼
+            //     AREA CHECK
+            //        │
+            //        ├── too small -> REJECT
+            //        │
+            //        ├── too large -> REJECT
+            //        │
+            //        └── valid     -> NEXT CHECK (LENGTH)
+
+
+            double contour_area = cv::contourArea(
+                contour
+            );
+
+            if (
+                contour_area < controlled_mask->area_min ||
+                contour_area > controlled_mask->area_max
+            )
+            {
+                continue;
+            }
+
+
+            // -------------------------------------------------------------------------------
+            // LENGTH
+            //
+            // INPUT:
+            //
+            //     Тот же contour, но только если он уже прошёл
+            //     проверку AREA.
+            //
+            //
+            // WHAT:
+            //
+            //     arcLength вычисляет длину контура.
+            //
+            //     false означает, что контур рассматривается
+            //     как незамкнутый при вычислении длины.
+            //
+            //
+            // Это позволяет дополнительно отсечь:
+            //
+            //     слишком короткие контуры
+            //     слишком длинные контуры
+            //
+            // Например, маленький случайный объект может иметь
+            // подходящую площадь, но при этом иметь недостаточную
+            // длину для реальной траектории.
+            //
+            //
+            // Поэтому AREA и LENGTH работают вместе:
+            //
+            //     AREA  отвечает за размер области
+            //     LENGTH отвечает за протяжённость контура
+            //
+            //
+            //     contour
+            //        │
+            //        ▼
+            //     LENGTH CHECK
+            //        │
+            //        ├── too short -> REJECT
+            //        │
+            //        ├── too long  -> REJECT
+            //        │
+            //        └── valid     -> ACCEPT
+
+
+            double contour_length = cv::arcLength(
+                contour,
+                false
+            );
+
+            if (
+                contour_length < controlled_mask->length_min ||
+                contour_length > controlled_mask->length_max
+            )
+            {
+                continue;
+            }
+
+
+            // -------------------------------------------------------------------------------
+            // ACCEPT CONTOUR
+            //
+            // Если выполнение дошло сюда, contour успешно прошёл:
+            //
+            //     1. AREA filter
+            //     2. LENGTH filter
+            //
+            //
+            // Теперь этот contour считается подходящим.
+            //
+            // Мы переносим его в final_mask.
+            //
+            //
+            // Важно:
+            //
+            //     final_mask изначально полностью BLACK.
+            //
+            //     Поэтому сюда попадают только те контуры,
+            //     которые были явно приняты фильтрами.
+            //
+            //
+            // FILLED означает, что внутренняя область контура
+            // также заполняется белым цветом.
+            //
+            //
+            //     ACCEPTED CONTOUR
+            //           │
+            //           ▼
+            //      DRAW TO MASK
+            //           │
+            //           ▼
+            //       FINAL MASK
+            //
+            //     WHITE = accepted trajectory
+            //     BLACK = everything rejected
+
+
+            // Fill final mask by founded countours 
+            
+            cv::drawContours(
+                final_mask,
+                std::vector{ contour },
+                -1,
+                cv::Scalar(255),
+                cv::FILLED
+            );
+
+        }
+
+
+        // =======================================================================================
+        // REPLACE FIRST MASK
+        //
+        // До этого момента first_mask содержал результат ТОЛЬКО HSV-фильтрации.
+        //
+        //
+        // Но поскольку controlled_submask == SUBMASK_2_CSM3,
+        // мы прошли дополнительную цепочку:
+        //
+        //     FIRST MASK
+        //         ↓
+        //       CANNY
+        //         ↓
+        //       DILATE
+        //         ↓
+        //     CONTOURS
+        //         ↓
+        //     AREA FILTER
+        //         ↓
+        //     LENGTH FILTER
+        //         ↓
+        //     FINAL MASK
+        //
+        //
+        // Поэтому теперь FINAL MASK становится новым FIRST MASK.
+        //
+        // Это удобно, потому что ниже по pipeline уже не нужно
+        // создавать отдельную переменную для результата:
+        //
+        //     first_mask
+        //
+        // просто начинает означать "итоговую маску текущего этапа".
+        //
+        //
+        // После этой строки:
+        //
+        //     first_mask
+        //
+        // содержит только те области, которые:
+        //
+        //     1. прошли HSV-фильтр;
+        //     2. дали Canny-контур;
+        //     3. после DILATE сформировали contour;
+        //     4. прошли AREA;
+        //     5. прошли LENGTH.
+        //
+        //
+        // То есть это уже очищенный FINAL RESULT.
+
+
+        first_mask = final_mask;
+    }
+
+    // =======================================================================================
+    // TRANSLATE BACK TO BGR AND SHOW
+
+    cv::Mat final_mask_bgr;
+
+    cv::cvtColor(
+        first_mask,
+        final_mask_bgr,
+        cv::COLOR_GRAY2BGR
+    );
+
+    final_mask_bgr.copyTo(*current_mat);
 }
+
 
 void processing_stage_3_2(cv::Mat* current_mat)
 {
+   /*
+                    ORIGINAL IMAGE
+                          │
+                          ▼
+                ┌───────────────────┐
+                │ Light Blur        │
+                │ optional          │
+                │ 1×1 / OFF         │
+                └─────────┬─────────┘
+                          │
+                          │
+                          ▼
+              ┌───────────────────────┐
+              │ Color Filter          │
+              │                       │
+              │ H/S/V min/max         │
+              └───────────┬───────────┘
+                          │
+                          ▼
+                    FIRST MASK
+                          │
+                          │
+                    ──────┼────── 
+                NEXT STEPS ARE INACTIVE IF 
+    masks_data.CURR_FILE_MASKS.particle_mask.controlled_submask != SUBMASK_2_CSM3
+                SO IF IT's SUBMASK_1_CSM3 we translate FIRST SUBMASK and stop processing
+                IT IT's SUBMASK_2_CSM3 we continue processing and apply the next steps
+                          │
+                          ▼
+                        CANNY
+                          │
+                          ▼
+                        DILATE
+                          │
+                          ▼
+                    AREA / LENGTH FILTERING
+                 min area / max area
+                 min length / max length
+                          │
+                          ▼
+                    FINAL MASK
+    
+    */
+    if (!current_mat || current_mat->empty())
+        return;
 
+        
+    // =======================================================================================
+    // GET CONTROLLED MASK
+
+    // Get current particle mask settings.
+
+    particle_detection_mask* controlled_mask = &particle_mask_to_process;
+
+
+    // =======================================================================================
+    // CHECK HSV RANGE
+
+    // The lower boundary must be strictly smaller than the upper boundary.
+    //
+    // H: 0..179
+    // S: 0..255
+    // V: 0..255
+
+    if (
+        controlled_mask->h_min >= controlled_mask->h_max ||
+        controlled_mask->s_min >= controlled_mask->s_max ||
+        controlled_mask->v_min >= controlled_mask->v_max
+    )
+    {
+        return;
+    }
+
+
+    // =======================================================================================
+    // BGR -> HSV
+
+    // Convert the source current_mat from BGR to HSV with coloring.
+    //
+    // HSV allows us to independently control:
+    //
+    //      H = Hue
+    //      S = Saturation
+    //      V = Value
+
+    cv::Mat image_hsv;
+
+    cv::cvtColor(
+        *current_mat,
+        image_hsv,
+        cv::COLOR_BGR2HSV
+    );
+
+
+    // =======================================================================================
+    // LIGHT GAUSSIAN BLUR - could be deactivated
+
+    // Apply a very small blur to suppress small pixel-to-pixel
+    // fluctuations around the particles boundary.
+    //
+    // 0x0 means that blur is disabled.
+    // 1x1 / 3x3 are valid blur sizes.
+
+    bool do_blur = !(controlled_mask->b_h == 0 || controlled_mask->b_v == 0);
+
+    if (do_blur)
+    {
+        cv::GaussianBlur(
+            image_hsv,
+            image_hsv,
+            cv::Size(
+                controlled_mask->b_h,
+                controlled_mask->b_v
+            ),
+            0
+        );
+    }
+
+
+    // =======================================================================================
+    // CREATE COLOR RANGE
+
+    cv::Mat first_mask;
+
+    cv::Scalar lower_color(
+        controlled_mask->h_min,
+        controlled_mask->s_min,
+        controlled_mask->v_min
+    );
+
+    cv::Scalar upper_color(
+        controlled_mask->h_max,
+        controlled_mask->s_max,
+        controlled_mask->v_max
+    );
+
+    cv::inRange(
+        image_hsv,
+        lower_color,
+        upper_color,
+        first_mask
+    );
+
+
+    // =======================================================================================
+    // DESIDE SHOW OR CONTINUE TO PROCESSING
+
+    // We work with 2nd part of the mask, so it's always true
+    bool to_proc = true;
+
+    if (to_proc)
+    {
+        /*
+            На этом этапе FIRST MASK уже содержит результат HSV-фильтрации.
+
+            То есть:
+
+                ORIGINAL IMAGE
+                    │
+                    ▼
+                BGR -> HSV
+                    │
+                    ▼
+                optional BLUR
+                    │
+                    ▼
+                HSV inRange
+                    │
+                    ▼
+                FIRST MASK
+                    │
+                    │
+                    │  ЧЁРНО-БЕЛОЕ ИЗОБРАЖЕНИЕ:
+                    │
+                    │  WHITE (255) = пиксель прошёл HSV-фильтр
+                    │  BLACK (0)   = пиксель не прошёл HSV-фильтр
+                    │
+                    ▼
+                CANNY -> DILATE -> CONTOURS
+                    │
+                    ▼
+                AREA / LENGTH
+                    │
+                    ▼
+                  ERODE
+                    │
+                    ▼
+                FINAL MASK
+
+            Поэтому все следующие операции работают уже НЕ с исходным
+            цветным изображением, а только с областями, которые были
+            предварительно выделены HSV-фильтром.
+        */
+
+
+        // =======================================================================================
+        // CANNY EDGE DETECTION
+        //
+        // INPUT:
+        //
+        //     first_mask
+        //
+        //     Это бинарная маска после HSV-фильтрации.
+        //
+        //     WHITE = нужный цвет / область
+        //     BLACK = всё остальное
+        //
+        //
+        // Что делает Canny:
+        //
+        //     Canny ищет границы (edges) внутри этой бинарной маски.
+        //
+        //     В результате вместо самой области мы получаем в основном
+        //     её границы.
+        //
+        //
+        // OUTPUT:
+        //
+        //     canny_mask
+        //
+        //     Это новая бинарная маска, где:
+        //
+        //     WHITE = найденная граница
+        //     BLACK = отсутствие границы
+        //
+        //     https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQbLUmt-YA19XxyVH8QtIEFEu8fRLbSSSlO--yMj9Rz_g&s
+        //
+        //     То есть данные проходят так:
+        //
+        //         FIRST MASK
+        //             │
+        //             │ HSV-selected regions
+        //             ▼
+        //           CANNY
+        //             │
+        //             │ edges of selected regions
+        //             ▼
+        //         CANNY MASK
+
+
+        cv::Mat canny_mask;
+
+        cv::Canny(
+
+            first_mask,
+            canny_mask,
+            controlled_mask->canny_low,
+            controlled_mask->canny_high
+
+        );
+
+
+        // =======================================================================================
+        // DILATE
+        //
+        // INPUT:
+        //
+        //     canny_mask
+        //
+        //     Это результат Canny, то есть тонкие линии/границы,
+        //     найденные внутри HSV-маски.
+        //
+        //
+        // WHAT DILATE DOES:
+        //
+        //     Dilate расширяет белые области изображения.
+        //
+        //     Для нашего случая это нужно для того, чтобы:
+        //
+        //     1. сделать найденные Canny-границы толще;
+        //     2. соединить близко расположенные участки границы;
+        //     3. уменьшить вероятность того, что одна траектория
+        //        будет разбита на несколько отдельных частей.
+        //
+        //
+        //     Размер kernel определяет, насколько сильно расширяется
+        //     белая область за одну итерацию.
+        //
+        //     Количество iterations определяет, сколько раз выполняется
+        //     операция расширения.
+        //
+        //
+        // OUTPUT:
+        //
+        //     dilated_mask
+        //
+        //     Это всё ещё бинарная маска.
+        //
+        //     Но теперь Canny-линии становятся толще и/или соединяются.
+        //     
+        //     https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS_yfLnZ1NkpUn-dMEWJHbk6fGtTYYy6_bGfxPiF0iuK5tbP_UUy5wRAE19&s=10
+        //
+        //     То есть:
+        //
+        //         CANNY MASK
+        //             │
+        //             │ thin edges
+        //             ▼
+        //           DILATE
+        //             │
+        //             │ thicker / connected edges
+        //             ▼
+        //         DILATED MASK
+
+
+        cv::Mat dilated_mask;
+
+        cv::Mat dilate_kernel = cv::getStructuringElement(
+            cv::MORPH_RECT,
+            cv::Size(
+
+                controlled_mask->dilate_size,
+                controlled_mask->dilate_size
+                
+            )
+        );
+
+        cv::dilate(
+            canny_mask,
+            dilated_mask,
+            dilate_kernel,
+            cv::Point(-1, -1),
+            controlled_mask->dilate_iterations
+        );
+
+
+        // =======================================================================================
+        // FIND CONTOURS
+        //
+        // INPUT:
+        //
+        //     dilated_mask
+        //
+        //     На этом этапе у нас уже есть подготовленная бинарная маска
+        //     с расширенными Canny-границами.
+        //
+        //
+        // WHAT FINDCONTOURS DOES:
+        //
+        //     findContours ищет связанные между собой белые области
+        //     и превращает каждую найденную область в набор точек.
+        //
+        //     Каждая такая последовательность точек называется contour.
+        //
+        //
+        //     Например:
+        //
+        //         DILATED MASK
+        //
+        //             ███
+        //               ███
+        //                  ██
+        //
+        //     становится примерно:
+        //
+        //         contour = [P1, P2, P3, P4, ...]
+        //
+        //
+        // RETR_EXTERNAL:
+        //
+        //     Нас интересуют только внешние контуры.
+        //     Вложенные внутренние контуры не собираются.
+        //
+        //
+        // CHAIN_APPROX_NONE:
+        //
+        //     Сохраняет все точки контура без дополнительного
+        //     упрощения последовательности.
+        //
+        //     Это важно для последующего измерения геометрии
+        //     траектории.
+        //
+        //
+        // OUTPUT:
+        //
+        //     contours
+        //
+        //     vector всех найденных контуров.
+        //
+        //     Каждый contour содержит набор cv::Point.
+        //
+        //
+        //     То есть:
+        //
+        //         DILATED MASK
+        //             │
+        //             │ connected white regions
+        //             ▼
+        //       FIND CONTOURS
+        //             │
+        //             │ vector<vector<Point>>
+        //             ▼
+        //          CONTOURS
+
+
+        std::vector<std::vector<cv::Point>> contours;
+
+        cv::findContours(
+            dilated_mask,
+            contours,
+            cv::RETR_EXTERNAL,
+            cv::CHAIN_APPROX_NONE
+        );
+
+
+        // =======================================================================================
+        // AREA / LENGTH FILTERING
+        //
+        // Здесь мы уже работаем не с изображением напрямую,
+        // а с отдельными найденными CONTOURS.
+        //
+        //
+        // INPUT:
+        //
+        //     contours
+        //
+        //     Каждый contour представляет одну отдельную найденную
+        //     связанную область/траекторию.
+        //
+        //
+        // Задача этого этапа:
+        //
+        //     определить, какие из найденных контуров действительно
+        //     подходят под параметры particle trajectory.
+        //
+        //
+        // Для этого каждый contour проверяется по двум независимым
+        // геометрическим характеристикам:
+        //
+        //     1. AREA   = площадь контура
+        //     2. LENGTH = длина контура
+        //
+        //
+        // Если contour не проходит хотя бы один из фильтров,
+        // он полностью отбрасывается.
+        //
+        //
+        // Если contour проходит оба фильтра,
+        // он переносится в FINAL MASK.
+        //
+        //
+        //     CONTOURS
+        //        │
+        //        ├── contour #1 -> AREA -> LENGTH -> ACCEPT
+        //        │
+        //        ├── contour #2 -> AREA -> REJECT
+        //        │
+        //        ├── contour #3 -> AREA -> LENGTH -> ACCEPT
+        //        │
+        //        └── contour #4 -> LENGTH -> REJECT
+        //        │
+        //        ▼
+        //     FINAL MASK
+        //
+        //
+        // Создаём пустую маску того же размера,
+        // что и предыдущий этап.
+        //
+        // В неё попадут ТОЛЬКО принятые контуры.
+        //
+        // BLACK = contour не прошёл фильтрацию
+        // WHITE = contour принят
+
+
+        // Final mask init 
+
+        cv::Mat final_mask = cv::Mat::zeros(
+            dilated_mask.size(),
+            CV_8UC1
+        );
+
+
+        for (const auto& contour : contours)
+        {
+            // -------------------------------------------------------------------------------
+            // AREA
+            //
+            // INPUT:
+            //
+            //     contour
+            //
+            //     Один конкретный contour из общего списка contours.
+            //
+            //
+            // WHAT:
+            //
+            //     contourArea вычисляет площадь области,
+            //     ограниченной данным contour.
+            //
+            //
+            // Это позволяет отсечь:
+            //
+            //     слишком маленькие объекты / шум
+            //     слишком большие области, которые не могут быть
+            //     нужной частицей или траекторией.
+            //
+            //
+            // Если площадь находится вне допустимого диапазона,
+            // contour сразу отбрасывается.
+            //
+            //
+            //     contour
+            //        │
+            //        ▼
+            //     AREA CHECK
+            //        │
+            //        ├── too small -> REJECT
+            //        │
+            //        ├── too large -> REJECT
+            //        │
+            //        └── valid     -> NEXT CHECK (LENGTH)
+
+
+            double contour_area = cv::contourArea(
+                contour
+            );
+
+            if (
+                contour_area < controlled_mask->area_min ||
+                contour_area > controlled_mask->area_max
+            )
+            {
+                continue;
+            }
+
+
+            // -------------------------------------------------------------------------------
+            // LENGTH
+            //
+            // INPUT:
+            //
+            //     Тот же contour, но только если он уже прошёл
+            //     проверку AREA.
+            //
+            //
+            // WHAT:
+            //
+            //     arcLength вычисляет длину контура.
+            //
+            //     false означает, что контур рассматривается
+            //     как незамкнутый при вычислении длины.
+            //
+            //
+            // Это позволяет дополнительно отсечь:
+            //
+            //     слишком короткие контуры
+            //     слишком длинные контуры
+            //
+            // Например, маленький случайный объект может иметь
+            // подходящую площадь, но при этом иметь недостаточную
+            // длину для реальной траектории.
+            //
+            //
+            // Поэтому AREA и LENGTH работают вместе:
+            //
+            //     AREA  отвечает за размер области
+            //     LENGTH отвечает за протяжённость контура
+            //
+            //
+            //     contour
+            //        │
+            //        ▼
+            //     LENGTH CHECK
+            //        │
+            //        ├── too short -> REJECT
+            //        │
+            //        ├── too long  -> REJECT
+            //        │
+            //        └── valid     -> ACCEPT
+
+
+            double contour_length = cv::arcLength(
+                contour,
+                false
+            );
+
+            if (
+                contour_length < controlled_mask->length_min ||
+                contour_length > controlled_mask->length_max
+            )
+            {
+                continue;
+            }
+
+
+            // -------------------------------------------------------------------------------
+            // ACCEPT CONTOUR
+            //
+            // Если выполнение дошло сюда, contour успешно прошёл:
+            //
+            //     1. AREA filter
+            //     2. LENGTH filter
+            //
+            //
+            // Теперь этот contour считается подходящим.
+            //
+            // Мы переносим его в final_mask.
+            //
+            //
+            // Важно:
+            //
+            //     final_mask изначально полностью BLACK.
+            //
+            //     Поэтому сюда попадают только те контуры,
+            //     которые были явно приняты фильтрами.
+            //
+            //
+            // FILLED означает, что внутренняя область контура
+            // также заполняется белым цветом.
+            //
+            //
+            //     ACCEPTED CONTOUR
+            //           │
+            //           ▼
+            //      DRAW TO MASK
+            //           │
+            //           ▼
+            //       FINAL MASK
+            //
+            //     WHITE = accepted trajectory
+            //     BLACK = everything rejected
+
+
+            // Fill final mask by founded countours 
+            
+            cv::drawContours(
+                final_mask,
+                std::vector{ contour },
+                -1,
+                cv::Scalar(255),
+                cv::FILLED
+            );
+
+        }
+
+
+        // =======================================================================================
+        // REPLACE FIRST MASK
+        //
+        // До этого момента first_mask содержал результат ТОЛЬКО HSV-фильтрации.
+        //
+        //
+        // Но поскольку controlled_submask == SUBMASK_2_CSM3,
+        // мы прошли дополнительную цепочку:
+        //
+        //     FIRST MASK
+        //         ↓
+        //       CANNY
+        //         ↓
+        //       DILATE
+        //         ↓
+        //     CONTOURS
+        //         ↓
+        //     AREA FILTER
+        //         ↓
+        //     LENGTH FILTER
+        //         ↓
+        //     FINAL MASK
+        //
+        //
+        // Поэтому теперь FINAL MASK становится новым FIRST MASK.
+        //
+        // Это удобно, потому что ниже по pipeline уже не нужно
+        // создавать отдельную переменную для результата:
+        //
+        //     first_mask
+        //
+        // просто начинает означать "итоговую маску текущего этапа".
+        //
+        //
+        // После этой строки:
+        //
+        //     first_mask
+        //
+        // содержит только те области, которые:
+        //
+        //     1. прошли HSV-фильтр;
+        //     2. дали Canny-контур;
+        //     3. после DILATE сформировали contour;
+        //     4. прошли AREA;
+        //     5. прошли LENGTH.
+        //
+        //
+        // То есть это уже очищенный FINAL RESULT.
+
+
+        first_mask = final_mask;
+    }
+
+    // =======================================================================================
+    // TRANSLATE BACK TO BGR AND SHOW
+
+    cv::Mat final_mask_bgr;
+
+    cv::cvtColor(
+        first_mask,
+        final_mask_bgr,
+        cv::COLOR_GRAY2BGR
+    );
+
+    final_mask_bgr.copyTo(*current_mat);   
 }
 
 
@@ -998,99 +3045,112 @@ void progress_bar_update()
 
 
     std::string file_number;
-
     std::string mask_number;
-
     std::string frame_number;
 
+    std::string file_string;
+    std::string mask_string;
+    std::string frame_string;
 
-    switch (opencv_global_calculation_update_ctx.current_file_for_mask_setup)
+
+    if (!global_calculation_end_flag)
     {
-        case FILE_1_CF:
+
+        switch (opencv_global_calculation_update_ctx.current_file_for_mask_setup)
         {
-            file_number = "1";
-            break;
+            case FILE_1_CF:
+            {
+                file_number = "1";
+                break;
+            }
+
+            case FILE_2_CF:
+            {
+                file_number = "2";
+                break;
+            }
+
+
+            case FILE_3_CF:
+            {
+                file_number = "3";
+                break;
+            }
+
+
+            case FILE_4_CF:
+            {
+                file_number = "4";
+                break;
+            }
+
+            case FILE_5_CF:
+            {
+                file_number = "5";
+                break;
+            }
+
+            case FILE_6_CF:
+            {
+                file_number = "6";
+                break;
+            }
+
+            default: break;
         }
 
-        case FILE_2_CF:
+
+        switch (opencv_global_calculation_update_ctx.operation)
         {
-            file_number = "2";
-            break;
+            case MASK_1_PROCESSING_CO:
+            {
+                mask_number = "1-3";
+                break;
+            }
+
+            case MASK_2_PROCESSING_CO:
+            {
+                mask_number = "1-3";
+                break;
+            }
+
+
+            case MASK_3_1_PROCESSING_CO:
+            {
+                mask_number = "1-3";
+                break;
+            }
+
+
+            case MASK_3_2_PROCESSING_CO:
+            {
+                mask_number = "4";
+                break;
+            }
+
+            default: break;
         }
 
 
-        case FILE_3_CF:
-        {
-            file_number = "3";
-            break;
-        }
+        frame_number = std::to_string(state_progress_bar.current_frame) +
+                    " / " +
+                    std::to_string(state_progress_bar.frames_quantity);
 
 
-        case FILE_4_CF:
-        {
-            file_number = "4";
-            break;
-        }
+        file_string = str_by_dictionary(gd_calculation_file) + file_number;
 
-        case FILE_5_CF:
-        {
-            file_number = "5";
-            break;
-        }
-
-        case FILE_6_CF:
-        {
-            file_number = "6";
-            break;
-        }
-
-        default: break;
+        mask_string = str_by_dictionary(gd_calculation_stage) + mask_number;
+        
+        frame_string = str_by_dictionary(gd_calculation_frame) + frame_number;
     }
-
-
-    switch (opencv_global_calculation_update_ctx.operation)
+    else
     {
-        case MASK_1_PROCESSING_CO:
-        {
-            mask_number = "1";
-            break;
-        }
+        file_string = str_by_dictionary(gd_calculation_file) + "-";
 
-        case MASK_2_PROCESSING_CO:
-        {
-            mask_number = "2";
-            break;
-        }
-
-
-        case MASK_3_1_PROCESSING_CO:
-        {
-            mask_number = "3";
-            break;
-        }
-
-
-        case MASK_3_2_PROCESSING_CO:
-        {
-            mask_number = "4";
-            break;
-        }
-
-        default: break;
+        mask_string = str_by_dictionary(gd_calculation_stage) + "-";
+        
+        frame_string = str_by_dictionary(gd_calculation_frame) + "-";
     }
-
-
-    frame_number = std::to_string(state_progress_bar.current_frame) +
-                   " / " +
-                   std::to_string(state_progress_bar.frames_quantity);
-
-
-    std::string file_string = str_by_dictionary(gd_calculation_file) + file_number;
-
-    std::string mask_string = str_by_dictionary(gd_calculation_mask) + mask_number;
-    
-    std::string frame_string = str_by_dictionary(gd_calculation_frame) + frame_number;
-
 
     // Set the textboxes slots
 
@@ -1098,7 +3158,6 @@ void progress_bar_update()
     file_textbox->set_content(file_string);
     mask_textbox->set_content(mask_string);
     frame_textbox->set_content(frame_string);
-
 }
 
 

@@ -187,15 +187,6 @@ struct opencv_calculation_update_ctx
     // Need reset flag for switch_video call in update function
     bool need_reset = true;
 
-
-    // TEST MODE FLAGS 
-
-    // Need to show X3 scaled cv::Mat in other window 
-    bool show_kingsize;
-
-    // Flag for other window init logic
-    bool kingsize_live_transmission;
-    
 };
 
 
@@ -288,11 +279,6 @@ extern files_processing_data global_processing_data;
 
 // ===== PROCESSING FUNCTIONS =====
 
-void processing_1(cv::Mat* current_mat);
-
-void processing_2(cv::Mat* current_mat);
-
-
 void processing_stage_1(cv::Mat* current_mat);
 
 void processing_stage_2(cv::Mat* current_mat);
@@ -335,7 +321,6 @@ struct flow_calculation_progress_bar
 
 
     unsigned int operations_counter = 0;
-
     unsigned int operations_count = 0;          //  SUm of File_frames * 2 
 
 
