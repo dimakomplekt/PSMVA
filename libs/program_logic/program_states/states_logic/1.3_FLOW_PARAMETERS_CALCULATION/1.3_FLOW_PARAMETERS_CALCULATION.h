@@ -138,6 +138,17 @@ void opencv_calculation_global_setup();
 
 // Enum for calculation state machine
 
+
+
+enum current_global_operation 
+{
+
+    PROCESSING_STAGE_1_CGO,
+    PROCESSING_STAGE_2_CGO
+
+};
+
+
 enum current_operation 
 {
 
@@ -152,16 +163,17 @@ enum current_operation
 // Struct for calculation processing
 struct opencv_calculation_update_ctx
 {
-
     // Current file (uses for translator setup)
     current_file_ms current_file_for_mask_setup = FILE_1_CF;
+
+    current_global_operation global_operation = PROCESSING_STAGE_1_CGO;
 
     // Current operation
     current_operation operation = MASK_1_PROCESSING_CO;
 
-
     // Pointer to the frame_processor
     frame_processor current_frame_processor = nullptr;
+
 
 
     // Current frame number
@@ -207,6 +219,12 @@ void opencv_calculation_global_free_and_nullptr();
 
 // ===== PROCESSING CTX =====
 
+
+extern nozzle_detection_mask nozzle_mask_to_process;
+extern jet_detection_mask jet_mask_to_process;
+extern particle_detection_mask particle_mask_to_process;
+
+
 struct processing_1_data
 {
 
@@ -228,8 +246,17 @@ struct processing_3_data
 
 struct file_processing_data
 {
-    // Updates at init stage of the state
+    current_file_ms file;
+    std::string file_path;
+
     bool using_flag = false;
+
+
+    bool stage_1_end = false;
+    bool stage_2_end = false;
+
+    // Updates at init stage of the state
+    bool calculated_flag = false;
 
 
     processing_1_data processing_1;

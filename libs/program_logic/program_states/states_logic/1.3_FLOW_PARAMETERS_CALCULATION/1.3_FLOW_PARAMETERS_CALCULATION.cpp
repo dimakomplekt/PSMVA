@@ -378,12 +378,56 @@ void opencv_calculation_global_setup()
                                 file_choose_panel_state::CHOSEN_STATE;
 
 
-        if (file_1_need_init) global_processing_data.file_1.using_flag = true;
-        if (file_2_need_init) global_processing_data.file_2.using_flag = true;
-        if (file_3_need_init) global_processing_data.file_3.using_flag = true;
-        if (file_4_need_init) global_processing_data.file_4.using_flag = true;
-        if (file_5_need_init) global_processing_data.file_5.using_flag = true;
-        if (file_6_need_init) global_processing_data.file_6.using_flag = true;
+        // Set using flag                        
+
+        if (file_1_need_init)
+        {
+            global_processing_data.file_1.using_flag = true;
+
+            global_processing_data.file_1.file = FILE_1_CF;
+            global_processing_data.file_1.file_path = file_choose_info.file_1_path;
+
+        }
+
+        if (file_2_need_init)
+        {
+            global_processing_data.file_2.using_flag = true;
+
+            global_processing_data.file_2.file = FILE_2_CF;
+            global_processing_data.file_2.file_path = file_choose_info.file_2_path;
+        }
+
+        if (file_3_need_init)
+        {
+            global_processing_data.file_3.using_flag = true;
+
+            global_processing_data.file_3.file = FILE_3_CF;
+            global_processing_data.file_3.file_path = file_choose_info.file_3_path;
+        }
+
+        if (file_4_need_init)
+        {
+            global_processing_data.file_4.using_flag = true;
+
+            global_processing_data.file_4.file = FILE_4_CF;
+            global_processing_data.file_4.file_path = file_choose_info.file_4_path;
+        }
+
+        if (file_5_need_init)
+        {
+            global_processing_data.file_5.using_flag = true;
+
+            global_processing_data.file_5.file = FILE_5_CF;
+            global_processing_data.file_5.file_path = file_choose_info.file_5_path;
+        }
+
+        if (file_6_need_init)
+        {
+            global_processing_data.file_6.using_flag = true;
+
+            global_processing_data.file_6.file = FILE_6_CF;
+            global_processing_data.file_6.file_path = file_choose_info.file_6_path;
+        }
 
 
         // ===== FILES DATA INIT =====
@@ -514,88 +558,117 @@ void opencv_calculation_global_update()
 
     // Current data to work with
 
+    current_file_ms file_to_check_now;
+
     std::string file_path;
 
-    cv::Mat* current_basic_mat_to_process = nullptr;
+    file_processing_data* data_to_control;
 
-    // Which file
-    switch (opencv_global_calculation_update_ctx.current_file_for_mask_setup)
+
+    std::array<file_processing_data*, 6> files = {
+
+        &global_processing_data.file_1,
+        &global_processing_data.file_2,
+        &global_processing_data.file_3,
+        &global_processing_data.file_4,
+        &global_processing_data.file_5,
+        &global_processing_data.file_6
+
+    };
+
+
+    for (auto* file : files)
     {
-        case (FILE_1_CF):
+        if (file->using_flag && !file->calculated_flag)
+        {   
+            // Set the current file to work with
+            file_to_check_now = file->file;
+            file_path = file->file_path;
+
+            data_to_control = file;
+
+
+            // Drop for cycle till the file data ain't calculated
+            break;
+        }
+    }
+
+    nozzle_detection_mask curr_ndm;
+    jet_detection_mask curr_jdm;
+    particle_detection_mask curr_pdm;
+
+
+    switch (file_to_check_now)
+    {
+        case FILE_1_CF:
         {
-            file_path =  file_choose_info.file_1_path;
+            curr_ndm = masks_data.file_1_masks.nozzle_mask;
+            curr_jdm = masks_data.file_1_masks.jet_mask;
+            curr_pdm = masks_data.file_1_masks.particle_mask;
+
             break;
         }
 
-        case (FILE_2_CF):
+        case FILE_2_CF:
         {
-            file_path =  file_choose_info.file_2_path;
+            curr_ndm = masks_data.file_2_masks.nozzle_mask;
+            curr_jdm = masks_data.file_2_masks.jet_mask;
+            curr_pdm = masks_data.file_2_masks.particle_mask;
+
             break;
         }
 
-        case (FILE_3_CF):
-        {
-            file_path =  file_choose_info.file_3_path;
-            break; 
-        }
 
-        case (FILE_4_CF):
+        case FILE_3_CF:
         {
-            file_path =  file_choose_info.file_4_path;
+            curr_ndm = masks_data.file_3_masks.nozzle_mask;
+            curr_jdm = masks_data.file_3_masks.jet_mask;
+            curr_pdm = masks_data.file_3_masks.particle_mask;
+
             break;
         }
 
-        case (FILE_5_CF):
+
+        case FILE_4_CF:
         {
-            file_path =  file_choose_info.file_5_path;
+            curr_ndm = masks_data.file_4_masks.nozzle_mask;
+            curr_jdm = masks_data.file_4_masks.jet_mask;
+            curr_pdm = masks_data.file_4_masks.particle_mask;
+
             break;
         }
 
-        case (FILE_6_CF):
+
+        case FILE_5_CF:
         {
-            file_path =  file_choose_info.file_6_path;
+            curr_ndm = masks_data.file_5_masks.nozzle_mask;
+            curr_jdm = masks_data.file_5_masks.jet_mask;
+            curr_pdm = masks_data.file_5_masks.particle_mask;
+
+            break;
+        }
+
+        case FILE_6_CF:
+        {
+            curr_ndm = masks_data.file_6_masks.nozzle_mask;
+            curr_jdm = masks_data.file_6_masks.jet_mask;
+            curr_pdm = masks_data.file_6_masks.particle_mask;
+
             break;
         }
 
         default: break;
     }
 
+    nozzle_mask_to_process = curr_ndm;
+    jet_mask_to_process = curr_jdm;
+    particle_mask_to_process = curr_pdm;
 
     // Which mask
-    switch (opencv_global_calculation_update_ctx.operation)
-    {
-        case (MASK_1_PROCESSING_CO):
-        {
-            current_basic_mat_to_process = calculation_cv_mat_mask_1_global;
-            break;
-        }
-
-        case (MASK_2_PROCESSING_CO):
-        {
-            current_basic_mat_to_process = calculation_cv_mat_mask_2_global;
-            break;
-        }
-
-        
-        case MASK_3_1_PROCESSING_CO: [[fallthrough]]; // явно говорим, что так и задумано
-        case MASK_3_2_PROCESSING_CO:
-        {
-            current_basic_mat_to_process = calculation_cv_mat_mask_3_global;
-            break;
-        }
-
-        default: break;
-    }
-
-
-    if (current_basic_mat_to_process == nullptr)
-    {
-        std::cerr << "ERROR: current_basic_mat_to_process == nullptr\n";
-        return;
-    }
 
 
     // ===== PREPROCESSING =====
+
 
 
     // ===== DEFAULT TRANSLATION LOGIC =====
@@ -626,10 +699,14 @@ void opencv_calculation_global_update()
         return;
     }
 
+
+
+
     // Play logic (nothing at pause)
+
     {
         // Show from the start (if it's 1st call)
-        if (current_basic_mat_to_process->empty())
+        if (calculation_cv_mat_mask_1_global->empty())
         {
             opencv_global_calculation_update_ctx.current_frame_index = 0;
         }
@@ -641,7 +718,7 @@ void opencv_calculation_global_update()
         );
     
         // Read current frame
-        *video_capture_device_global_fpc >> *current_basic_mat_to_process;
+        *video_capture_device_global_fpc >> *calculation_cv_mat_mask_1_global;
     
         // Move to the next frame for the next update()
         opencv_global_calculation_update_ctx.current_frame_index++;
@@ -657,10 +734,32 @@ void opencv_calculation_global_update()
 
     if (opencv_global_calculation_update_ctx.current_frame_processor != nullptr)
     {
-        if (current_basic_mat_to_process != nullptr)
+        if (calculation_cv_mat_mask_1_global != nullptr &&
+            calculation_cv_mat_mask_2_global != nullptr &&
+            calculation_cv_mat_mask_3_global != nullptr
+        )
+        {
             // CALL A CALLBACK FOR CURRENT MAT
             // THE RENDERER will show the video after processing
-            opencv_global_calculation_update_ctx.current_frame_processor(current_basic_mat_to_process);
+            if (!data_to_control->stage_1_end && !data_to_control->stage_2_end)
+            {
+                opencv_global_calculation_update_ctx.current_frame_processor = processing_stage_1;
+                opencv_global_calculation_update_ctx.current_frame_processor(calculation_cv_mat_mask_1_global);
+
+                opencv_global_calculation_update_ctx.current_frame_processor = processing_stage_2;
+                opencv_global_calculation_update_ctx.current_frame_processor(calculation_cv_mat_mask_2_global);
+
+                opencv_global_calculation_update_ctx.current_frame_processor = processing_stage_3_1;
+                opencv_global_calculation_update_ctx.current_frame_processor(calculation_cv_mat_mask_3_global);
+            }
+
+            if (data_to_control->stage_1_end && !data_to_control->stage_2_end)
+            {
+                opencv_global_calculation_update_ctx.current_frame_processor = processing_stage_3_1;
+                opencv_global_calculation_update_ctx.current_frame_processor(calculation_cv_mat_mask_3_global);
+            }
+        }
+
     }
 
     // ===== BLACKBOX WITH PROCESSING LOGIC BY CALLBACK =====
@@ -670,9 +769,17 @@ void opencv_calculation_global_update()
 
     // ===== SHOW SCALED COPY OF CURRENT MAT INSIDE OTHER WINDOW =====
 
+
     // Development stage
     if (FPC_TEST_MODE)
     {
+        // Show 1st or 2nd or 3rd       
+        cv::Mat* current_basic_mat_to_process;
+
+        if (state_progress_bar.operations_counter % 100 == 0)
+        
+
+
         // If frame is empty, skip this update
         if (!current_basic_mat_to_process->empty())
         {
@@ -738,6 +845,34 @@ void opencv_calculation_global_update()
 
     // ===== SHOW SCALED COPY OF CURRENT MAT INSIDE OTHER WINDOW =====
 
+
+
+    // ===== SWITCH THE CURRENT FILE TO PROCESS BY STATE MACHINE =====
+
+
+
+    if (data_to_control->stage_1_end && data_to_control->stage_2_end)
+    {
+        data_to_control->calculated_flag = true;;
+    }
+
+    if (data_to_control->calculated_flag)
+    {
+        // For the next video
+        opencv_global_calculation_update_ctx.need_reset = true;
+
+
+        // Basic
+
+        opencv_global_calculation_update_ctx.global_operation = PROCESSING_STAGE_1_CGO;
+
+        // Current operation
+        opencv_global_calculation_update_ctx.operation = MASK_1_PROCESSING_CO;
+
+    }
+
+    
+    // ===== SWITCH THE CURRENT FILE TO PROCESS BY STATE MACHINE =====
 }
 
 
@@ -782,18 +917,9 @@ void opencv_calculation_global_free_and_nullptr()
 // =========================================================================================== PROCESSING FUNCTIONS
 
 
-void processing_1(cv::Mat* current_mat)
-{
-    processing_stage_1(current_mat);
-    processing_stage_2(current_mat);
-    processing_stage_3_1(current_mat);
-}
-
-
-void processing_2(cv::Mat* current_mat)
-{
-    processing_stage_3_2(current_mat);
-}
+nozzle_detection_mask nozzle_mask_to_process;
+jet_detection_mask jet_mask_to_process;
+particle_detection_mask particle_mask_to_process;
 
 
 void processing_stage_1(cv::Mat* current_mat)
