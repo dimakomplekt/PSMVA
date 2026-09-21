@@ -660,6 +660,11 @@ void opencv_calculation_global_update()
     particle_detection_mask curr_pdm;
 
 
+    processing_1_data* curr_dtp_1;
+    processing_2_data* curr_dtp_2;
+    processing_3_data* curr_dtp_3;
+
+
     switch (file_to_check_now)
     {
         case FILE_1_CF:
@@ -669,6 +674,11 @@ void opencv_calculation_global_update()
             curr_ndm = masks_data.file_1_masks.nozzle_mask;
             curr_jdm = masks_data.file_1_masks.jet_mask;
             curr_pdm = masks_data.file_1_masks.particle_mask;
+
+
+            curr_dtp_1 = &global_processing_data.file_1.processing_1;
+            curr_dtp_2 = &global_processing_data.file_1.processing_2;
+            curr_dtp_3 = &global_processing_data.file_1.processing_3;
 
             break;
         }
@@ -680,6 +690,11 @@ void opencv_calculation_global_update()
             curr_ndm = masks_data.file_2_masks.nozzle_mask;
             curr_jdm = masks_data.file_2_masks.jet_mask;
             curr_pdm = masks_data.file_2_masks.particle_mask;
+
+
+            curr_dtp_1 = &global_processing_data.file_2.processing_1;
+            curr_dtp_2 = &global_processing_data.file_2.processing_2;
+            curr_dtp_3 = &global_processing_data.file_2.processing_3;
 
             break;
         }
@@ -693,6 +708,11 @@ void opencv_calculation_global_update()
             curr_jdm = masks_data.file_3_masks.jet_mask;
             curr_pdm = masks_data.file_3_masks.particle_mask;
 
+
+            curr_dtp_1 = &global_processing_data.file_3.processing_1;
+            curr_dtp_2 = &global_processing_data.file_3.processing_2;
+            curr_dtp_3 = &global_processing_data.file_3.processing_3;
+
             break;
         }
 
@@ -704,6 +724,11 @@ void opencv_calculation_global_update()
             curr_ndm = masks_data.file_4_masks.nozzle_mask;
             curr_jdm = masks_data.file_4_masks.jet_mask;
             curr_pdm = masks_data.file_4_masks.particle_mask;
+
+
+            curr_dtp_1 = &global_processing_data.file_4.processing_1;
+            curr_dtp_2 = &global_processing_data.file_4.processing_2;
+            curr_dtp_3 = &global_processing_data.file_4.processing_3;
 
             break;
         }
@@ -717,6 +742,11 @@ void opencv_calculation_global_update()
             curr_jdm = masks_data.file_5_masks.jet_mask;
             curr_pdm = masks_data.file_5_masks.particle_mask;
 
+
+            curr_dtp_1 = &global_processing_data.file_5.processing_1;
+            curr_dtp_2 = &global_processing_data.file_5.processing_2;
+            curr_dtp_3 = &global_processing_data.file_5.processing_3;
+
             break;
         }
 
@@ -728,17 +758,27 @@ void opencv_calculation_global_update()
             curr_jdm = masks_data.file_6_masks.jet_mask;
             curr_pdm = masks_data.file_6_masks.particle_mask;
 
+
+            curr_dtp_1 = &global_processing_data.file_6.processing_1;
+            curr_dtp_2 = &global_processing_data.file_6.processing_2;
+            curr_dtp_3 = &global_processing_data.file_6.processing_3;
+
             break;
         }
 
         default: break;
     }
 
+
+    // Set the current masks to work with
     nozzle_mask_to_process = curr_ndm;
     jet_mask_to_process = curr_jdm;
     particle_mask_to_process = curr_pdm;
 
-    // Which mask
+    // Set the answers ctx to fill data
+    data_to_process_1 = curr_dtp_1;
+    data_to_process_2 = curr_dtp_2;
+    data_to_process_3 = curr_dtp_3;
 
 
     // ===== PREPROCESSING =====
@@ -941,7 +981,7 @@ void opencv_calculation_global_update()
 
     // ===== SHOW SCALED COPY OF CURRENT MAT INSIDE OTHER WINDOW =====
 
-   if (FPC_TEST_MODE)
+    if (FPC_TEST_MODE)
     {
         static bool kingsize_live_transmission = false;
 
@@ -1085,8 +1125,20 @@ jet_detection_mask jet_mask_to_process;
 particle_detection_mask particle_mask_to_process;
 
 
+processing_1_data* data_to_process_1;
+processing_2_data* data_to_process_2;
+processing_3_data* data_to_process_3;
+
+
 void processing_stage_1(cv::Mat* current_mat)
 {
+    // Расчёт производится на 1 кадре 
+
+
+    // Mask analysis output data already found
+    if (data_to_process_1->calculated) return;
+
+
     if (!current_mat || current_mat->empty()) return;
 
     // Mask processing logic
@@ -1154,37 +1206,42 @@ void processing_stage_1(cv::Mat* current_mat)
 
     // === 1st step === 
 
-    auto draw_crosshair = [](cv::Mat& img, int cx, int cy, const cv::Scalar& color) 
+    // Draw crosshair only in test case
+    if (FPC_TEST_MODE)
     {
-        int length = 5;
-        int thickness = 2;
-        int gap = 2;
-        cv::Size img_size = img.size();
 
-        // Лямбда для безопасного рисования линии с предварительным клиппингом
-        auto safe_line = [&](cv::Point p_1, cv::Point p_2) 
+        auto draw_crosshair = [](cv::Mat& img, int cx, int cy, const cv::Scalar& color) 
         {
-            // clipLine возвращает true, если линия хотя бы частично внутри кадра
-            if (cv::clipLine(img_size, p_1, p_2)) {
-                cv::line(img, p_1, p_2, color, thickness);
-            }
+            int length = 5;
+            int thickness = 2;
+            int gap = 2;
+            cv::Size img_size = img.size();
+
+            // Лямбда для безопасного рисования линии с предварительным клиппингом
+            auto safe_line = [&](cv::Point p_1, cv::Point p_2) 
+            {
+                // clipLine возвращает true, если линия хотя бы частично внутри кадра
+                if (cv::clipLine(img_size, p_1, p_2)) {
+                    cv::line(img, p_1, p_2, color, thickness);
+                }
+            };
+
+            // Левая линия
+            safe_line(cv::Point(cx - gap - length, cy), cv::Point(cx - gap, cy));
+            // Правая линия
+            safe_line(cv::Point(cx + gap, cy), cv::Point(cx + gap + length, cy));
+            // Верхняя линия
+            safe_line(cv::Point(cx, cy - gap - length), cv::Point(cx, cy - gap));
+            // Нижняя линия
+            safe_line(cv::Point(cx, cy + gap), cv::Point(cx, cy + gap + length));
         };
 
-        // Левая линия
-        safe_line(cv::Point(cx - gap - length, cy), cv::Point(cx - gap, cy));
-        // Правая линия
-        safe_line(cv::Point(cx + gap, cy), cv::Point(cx + gap + length, cy));
-        // Верхняя линия
-        safe_line(cv::Point(cx, cy - gap - length), cv::Point(cx, cy - gap));
-        // Нижняя линия
-        safe_line(cv::Point(cx, cy + gap), cv::Point(cx, cy + gap + length));
-    };
 
+        draw_crosshair(*current_mat, controlled_mask->x_1, controlled_mask->y_1, cv::Scalar(0, 255, 0)); // Зеленый
+        draw_crosshair(*current_mat, controlled_mask->x_2, controlled_mask->y_2, cv::Scalar(0, 0, 255)); // Красный
+    }
+    
 
-    draw_crosshair(*current_mat, controlled_mask->x_1, controlled_mask->y_1, cv::Scalar(0, 255, 0)); // Зеленый
-    draw_crosshair(*current_mat, controlled_mask->x_2, controlled_mask->y_2, cv::Scalar(0, 0, 255)); // Красный
-    
-    
     // === 2nd step === 
 
     // =========================================================================
@@ -1232,10 +1289,8 @@ void processing_stage_1(cv::Mat* current_mat)
     {
         double y = -c_2 / b_2;
 
-        if (y >= 0 && y < rows) 
-        {
-            edge_points.push_back(cv::Point(0, std::round(y)));
-        }
+        if (y >= 0 && y < rows) edge_points.push_back(cv::Point(0, std::round(y)));
+
     }
 
     // Пересечение с правой границей (x = cols - 1)
@@ -1243,18 +1298,16 @@ void processing_stage_1(cv::Mat* current_mat)
     {
         double y = -(a_2 * (cols - 1) + c_2) / b_2;
 
-        if (y >= 0 && y < rows) 
-        {
-            edge_points.push_back(cv::Point(cols - 1, std::round(y)));
-        }
+        if (y >= 0 && y < rows) edge_points.push_back(cv::Point(cols - 1, std::round(y)));
+
     }
 
     // Пересечение с верхней границей (y = 0)
-    if (std::abs(a_2) > epsilon) {
+    if (std::abs(a_2) > epsilon) 
+    {
         double x = -c_2 / a_2;
-        if (x >= 0 && x < cols) {
-            edge_points.push_back(cv::Point(std::round(x), 0));
-        }
+
+        if (x >= 0 && x < cols) edge_points.push_back(cv::Point(std::round(x), 0));
     }
 
     // Пересечение с нижней границей (y = rows - 1)
@@ -1262,10 +1315,8 @@ void processing_stage_1(cv::Mat* current_mat)
     {
         double x = -(b_2 * (rows - 1) + c_2) / a_2;
 
-        if (x >= 0 && x < cols) 
-        {
-            edge_points.push_back(cv::Point(std::round(x), rows - 1));
-        }
+        if (x >= 0 && x < cols) edge_points.push_back(cv::Point(std::round(x), rows - 1));
+
     }
 
 
@@ -1274,6 +1325,7 @@ void processing_stage_1(cv::Mat* current_mat)
     if (edge_points.size() >= 2) 
     {
         // Берем первые две найденные точки пересечения с границами
+
         cv::Point p_start = edge_points[0];
         cv::Point p_end = edge_points[1];
 
@@ -1400,6 +1452,19 @@ void processing_stage_1(cv::Mat* current_mat)
         cv::LINE_AA
 
     );
+
+
+    // Просто повторное присвоение c блокировкой пересчёта
+
+    data_to_process_1->scale = controlled_mask->mm_in_pixel;                            // Масштаб на видео
+    
+    data_to_process_1->nozzle_axe.a = controlled_mask->axe_line_coefficients.a;         // Осевая линия на видео
+    data_to_process_1->nozzle_axe.b = controlled_mask->axe_line_coefficients.b;         // Осевая линия на видео
+    data_to_process_1->nozzle_axe.a = controlled_mask->axe_line_coefficients.c;         // Осевая линия на видео
+
+    data_to_process_1->nozzle_axe_angle = controlled_mask->basic_axe_angle;             // Угол оси сопла на видео
+
+    data_to_process_1->calculated = true;                                               // Блокировка перерасчёта
     
     // ===== MASK MAIN CALCULATED VALUES ===== 
 

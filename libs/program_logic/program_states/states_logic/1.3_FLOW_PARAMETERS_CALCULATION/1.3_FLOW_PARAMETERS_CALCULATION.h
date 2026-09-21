@@ -216,8 +216,27 @@ extern jet_detection_mask jet_mask_to_process;
 extern particle_detection_mask particle_mask_to_process;
 
 
+// Ax + By + C = 0
+struct line_equation
+{
+
+    float a;
+    float b;
+    float c;
+
+};
+
+
+// 1st mask processing output ctx
 struct processing_1_data
 {
+    float scale;                            // mm / px - equal for both axes
+
+
+    line_equation nozzle_axe;               // By line equation coefficients
+    float nozzle_axe_angle;                 // In degrees
+
+    bool calculated = false;                // processing end flag
 
 };
 
@@ -233,6 +252,10 @@ struct processing_3_data
 
 };
 
+
+extern processing_1_data* data_to_process_1;
+extern processing_2_data* data_to_process_2;
+extern processing_3_data* data_to_process_3;
 
 
 struct file_processing_data
