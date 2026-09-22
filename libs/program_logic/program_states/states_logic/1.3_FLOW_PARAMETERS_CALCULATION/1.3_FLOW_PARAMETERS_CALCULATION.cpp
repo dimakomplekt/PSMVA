@@ -78,11 +78,6 @@
 
 // =========================================================================================== STATE DATA
 
-files_processing_data global_processing_data;
-
-flow_calculation_progress_bar state_progress_bar;
-
-
 // RAII + lifecycle management
 
 My_SDL_panel* flow_parameters_calculation_panel = nullptr;
@@ -369,12 +364,16 @@ void flow_parameters_calculation_elements_render(SDL_Renderer* renderer)
 // =========================================================================================== STATE INNER FUNCTIONS REALIZATION
 
 
-
-
 // =========================================================================================== OPENCV PART OF THE STATE
 
 
-// ===== DATA =====
+// =========================================================================================== REDEFINE FOR EXTERN DATA
+
+files_processing_data global_processing_data;
+
+
+flow_calculation_progress_bar state_progress_bar;
+
 
 cv::VideoCapture* video_capture_device_global_fpc = nullptr;
 
@@ -382,12 +381,26 @@ cv::Mat* calculation_cv_mat_mask_1_global = nullptr;
 cv::Mat* calculation_cv_mat_mask_2_global = nullptr;
 cv::Mat* calculation_cv_mat_mask_3_global = nullptr;
 
-
 bool opencv_calculation_pipeline_reset_global = false;
+
 
 opencv_calculation_update_ctx opencv_global_calculation_update_ctx;
 
-// ===== DATA =====
+
+bool global_calculation_end_flag = false;
+
+
+parsed_video_data video_data;
+
+nozzle_detection_mask nozzle_mask_to_process;
+jet_detection_mask jet_mask_to_process;
+particle_detection_mask particle_mask_to_process;
+
+processing_1_data* data_to_process_1;
+processing_2_data* data_to_process_2;
+processing_3_data* data_to_process_3;
+
+// =========================================================================================== REDEFINE FOR EXTERN DATA
 
 
 // ===== Functions =====
@@ -593,15 +606,6 @@ void kingsize_window_close_fpc()
 {
     cv::destroyWindow("KINGSIZE_TEST");
 }
-
-
-
-
-
-bool global_calculation_end_flag = false;
-
-
-parsed_video_data video_data;
 
 
 void opencv_calculation_global_update()
@@ -1254,16 +1258,6 @@ void opencv_calculation_global_free_and_nullptr()
 // =========================================================================================== PROCESSING FUNCTIONS
 
 
-nozzle_detection_mask nozzle_mask_to_process;
-jet_detection_mask jet_mask_to_process;
-particle_detection_mask particle_mask_to_process;
-
-
-processing_1_data* data_to_process_1;
-processing_2_data* data_to_process_2;
-processing_3_data* data_to_process_3;
-
-
 void processing_stage_1(cv::Mat* current_mat)
 {
     // Расчёт производится на 1 кадре 
@@ -1667,8 +1661,6 @@ void processing_stage_2(cv::Mat* current_mat)
         image_hsv,
         cv::COLOR_BGR2HSV
     );
-
-
 
 
 

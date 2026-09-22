@@ -128,12 +128,18 @@ extern cv::Mat* calculation_cv_mat_mask_3_global;
 // Global reinit block flag
 extern bool opencv_calculation_pipeline_reset_global;
 
+// Block calculations repeat and open
+// the switch state button
+extern bool global_calculation_end_flag = false;
+
 // ===== DATA =====
 
 
 // ===== Functions =====
 
 
+// Setup function with all needed ctx
+// setting up 
 void opencv_calculation_global_setup();
 
 
@@ -144,6 +150,7 @@ void opencv_calculation_global_setup();
 
 
 
+// Marker of the global operation
 enum current_global_operation 
 {
 
@@ -153,6 +160,7 @@ enum current_global_operation
 };
 
 
+// Marker of the inner operation
 enum current_operation 
 {
 
@@ -165,6 +173,9 @@ enum current_operation
 
 
 // Struct for calculation processing
+// uses unside global update to form
+// the frames switch logic, processing stages switch
+// logic and other...
 struct opencv_calculation_update_ctx
 {
     // Current file (uses for translator setup)
@@ -194,6 +205,7 @@ struct opencv_calculation_update_ctx
 };
 
 
+// Global ctx for calculation processing control
 extern opencv_calculation_update_ctx opencv_global_calculation_update_ctx;
 
 
@@ -203,6 +215,8 @@ extern opencv_calculation_update_ctx opencv_global_calculation_update_ctx;
 // (opencv_global_update_ctx) data 
 void opencv_calculation_global_update();
 
+
+// "Destructor" of the calculation data
 void opencv_calculation_global_free_and_nullptr();
 
 // ===== Functions =====
@@ -214,9 +228,17 @@ void opencv_calculation_global_free_and_nullptr();
 
 // ===== PROCESSING CTX =====
 
-
+// Current copy of nozzle mask from state 1.2 to work with
+// uses to switch between files mask inside functions 
 extern nozzle_detection_mask nozzle_mask_to_process;
+
+// Current copy of jet mask from state 1.2 to work with
+// uses to switch between files mask inside functions
 extern jet_detection_mask jet_mask_to_process;
+
+
+// Current copy of particle mask from state 1.2 to work with
+// uses to switch between files mask inside functions
 extern particle_detection_mask particle_mask_to_process;
 
 
@@ -234,48 +256,60 @@ struct line_equation
 // 1st mask processing output ctx
 struct processing_1_data
 {
-    float scale;                            // mm / px - equal for both axes
+    float scale;                            // In mm / px - equal for both axes
 
 
     line_equation nozzle_axe;               // By line equation coefficients
     float nozzle_axe_angle;                 // In degrees
 
-    bool calculated = false;                // processing end flag
+    bool calculated = false;                // Processing end flag
 
 };
 
 
+// 2nd mask processing output ctx
 struct processing_2_data
 {
 
-    std::vector<float> frames_mean_light_power_percentage;
+    std::vector<float> frames_mean_light_power_percentage;      // Light power inside frames - mead V / Vmax (HSV)
 
-    std::vector<float> frames_median_jet_amplitude;
-    std::vector<float> frames_mean_jet_amplitude;
+    std::vector<float> frames_median_jet_amplitude;             // Median jet amplitude inside frames
+    std::vector<float> frames_mean_jet_amplitude;               // Mean jet amplitudes inside frames
 
-    float video_mean_light_power_percentage;
-    float video_median_jet_amplitude;
-    float video_mean_jet_amplitude;
+    float video_mean_light_power_percentage;                    // Light power inside video - mead V / Vmax (HSV)
+    float video_median_jet_amplitude;                           // Median jet amplitude inside video   
+    float video_mean_jet_amplitude;                             // Mean jet amplitudes inside video
 
-    bool calculated = false;
+    bool calculated = false;                                    // Processing end flag
 
 };
 
 
+// 2rd mask processing output ctx
 struct processing_3_data
 {
 
 };
 
 
+// Global processing 1 data pointer to work with.
+// Uses to switch between processing 1 ctx-s inside functions  
 extern processing_1_data* data_to_process_1;
+
+// Global processing 2 data pointer to work with.
+// Uses to switch between processing 2 ctx-s inside functions  
 extern processing_2_data* data_to_process_2;
+
+// Global processing 3 data pointer to work with.
+// Uses to switch between processing 3 ctx-s inside functions  
 extern processing_3_data* data_to_process_3;
 
-
+// Current copy of current video data to work with
+// Uses to switch between video data ctx-s inside functions   
 extern parsed_video_data video_data;
 
 
+// 1 File processing control ctx
 struct file_processing_data
 {
     current_file_ms file;
@@ -298,6 +332,7 @@ struct file_processing_data
 };
 
 
+// All files processing control ctx
 struct files_processing_data
 {
 
@@ -310,7 +345,7 @@ struct files_processing_data
 
 };
 
-
+// Global files processing control ctx to work with
 extern files_processing_data global_processing_data;
 
 
@@ -320,12 +355,18 @@ extern files_processing_data global_processing_data;
 
 // ===== PROCESSING FUNCTIONS =====
 
+// Calculation of the scale and main axe line coefficients
 void processing_stage_1(cv::Mat* current_mat);
 
+// Calculation of the video light power, light power delta speed, mean / median
+// jet amplitude  
 void processing_stage_2(cv::Mat* current_mat);
 
+
+// Pre...
 void processing_stage_3_1(cv::Mat* current_mat);
 
+// Calcult....
 void processing_stage_3_2(cv::Mat* current_mat);
 
 
@@ -355,27 +396,32 @@ void processing_stage_3_2(cv::Mat* current_mat);
 // Scale will show the percentage of the whole operations
 // Text will show which operation is processed now (not exactly, but for human viewer more than enough) 
 
+
+// Progress bar ctx
 struct flow_calculation_progress_bar
 {
 
+    // (operations_counter / operations_count) * 100;
     float percentage = 0.0f;
 
 
-    unsigned int operations_counter = 0;
-    unsigned int operations_count = 0;          //  SUm of File_frames * 2 
+    unsigned int operations_counter = 0;        // Current ended operations counter
+    unsigned int operations_count = 0;          // Sum file_frames * 2 for all files 
 
 
-    unsigned int current_frame = 0; 
-    unsigned int frames_quantity = 0;           // Current file frame
+    unsigned int current_frame = 0;             // Current file processed frames quantity
+    unsigned int frames_quantity = 0;           // Current file frames quantity
 
 };
 
 
+// Global progress bar ctx to work with
 extern flow_calculation_progress_bar state_progress_bar;
 
-
+// Update progress bar data (4 textboxes)
 void progress_bar_update();
 
+// Render progress bar (4 textboxes + 2 lines + 1 rectangle)
 void progress_bar_render(SDL_Renderer* renderer);
 
 // =========================================================================================== PROGRESS BAR
