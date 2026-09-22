@@ -10,6 +10,8 @@
 
 #include "../1.2_MASKS_SETUP/1.2_MASKS_SETUP.h"
 
+#include "../1.1_FILE_CHOOSE/txt_parse.h"
+
 
 #include "../../../../program_gui/basic_elements/global_palette/global_palette.h"
 #include "../../../../program_gui/basic_elements/global_fonts/global_fonts.h"
@@ -24,6 +26,8 @@
 
 #include <cmath>   // Для std::atan2
 #include <cstdio>  // Для std::snprintf
+
+#include <numeric>
 
 // =========================================================================================== IMPORT
 
@@ -244,6 +248,17 @@ struct processing_1_data
 struct processing_2_data
 {
 
+    std::vector<float> frames_mean_light_power_percentage;
+
+    std::vector<float> frames_median_jet_amplitude;
+    std::vector<float> frames_mean_jet_amplitude;
+
+    float video_mean_light_power_percentage;
+    float video_median_jet_amplitude;
+    float video_mean_jet_amplitude;
+
+    bool calculated = false;
+
 };
 
 
@@ -256,6 +271,9 @@ struct processing_3_data
 extern processing_1_data* data_to_process_1;
 extern processing_2_data* data_to_process_2;
 extern processing_3_data* data_to_process_3;
+
+
+extern parsed_video_data video_data;
 
 
 struct file_processing_data
@@ -274,7 +292,7 @@ struct file_processing_data
 
 
     processing_1_data processing_1;
-    processing_1_data processing_2;
+    processing_2_data processing_2;
     processing_3_data processing_3;
 
 };

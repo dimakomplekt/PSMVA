@@ -596,7 +596,13 @@ void kingsize_window_close_fpc()
 
 
 
+
+
 bool global_calculation_end_flag = false;
+
+
+parsed_video_data video_data;
+
 
 void opencv_calculation_global_update()
 {
@@ -680,6 +686,9 @@ void opencv_calculation_global_update()
             curr_dtp_2 = &global_processing_data.file_1.processing_2;
             curr_dtp_3 = &global_processing_data.file_1.processing_3;
 
+
+            video_data = files_metadata.video_1_data;
+
             break;
         }
 
@@ -695,6 +704,8 @@ void opencv_calculation_global_update()
             curr_dtp_1 = &global_processing_data.file_2.processing_1;
             curr_dtp_2 = &global_processing_data.file_2.processing_2;
             curr_dtp_3 = &global_processing_data.file_2.processing_3;
+
+            video_data = files_metadata.video_2_data;
 
             break;
         }
@@ -713,6 +724,8 @@ void opencv_calculation_global_update()
             curr_dtp_2 = &global_processing_data.file_3.processing_2;
             curr_dtp_3 = &global_processing_data.file_3.processing_3;
 
+            video_data = files_metadata.video_3_data;
+
             break;
         }
 
@@ -729,6 +742,9 @@ void opencv_calculation_global_update()
             curr_dtp_1 = &global_processing_data.file_4.processing_1;
             curr_dtp_2 = &global_processing_data.file_4.processing_2;
             curr_dtp_3 = &global_processing_data.file_4.processing_3;
+
+
+            video_data = files_metadata.video_4_data;
 
             break;
         }
@@ -747,6 +763,9 @@ void opencv_calculation_global_update()
             curr_dtp_2 = &global_processing_data.file_5.processing_2;
             curr_dtp_3 = &global_processing_data.file_5.processing_3;
 
+
+            video_data = files_metadata.video_5_data;
+
             break;
         }
 
@@ -762,6 +781,8 @@ void opencv_calculation_global_update()
             curr_dtp_1 = &global_processing_data.file_6.processing_1;
             curr_dtp_2 = &global_processing_data.file_6.processing_2;
             curr_dtp_3 = &global_processing_data.file_6.processing_3;
+
+            video_data = files_metadata.video_6_data;
 
             break;
         }
@@ -800,6 +821,16 @@ void opencv_calculation_global_update()
         // Set calculation stages status
         // data_to_control->stage_1_end = false;
         // data_to_control->stage_2_end = false;
+
+
+        if (FPC_TEST_MODE)
+        {
+            std::cout
+            << "\n=== SELECT FILE ===\n"
+            << "file: " << static_cast<int>(file_to_check_now) << "\n"
+            << "path: " << file_path << "\n"
+            << "processing_2 ptr: " << data_to_process_2 << "\n";
+        }
         
 
         // Block reinits after reset
@@ -811,6 +842,9 @@ void opencv_calculation_global_update()
             opencv_global_calculation_update_ctx.need_reset = true;
             return;
         }
+
+
+
     }
 
     if (video_capture_device_global_fpc == nullptr ||
@@ -917,6 +951,106 @@ void opencv_calculation_global_update()
                 {
                     data_to_control->stage_1_end = true;
                     opencv_global_calculation_update_ctx.current_frame_index = 0;
+
+
+                    // ===== Global video statistics calculation (Outside the frame loop) =====
+
+                    // 1. Вычисляем общее среднее мощности света по всему видео
+                    if (!data_to_process_2->frames_mean_light_power_percentage.empty()) 
+                    {
+                        size_t v_len = curr_dtp_2->frames_mean_light_power_percentage.size();
+
+                        float sum = std::accumulate(
+                            
+                            data_to_process_2->frames_mean_light_power_percentage.begin(), 
+                             data_to_process_2->frames_mean_light_power_percentage.end(), 
+                             0.0f
+                                                    
+                        );
+
+                        
+                        curr_dtp_2->video_mean_light_power_percentage = static_cast<float>(sum / v_len);
+
+                    } 
+                    else 
+                    {
+                        curr_dtp_2->video_mean_light_power_percentage = 0.0f;
+                    }
+
+
+                    // 2. Вычисляем общую медиану амплитуды струи по всему видео
+                    // Фильтруем нули (кадры без струи), чтобы они не ломали медиану для всего видеоролика
+                    std::vector<float> valid_video_jet_amplitudes;
+
+                    valid_video_jet_amplitudes.reserve(data_to_process_2->frames_median_jet_amplitude.size());
+
+
+                    for (float amp : data_to_process_2->frames_median_jet_amplitude) 
+                    {
+                        if (amp > 0.0f) 
+                        {
+                            valid_video_jet_amplitudes.push_back(amp);
+                        }
+                    }
+
+
+                    if (!valid_video_jet_amplitudes.empty()) 
+                    {
+                        size_t mid_idx = valid_video_jet_amplitudes.size() / 2;
+
+                        std::nth_element(
+                            valid_video_jet_amplitudes.begin(), 
+                            valid_video_jet_amplitudes.begin() + mid_idx, 
+                            valid_video_jet_amplitudes.end()
+                        );
+                        
+                        curr_dtp_2->video_median_jet_amplitude = valid_video_jet_amplitudes[mid_idx];
+
+
+
+                        size_t v_size = curr_dtp_2->frames_mean_jet_amplitude.size();
+
+                        float sum_mean_amplitude = std::accumulate(
+
+                            curr_dtp_2->frames_mean_jet_amplitude.begin(),
+                            curr_dtp_2->frames_mean_jet_amplitude.end(),
+                            0.0f
+
+                        );
+
+                        curr_dtp_2->video_mean_jet_amplitude = static_cast<float>(sum_mean_amplitude / v_size);
+                    } 
+                    else 
+                    {
+                        curr_dtp_2->video_median_jet_amplitude = 0.0f;
+                        curr_dtp_2->video_mean_jet_amplitude = 0.0f;
+                    }
+
+
+                    // ===== Global video statistics calculation =====
+                    
+                    if (FPC_TEST_MODE)
+                    {
+
+                        std::cout
+                        << "\n=== VIDEO FINISHED ===\n"
+                        << "file: " << static_cast<int>(file_to_check_now) << "\n"
+                        << "path: " << file_path << "\n"
+                        << "frames light: "
+                        << data_to_process_2->frames_mean_light_power_percentage.size()
+                        << "\n"
+                        << "frames amplitude: "
+                        << data_to_process_2->frames_median_jet_amplitude.size()
+                        << "\n";
+
+
+                        std::cout << "\n\nVideo median arc amplitude: " << curr_dtp_2->video_median_jet_amplitude;
+                        std::cout << "\n\nVideo mean arc amplitude: " << curr_dtp_2->video_mean_jet_amplitude;
+
+                        std::cout << "\nVideo mean light percentage: " << curr_dtp_2->video_mean_light_power_percentage << std::endl;
+                    }
+
+                    curr_dtp_2->calculated = true;
                 }
 
 
@@ -1460,7 +1594,7 @@ void processing_stage_1(cv::Mat* current_mat)
     
     data_to_process_1->nozzle_axe.a = controlled_mask->axe_line_coefficients.a;         // Осевая линия на видео
     data_to_process_1->nozzle_axe.b = controlled_mask->axe_line_coefficients.b;         // Осевая линия на видео
-    data_to_process_1->nozzle_axe.a = controlled_mask->axe_line_coefficients.c;         // Осевая линия на видео
+    data_to_process_1->nozzle_axe.c = controlled_mask->axe_line_coefficients.c;         // Осевая линия на видео
 
     data_to_process_1->nozzle_axe_angle = controlled_mask->basic_axe_angle;             // Угол оси сопла на видео
 
@@ -1534,6 +1668,67 @@ void processing_stage_2(cv::Mat* current_mat)
         cv::COLOR_BGR2HSV
     );
 
+
+
+
+
+    // ===== PRECALCULATION =====
+
+    float current_scale = data_to_process_1->scale;
+
+    unsigned int video_width = video_data.width;
+    unsigned int video_height = video_data.height;
+
+    // ===== PRECALCULATION =====
+
+
+    // ===== Light power calculation =====
+
+
+    // Используем cv::Vec3b для быстрого и безопасного доступа к пикселям.
+    // Рекомендуется обходить матрицу: внешний цикл по строкам (Y), внутренний по столбцам (X)
+    // для оптимального использования кэша процессора.
+    
+    // Unsigned char занимает ровно 1 байт памяти и может хранить числа строго от 0 до 255.
+    std::vector<unsigned char> pixels_light_power_values;
+    pixels_light_power_values.reserve(current_mat->rows * current_mat->cols);
+
+    for (int y = 0; y < current_mat->rows; ++y)
+    {
+        for (int x = 0; x < current_mat->cols; ++x)
+        {
+            // В OpenCV HSV-пиксель упорядочен как: [0]=H, [1]=S, [2]=V
+            unsigned char v_val = image_hsv.at<cv::Vec3b>(y, x)[2];
+            pixels_light_power_values.push_back(v_val);
+        }
+    }
+
+    // Вычисляем сумму элементов через std::accumulate. 
+    // Используем 0ULL (unsigned long long), чтобы гарантированно избежать переполнения.
+    size_t v_size = pixels_light_power_values.size();
+
+    float total_sum = std::accumulate(
+
+        pixels_light_power_values.begin(), 
+        pixels_light_power_values.end(),
+         0.0f
+        
+    );
+
+    // Вычисляем среднее арифметическое (значение от 0.0 до 255.0)
+    // Делаем проверку на v_size > 0, чтобы избежать деления на ноль, если матрица пустая
+    float mean_v_raw = v_size > 0 ? static_cast<float>(total_sum) / v_size : 0.0f;
+
+    // Переводим в проценты (от 0.0 до 100.0%)
+    float frame_mean_light_power_percentage = (mean_v_raw / 255.0f) * 100.0f;
+
+    // Запись в общий буфер видео
+    data_to_process_2->frames_mean_light_power_percentage.push_back(frame_mean_light_power_percentage);
+    // ===== Light power calculation =====
+
+
+
+
     // =======================================================================================
     // BGR -> HSV
 
@@ -1603,6 +1798,147 @@ void processing_stage_2(cv::Mat* current_mat)
         image_mask
     );
 
+
+
+    // ===== Median jet amplitude calculation =====
+
+    // Настройки фильтрации
+    const int MIN_SEGMENT_LENGTH = 25;          // Минимальная длина струи в пикселях
+    const int MAX_GAP_ALLOWED = 25;             // Сколько черных пикселей подряд можно "простить" внутри струи
+
+    // Вектор для хранения амплитуды (высоты) струи для каждого столбца X.
+    // Инициализируем нулями, размер равен ширине маски.
+    std::vector<int> frame_median_jet_amplitude(image_mask.cols, 0);
+
+    // Проходим по каждому столбцу X (слева направо)
+    for (int x = 0; x < image_mask.cols; ++x) 
+    {
+        int max_segment_length = 0;             // Самая длинная непрерывная струя в этом столбце
+        int current_segment_length = 0;         // Длина текущего проверяемого участка
+        int current_gap = 0;                    // Счетчик идущих подряд черных пикселей внутри струи
+
+        // Сканируем снизу вверх (от сопла/земли к вершине кадра)
+        for (int y = image_mask.rows - 1; y >= 0; --y)
+        {
+            uchar pixel_value = image_mask.at<uchar>(y, x);
+
+            if (pixel_value == 255)
+            {
+                // Если встретили белый пиксель:
+                // Если до этого была небольшая "дыра", прибавляем её к общей длине
+                if (current_gap > 0) 
+                {
+                    current_segment_length += current_gap;
+                    current_gap = 0;
+                }
+
+                current_segment_length++;
+            } 
+            else 
+            {
+                // Если встретили черный пиксель:
+                if (current_segment_length > 0) 
+                {
+                    // Мы уже находимся внутри струи. Начинаем считать длину "дыры"
+                    current_gap++;
+
+                    // Если дыра стала слишком большой — это честный разрыв струи
+                    if (current_gap > MAX_GAP_ALLOWED)
+                    {
+                        // Проверяем, подходит ли завершившийся сегмент под условия
+                        if (current_segment_length >= MIN_SEGMENT_LENGTH &&
+                            current_segment_length > max_segment_length) 
+                        {
+                            max_segment_length = current_segment_length;
+                        }
+
+                        // Сбрасываем все счетчики для поиска следующего кандидата выше
+                        current_segment_length = 0;
+                        current_gap = 0;
+                    }
+                }
+            }
+        }
+
+        // Финальная проверка после выхода из цикла по Y (если струя уперлась в самый верхний край кадра)
+        if (current_segment_length >= MIN_SEGMENT_LENGTH && current_segment_length > max_segment_length) 
+        {
+            max_segment_length = current_segment_length;
+        }
+
+        // Сохраняем итоговую амплитуду для текущей координаты X
+        frame_median_jet_amplitude[x] = max_segment_length;
+    }
+
+
+    // Собираем только те столбцы, где струя РЕАЛЬНО была обнаружена (> 0)
+    std::vector<int> valid_amplitudes;
+
+    valid_amplitudes.reserve(frame_median_jet_amplitude.size());
+
+    for (int amp : frame_median_jet_amplitude) 
+    {
+        if (amp > 0) 
+        {
+            valid_amplitudes.push_back(amp);
+        }
+    }
+
+    float frame_jet_amplitude_median_mm = 0.0f;
+
+
+    // Считаем медиану только если нашли струю хотя бы в одном столбце
+    if (!valid_amplitudes.empty()) 
+    {
+
+            // ===== Mean-calculation zone =====
+
+            float frame_jet_amplitude_mean_mm = 0.0f;
+
+            float amplitude_sum = std::accumulate(
+                valid_amplitudes.begin(),
+                valid_amplitudes.end(),
+                0.0f
+            );
+
+
+            frame_jet_amplitude_mean_mm =
+                (amplitude_sum / static_cast<float>(valid_amplitudes.size()))
+                * current_scale;
+            
+
+            data_to_process_2->frames_mean_jet_amplitude.push_back(
+                frame_jet_amplitude_mean_mm
+            );
+
+            // ===== Mean-calculation zone =====
+
+
+
+        size_t jet_mid_index = valid_amplitudes.size() / 2;
+
+        std::nth_element(
+
+            valid_amplitudes.begin(), 
+            valid_amplitudes.begin() + jet_mid_index, 
+            valid_amplitudes.end()
+
+        );
+        
+        int jet_median_px = valid_amplitudes[jet_mid_index];
+
+        // Переводим в мм
+        frame_jet_amplitude_median_mm = static_cast<float>(jet_median_px) * current_scale;
+    }
+
+    // Запись в общий буфер видео
+    data_to_process_2->frames_median_jet_amplitude.push_back(frame_jet_amplitude_median_mm);
+
+    // ===== Median jet anplitude calculation =====
+
+
+
+
     // =======================================================================================
     // CREATE BINARY MASK
 
@@ -1651,6 +1987,7 @@ void processing_stage_2(cv::Mat* current_mat)
 
     // =======================================================================================
     // WRITE RESULT BACK TO FRAME
+
 
 }
 
