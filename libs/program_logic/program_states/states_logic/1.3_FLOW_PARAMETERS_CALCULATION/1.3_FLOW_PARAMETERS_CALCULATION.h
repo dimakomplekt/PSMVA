@@ -280,6 +280,15 @@ struct processing_2_data
     float video_median_jet_amplitude;                           // Median jet amplitude inside video   
     float video_mean_jet_amplitude;                             // Mean jet amplitudes inside video
 
+
+    // Frame switch time in seconds
+    float frame_time = 0.0f;
+
+    // Percentage delta of light power between frames
+    // Percent / second
+    float mean_light_power_delta_between_frames;
+
+
     bool calculated = false;                                    // Processing end flag
 
 };

@@ -711,6 +711,7 @@ void opencv_calculation_global_update()
 
             video_data = files_metadata.video_2_data;
 
+            
             break;
         }
 
@@ -804,6 +805,13 @@ void opencv_calculation_global_update()
     data_to_process_1 = curr_dtp_1;
     data_to_process_2 = curr_dtp_2;
     data_to_process_3 = curr_dtp_3;
+
+
+    // Write frame time to work with
+    if (curr_dtp_2->frame_time == 0.0f)
+    {
+        curr_dtp_2->frame_time = video_data.frame_time;
+    }
 
 
     // ===== PREPROCESSING =====
@@ -951,15 +959,21 @@ void opencv_calculation_global_update()
                 
                 // Check if wee need to over 1st stage
 
-                if (opencv_global_calculation_update_ctx.current_frame_index == opencv_global_calculation_update_ctx.total_frame_count)
+                if (
+                    
+                    opencv_global_calculation_update_ctx.current_frame_index == 
+                    opencv_global_calculation_update_ctx.total_frame_count
+
+                )
                 {
                     data_to_control->stage_1_end = true;
                     opencv_global_calculation_update_ctx.current_frame_index = 0;
 
 
-                    // ===== Global video statistics calculation (Outside the frame loop) =====
+// ====================================================================================== Global video statistics calculation (Outside the frame loop) =====
 
-                    // 1. Вычисляем общее среднее мощности света по всему видео
+                    // 1.1 Вычисляем общее среднее мощности света по всему видео
+
                     if (!data_to_process_2->frames_mean_light_power_percentage.empty()) 
                     {
                         size_t v_len = curr_dtp_2->frames_mean_light_power_percentage.size();
@@ -979,6 +993,36 @@ void opencv_calculation_global_update()
                     else 
                     {
                         curr_dtp_2->video_mean_light_power_percentage = 0.0f;
+                    }
+
+
+                    // 1.1 Вычисляем среднюю дельту по мощности светового излучения между кадрами для всего видео (в процентах)
+                    
+                    if (!data_to_process_2->frames_mean_light_power_percentage.empty())
+                    {
+                        unsigned int deltas_counter = 0;
+                        float sum_of_deltas = 0.0f;
+
+                        for (int i = 0; i < data_to_process_2->frames_mean_light_power_percentage.size() - 1; i++)
+                        {   
+                            sum_of_deltas += std::abs(data_to_process_2->frames_mean_light_power_percentage[i + 1] -
+                                (data_to_process_2->frames_mean_light_power_percentage[i]);
+
+                            deltas_counter += 1; 
+                        }   
+
+                        float percent_mean_delta = sum_of_deltas / deltas_counter;
+
+                        // Equal time between frames, so:
+                        // divide on frame time (percent per second in answer)
+                        if (curr_dtp_2->frame_time != 0)
+                            curr_dtp_2->mean_light_power_delta_between_frames = percent_mean_delta / curr_dtp_2->frame_time;
+
+                        else curr_dtp_2->mean_light_power_delta_between_frames = 0.0f;
+                    }
+                    else
+                    {
+                        curr_dtp_2->mean_light_power_delta_between_frames = 0.0f;
                     }
 
 
@@ -1031,7 +1075,6 @@ void opencv_calculation_global_update()
                     }
 
 
-                    // ===== Global video statistics calculation =====
                     
                     if (FPC_TEST_MODE)
                     {
@@ -1052,9 +1095,13 @@ void opencv_calculation_global_update()
                         std::cout << "\n\nVideo mean arc amplitude: " << curr_dtp_2->video_mean_jet_amplitude;
 
                         std::cout << "\nVideo mean light percentage: " << curr_dtp_2->video_mean_light_power_percentage << std::endl;
+                        std::cout << "\nVideo mean light percentage delta (% / sec): " << curr_dtp_2->mean_light_power_delta_between_frames << std::endl;
                     }
 
                     curr_dtp_2->calculated = true;
+
+// ====================================================================================== Global video statistics calculation (Outside the frame loop) =====
+
                 }
 
 
@@ -1077,7 +1124,8 @@ void opencv_calculation_global_update()
 
                 // Check if wee need to over 2nd stage
 
-                if (opencv_global_calculation_update_ctx.current_frame_index == opencv_global_calculation_update_ctx.total_frame_count)
+                if (opencv_global_calculation_update_ctx.current_frame_index == 
+                    opencv_global_calculation_update_ctx.total_frame_count)
                 {
                     data_to_control->stage_2_end = true;
 
