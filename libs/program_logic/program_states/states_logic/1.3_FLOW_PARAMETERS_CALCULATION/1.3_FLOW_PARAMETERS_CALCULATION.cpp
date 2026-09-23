@@ -1006,7 +1006,7 @@ void opencv_calculation_global_update()
                         for (int i = 0; i < data_to_process_2->frames_mean_light_power_percentage.size() - 1; i++)
                         {   
                             sum_of_deltas += std::abs(data_to_process_2->frames_mean_light_power_percentage[i + 1] -
-                                (data_to_process_2->frames_mean_light_power_percentage[i]);
+                                (data_to_process_2->frames_mean_light_power_percentage[i]));
 
                             deltas_counter += 1; 
                         }   
@@ -1016,7 +1016,7 @@ void opencv_calculation_global_update()
                         // Equal time between frames, so:
                         // divide on frame time (percent per second in answer)
                         if (curr_dtp_2->frame_time != 0)
-                            curr_dtp_2->mean_light_power_delta_between_frames = percent_mean_delta / curr_dtp_2->frame_time;
+                            curr_dtp_2->mean_light_power_delta_between_frames = percent_mean_delta; // Not the / curr_dtp_2->frame_time; - it's 1600 or stmthng like XD
 
                         else curr_dtp_2->mean_light_power_delta_between_frames = 0.0f;
                     }
@@ -1095,7 +1095,7 @@ void opencv_calculation_global_update()
                         std::cout << "\n\nVideo mean arc amplitude: " << curr_dtp_2->video_mean_jet_amplitude;
 
                         std::cout << "\nVideo mean light percentage: " << curr_dtp_2->video_mean_light_power_percentage << std::endl;
-                        std::cout << "\nVideo mean light percentage delta (% / sec): " << curr_dtp_2->mean_light_power_delta_between_frames << std::endl;
+                        std::cout << "\nVideo mean light percentage delta (% / frame): " << curr_dtp_2->mean_light_power_delta_between_frames << std::endl;
                     }
 
                     curr_dtp_2->calculated = true;

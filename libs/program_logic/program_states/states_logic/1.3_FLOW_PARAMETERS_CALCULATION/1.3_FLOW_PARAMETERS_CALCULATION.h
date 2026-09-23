@@ -130,7 +130,7 @@ extern bool opencv_calculation_pipeline_reset_global;
 
 // Block calculations repeat and open
 // the switch state button
-extern bool global_calculation_end_flag = false;
+extern bool global_calculation_end_flag;
 
 // ===== DATA =====
 
@@ -285,7 +285,7 @@ struct processing_2_data
     float frame_time = 0.0f;
 
     // Percentage delta of light power between frames
-    // Percent / second
+    // Percent per frame
     float mean_light_power_delta_between_frames;
 
 
