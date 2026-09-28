@@ -1028,6 +1028,7 @@ void opencv_calculation_global_update()
 
                     // 2. Вычисляем общую медиану амплитуды струи по всему видео
                     // Фильтруем нули (кадры без струи), чтобы они не ломали медиану для всего видеоролика
+                    
                     std::vector<float> valid_video_jet_amplitudes;
 
                     valid_video_jet_amplitudes.reserve(data_to_process_2->frames_median_jet_amplitude.size());
@@ -1075,6 +1076,216 @@ void opencv_calculation_global_update()
                     }
 
 
+
+                    // 3. Вычисляем reference_dx и reference_dy для текущего видео по std::vector<std::vector<desc_c_2D>> frames_points;
+
+                    // Из условий для текущего видео - curr_dtp_3-> : 
+
+                    /*
+
+                        float zone_1_x_min_c = 0.6;                                            // zone_1: x > 0.6 * frame_width
+                        float zone_2_x_min_c = 0.7;                                            // zone_2: x > 0.7 * frame_width
+
+                        float zone_1_x_max_c = 0.8;                                            // zone_1: x < 0.8 * frame_width
+                        float zone_2_x_max_c = 0.9;                                            // zone_2: x < 0.9 * frame_width
+
+
+                        C логикой:
+
+                        для curr_dtp_3->frames_points[i + 1][все точки] ищем нижнюю левую точку в области от 0.7 до 0.9 fw
+                        после чего для curr_dtp_3->frames_points[i][все точки] ищем первую точку левее и выше найденной точки для i + 1
+                        в области от 0.6 до 0.8 fw 
+
+                        если есть такие точки, то пушим их в 
+
+                        std::vector<std::array<desc_c_2D, 2>> frames_extreme_pairs;
+
+                        через curr_dtp_3->frames_extreme_pairs.push_back
+
+                        если нет итерируемся дальше
+
+                        в самом конце находим
+
+                        // By median-mean blend (depended on median_weight)
+
+                        float reference_dx;                                                // Typical delta value by 1st pass analysis
+                        float reference_dy;                                                // Typical delta value by 1st pass analysis
+
+
+                        у того же curr_dtp_3->
+                    */
+
+
+                    // =======================================================================================
+                    // ПЕРВЫЙ ПРОХОД: КАЛИБРОВКА И ПОИСК ОПОРНЫХ СМЕЩЕНИЙ ПО КРАЙНИМ ТОЧКАМ
+                    // =======================================================================================
+
+                    // Буфер для хранения разностей координат успешных пар
+                    std::vector<float> all_dx;
+                    std::vector<float> all_dy;
+
+                    // Ширина кадра
+                    int frame_width = video_data.width; 
+
+
+                    // Задаем физические границы зон на основе ваших коэффициентов
+                    float zone_1_x_min = curr_dtp_3->zone_1_x_min_c * frame_width;          // 0.6 * fw
+                    float zone_1_x_max = curr_dtp_3->zone_1_x_max_c * frame_width;          // 0.8 * fw
+
+                    float zone_2_x_min = curr_dtp_3->zone_2_x_min_c * frame_width;          // 0.7 * fw
+                    float zone_2_x_max = curr_dtp_3->zone_2_x_max_c * frame_width;          // 0.9 * fw
+
+                    size_t total_frames = curr_dtp_3->frames_points.size();
+
+
+                    if (total_frames > 1)
+                    {
+                        // Итерируемся по парам кадров (от 0 до N-1)
+                        for (size_t i = 0; i < total_frames - 1; ++i)
+                        {
+                            const auto& points_n   = curr_dtp_3->frames_points[i];
+                            const auto& points_n1  = curr_dtp_3->frames_points[i + 1];
+
+
+                            // 1. Ищем НИЖНЮЮ ПРАВУЮ точку на кадре (i + 1) в зоне 2 (от 0.7 до 0.9 fw)
+                            // В SDL/OpenCV ориентации нижняя точка имеет МАКСИМАЛЬНЫЙ y, а правая — МАКСИМАЛЬНЫЙ x.
+                            // Ищем точку, которая ближе всего к правому нижнему углу этой зоны.
+
+                            desc_c_2D pt_n1 = { -1, -1 };
+                            float max_metric_n1 = -1.0f;
+
+                            for (const auto& pt : points_n1)
+                            {
+                                if (pt.x > zone_2_x_min && pt.x < zone_2_x_max)
+                                {
+                                    // Метрика удаленности к правому нижнему углу (сумма координат)
+                                    float current_metric = static_cast<float>(pt.x + pt.y);
+
+                                    if (current_metric > max_metric_n1)
+                                    {
+                                        max_metric_n1 = current_metric;
+                                        pt_n1 = pt;
+                                    }
+                                }
+                            }
+
+                            // Если на кадре i + 1 подходящая крайняя точка не найдена, идем к следующему кадру
+                            if (pt_n1.x == -1) continue;
+
+
+                            // 2. Ищем опорную точку на кадре (i) в зоне 1 (от 0.6 до 0.8 fw)
+                            // Логика: точка должна быть ЛЕВЕЕ (x_n < x_n1) и ВЫШЕ (y_n < y_n1) относительно найденной pt_n1
+                            // Из всех подходящих берем ту, у которой минимальное отклонение по Y (наименьшая дельта y_n1 - y_n)
+
+                            desc_c_2D pt_n = { -1, -1 };
+
+
+                            float min_delta_y = std::numeric_limits<float>::max();
+
+
+                            for (const auto& pt : points_n)
+                            {
+                                if (pt.x > zone_1_x_min && pt.x < zone_1_x_max)
+                                {
+                                    // Проверка физических ограничений направления (левее и выше)
+                                    if (pt.x < pt_n1.x && pt.y < pt_n1.y)
+                                    {
+                                        float delta_y = static_cast<float>(pt_n1.y - pt.y);
+                                        if (delta_y < min_delta_y)
+                                        {
+                                            min_delta_y = delta_y;
+                                            pt_n = pt;
+                                        }
+                                    }
+                                }
+                            }
+
+                            
+                            // 3. Если ОБЕ точки успешно нашлись, фиксируем экстремальную пару кадра
+                            if (pt_n.x != -1)
+                            {
+                                // Сохраняем пару в структуру для истории/отладки
+                                std::array<desc_c_2D, 2> pair_nodes = { pt_n, pt_n1 };
+                                curr_dtp_3->frames_extreme_pairs.push_back(pair_nodes);
+
+                                // Вычисляем дельты пикселей для этой пары
+                                float dx = static_cast<float>(pt_n1.x - pt_n.x);
+                                float dy = static_cast<float>(pt_n1.y - pt_n.y);
+
+                                all_dx.push_back(dx);
+                                all_dy.push_back(dy);
+                            }
+                        }
+                    }
+
+                        
+                    // =======================================================================================
+                    // 4. КОНЕЧКА: Расчет глобальных опорных смещений через бленд медианы и среднего (в мм)
+                    // =======================================================================================
+
+                    nozzle_detection_mask* controlled_mask = &nozzle_mask_to_process;
+
+
+                    if (!all_dx.empty())
+                    {
+                        size_t mid_index = all_dx.size() / 2;
+
+                        // --- А: Вычисляем медианные значения дельт ---
+                        // Копируем массивы, так как nth_element частично перестроит исходные данные
+                        std::vector<float> median_dx_vec = all_dx;
+                        std::vector<float> median_dy_vec = all_dy;
+                        
+
+                        std::nth_element(median_dx_vec.begin(), median_dx_vec.begin() + mid_index, median_dx_vec.end());
+                        std::nth_element(median_dy_vec.begin(), median_dy_vec.begin() + mid_index, median_dy_vec.end());
+                        
+
+                        float median_dx = median_dx_vec[mid_index];
+                        float median_dy = median_dy_vec[mid_index];
+
+
+                        // --- Б: Вычисляем средние арифметические значения дельт через std::accumulate ---
+
+                        float sum_dx = std::accumulate(all_dx.begin(), all_dx.end(), 0.0f);
+                        float sum_dy = std::accumulate(all_dy.begin(), all_dy.end(), 0.0f);
+                        
+                        float mean_dx = sum_dx / static_cast<float>(all_dx.size());
+                        float mean_dy = sum_dy / static_cast<float>(all_dy.size());
+
+
+                        // --- В: Реализуем Median-Mean Blend (Смешивание) ---
+                        // Берем вес из структуры: curr_dtp_3->median_weight или используем локальный (0.5f по ТЗ) [1]
+                        float w_med = curr_dtp_3->median_weight;
+
+                        float w_mean = 1.0f - w_med;
+
+                        float blended_dx_px = (median_dx * w_med) + (mean_dx * w_mean);
+                        float blended_dy_px = (median_dy * w_med) + (mean_dy * w_mean);
+
+                        // --- Г: Перевод пикселей в физические миллиметры ---
+                        float mm_scale = controlled_mask->mm_in_pixel; 
+
+                        // Записываем финальные калибровочные константы в структуру видео (уже в мм!)
+                        curr_dtp_3->reference_dx = blended_dx_px * mm_scale;
+                        curr_dtp_3->reference_dy = blended_dy_px * mm_scale;
+
+
+                        if (FPC_TEST_MODE)
+                        {
+                            std::cout << ">>> Калибровка завершена успешно! Найдено пар: " << all_dx.size() << std::endl;
+                            std::cout << ">>> [Медиана] dx: " << median_dx << " px, dy: " << median_dy << " px" << std::endl;
+                            std::cout << ">>> [Среднее] dx: " << mean_dx << " px, dy: " << mean_dy << " px" << std::endl;
+                        }
+
+                    }
+                    else
+                    {
+                        if (FPC_TEST_MODE)
+                        {
+                            std::cout << "[WARN] Не удалось найти крайние пары. Установлен масштабированный дефолтный фолбэк." << std::endl;
+                        }
+                    }
+                                                        
                     
                     if (FPC_TEST_MODE)
                     {
@@ -1096,6 +1307,11 @@ void opencv_calculation_global_update()
 
                         std::cout << "\nVideo mean light percentage: " << curr_dtp_2->video_mean_light_power_percentage << std::endl;
                         std::cout << "\nVideo mean light percentage delta (% / frame): " << curr_dtp_2->mean_light_power_delta_between_frames << std::endl;
+                    
+                    
+                        std::cout << ">>> Опорное смещение факела (Бленд в ММ): reference_dx = " << curr_dtp_3->reference_dx 
+                        << " мм, reference_dy = " << curr_dtp_3->reference_dy << " мм" << std::endl;
+                    
                     }
 
                     curr_dtp_2->calculated = true;
@@ -2185,6 +2401,13 @@ void processing_stage_3_1(cv::Mat* current_mat)
     // We work with 2nd part of the mask, so it's always true
     bool to_proc = true;
 
+
+    // Temporary container for the frame points, 
+    // which will be passed inside frames_points container inside processing_3_data
+    // for current file by data_to_process_3 pass-variable
+    std::vector<desc_c_2D> current_frame_points;
+    
+
     if (to_proc)
     {
         /*
@@ -2620,6 +2843,40 @@ void processing_stage_3_1(cv::Mat* current_mat)
             }
 
 
+
+            // ===== 1.1. Описываем вокруг контура строгий геометрический прямоугольник =====
+
+            cv::Rect rect = cv::boundingRect(contour);
+
+            // Считаем площадь этого прямоугольника
+            double rect_area = static_cast<double>(rect.width * rect.height);
+            
+            // Вычисляем плотность заполнения (Solidity)
+            double solidity = rect_area > 0.0 ? contour_area / rect_area : 0.0;
+
+            // ===== 1.2. ФИЛЬТР КЛЯКС: Если контур сплошной и плотный (solidity > 0.65) — ПРОПУСКАЕМ ЕГО.
+            // Также страхуемся от аномально огромных конгломератов по габаритам (> 45 пикселей). =====
+
+            if (solidity > 0.65 || rect.width > 45 || rect.height > 45)
+            {
+                continue; // "Убираем" заполненное пятно, переходя к следующему контуру
+            }
+
+            
+            // ===== 1.3. Вычисляем точные координаты геометрического центра этой рамки =====
+
+            // ЕСЛИ ОБЪЕКТ ПРОШЕЛ ВСЕ ФИЛЬТРЫ — ОН ПОЛЫЙ И ПРАВИЛЬНЫЙ
+
+            desc_c_2D point;
+
+            point.x = rect.x + rect.width / 2;
+            point.y = rect.y + rect.height / 2;
+            
+
+            // Закидываем точку в контейнер текущего кадра
+            current_frame_points.push_back(point);
+
+
             // -------------------------------------------------------------------------------
             // ACCEPT CONTOUR
             //
@@ -2692,37 +2949,23 @@ void processing_stage_3_1(cv::Mat* current_mat)
         //         ↓
         //     LENGTH FILTER
         //         ↓
+        //   POINTS DETECTION
+        //         ↓
+        //   POINTS PASS
+        //         ↓
         //     FINAL MASK
         //
-        //
-        // Поэтому теперь FINAL MASK становится новым FIRST MASK.
-        //
-        // Это удобно, потому что ниже по pipeline уже не нужно
-        // создавать отдельную переменную для результата:
-        //
-        //     first_mask
-        //
-        // просто начинает означать "итоговую маску текущего этапа".
-        //
-        //
-        // После этой строки:
-        //
-        //     first_mask
-        //
-        // содержит только те области, которые:
-        //
-        //     1. прошли HSV-фильтр;
-        //     2. дали Canny-контур;
-        //     3. после DILATE сформировали contour;
-        //     4. прошли AREA;
-        //     5. прошли LENGTH.
-        //
-        //
-        // То есть это уже очищенный FINAL RESULT.
 
+
+        // ===== 1.4. Видео закончит обрабатывать этот кадр: сохраняем весь "мешочек" в глобальный архив видео
+        // frame_points — это ваш std::vector<std::vector<desc_c_2D>>
+        data_to_process_3->frames_points.push_back(current_frame_points);
 
         first_mask = final_mask;
-    }
+
+    }   // if (to_proc) { } ... }
+
+
 
     // =======================================================================================
     // TRANSLATE BACK TO BGR AND SHOW
@@ -2734,6 +2977,32 @@ void processing_stage_3_1(cv::Mat* current_mat)
         final_mask_bgr,
         cv::COLOR_GRAY2BGR
     );
+
+
+
+    if (FPC_TEST_MODE)
+    {
+        // ===== 1.5. Добавляем отрисовку найденного центра (точки) =====
+
+
+        // cv::Scalar(0, 0, 255) — это чистый КРАСНЫЙ цвет в OpenCV (палитра BGR)
+        // 3 — радиус точки в пикселях (можно поставить 2, если покажется крупной)
+        // -1 — заполнить точку целиком
+
+        for (const auto& point : current_frame_points)
+        {
+            // cv::Scalar(0, 0, 255) — это чистый КРАСНЫЙ цвет в OpenCV (палитра BGR)
+            // 3 — радиус точки в пикселях (можно поставить 2, если покажется крупной)
+            // -1 — заполнить точку целиком
+            cv::circle(
+                final_mask_bgr,
+                cv::Point(point.x, point.y),
+                1,
+                cv::Scalar(0, 0, 255),
+                -1
+            );
+        }
+    }
 
     final_mask_bgr.copyTo(*current_mat);
 }

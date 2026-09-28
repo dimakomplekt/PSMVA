@@ -294,9 +294,134 @@ struct processing_2_data
 };
 
 
-// 2rd mask processing output ctx
+
+
+/*
+
+ * Processing 3 performs particle tracking between consecutive video frames.
+ * The processing is divided into a preliminary pass and a main tracking pass.
+ * During the preliminary pass, extreme particles are matched between consecutive
+ * frames to obtain typical particle displacement values (dx, dy) for the video.
+ *
+ * The main pass uses these typical displacements to associate particle center
+ * points between consecutive frames. Candidate pairs are evaluated by the
+ * similarity of their coordinate displacement to the typical displacement,
+ * taking into account the expected particle movement direction. Conflicting
+ * assignments are resolved by keeping the pair with the highest correspondence
+ * score, while unmatched particles are moved to a remaining-points container
+ * and processed again until no sufficiently reliable matches remain.
+ *
+ * The resulting frame-to-frame particle pairs are stored for further calculation
+ * of particle movement characteristics, including displacement, velocity and
+ * movement angle. The obtained characteristics may subsequently be used to
+ * refine the typical displacement values and repeat the tracking pass.
+ * 
+ */
+
+
+ // Single track information
+ struct single_track
+ {
+
+    float length;       // mm
+
+    float speed;        // meters per second
+
+    float angle;        // Degrees from 180 to -180
+
+ }; 
+
+
+// 3rd mask processing output ctx
 struct processing_3_data
 {
+
+    // ===== Setup =====
+
+
+    // Right-side frame zones used for extreme particle detection
+
+
+    float zone_1_x_min_c = 0.65;                                            // zone_1: x > 0.6 * frame_width
+    float zone_2_x_min_c = 0.75;                                            // zone_2: x > 0.7 * frame_width
+
+    float zone_1_x_max_c = 0.85;                                            // zone_1: x < 0.8 * frame_width
+    float zone_2_x_max_c = 0.95;                                            // zone_2: x < 0.9 * frame_width
+
+
+    // Allowed deviation from the main flow direction used for track classification.
+    // Checks trigger if the value goes above (100 + X)% or below (95 - X)%.
+    float deflection_percentage = 5;
+
+        
+    // Answer characteristics use a median-mean blend.
+    // Initial median weight is 0.5.
+    // During the study, weights from 0 to 1 with a step of 0.25 will be tested.
+    float median_weight = 0.5f;
+
+
+    // ===== Setup =====
+
+
+    // ===== First pass =====
+
+    // Particle center points detected on each video frame
+    std::vector<std::vector<desc_c_2D>> frames_points;
+
+    // Extreme point pairs matched between consecutive frames during the 1st pass
+    std::vector<std::array<desc_c_2D, 2>> frames_extreme_pairs;
+
+    // By median-mean blend (depended on median_weight)
+
+    float reference_dx;                                                // Typical delta value by 1st pass analysis
+    float reference_dy;                                                // Typical delta value by 1st pass analysis
+
+    // ===== First pass =====
+
+
+    // ===== Second pass =====
+
+    // TODO: remove
+    // remove this comments after realization
+
+    // this vector will be translated to the:
+
+    // Container of matched particle points between consecutive frames.
+    // Each pair contains a point from frame n and its corresponding point from frame n + 1.
+    // Uses for final calculation
+    // std::vector<std::array<desc_c_2D, 2>> tracks_points;
+
+    // and this vector will be translated to the:
+
+    // Tracks containers with separation
+
+    std::vector<single_track> tracks;               // Shared container
+
+    std::vector<single_track> straight_tracks;      // Tracks outside deviation zone
+
+    std::vector<single_track> deflected_tracks;     // Tracks inside deviation zone
+
+    // ===== Second pass =====
+
+
+    // ===== Answer =====
+
+    // All data by 0.x median + 0.y mean blend (by median_weight)
+
+    // NOTE: Expected tracks angles values are mostly within 0 to -90 degrees.
+
+    float main_angle;                              // In degrees from -180 to 180 by the 0 at the main axe, founded at the step 1
+
+    float main_speed;                              // m/s only for straight tracks
+
+    float deviation_angle;                         // In degrees from -180 to 180 by the 0 at the main_angle, founded at this calculation
+
+    float deviation_speed;                         // m/s only for deviated tracks                      
+
+    float deviation_percentage;                    // size of deflected_tracks container / size of tracks container * 100
+
+    // ===== Answer =====
+
 
 };
 
