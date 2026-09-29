@@ -972,7 +972,7 @@ void opencv_calculation_global_update()
 
 // ====================================================================================== Global video statistics calculation (Outside the frame loop) =====
 
-                    // 1.1 Вычисляем общее среднее мощности света по всему видео
+                    // ===== 1.1.1 Average light power inside video frames (%) ===== 
 
                     if (!data_to_process_2->frames_mean_light_power_percentage.empty()) 
                     {
@@ -996,7 +996,7 @@ void opencv_calculation_global_update()
                     }
 
 
-                    // 1.1 Вычисляем среднюю дельту по мощности светового излучения между кадрами для всего видео (в процентах)
+                    // ===== 1.1.2 Average light power delta between frames (%)
                     
                     if (!data_to_process_2->frames_mean_light_power_percentage.empty())
                     {
@@ -1026,8 +1026,9 @@ void opencv_calculation_global_update()
                     }
 
 
-                    // 2. Вычисляем общую медиану амплитуды струи по всему видео
-                    // Фильтруем нули (кадры без струи), чтобы они не ломали медиану для всего видеоролика
+                    // ===== 2. Median arc width for the whole video =====
+                    
+                    // Zeroes width cases are filtered!
                     
                     std::vector<float> valid_video_jet_amplitudes;
 
@@ -1077,9 +1078,11 @@ void opencv_calculation_global_update()
 
 
 
-                    // 3. Вычисляем reference_dx и reference_dy для текущего видео по std::vector<std::vector<desc_c_2D>> frames_points;
+                    // ===== 3. Calculate the reference_dx and reference_dy for current video =====
+                    
+                    // By std::vector<std::vector<desc_c_2D>> frames_points;
 
-                    // Из условий для текущего видео - curr_dtp_3-> : 
+                    // And - curr_dtp_3-> : 
 
                     /*
 
@@ -1090,66 +1093,54 @@ void opencv_calculation_global_update()
                         float zone_2_x_max_c = 0.9;                                            // zone_2: x < 0.9 * frame_width
 
 
-                        C логикой:
+                        For each frame `i`, analyzes feature points to find structural anchors and calculate typical displacements:
 
-                        для curr_dtp_3->frames_points[i + 1][все точки] ищем нижнюю левую точку в области от 0.7 до 0.9 fw
-                        после чего для curr_dtp_3->frames_points[i][все точки] ищем первую точку левее и выше найденной точки для i + 1
-                        в области от 0.6 до 0.8 fw 
-
-                        если есть такие точки, то пушим их в 
-
-                        std::vector<std::array<desc_c_2D, 2>> frames_extreme_pairs;
-
-                        через curr_dtp_3->frames_extreme_pairs.push_back
-
-                        если нет итерируемся дальше
-
-                        в самом конце находим
-
-                        // By median-mean blend (depended on median_weight)
-
-                        float reference_dx;                                                // Typical delta value by 1st pass analysis
-                        float reference_dy;                                                // Typical delta value by 1st pass analysis
-
-
-                        у того же curr_dtp_3->
+                        1. In `frames_points[i + 1]`, locates the bottom-left point within the horizontal range of [0.7, 0.9] * fw.
+                        2. In `frames_points[i]`, searches for the first point that is both to the left and above the anchor found in step 1,
+                           restricted to the horizontal range of [0.6, 0.8] * fw.
+                        3. If a valid pair of points is found, stores it in `frames_extreme_pairs` as `std::array<desc_c_2D, 2>`.
+                        4. After iterating through all frames, computes the typical displacement values (`reference_dx` and `reference_dy`)
+                           using a median-mean blend algorithm (weighted by `median_weight`).
+                           
                     */
 
 
                     // =======================================================================================
-                    // ПЕРВЫЙ ПРОХОД: КАЛИБРОВКА И ПОИСК ОПОРНЫХ СМЕЩЕНИЙ ПО КРАЙНИМ ТОЧКАМ
+                    // 1st pass logic - calibrate the reference dx and dy by bottom rigth extrema tracks points
                     // =======================================================================================
 
-                    // Буфер для хранения разностей координат успешных пар
+                    // Buffers for deltas
                     std::vector<float> all_dx;
                     std::vector<float> all_dy;
 
-                    // Ширина кадра
+                    // Frame width
                     int frame_width = video_data.width; 
 
 
-                    // Задаем физические границы зон на основе ваших коэффициентов
+                    // Borders 
+
                     float zone_1_x_min = curr_dtp_3->zone_1_x_min_c * frame_width;          // 0.6 * fw
                     float zone_1_x_max = curr_dtp_3->zone_1_x_max_c * frame_width;          // 0.8 * fw
 
                     float zone_2_x_min = curr_dtp_3->zone_2_x_min_c * frame_width;          // 0.7 * fw
                     float zone_2_x_max = curr_dtp_3->zone_2_x_max_c * frame_width;          // 0.9 * fw
 
+
+                    // Quantity of frames
                     size_t total_frames = curr_dtp_3->frames_points.size();
 
 
                     if (total_frames > 1)
                     {
-                        // Итерируемся по парам кадров (от 0 до N-1)
                         for (size_t i = 0; i < total_frames - 1; ++i)
                         {
                             const auto& points_n   = curr_dtp_3->frames_points[i];
                             const auto& points_n1  = curr_dtp_3->frames_points[i + 1];
 
 
-                            // 1. Ищем НИЖНЮЮ ПРАВУЮ точку на кадре (i + 1) в зоне 2 (от 0.7 до 0.9 fw)
-                            // В SDL/OpenCV ориентации нижняя точка имеет МАКСИМАЛЬНЫЙ y, а правая — МАКСИМАЛЬНЫЙ x.
-                            // Ищем точку, которая ближе всего к правому нижнему углу этой зоны.
+                            // 1. Find the BOTTOM-RIGHT point in frame (i + 1) within Zone 2 (0.7 to 0.9 * fw).
+                            // In SDL/OpenCV coordinate systems, the bottommost point has the MAXIMUM y, and the rightmost has the MAXIMUM x.
+                            // Look for the point closest to the bottom-right corner of this zone.
 
                             desc_c_2D pt_n1 = { -1, -1 };
                             float max_metric_n1 = -1.0f;
@@ -1169,13 +1160,13 @@ void opencv_calculation_global_update()
                                 }
                             }
 
-                            // Если на кадре i + 1 подходящая крайняя точка не найдена, идем к следующему кадру
+                            // If no point - go to the next case
                             if (pt_n1.x == -1) continue;
 
 
-                            // 2. Ищем опорную точку на кадре (i) в зоне 1 (от 0.6 до 0.8 fw)
-                            // Логика: точка должна быть ЛЕВЕЕ (x_n < x_n1) и ВЫШЕ (y_n < y_n1) относительно найденной pt_n1
-                            // Из всех подходящих берем ту, у которой минимальное отклонение по Y (наименьшая дельта y_n1 - y_n)
+                            // 2. Locate the reference point in frame (i) within Zone 1 (0.6 to 0.8 * fw).
+                            // Logic: The point must be to the LEFT (x_n < x_n1) and ABOVE (y_n < y_n1) relative to the found pt_n1.
+                            // From all valid candidates, select the one with the minimal Y deviation (smallest delta: y_n1 - y_n).
 
                             desc_c_2D pt_n = { -1, -1 };
 
@@ -1187,13 +1178,16 @@ void opencv_calculation_global_update()
                             {
                                 if (pt.x > zone_1_x_min && pt.x < zone_1_x_max)
                                 {
-                                    // Проверка физических ограничений направления (левее и выше)
+                                    // Check limitations
+
                                     if (pt.x < pt_n1.x && pt.y < pt_n1.y)
                                     {
                                         float delta_y = static_cast<float>(pt_n1.y - pt.y);
+
                                         if (delta_y < min_delta_y)
                                         {
                                             min_delta_y = delta_y;
+
                                             pt_n = pt;
                                         }
                                     }
@@ -1201,17 +1195,19 @@ void opencv_calculation_global_update()
                             }
 
                             
-                            // 3. Если ОБЕ точки успешно нашлись, фиксируем экстремальную пару кадра
+                            // 3. If BOTH points are successfully found, register the extreme pair for the frame.
+
                             if (pt_n.x != -1)
                             {
-                                // Сохраняем пару в структуру для истории/отладки
+                                // Save the pair
                                 std::array<desc_c_2D, 2> pair_nodes = { pt_n, pt_n1 };
                                 curr_dtp_3->frames_extreme_pairs.push_back(pair_nodes);
 
-                                // Вычисляем дельты пикселей для этой пары
+                                // Calculate deltas
                                 float dx = static_cast<float>(pt_n1.x - pt_n.x);
                                 float dy = static_cast<float>(pt_n1.y - pt_n.y);
 
+                                // Add deltas
                                 all_dx.push_back(dx);
                                 all_dy.push_back(dy);
                             }
@@ -1220,7 +1216,7 @@ void opencv_calculation_global_update()
 
                         
                     // =======================================================================================
-                    // 4. КОНЕЧКА: Расчет глобальных опорных смещений через бленд медианы и среднего (в мм)
+                    // 4. Ending part: Calculate global reference displacements using a median-mean blend (in mm).
                     // =======================================================================================
 
                     nozzle_detection_mask* controlled_mask = &nozzle_mask_to_process;
@@ -1230,8 +1226,10 @@ void opencv_calculation_global_update()
                     {
                         size_t mid_index = all_dx.size() / 2;
 
-                        // --- А: Вычисляем медианные значения дельт ---
-                        // Копируем массивы, так как nth_element частично перестроит исходные данные
+
+                        // --- A: Calculate median delta values ---
+                        // Copy the arrays, as nth_element will partially reorder the source data.
+
                         std::vector<float> median_dx_vec = all_dx;
                         std::vector<float> median_dy_vec = all_dy;
                         
@@ -1244,7 +1242,7 @@ void opencv_calculation_global_update()
                         float median_dy = median_dy_vec[mid_index];
 
 
-                        // --- Б: Вычисляем средние арифметические значения дельт через std::accumulate ---
+                        // --- B: Calculate arithmetic mean delta values using std::accumulate ---
 
                         float sum_dx = std::accumulate(all_dx.begin(), all_dx.end(), 0.0f);
                         float sum_dy = std::accumulate(all_dy.begin(), all_dy.end(), 0.0f);
@@ -1253,8 +1251,9 @@ void opencv_calculation_global_update()
                         float mean_dy = sum_dy / static_cast<float>(all_dy.size());
 
 
-                        // --- В: Реализуем Median-Mean Blend (Смешивание) ---
-                        // Берем вес из структуры: curr_dtp_3->median_weight или используем локальный (0.5f по ТЗ) [1]
+                        // --- C: Implement Median-Mean Blend ---
+                        // Take the weight from the structure (curr_dtp_3->median_weight) or use the local default (0.5f per specifications).
+
                         float w_med = curr_dtp_3->median_weight;
 
                         float w_mean = 1.0f - w_med;
@@ -1262,10 +1261,14 @@ void opencv_calculation_global_update()
                         float blended_dx_px = (median_dx * w_med) + (mean_dx * w_mean);
                         float blended_dy_px = (median_dy * w_med) + (mean_dy * w_mean);
 
-                        // --- Г: Перевод пикселей в физические миллиметры ---
+
+                        // --- D: Convert pixels into physical millimeters ---
+
                         float mm_scale = controlled_mask->mm_in_pixel; 
 
-                        // Записываем финальные калибровочные константы в структуру видео (уже в мм!)
+
+                        // Save final calibration constants into the video structure (already in mm!)
+
                         curr_dtp_3->reference_dx = blended_dx_px * mm_scale;
                         curr_dtp_3->reference_dy = blended_dy_px * mm_scale;
 
@@ -2957,8 +2960,10 @@ void processing_stage_3_1(cv::Mat* current_mat)
         //
 
 
-        // ===== 1.4. Видео закончит обрабатывать этот кадр: сохраняем весь "мешочек" в глобальный архив видео
-        // frame_points — это ваш std::vector<std::vector<desc_c_2D>>
+        // ===== 1.4. Cохраняем весь набор в глобальный архив видео =====
+
+        // frame_points — это std::vector<std::vector<desc_c_2D>>
+
         data_to_process_3->frames_points.push_back(current_frame_points);
 
         first_mask = final_mask;
@@ -2973,9 +2978,11 @@ void processing_stage_3_1(cv::Mat* current_mat)
     cv::Mat final_mask_bgr;
 
     cv::cvtColor(
+
         first_mask,
         final_mask_bgr,
         cv::COLOR_GRAY2BGR
+
     );
 
 
