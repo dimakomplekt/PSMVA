@@ -25,6 +25,10 @@
 #include "../1.1_FILE_CHOOSE/1.1_FILE_CHOOSE.h"
 
 
+#include <cmath>
+
+
+
 // =========================================================================================== IMPORT
 
 
@@ -503,12 +507,18 @@ void opencv_calculation_global_setup()
 
         // 1 pass for 1, 2, 3.1 and 1 pass for 3.2
 
-        if (file_1_need_init) total_frames += 2 * files_metadata.video_1_data.frames_quantity;
-        if (file_2_need_init) total_frames += 2 * files_metadata.video_2_data.frames_quantity;
-        if (file_3_need_init) total_frames += 2 * files_metadata.video_3_data.frames_quantity;
-        if (file_4_need_init) total_frames += 2 * files_metadata.video_4_data.frames_quantity;
-        if (file_5_need_init) total_frames += 2 * files_metadata.video_5_data.frames_quantity;
-        if (file_6_need_init) total_frames += 2 * files_metadata.video_6_data.frames_quantity;
+        // Formula explanation: (2 * frames_quantity) - 1
+        // Each video requires 2 global passes:
+        // 1st pass: Processes each individual frame (N operations for N frames).
+        // 2nd pass: Processes consecutive frame pairs (N - 1 operations for N frames).
+        // Total operations per video = N + (N - 1) = 2N - 1.
+
+        if (file_1_need_init) total_frames += 2 * files_metadata.video_1_data.frames_quantity - 1;
+        if (file_2_need_init) total_frames += 2 * files_metadata.video_2_data.frames_quantity - 1;
+        if (file_3_need_init) total_frames += 2 * files_metadata.video_3_data.frames_quantity - 1;
+        if (file_4_need_init) total_frames += 2 * files_metadata.video_4_data.frames_quantity - 1;
+        if (file_5_need_init) total_frames += 2 * files_metadata.video_5_data.frames_quantity - 1;
+        if (file_6_need_init) total_frames += 2 * files_metadata.video_6_data.frames_quantity - 1;
 
         state_progress_bar.operations_count = total_frames;
 
@@ -606,6 +616,7 @@ void kingsize_window_close_fpc()
 {
     cv::destroyWindow("KINGSIZE_TEST");
 }
+
 
 
 void opencv_calculation_global_update()
@@ -940,17 +951,17 @@ void opencv_calculation_global_update()
                 opencv_global_calculation_update_ctx.global_operation = PROCESSING_STAGE_1_CGO;
 
                 opencv_global_calculation_update_ctx.operation = MASK_1_PROCESSING_CO;
-                opencv_global_calculation_update_ctx.current_frame_processor = processing_stage_1;
-                opencv_global_calculation_update_ctx.current_frame_processor(calculation_cv_mat_mask_1_global);
+                opencv_global_calculation_update_ctx.current_frame_processor = processing_stage_1; // set
+                opencv_global_calculation_update_ctx.current_frame_processor(calculation_cv_mat_mask_1_global); // call
 
 
                 opencv_global_calculation_update_ctx.operation = MASK_2_PROCESSING_CO;
-                opencv_global_calculation_update_ctx.current_frame_processor = processing_stage_2;
-                opencv_global_calculation_update_ctx.current_frame_processor(calculation_cv_mat_mask_2_global);
+                opencv_global_calculation_update_ctx.current_frame_processor = processing_stage_2; // set
+                opencv_global_calculation_update_ctx.current_frame_processor(calculation_cv_mat_mask_2_global); // call
 
                 opencv_global_calculation_update_ctx.operation = MASK_3_1_PROCESSING_CO;
-                opencv_global_calculation_update_ctx.current_frame_processor = processing_stage_3_1;
-                opencv_global_calculation_update_ctx.current_frame_processor(calculation_cv_mat_mask_3_global);
+                opencv_global_calculation_update_ctx.current_frame_processor = processing_stage_3_1; // set
+                opencv_global_calculation_update_ctx.current_frame_processor(calculation_cv_mat_mask_3_global); // call
 
 
                 // Update frame
@@ -1128,6 +1139,22 @@ void opencv_calculation_global_update()
 
                     // Quantity of frames
                     size_t total_frames = curr_dtp_3->frames_points.size();
+
+                    // Error case
+                    if (total_frames <= 0) 
+                    {
+                        std::cout << "ERROR ERROR ERROR\n\n" << std::endl;
+                        return;
+                    }
+                    
+
+                    // ===== !!! ATTENTION !!! =====
+
+                    // Set the counter for the next step (processing 3.2)
+                    curr_dtp_3->frames_points_vectors_count = total_frames - 1;
+
+                    
+                    // ===== !!! ATTENTION !!! =====
 
 
                     if (total_frames > 1)
@@ -1333,19 +1360,512 @@ void opencv_calculation_global_update()
                 opencv_global_calculation_update_ctx.global_operation = PROCESSING_STAGE_2_CGO;
 
 
+                // Here we must not only set the processing, but pass the particles vector pair
+                // and increment the counter of processed pairs to go through vectors iteration cycle
+                // without stopping of the other program processes
+
                 opencv_global_calculation_update_ctx.operation = MASK_3_2_PROCESSING_CO;
-                opencv_global_calculation_update_ctx.current_frame_processor = processing_stage_3_2;
-                opencv_global_calculation_update_ctx.current_frame_processor(calculation_cv_mat_mask_3_global);
+                opencv_global_calculation_update_ctx.current_frame_processor = processing_stage_3_2; // set
 
+                opencv_global_calculation_update_ctx.current_frame_processor(calculation_cv_mat_mask_3_global); // call
+                
 
+                // Increment the operations counter
+                curr_dtp_3->frames_points_vectors_counter += 1;
+
+                // This one will work as (curr_dtp_3->frames_points_vectors_counter <= curr_dtp_3->frames_points_vectors_count)
                 opencv_global_calculation_update_ctx.current_frame_index += 1;
 
 
-                // Check if wee need to over 2nd stage
+
+                // Check if the current video file has reached its absolute end for Stage 2.
+                // Since 'total_frame_count' represents the operations limit for the CURRENT active video only
+                // (calculated as N frames + (N - 1) pairs = 2N - 1) and 'current_frame_index' resets per video,
+                // hitting this condition means the current file is fully processed.
+                // 
+                // Next steps handling:
+                // - If there are more videos remaining: trigger switch_video(), update context, and set need_reset = true.
+                // - If this was the last video file: officially mark data_to_control->stage_2_end = true.
 
                 if (opencv_global_calculation_update_ctx.current_frame_index == 
                     opencv_global_calculation_update_ctx.total_frame_count)
                 {
+
+                    // ====== Calculate the answers for stage 3.2 ======
+
+                    /*
+                        Answers:
+
+                            float main_angle;               // In degrees from -180 to 180 by the 0 at the main axe, founded at the step 1
+
+                            float main_speed;               // m/s for all tracks
+
+                            float straight_speed;           // m/s only for straight tracks
+
+                            float deviation_angle;          // In degrees from -180 to 180 by the 0 at the main_angle, founded at this calculation
+
+                            float deviation_speed;          // m/s only for deviated tracks
+
+                            float deviation_percentage;     // Size of deviated_tracks / size of tracks * 100
+                    */
+
+
+                    // -------------------------------------------------------------------------
+                    // Helpers
+                    // -------------------------------------------------------------------------
+
+                    auto normalize_angle = [](float angle) -> float
+                    {
+                        while (angle > 180.0f)
+                            angle -= 360.0f;
+
+                        while (angle < -180.0f)
+                            angle += 360.0f;
+
+                        return angle;
+                    };
+
+
+                    auto calculate_mean = [](const std::vector<single_track>& tracks,
+                                             bool use_speed) -> float
+                    {
+                        if (tracks.empty())
+                            return 0.0f;
+
+                        float sum = 0.0f;
+
+                        for (const single_track& track : tracks)
+                        {
+                            sum += use_speed
+                                ? track.speed
+                                : track.angle;
+                        }
+
+                        return sum / static_cast<float>(tracks.size());
+                    };
+
+
+                    auto calculate_median = [](const std::vector<single_track>& tracks,
+                                               bool use_speed) -> float
+                    {
+                        if (tracks.empty())
+                            return 0.0f;
+
+                        std::vector<float> values;
+                        values.reserve(tracks.size());
+
+                        for (const single_track& track : tracks)
+                        {
+                            values.push_back(
+                                use_speed
+                                    ? track.speed
+                                    : track.angle
+                            );
+                        }
+
+                        const size_t middle = values.size() / 2;
+
+                        std::nth_element(
+                            values.begin(),
+                            values.begin() + middle,
+                            values.end()
+                        );
+
+                        if (values.size() % 2 != 0)
+                        {
+                            return values[middle];
+                        }
+
+                        const float upper = values[middle];
+
+                        std::nth_element(
+                            values.begin(),
+                            values.begin() + middle - 1,
+                            values.end()
+                        );
+
+                        const float lower = values[middle - 1];
+
+                        return (lower + upper) * 0.5f;
+                    };
+
+
+                    // -------------------------------------------------------------------------
+                    // Input data
+                    // -------------------------------------------------------------------------
+
+                    const float nozzle_axe_angle =
+                        curr_dtp_1->nozzle_axe_angle;
+
+
+                    const float median_weight =
+                        curr_dtp_3->median_weight;
+
+                    const float mean_weight =
+                        1.0f - median_weight;
+
+
+                    std::vector<single_track>& tracks = curr_dtp_3->tracks;
+
+
+                    // Nothing to calculate
+                    if (tracks.empty())
+                    {
+                        curr_dtp_3->main_angle = 0.0f;
+                        curr_dtp_3->main_speed = 0.0f;
+                        curr_dtp_3->straight_speed = 0.0f;
+                        curr_dtp_3->deviation_angle = 0.0f;
+                        curr_dtp_3->deviation_speed = 0.0f;
+                        curr_dtp_3->deviation_percentage = 0.0f;
+                    }
+                    else
+                    {
+                        // ---------------------------------------------------------------------
+                        // Calculate statistics for ALL tracks
+                        // ---------------------------------------------------------------------
+
+                        const float tracks_median_speed =
+                            calculate_median(tracks, true);
+
+                        const float tracks_mean_speed =
+                            calculate_mean(tracks, true);
+
+
+                        const float tracks_median_angle =
+                            calculate_median(tracks, false);
+
+                        const float tracks_mean_angle =
+                            calculate_mean(tracks, false);
+
+
+                        // Median + mean blend
+                        const float blended_angle =
+                            tracks_median_angle * median_weight +
+                            tracks_mean_angle * mean_weight;
+
+
+                        const float blended_speed =
+                            tracks_median_speed * median_weight +
+                            tracks_mean_speed * mean_weight;
+
+
+                        // Main angle is expressed relative to the nozzle axis.
+                        curr_dtp_3->main_angle = normalize_angle(blended_angle - nozzle_axe_angle);
+
+                        curr_dtp_3->main_speed = blended_speed;
+
+
+                        // ---------------------------------------------------------------------
+                        // Determine angular deviation boundary
+                        // ---------------------------------------------------------------------
+
+                        const float minimal_deviation_angle = 10.0f;
+
+
+                        const float deviation_angle_limit =
+                            std::max(
+                                minimal_deviation_angle,
+                                std::abs(blended_angle) *
+                                curr_dtp_3->deflection_percentage / 100.0f
+                            );
+
+
+
+                        // ---------------------------------------------------------------------
+                        // Split tracks into straight / deviated
+                        // ---------------------------------------------------------------------
+
+                        curr_dtp_3->straight_tracks.clear();
+                        curr_dtp_3->deviated_tracks.clear();
+
+                        curr_dtp_3->straight_tracks.reserve(tracks.size());
+                        curr_dtp_3->deviated_tracks.reserve(tracks.size());
+
+
+                        for (const single_track& track : tracks)
+                        {
+                            const float angle_difference =
+                                normalize_angle(
+                                    track.angle - blended_angle
+                                );
+
+                            if (std::abs(angle_difference) >
+                                deviation_angle_limit)
+                            {
+                                curr_dtp_3->deviated_tracks.push_back(track);
+                            }
+                            else
+                            {
+                                curr_dtp_3->straight_tracks.push_back(track);
+                            }
+                        }
+
+
+                        // ---------------------------------------------------------------------
+                        // Straight tracks statistics
+                        // ---------------------------------------------------------------------
+
+                        const float straight_tracks_median_angle =
+                            calculate_median(
+                                curr_dtp_3->straight_tracks,
+                                false
+                            );
+
+                        const float straight_tracks_mean_angle =
+                            calculate_mean(
+                                curr_dtp_3->straight_tracks,
+                                false
+                            );
+
+
+                        const float straight_tracks_median_speed =
+                            calculate_median(
+                                curr_dtp_3->straight_tracks,
+                                true
+                            );
+
+                        const float straight_tracks_mean_speed =
+                            calculate_mean(
+                                curr_dtp_3->straight_tracks,
+                                true
+                            );
+
+
+                        // Straight speed
+                        curr_dtp_3->straight_speed =
+                            straight_tracks_median_speed * median_weight +
+                            straight_tracks_mean_speed * mean_weight;
+
+
+                        // ---------------------------------------------------------------------
+                        // Deviated tracks statistics
+                        // ---------------------------------------------------------------------
+
+                        const float deviated_tracks_median_angle =
+                            calculate_median(
+                                curr_dtp_3->deviated_tracks,
+                                false
+                            );
+
+                        const float deviated_tracks_mean_angle =
+                            calculate_mean(
+                                curr_dtp_3->deviated_tracks,
+                                false
+                            );
+
+
+                        const float deviated_tracks_median_speed =
+                            calculate_median(
+                                curr_dtp_3->deviated_tracks,
+                                true
+                            );
+
+                        const float deviated_tracks_mean_speed =
+                            calculate_mean(
+                                curr_dtp_3->deviated_tracks,
+                                true
+                            );
+
+
+                        // ---------------------------------------------------------------------
+                        // Deviation answers
+                        // ---------------------------------------------------------------------
+
+                        if (!curr_dtp_3->deviated_tracks.empty())
+                        {
+                            const float deviated_blended_angle =
+                                deviated_tracks_median_angle * median_weight +
+                                deviated_tracks_mean_angle * mean_weight;
+
+
+                            const float deviated_blended_speed =
+                                deviated_tracks_median_speed * median_weight +
+                                deviated_tracks_mean_speed * mean_weight;
+
+
+                            // Deviation relative to the main flow direction.
+                            curr_dtp_3->deviation_angle =
+                                normalize_angle(
+                                    deviated_blended_angle -
+                                    blended_angle
+                                );
+
+
+                            curr_dtp_3->deviation_speed =
+                                deviated_blended_speed;
+                        }
+                        else
+                        {
+                            curr_dtp_3->deviation_angle = 0.0f;
+                            curr_dtp_3->deviation_speed = 0.0f;
+                        }
+
+
+                        // ---------------------------------------------------------------------
+                        // Percentage of deviated tracks
+                        // ---------------------------------------------------------------------
+
+                        curr_dtp_3->deviation_percentage =
+
+                            static_cast<float>(curr_dtp_3->deviated_tracks.size()) /
+                            static_cast<float>(tracks.size()) *
+                            100.0f;
+
+                            
+
+                        // ---------------------------------------------------------------------
+                        // TEST OUTPUT
+                        // ---------------------------------------------------------------------
+
+                        if (FPC_TEST_MODE)
+                        {
+                            std::cout << "\n";
+                            std::cout << "========== STAGE 3.2 TRACK RESULTS ==========\n";
+
+                            std::cout << "\n--- INPUT ---\n";
+                            std::cout << "Nozzle axe angle: "
+                                      << nozzle_axe_angle << " deg\n";
+
+                            std::cout << "Median weight: "
+                                      << median_weight << "\n";
+
+                            std::cout << "Mean weight: "
+                                      << mean_weight << "\n";
+
+
+                            std::cout << "\n--- ALL TRACKS ---\n";
+                            std::cout << "Tracks count: "
+                                      << tracks.size() << "\n";
+
+                            std::cout << "Median speed: "
+                                      << tracks_median_speed << " m/s\n";
+
+                            std::cout << "Mean speed: "
+                                      << tracks_mean_speed << " m/s\n";
+
+                            std::cout << "Median angle: "
+                                      << tracks_median_angle << " deg\n";
+
+                            std::cout << "Mean angle: "
+                                      << tracks_mean_angle << " deg\n";
+
+
+                            std::cout << "\n--- BLENDED MAIN FLOW ---\n";
+                            std::cout << "Blended speed: "
+                                      << blended_speed << " m/s\n";
+
+                            std::cout << "Blended angle: "
+                                      << blended_angle << " deg\n";
+
+                            std::cout << "Main angle relative to nozzle: "
+                                      << curr_dtp_3->main_angle << " deg\n";
+
+                            std::cout << "Main speed: "
+                                      << curr_dtp_3->main_speed << " m/s\n";
+
+
+                            std::cout << "\n--- CLASSIFICATION ---\n";
+                            std::cout << "Deflection percentage setting: "
+                                      << curr_dtp_3->deflection_percentage
+                                      << " %\n";
+
+                            std::cout << "Deviation angle limit: "
+                                      << deviation_angle_limit << " deg\n";
+
+                            std::cout << "Straight tracks count: "
+                                      << curr_dtp_3->straight_tracks.size()
+                                      << "\n";
+
+                            std::cout << "Deviated tracks count: "
+                                      << curr_dtp_3->deviated_tracks.size()
+                                      << "\n";
+
+
+                            std::cout << "\n--- STRAIGHT TRACKS ---\n";
+                            std::cout << "Median angle: "
+                                      << straight_tracks_median_angle
+                                      << " deg\n";
+
+                            std::cout << "Mean angle: "
+                                      << straight_tracks_mean_angle
+                                      << " deg\n";
+
+                            std::cout << "Median speed: "
+                                      << straight_tracks_median_speed
+                                      << " m/s\n";
+
+                            std::cout << "Mean speed: "
+                                      << straight_tracks_mean_speed
+                                      << " m/s\n";
+
+                            std::cout << "Straight speed: "
+                                      << curr_dtp_3->straight_speed
+                                      << " m/s\n";
+
+
+                            std::cout << "\n--- DEVIATED TRACKS ---\n";
+                            std::cout << "Median angle: "
+                                      << deviated_tracks_median_angle
+                                      << " deg\n";
+
+                            std::cout << "Mean angle: "
+                                      << deviated_tracks_mean_angle
+                                      << " deg\n";
+
+                            std::cout << "Median speed: "
+                                      << deviated_tracks_median_speed
+                                      << " m/s\n";
+
+                            std::cout << "Mean speed: "
+                                      << deviated_tracks_mean_speed
+                                      << " m/s\n";
+
+                            std::cout << "Deviation angle: "
+                                      << curr_dtp_3->deviation_angle
+                                      << " deg\n";
+
+                            std::cout << "Deviation speed: "
+                                      << curr_dtp_3->deviation_speed
+                                      << " m/s\n";
+
+                            std::cout << "Deviation percentage: "
+                                      << curr_dtp_3->deviation_percentage
+                                      << " %\n";
+
+
+                            std::cout << "\n--- FINAL ANSWERS ---\n";
+                            std::cout << "main_angle = "
+                                      << curr_dtp_3->main_angle
+                                      << " deg\n";
+
+                            std::cout << "main_speed = "
+                                      << curr_dtp_3->main_speed
+                                      << " m/s\n";
+
+                            std::cout << "straight_speed = "
+                                      << curr_dtp_3->straight_speed
+                                      << " m/s\n";
+
+                            std::cout << "deviation_angle = "
+                                      << curr_dtp_3->deviation_angle
+                                      << " deg\n";
+
+                            std::cout << "deviation_speed = "
+                                      << curr_dtp_3->deviation_speed
+                                      << " m/s\n";
+
+                            std::cout << "deviation_percentage = "
+                                      << curr_dtp_3->deviation_percentage
+                                      << " %\n";
+
+                            std::cout << "\n==============================================\n";
+                        }
+                    }
+
+                    // ====== Calculate the answers for stage 3.2 ======
+
+
+
                     data_to_control->stage_2_end = true;
 
 
@@ -2297,12 +2817,14 @@ void processing_stage_3_1(cv::Mat* current_mat)
                     FINAL MASK
     
     */
-    if (!current_mat || current_mat->empty())
-        return;
+
+    if (!current_mat || current_mat->empty()) return;
 
         
     // =======================================================================================
     // GET CONTROLLED MASK
+    // =======================================================================================
+
 
     // Get current particle mask settings.
 
@@ -3015,710 +3537,484 @@ void processing_stage_3_1(cv::Mat* current_mat)
 }
 
 
-void processing_stage_3_2(cv::Mat* current_mat)
+// ===== Stage 3.2 helpers =====
+
+// Analysis of all pairs
+void analyse_pairs(
+
+    std::vector<std::vector<pair_analysis_ctx>>& passed_analysis_matrix,
+    const std::vector<desc_c_2D>& passed_frame_n_points, 
+    const std::vector<desc_c_2D>& passed_frame_n_plus_points, 
+    float passed_t_dx, 
+    float passed_t_dy
+
+)
 {
-   /*
-                    ORIGINAL IMAGE
-                          │
-                          ▼
-                ┌───────────────────┐
-                │ Light Blur        │
-                │ optional          │
-                │ 1×1 / OFF         │
-                └─────────┬─────────┘
-                          │
-                          │
-                          ▼
-              ┌───────────────────────┐
-              │ Color Filter          │
-              │                       │
-              │ H/S/V min/max         │
-              └───────────┬───────────┘
-                          │
-                          ▼
-                    FIRST MASK
-                          │
-                          │
-                    ──────┼────── 
-                NEXT STEPS ARE INACTIVE IF 
-    masks_data.CURR_FILE_MASKS.particle_mask.controlled_submask != SUBMASK_2_CSM3
-                SO IF IT's SUBMASK_1_CSM3 we translate FIRST SUBMASK and stop processing
-                IT IT's SUBMASK_2_CSM3 we continue processing and apply the next steps
-                          │
-                          ▼
-                        CANNY
-                          │
-                          ▼
-                        DILATE
-                          │
-                          ▼
-                    AREA / LENGTH FILTERING
-                 min area / max area
-                 min length / max length
-                          │
-                          ▼
-                    FINAL MASK
-    
-    */
-    if (!current_mat || current_mat->empty())
-        return;
 
-        
-    // =======================================================================================
-    // GET CONTROLLED MASK
-
-    // Get current particle mask settings.
-
-    particle_detection_mask* controlled_mask = &particle_mask_to_process;
+    // Fill the passed_analysis_matrix by the results of frames points comparation
+    // and left the approved flag as false
 
 
-    // =======================================================================================
-    // CHECK HSV RANGE
+    // ===== !!! ATTENTION !!! =====
 
-    // The lower boundary must be strictly smaller than the upper boundary.
-    //
-    // H: 0..179
-    // S: 0..255
-    // V: 0..255
+    // Blend proportions!
 
-    if (
-        controlled_mask->h_min >= controlled_mask->h_max ||
-        controlled_mask->s_min >= controlled_mask->s_max ||
-        controlled_mask->v_min >= controlled_mask->v_max
-    )
+    float dx_blend_part = 0.5;
+    float dy_blend_part = 1.0 - dx_blend_part; 
+
+    // ===== !!! ATTENTION !!! =====
+
+
+    unsigned int f_n_size = passed_frame_n_points.size(); 
+    unsigned int f_n_p_size = passed_frame_n_plus_points.size();
+
+
+    // Matrix fill 
+    for (unsigned int i = 0; i < f_n_size; i++)
     {
-        return;
-    }
-
-
-    // =======================================================================================
-    // BGR -> HSV
-
-    // Convert the source current_mat from BGR to HSV with coloring.
-    //
-    // HSV allows us to independently control:
-    //
-    //      H = Hue
-    //      S = Saturation
-    //      V = Value
-
-    cv::Mat image_hsv;
-
-    cv::cvtColor(
-        *current_mat,
-        image_hsv,
-        cv::COLOR_BGR2HSV
-    );
-
-
-    // =======================================================================================
-    // LIGHT GAUSSIAN BLUR - could be deactivated
-
-    // Apply a very small blur to suppress small pixel-to-pixel
-    // fluctuations around the particles boundary.
-    //
-    // 0x0 means that blur is disabled.
-    // 1x1 / 3x3 are valid blur sizes.
-
-    bool do_blur = !(controlled_mask->b_h == 0 || controlled_mask->b_v == 0);
-
-    if (do_blur)
-    {
-        cv::GaussianBlur(
-            image_hsv,
-            image_hsv,
-            cv::Size(
-                controlled_mask->b_h,
-                controlled_mask->b_v
-            ),
-            0
-        );
-    }
-
-
-    // =======================================================================================
-    // CREATE COLOR RANGE
-
-    cv::Mat first_mask;
-
-    cv::Scalar lower_color(
-        controlled_mask->h_min,
-        controlled_mask->s_min,
-        controlled_mask->v_min
-    );
-
-    cv::Scalar upper_color(
-        controlled_mask->h_max,
-        controlled_mask->s_max,
-        controlled_mask->v_max
-    );
-
-    cv::inRange(
-        image_hsv,
-        lower_color,
-        upper_color,
-        first_mask
-    );
-
-
-    // =======================================================================================
-    // DESIDE SHOW OR CONTINUE TO PROCESSING
-
-    // We work with 2nd part of the mask, so it's always true
-    bool to_proc = true;
-
-    if (to_proc)
-    {
-        /*
-            На этом этапе FIRST MASK уже содержит результат HSV-фильтрации.
-
-            То есть:
-
-                ORIGINAL IMAGE
-                    │
-                    ▼
-                BGR -> HSV
-                    │
-                    ▼
-                optional BLUR
-                    │
-                    ▼
-                HSV inRange
-                    │
-                    ▼
-                FIRST MASK
-                    │
-                    │
-                    │  ЧЁРНО-БЕЛОЕ ИЗОБРАЖЕНИЕ:
-                    │
-                    │  WHITE (255) = пиксель прошёл HSV-фильтр
-                    │  BLACK (0)   = пиксель не прошёл HSV-фильтр
-                    │
-                    ▼
-                CANNY -> DILATE -> CONTOURS
-                    │
-                    ▼
-                AREA / LENGTH
-                    │
-                    ▼
-                  ERODE
-                    │
-                    ▼
-                FINAL MASK
-
-            Поэтому все следующие операции работают уже НЕ с исходным
-            цветным изображением, а только с областями, которые были
-            предварительно выделены HSV-фильтром.
-        */
-
-
-        // =======================================================================================
-        // CANNY EDGE DETECTION
-        //
-        // INPUT:
-        //
-        //     first_mask
-        //
-        //     Это бинарная маска после HSV-фильтрации.
-        //
-        //     WHITE = нужный цвет / область
-        //     BLACK = всё остальное
-        //
-        //
-        // Что делает Canny:
-        //
-        //     Canny ищет границы (edges) внутри этой бинарной маски.
-        //
-        //     В результате вместо самой области мы получаем в основном
-        //     её границы.
-        //
-        //
-        // OUTPUT:
-        //
-        //     canny_mask
-        //
-        //     Это новая бинарная маска, где:
-        //
-        //     WHITE = найденная граница
-        //     BLACK = отсутствие границы
-        //
-        //     https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQbLUmt-YA19XxyVH8QtIEFEu8fRLbSSSlO--yMj9Rz_g&s
-        //
-        //     То есть данные проходят так:
-        //
-        //         FIRST MASK
-        //             │
-        //             │ HSV-selected regions
-        //             ▼
-        //           CANNY
-        //             │
-        //             │ edges of selected regions
-        //             ▼
-        //         CANNY MASK
-
-
-        cv::Mat canny_mask;
-
-        cv::Canny(
-
-            first_mask,
-            canny_mask,
-            controlled_mask->canny_low,
-            controlled_mask->canny_high
-
-        );
-
-
-        // =======================================================================================
-        // DILATE
-        //
-        // INPUT:
-        //
-        //     canny_mask
-        //
-        //     Это результат Canny, то есть тонкие линии/границы,
-        //     найденные внутри HSV-маски.
-        //
-        //
-        // WHAT DILATE DOES:
-        //
-        //     Dilate расширяет белые области изображения.
-        //
-        //     Для нашего случая это нужно для того, чтобы:
-        //
-        //     1. сделать найденные Canny-границы толще;
-        //     2. соединить близко расположенные участки границы;
-        //     3. уменьшить вероятность того, что одна траектория
-        //        будет разбита на несколько отдельных частей.
-        //
-        //
-        //     Размер kernel определяет, насколько сильно расширяется
-        //     белая область за одну итерацию.
-        //
-        //     Количество iterations определяет, сколько раз выполняется
-        //     операция расширения.
-        //
-        //
-        // OUTPUT:
-        //
-        //     dilated_mask
-        //
-        //     Это всё ещё бинарная маска.
-        //
-        //     Но теперь Canny-линии становятся толще и/или соединяются.
-        //     
-        //     https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS_yfLnZ1NkpUn-dMEWJHbk6fGtTYYy6_bGfxPiF0iuK5tbP_UUy5wRAE19&s=10
-        //
-        //     То есть:
-        //
-        //         CANNY MASK
-        //             │
-        //             │ thin edges
-        //             ▼
-        //           DILATE
-        //             │
-        //             │ thicker / connected edges
-        //             ▼
-        //         DILATED MASK
-
-
-        cv::Mat dilated_mask;
-
-        cv::Mat dilate_kernel = cv::getStructuringElement(
-            cv::MORPH_RECT,
-            cv::Size(
-
-                controlled_mask->dilate_size,
-                controlled_mask->dilate_size
-                
-            )
-        );
-
-        cv::dilate(
-            canny_mask,
-            dilated_mask,
-            dilate_kernel,
-            cv::Point(-1, -1),
-            controlled_mask->dilate_iterations
-        );
-
-
-        // =======================================================================================
-        // FIND CONTOURS
-        //
-        // INPUT:
-        //
-        //     dilated_mask
-        //
-        //     На этом этапе у нас уже есть подготовленная бинарная маска
-        //     с расширенными Canny-границами.
-        //
-        //
-        // WHAT FINDCONTOURS DOES:
-        //
-        //     findContours ищет связанные между собой белые области
-        //     и превращает каждую найденную область в набор точек.
-        //
-        //     Каждая такая последовательность точек называется contour.
-        //
-        //
-        //     Например:
-        //
-        //         DILATED MASK
-        //
-        //             ███
-        //               ███
-        //                  ██
-        //
-        //     становится примерно:
-        //
-        //         contour = [P1, P2, P3, P4, ...]
-        //
-        //
-        // RETR_EXTERNAL:
-        //
-        //     Нас интересуют только внешние контуры.
-        //     Вложенные внутренние контуры не собираются.
-        //
-        //
-        // CHAIN_APPROX_NONE:
-        //
-        //     Сохраняет все точки контура без дополнительного
-        //     упрощения последовательности.
-        //
-        //     Это важно для последующего измерения геометрии
-        //     траектории.
-        //
-        //
-        // OUTPUT:
-        //
-        //     contours
-        //
-        //     vector всех найденных контуров.
-        //
-        //     Каждый contour содержит набор cv::Point.
-        //
-        //
-        //     То есть:
-        //
-        //         DILATED MASK
-        //             │
-        //             │ connected white regions
-        //             ▼
-        //       FIND CONTOURS
-        //             │
-        //             │ vector<vector<Point>>
-        //             ▼
-        //          CONTOURS
-
-
-        std::vector<std::vector<cv::Point>> contours;
-
-        cv::findContours(
-            dilated_mask,
-            contours,
-            cv::RETR_EXTERNAL,
-            cv::CHAIN_APPROX_NONE
-        );
-
-
-        // =======================================================================================
-        // AREA / LENGTH FILTERING
-        //
-        // Здесь мы уже работаем не с изображением напрямую,
-        // а с отдельными найденными CONTOURS.
-        //
-        //
-        // INPUT:
-        //
-        //     contours
-        //
-        //     Каждый contour представляет одну отдельную найденную
-        //     связанную область/траекторию.
-        //
-        //
-        // Задача этого этапа:
-        //
-        //     определить, какие из найденных контуров действительно
-        //     подходят под параметры particle trajectory.
-        //
-        //
-        // Для этого каждый contour проверяется по двум независимым
-        // геометрическим характеристикам:
-        //
-        //     1. AREA   = площадь контура
-        //     2. LENGTH = длина контура
-        //
-        //
-        // Если contour не проходит хотя бы один из фильтров,
-        // он полностью отбрасывается.
-        //
-        //
-        // Если contour проходит оба фильтра,
-        // он переносится в FINAL MASK.
-        //
-        //
-        //     CONTOURS
-        //        │
-        //        ├── contour #1 -> AREA -> LENGTH -> ACCEPT
-        //        │
-        //        ├── contour #2 -> AREA -> REJECT
-        //        │
-        //        ├── contour #3 -> AREA -> LENGTH -> ACCEPT
-        //        │
-        //        └── contour #4 -> LENGTH -> REJECT
-        //        │
-        //        ▼
-        //     FINAL MASK
-        //
-        //
-        // Создаём пустую маску того же размера,
-        // что и предыдущий этап.
-        //
-        // В неё попадут ТОЛЬКО принятые контуры.
-        //
-        // BLACK = contour не прошёл фильтрацию
-        // WHITE = contour принят
-
-
-        // Final mask init 
-
-        cv::Mat final_mask = cv::Mat::zeros(
-            dilated_mask.size(),
-            CV_8UC1
-        );
-
-
-        for (const auto& contour : contours)
+        for (unsigned int j = 0; j < f_n_p_size; j++)
         {
-            // -------------------------------------------------------------------------------
-            // AREA
-            //
-            // INPUT:
-            //
-            //     contour
-            //
-            //     Один конкретный contour из общего списка contours.
-            //
-            //
-            // WHAT:
-            //
-            //     contourArea вычисляет площадь области,
-            //     ограниченной данным contour.
-            //
-            //
-            // Это позволяет отсечь:
-            //
-            //     слишком маленькие объекты / шум
-            //     слишком большие области, которые не могут быть
-            //     нужной частицей или траекторией.
-            //
-            //
-            // Если площадь находится вне допустимого диапазона,
-            // contour сразу отбрасывается.
-            //
-            //
-            //     contour
-            //        │
-            //        ▼
-            //     AREA CHECK
-            //        │
-            //        ├── too small -> REJECT
-            //        │
-            //        ├── too large -> REJECT
-            //        │
-            //        └── valid     -> NEXT CHECK (LENGTH)
+            // ===== Fill the indexes =====
+
+            passed_analysis_matrix[i][j].n_number = i;
+            passed_analysis_matrix[i][j].n_plus_number = j;
 
 
-            double contour_area = cv::contourArea(
-                contour
-            );
+            // ===== Calculate the target_compare_result =====
 
-            if (
-                contour_area < controlled_mask->area_min ||
-                contour_area > controlled_mask->area_max
-            )
+            float curr_target_compare_res = 0.0;
+
+            bool compare_end = false;
+
+            while (!compare_end)
             {
-                continue;
-            }
 
-
-            // -------------------------------------------------------------------------------
-            // LENGTH
-            //
-            // INPUT:
-            //
-            //     Тот же contour, но только если он уже прошёл
-            //     проверку AREA.
-            //
-            //
-            // WHAT:
-            //
-            //     arcLength вычисляет длину контура.
-            //
-            //     false означает, что контур рассматривается
-            //     как незамкнутый при вычислении длины.
-            //
-            //
-            // Это позволяет дополнительно отсечь:
-            //
-            //     слишком короткие контуры
-            //     слишком длинные контуры
-            //
-            // Например, маленький случайный объект может иметь
-            // подходящую площадь, но при этом иметь недостаточную
-            // длину для реальной траектории.
-            //
-            //
-            // Поэтому AREA и LENGTH работают вместе:
-            //
-            //     AREA  отвечает за размер области
-            //     LENGTH отвечает за протяжённость контура
-            //
-            //
-            //     contour
-            //        │
-            //        ▼
-            //     LENGTH CHECK
-            //        │
-            //        ├── too short -> REJECT
-            //        │
-            //        ├── too long  -> REJECT
-            //        │
-            //        └── valid     -> ACCEPT
-
-
-            double contour_length = cv::arcLength(
-                contour,
-                false
-            );
-
-            if (
-                contour_length < controlled_mask->length_min ||
-                contour_length > controlled_mask->length_max
-            )
-            {
-                continue;
-            }
-
-
-            // -------------------------------------------------------------------------------
-            // ACCEPT CONTOUR
-            //
-            // Если выполнение дошло сюда, contour успешно прошёл:
-            //
-            //     1. AREA filter
-            //     2. LENGTH filter
-            //
-            //
-            // Теперь этот contour считается подходящим.
-            //
-            // Мы переносим его в final_mask.
-            //
-            //
-            // Важно:
-            //
-            //     final_mask изначально полностью BLACK.
-            //
-            //     Поэтому сюда попадают только те контуры,
-            //     которые были явно приняты фильтрами.
-            //
-            //
-            // FILLED означает, что внутренняя область контура
-            // также заполняется белым цветом.
-            //
-            //
-            //     ACCEPTED CONTOUR
-            //           │
-            //           ▼
-            //      DRAW TO MASK
-            //           │
-            //           ▼
-            //       FINAL MASK
-            //
-            //     WHITE = accepted trajectory
-            //     BLACK = everything rejected
-
-
-            // Fill final mask by founded countours 
             
-            cv::drawContours(
-                final_mask,
-                std::vector{ contour },
-                -1,
-                cv::Scalar(255),
-                cv::FILLED
-            );
+                int x_n = passed_frame_n_points[i].x;
+                int y_n = passed_frame_n_points[i].y;
+
+                int x_n_p = passed_frame_n_plus_points[j].x;
+                int y_n_p = passed_frame_n_plus_points[j].y;
+
+
+                int curr_dx = x_n_p - x_n;                   // Need to know direction on compare
+                int curr_dy = std::abs(y_n_p - y_n);     // Don't need to know direction on compare 
+
+                // Can't go back or stay on previous position 
+                if (curr_dx <= 0) 
+                {
+                    compare_end = true;
+
+                    curr_target_compare_res = 0.0;
+
+                    // End while and fill result
+                    continue;
+                }
+
+
+                // Compare with passed deltas with blend proportions of results
+
+                // 1. Count errors
+
+                float error_x = std::fabs(static_cast<float>(curr_dx) - passed_t_dx);
+                float error_y = std::fabs(static_cast<float>(curr_dy) - passed_t_dy);
+
+
+                // 2. Calculate the Proximity Score (Range: 0.0 to 1.0)
+
+                // We use an exponential decay (Gaussian-like function) to convert absolute pixel error 
+                // into a similarity score.
+                //
+                // Math logic:
+                // - If error is 0 (perfect match) -> std::exp(0) results in 1.0.
+                // - As error grows, std::exp(-error) smoothly decays toward 0.0.
+                // - The denominator (5.0f) controls the filtering stiffness (sensitivity tolerance):
+                //   A smaller value makes it strict (sharp drop), a larger value allows a wider error window.
+
+                float score_x = std::exp(-error_x / 5.0f); 
+                float score_y = std::exp(-error_y / 5.0f);
+
+
+                // 3. Blend with coefficients
+
+                curr_target_compare_res = (score_x * dx_blend_part) + (score_y * dy_blend_part);
+
+
+                // 4. Exit
+
+                compare_end = true;
+
+            }
+
+            // ===== Fill the target_compare_result =====
+
+            passed_analysis_matrix[i][j].target_compare_result = curr_target_compare_res;
+
+        }
+    }
+}
+
+
+
+// Recursive pairs search and illimination stages by target_compare_result obtained at analyse_pairs stage
+void find_pairs(
+
+    const std::vector<std::vector<pair_analysis_ctx>>& passed_analysis_matrix,
+    std::vector<std::array<desc_c_2D, 2>>& passed_frame_pairs,
+    const std::vector<desc_c_2D>& passed_frame_n_points,
+    const std::vector<desc_c_2D>& passed_frame_n_plus_points
+
+)
+{
+    size_t size_n = passed_frame_n_points.size();
+    size_t size_n_plus = passed_frame_n_plus_points.size();
+
+
+    // TMP of the matches
+    std::unordered_map<int, temporary_match> tentative_matches;
+
+
+    // 1.0: Init step reminders
+
+    std::set<int> remainder_n;
+    std::set<int> remainder_n_plus;
+    
+    // 1st set - remainder_n and remainder_n_plus will be eliminated zones
+
+    for (size_t i = 0; i < size_n; ++i) remainder_n.insert(i);
+    for (size_t j = 0; j < size_n_plus; ++j) remainder_n_plus.insert(j);
+
+
+    // Minimal active transition score
+    const float min_score_threshold = 0.5f;
+
+
+    bool global_pair_found = true;
+
+
+    // Cycle actions
+    while (global_pair_found)
+    {
+        global_pair_found = false;
+
+        // Clear at every mini-cycle
+        tentative_matches.clear();
+
+
+        // Step 3: Check the best pairs for reminders
+        for (int i : remainder_n) 
+        {
+
+            int best_j = -1;
+            float max_score = -1.0f;
+
+
+            // Check free pairs of N+1 frame
+            for (int j : remainder_n_plus) 
+            {
+                float current_score = passed_analysis_matrix[i][j].target_compare_result;
+
+                if (current_score > max_score) 
+                {
+                    max_score = current_score;
+                    best_j = j;
+                }
+            }
+            
+
+            if (best_j != -1 && max_score >= min_score_threshold) 
+            {
+                // Step 4: Conflicts resolve. If j is used with other i:
+                if (tentative_matches.find(best_j) == tentative_matches.end()) 
+                {
+                    tentative_matches[best_j] = { i, max_score };
+                } 
+                else
+                {
+                    const auto& previous_match = tentative_matches[best_j];
+
+                    const float current_y_n =
+                        passed_frame_n_points[i].y;
+
+                    const float previous_y_n =
+                        passed_frame_n_points[previous_match.index_n].y;
+
+                    const float target_y =
+                        passed_frame_n_plus_points[best_j].y;
+
+
+                    const float current_dy =
+                        target_y - current_y_n;
+
+                    const float previous_dy =
+                        target_y - previous_y_n;
+
+
+                    const int current_vertical_direction =
+                        current_dy > 0.0f ? 1 :
+                        current_dy < 0.0f ? -1 : 0;
+
+
+                    const int previous_vertical_direction =
+                        previous_dy > 0.0f ? 1 :
+                        previous_dy < 0.0f ? -1 : 0;
+
+
+                    bool filter = false;
+
+                    // One candidate moves down, the other does not.
+                    if (current_vertical_direction == 1 &&
+                        previous_vertical_direction != 1)
+                    {
+                        if (filter) 
+                        {
+                            tentative_matches[best_j] = { i, max_score };
+                        }
+                    }
+                    else if (previous_vertical_direction == 1 &&
+                            current_vertical_direction != 1)
+                    {
+                        // Keep previous match.
+                    }
+                    else if (max_score > previous_match.score)
+                    {
+                        // Same movement direction -> score decides.
+                        tentative_matches[best_j] = { i, max_score };
+                    }
+                }
+            }
 
         }
 
+        // No pairs at this cycle part
+        if (tentative_matches.empty())
+        {
+            break; 
+        }
 
-        // =======================================================================================
-        // REPLACE FIRST MASK
-        //
-        // До этого момента first_mask содержал результат ТОЛЬКО HSV-фильтрации.
-        //
-        //
-        // Но поскольку controlled_submask == SUBMASK_2_CSM3,
-        // мы прошли дополнительную цепочку:
-        //
-        //     FIRST MASK
-        //         ↓
-        //       CANNY
-        //         ↓
-        //       DILATE
-        //         ↓
-        //     CONTOURS
-        //         ↓
-        //     AREA FILTER
-        //         ↓
-        //     LENGTH FILTER
-        //         ↓
-        //     FINAL MASK
-        //
-        //
-        // Поэтому теперь FINAL MASK становится новым FIRST MASK.
-        //
-        // Это удобно, потому что ниже по pipeline уже не нужно
-        // создавать отдельную переменную для результата:
-        //
-        //     first_mask
-        //
-        // просто начинает означать "итоговую маску текущего этапа".
-        //
-        //
-        // После этой строки:
-        //
-        //     first_mask
-        //
-        // содержит только те области, которые:
-        //
-        //     1. прошли HSV-фильтр;
-        //     2. дали Canny-контур;
-        //     3. после DILATE сформировали contour;
-        //     4. прошли AREA;
-        //     5. прошли LENGTH.
-        //
-        //
-        // То есть это уже очищенный FINAL RESULT.
+        // Pass the winners to the winners container
+        for (const auto& [j, match] : tentative_matches) 
+        {
+            passed_frame_pairs.push_back({ passed_frame_n_points[match.index_n], passed_frame_n_plus_points[j]});
+            
+            // Erase winners from the reminders!
+            remainder_n.erase(match.index_n);
+            remainder_n_plus.erase(j);
 
+            // New circle start
+            global_pair_found = true;
+        }
 
-        first_mask = final_mask;
     }
 
-    // =======================================================================================
-    // TRANSLATE BACK TO BGR AND SHOW
 
-    cv::Mat final_mask_bgr;
+    // ===== ENDED =====
 
-    cv::cvtColor(
-        first_mask,
-        final_mask_bgr,
-        cv::COLOR_GRAY2BGR
+
+}
+
+
+
+
+// ===== Stage 3.2 helpers =====
+
+
+void processing_stage_3_2(cv::Mat* current_mat)
+{
+
+    // If we not inside test mode - calculate the transitions:
+
+    // If we inside test mode - calculate the transitions and show the transitions between frames:
+
+
+    // Block the not initialized state
+    if (!current_mat || current_mat->empty()) return;
+
+     
+    // Get current video frame settings.
+
+    unsigned int frames_width = video_data.width;
+
+    unsigned int frames_height = video_data.height;
+
+
+    // Check traces "dots" from 2 setted massives passed to struct iteration cycle variables last time
+
+    // Frame "n"
+    std::vector<desc_c_2D> frame_n_points = 
+        data_to_process_3->frames_points[data_to_process_3->frames_points_vectors_counter];
+
+    // Frame "n + 1"
+    std::vector<desc_c_2D> frame_n_plus_points = 
+        data_to_process_3->frames_points[data_to_process_3->frames_points_vectors_counter + 1];
+
+
+    // Target dx and dy for my "pseudoHungary" algorithm
+
+    float t_dx = data_to_process_3->reference_dx;
+    float t_dy = data_to_process_3->reference_dy;
+
+
+    // 1.0. Point to point comparation
+
+    size_t size_n = frame_n_points.size();
+    size_t size_n_plus = frame_n_plus_points.size();
+
+    // Analysis matrix init
+    std::vector<std::vector<pair_analysis_ctx>> analysis_matrix(
+
+        size_n, 
+        std::vector<pair_analysis_ctx>(size_n_plus)
+
     );
 
-    final_mask_bgr.copyTo(*current_mat);   
+
+    // Analysis of all pairs -
+    // fill the analysis_matrix
+    // with the comparation result
+
+    analyse_pairs(
+
+        analysis_matrix, 
+        frame_n_points, 
+        frame_n_plus_points, 
+        t_dx, 
+        t_dy
+
+    );
+
+
+    // 2.0 Recursive pairs search by point to point comparation result
+
+    // Answer container
+    std::vector<std::array<desc_c_2D, 2>> frame_pairs;
+
+
+    std::set<int> remainder_n;      // Остатки кадра N (индексы i строк матрицы)
+    std::set<int> remainder_n_plus; // Остатки кадра N+1 (индексы j столбцов матрицы)
+
+
+    // Изначально все точки находятся в остатках
+    for (int i = 0; i < size_n; ++i) remainder_n.insert(i);
+    for (int j = 0; j < size_n_plus; ++j) remainder_n_plus.insert(j);
+
+
+    // Recursive pairs search and illimination stages by target_compare_result obtained at analyse_pairs stage
+    find_pairs(
+
+        analysis_matrix,
+        frame_pairs,
+        frame_n_points,
+        frame_n_plus_points
+        
+    );
+
+
+    // Init the vector of frame
+    std::vector<single_track> frame_tracks;
+    
+    // Fill the frame tracks
+    for (unsigned int i = 0; i < frame_pairs.size(); i++)
+    {
+        single_track pair_track;
+
+        int x_n = frame_pairs[i][0].x;
+        int y_n = frame_pairs[i][0].y;
+
+        int x_n_p = frame_pairs[i][1].x;
+        int y_n_p = frame_pairs[i][1].y;
+
+        // mm per pixel
+        float scale = data_to_process_1->scale;
+
+        // seconds
+        float time_step = video_data.frame_time;
+
+
+        // 1. Pixel deltas
+        int dx_px = x_n_p - x_n;
+        int dy_px = y_n_p - y_n;
+
+        // 2. MM cast
+        float dx_mm = static_cast<float>(dx_px) * scale;
+        float dy_mm = static_cast<float>(dy_px) * scale;
+
+        // 3. Size of the track - mm: by triangle
+        pair_track.length = std::sqrt(dx_mm * dx_mm + dy_mm * dy_mm);
+
+        // 4. Speed in meters per second
+        if (time_step > 0.0f) 
+        {
+            pair_track.speed = (pair_track.length / 1000.0f) / time_step;
+        }
+        else 
+        {
+            pair_track.speed = 0.0f; // Защита от деления на ноль, если время не инициализировано
+        }
+
+        // 5. Angle in degrees (from -180 to 180):
+        // with opencv axes orientation
+        const float PI = 3.1415926535f;
+
+        pair_track.angle = std::atan2(dy_mm, dx_mm) * (180.0f / PI);
+
+
+        frame_tracks.push_back(pair_track);
+
+    }
+
+
+    // Add vector of frame to the vector of video
+
+    for (unsigned int i = 0; i < frame_tracks.size(); i++)
+    {
+        data_to_process_3->tracks.push_back(frame_tracks[i]);
+    }
+
+    // Remainder
+
+
+
+    // Just draw obtained transitions inside test mode
+    if (!FPC_TEST_MODE) return;
+
+    // Init an empty black mat to fill
+    cv::Mat image_mask_bgr = cv::Mat::zeros(current_mat->size(), current_mat->type());
+
+
+    // Fill by connected pairs (2 red dots and yellow line) 
+    for (size_t i = 0; i < frame_pairs.size(); i++)
+    {
+        // Cast decs_2D to cv::Point
+        cv::Point pt_n(frame_pairs[i][0].x, frame_pairs[i][0].y);
+        cv::Point pt_n_plus(frame_pairs[i][1].x, frame_pairs[i][1].y);
+
+        // 1. Yellow 2px line between
+        cv::line(image_mask_bgr, pt_n, pt_n_plus, cv::Scalar(0, 255, 255), 2, cv::LINE_AA);
+
+        // 2. Red dots 4mm
+        cv::circle(image_mask_bgr, pt_n, 4, cv::Scalar(0, 0, 255), -1, cv::LINE_AA);
+        cv::circle(image_mask_bgr, pt_n_plus, 4, cv::Scalar(0, 0, 255), -1, cv::LINE_AA);
+    }
+
+
+    // =======================================================================================
+    // WRITE RESULT BACK TO current_mat
+
+    // Replace the current current_mat with the processed jet mask.
+    //
+    // IMPORTANT:
+    // current_mat remains CV_8UC3 BGR, so the next processing stage
+    // and the OpenCV -> SDL translation can continue working
+    // with the same image format.
+
+    image_mask_bgr.copyTo(*current_mat);
+
+    // =======================================================================================
+    // WRITE RESULT BACK TO FRAME
+
 }
+
 
 
 // =========================================================================================== PROCESSING FUNCTIONS
@@ -3876,6 +4172,7 @@ void progress_bar_update()
     file_textbox->set_content(file_string);
     mask_textbox->set_content(mask_string);
     frame_textbox->set_content(frame_string);
+
 }
 
 

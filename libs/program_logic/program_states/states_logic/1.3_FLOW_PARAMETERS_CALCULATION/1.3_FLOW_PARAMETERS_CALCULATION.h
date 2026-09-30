@@ -332,6 +332,30 @@ struct processing_2_data
  }; 
 
 
+ // Structure for point to point analysis
+ struct pair_analysis_ctx
+ {
+
+    int n_number;                           // Frame n points vector point idx
+    int n_plus_number;                      // Frame n + 1 points vector point idx
+
+    float target_compare_result = 0.0;      // Comparation with target dx and dy result by blend in range 0.0 - 1.0
+
+    bool approved = false;                  // Pair of points selected as the track
+
+ };
+
+
+struct temporary_match 
+{
+
+    int index_n;            // Кто претендует из кадра N
+    float score;            // С какой силой близости (0.0 - 1.0)
+
+};
+
+
+
 // 3rd mask processing output ctx
 struct processing_3_data
 {
@@ -381,6 +405,9 @@ struct processing_3_data
 
     // ===== Second pass =====
 
+    unsigned int frames_points_vectors_count = 0;
+    unsigned int frames_points_vectors_counter = 0;
+
     // TODO: remove
     // remove this comments after realization
 
@@ -399,7 +426,7 @@ struct processing_3_data
 
     std::vector<single_track> straight_tracks;      // Tracks outside deviation zone
 
-    std::vector<single_track> deflected_tracks;     // Tracks inside deviation zone
+    std::vector<single_track> deviated_tracks;     // Tracks inside deviation zone
 
     // ===== Second pass =====
 
@@ -412,13 +439,15 @@ struct processing_3_data
 
     float main_angle;                              // In degrees from -180 to 180 by the 0 at the main axe, founded at the step 1
 
-    float main_speed;                              // m/s only for straight tracks
+    float main_speed;                              // m/s for all tracks
+
+    float straight_speed;                          // m/s only for straight tracks  
 
     float deviation_angle;                         // In degrees from -180 to 180 by the 0 at the main_angle, founded at this calculation
 
-    float deviation_speed;                         // m/s only for deviated tracks                      
+    float deviation_speed;                         // m/s only for deviated tracks      
 
-    float deviation_percentage;                    // size of deflected_tracks container / size of tracks container * 100
+    float deviation_percentage;                    // size of deviated_tracks container / size of tracks container * 100
 
     // ===== Answer =====
 
