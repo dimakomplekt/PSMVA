@@ -1125,20 +1125,22 @@ void opencv_calculation_global_update()
                     int frame_width = video_data.width; 
 
 
-                    // Borders 
-
-                    float zone_1_x_min = curr_dtp_3->zone_1_x_min_c * frame_width;          // 0.6 * fw
-                    float zone_1_x_max = curr_dtp_3->zone_1_x_max_c * frame_width;          // 0.8 * fw
-
-                    float zone_2_x_min = curr_dtp_3->zone_2_x_min_c * frame_width;          // 0.7 * fw
-                    float zone_2_x_max = curr_dtp_3->zone_2_x_max_c * frame_width;          // 0.9 * fw
+                    // Zone 2 selects N + 1 points; Zone 1 is calculated relative to each one.
+                    const float zone_2_x_min = curr_dtp_3->zone_2_x_min_c * frame_width;
+                    const float zone_2_x_max = curr_dtp_3->zone_2_x_max_c * frame_width;
+                    const float zone_1_x_min_delta =
+                        curr_dtp_3->zone_1_x_min_c_delta * frame_width;
+                    const float zone_1_x_max_delta =
+                        curr_dtp_3->zone_1_x_max_c_delta * frame_width;
 
 
                     // Quantity of frames
                     size_t total_frames = curr_dtp_3->frames_points.size();
+                    curr_dtp_3->frames_points_vectors_count = 0;
+                    curr_dtp_3->frames_points_vectors_counter = 0;
 
                     // Error case
-                    if (total_frames <= 0) 
+                    if (total_frames == 0)
                     {
                         std::cout << "ERROR ERROR ERROR\n\n" << std::endl;
                         return;
@@ -1146,7 +1148,6 @@ void opencv_calculation_global_update()
                     
 
                     // ===== !!! ATTENTION !!! =====
-
                     // Set the counter for the next step (processing 3.2)
                     curr_dtp_3->frames_points_vectors_count = total_frames - 1;
 
@@ -1162,78 +1163,37 @@ void opencv_calculation_global_update()
                             const auto& points_n1  = curr_dtp_3->frames_points[i + 1];
 
 
-                            // 1. Find the BOTTOM-RIGHT point in frame (i + 1) within Zone 2 (0.7 to 0.9 * fw).
-                            // In SDL/OpenCV coordinate systems, the bottommost point has the MAXIMUM y, and the rightmost has the MAXIMUM x.
-                            // Look for the point closest to the bottom-right corner of this zone.
-
-                            desc_c_2D pt_n1 = { -1, -1 };
-                            float max_metric_n1 = -1.0f;
-
-                            for (const auto& pt : points_n1)
+                            for (const auto& point_n1 : points_n1)
                             {
-                                if (pt.x > zone_2_x_min && pt.x < zone_2_x_max)
-                                {
-                                    // Метрика удаленности к правому нижнему углу (сумма координат)
-                                    float current_metric = static_cast<float>(pt.x + pt.y);
+                                if (point_n1.x <= zone_2_x_min || point_n1.x >= zone_2_x_max)
+                                    continue;
 
-                                    if (current_metric > max_metric_n1)
+                                const float zone_1_x_min = point_n1.x - zone_1_x_max_delta;
+                                const float zone_1_x_max = point_n1.x - zone_1_x_min_delta;
+                                desc_c_2D point_n = { -1, -1 };
+                                int min_delta_y = std::numeric_limits<int>::max();
+
+                                for (const auto& point : points_n)
+                                {
+                                    if (point.x <= zone_1_x_min || point.x >= zone_1_x_max)
+                                        continue;
+
+                                    const int delta_y = std::abs(point_n1.y - point.y);
+                                    if (delta_y <= curr_dtp_3->pixel_spread &&
+                                        delta_y < min_delta_y)
                                     {
-                                        max_metric_n1 = current_metric;
-                                        pt_n1 = pt;
+                                        min_delta_y = delta_y;
+                                        point_n = point;
                                     }
                                 }
-                            }
 
-                            // If no point - go to the next case
-                            if (pt_n1.x == -1) continue;
+                                if (point_n.x == -1)
+                                    continue;
 
-
-                            // 2. Locate the reference point in frame (i) within Zone 1 (0.6 to 0.8 * fw).
-                            // Logic: The point must be to the LEFT (x_n < x_n1) and ABOVE (y_n < y_n1) relative to the found pt_n1.
-                            // From all valid candidates, select the one with the minimal Y deviation (smallest delta: y_n1 - y_n).
-
-                            desc_c_2D pt_n = { -1, -1 };
-
-
-                            float min_delta_y = std::numeric_limits<float>::max();
-
-
-                            for (const auto& pt : points_n)
-                            {
-                                if (pt.x > zone_1_x_min && pt.x < zone_1_x_max)
-                                {
-                                    // Check limitations
-
-                                    if (pt.x < pt_n1.x && pt.y < pt_n1.y)
-                                    {
-                                        float delta_y = static_cast<float>(pt_n1.y - pt.y);
-
-                                        if (delta_y < min_delta_y)
-                                        {
-                                            min_delta_y = delta_y;
-
-                                            pt_n = pt;
-                                        }
-                                    }
-                                }
-                            }
-
-                            
-                            // 3. If BOTH points are successfully found, register the extreme pair for the frame.
-
-                            if (pt_n.x != -1)
-                            {
-                                // Save the pair
-                                std::array<desc_c_2D, 2> pair_nodes = { pt_n, pt_n1 };
+                                const std::array<desc_c_2D, 2> pair_nodes = { point_n, point_n1 };
                                 curr_dtp_3->frames_extreme_pairs.push_back(pair_nodes);
-
-                                // Calculate deltas
-                                float dx = static_cast<float>(pt_n1.x - pt_n.x);
-                                float dy = static_cast<float>(pt_n1.y - pt_n.y);
-
-                                // Add deltas
-                                all_dx.push_back(dx);
-                                all_dy.push_back(dy);
+                                all_dx.push_back(static_cast<float>(point_n1.x - point_n.x));
+                                all_dy.push_back(static_cast<float>(point_n1.y - point_n.y));
                             }
                         }
                     }
@@ -1346,7 +1306,6 @@ void opencv_calculation_global_update()
 
                 }
 
-
                 // Operations counter update
                 state_progress_bar.operations_counter += 1;
             }
@@ -1396,24 +1355,22 @@ void opencv_calculation_global_update()
                 // and increment the counter of processed pairs to go through vectors iteration cycle
                 // without stopping of the other program processes
 
-                opencv_global_calculation_update_ctx.operation = MASK_3_2_PROCESSING_CO;
-                opencv_global_calculation_update_ctx.current_frame_processor = processing_stage_3_2; // set
+                // Process each adjacent frame pair once; N frames contain N - 1 pairs.
+                if (curr_dtp_3->frames_points_vectors_counter <
+                    curr_dtp_3->frames_points_vectors_count)
+                {
+                    opencv_global_calculation_update_ctx.operation = MASK_3_2_PROCESSING_CO;
+                    opencv_global_calculation_update_ctx.current_frame_processor = processing_stage_3_2;
+                    opencv_global_calculation_update_ctx.current_frame_processor(calculation_cv_mat_mask_3_global);
 
-                opencv_global_calculation_update_ctx.current_frame_processor(calculation_cv_mat_mask_3_global); // call
-                
+                    ++curr_dtp_3->frames_points_vectors_counter;
+                    ++opencv_global_calculation_update_ctx.current_frame_index;
+                    ++state_progress_bar.operations_counter;
+                }
 
-                // Increment the operations counter
-                curr_dtp_3->frames_points_vectors_counter += 1;
-
-                // This one will work as (curr_dtp_3->frames_points_vectors_counter <= curr_dtp_3->frames_points_vectors_count)
-                opencv_global_calculation_update_ctx.current_frame_index += 1;
-
-
-
-                // Stage 2 processes N frames and N - 1 frame pairs. When the operation
-                // count reaches the current video's limit, calculate its final answers.
-                if (opencv_global_calculation_update_ctx.current_frame_index == 
-                    opencv_global_calculation_update_ctx.total_frame_count)
+                // Also finalize videos with fewer than two processed frames, which have no pairs.
+                if (curr_dtp_3->frames_points_vectors_counter >=
+                    curr_dtp_3->frames_points_vectors_count)
                 {
                     // ===== Finish Stage 2 and calculate track results =====
 
@@ -1670,7 +1627,7 @@ void opencv_calculation_global_update()
 
                         // 6. Determine the deviation boundary and classify each track.
 
-                        const float minimal_deviation_angle = 10.0f;
+                        const float minimal_deviation_angle = data_to_process_3->minimal_deviation_angle;
 
 
                         const float deviation_angle_limit =
@@ -1990,10 +1947,6 @@ void opencv_calculation_global_update()
 
                     data_to_control = nullptr;
                 }
-
-
-                // Operations counter update
-                state_progress_bar.operations_counter += 1;
             }
 
             // Update progress bar
@@ -3940,7 +3893,7 @@ void find_pairs(
 
 
     // Minimal active transition score
-    const float min_score_threshold = 0.5f;
+    const float min_score_threshold = data_to_process_3->min_score_threshold;
 
     // Stop-flag
     bool global_pair_found = true;
@@ -4021,7 +3974,7 @@ void find_pairs(
 
 
                     // Control vertical filter
-                    bool filter = false;
+                    bool filter = true;
 
 
                     if (max_score > previous_match.score)

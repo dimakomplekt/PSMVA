@@ -365,18 +365,25 @@ struct processing_3_data
 
     // Right-side frame zones used for extreme particle detection
 
+    // Zone where we search N + 1 point
+    float zone_2_x_min_c = 0.85;                                            // zone_2: x > 0.85 * frame_width
+    float zone_2_x_max_c = 1.0;                                             // zone_2: x < 1.0 * frame_width
 
-    float zone_1_x_min_c = 0.65;                                            // zone_1: x > 0.6 * frame_width
-    float zone_2_x_min_c = 0.75;                                            // zone_2: x > 0.7 * frame_width
+    // Delta from N + 1 point to N point
+    float zone_1_x_min_c_delta = 0.02;
+    float zone_1_x_max_c_delta = 0.2;
 
-    float zone_1_x_max_c = 0.85;                                            // zone_1: x < 0.8 * frame_width
-    float zone_2_x_max_c = 0.95;                                            // zone_2: x < 0.9 * frame_width
+    // Maximum vertical distance from the selected N + 1 point.
+    int pixel_spread = 7;
+
 
 
     // Allowed deviation from the main flow direction used for track classification.
     // Checks trigger if the value goes above (100 + X)% or below (95 - X)%.
-    float deflection_percentage = 5;
+    float deflection_percentage = 3;
 
+    float minimal_deviation_angle = 2.0f;
+    
         
     // Answer characteristics use a median-mean blend.
     // Initial median weight is 0.5.
@@ -396,6 +403,8 @@ struct processing_3_data
     std::vector<std::array<desc_c_2D, 2>> frames_extreme_pairs;
 
     // By median-mean blend (depended on median_weight)
+
+    float min_score_threshold = 0.75f;
 
     float reference_dx;                                                // Typical delta value by 1st pass analysis in mm
     float reference_dy;                                                // Typical delta value by 1st pass analysis in mm
