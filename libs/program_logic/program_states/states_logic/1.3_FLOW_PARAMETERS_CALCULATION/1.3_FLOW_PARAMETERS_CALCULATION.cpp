@@ -968,7 +968,7 @@ void opencv_calculation_global_update()
                 opencv_global_calculation_update_ctx.current_frame_index += 1;
 
                 
-                // Check if wee need to over 1st stage
+                // Check whether Stage 1 has reached the current video's final frame.
 
                 if (
                     
@@ -977,13 +977,35 @@ void opencv_calculation_global_update()
 
                 )
                 {
+
+
+                    /*
+
+                        Check whether Stage 2 has completed all processing operations for the
+                        current video.
+
+                        This check runs after the current frame has been processed and
+                        current_frame_index has been incremented. When it reaches
+                        total_frame_count, all Stage 2 frame and frame-pair operations for this
+                        video are complete, so the final track results can be calculated.
+
+                        The condition also keeps finalization out of the per-frame processing path:
+                        it runs only at the end of the video, before the video is marked complete
+                        and the processing context is prepared for the next one.
+
+                    */
+
+
+                    // ===== Finish Stage 1 and calculate video-wide values =====
+
+                    // 1. Mark Stage 1 complete and reset the per-stage frame index.
                     data_to_control->stage_1_end = true;
                     opencv_global_calculation_update_ctx.current_frame_index = 0;
 
 
-// ====================================================================================== Global video statistics calculation (Outside the frame loop) =====
+                    // 2. Calculate average light power across the processed frames.
 
-                    // ===== 1.1.1 Average light power inside video frames (%) ===== 
+                    // Average light power inside video frames (%).
 
                     if (!data_to_process_2->frames_mean_light_power_percentage.empty()) 
                     {
@@ -1007,7 +1029,7 @@ void opencv_calculation_global_update()
                     }
 
 
-                    // ===== 1.1.2 Average light power delta between frames (%)
+                    // 3. Calculate the mean absolute light-power change between frames.
                     
                     if (!data_to_process_2->frames_mean_light_power_percentage.empty())
                     {
@@ -1037,7 +1059,7 @@ void opencv_calculation_global_update()
                     }
 
 
-                    // ===== 2. Median arc width for the whole video =====
+                    // 4. Calculate median and mean arc width for the whole video.
                     
                     // Zeroes width cases are filtered!
                     
@@ -1089,36 +1111,11 @@ void opencv_calculation_global_update()
 
 
 
-                    // ===== 3. Calculate the reference_dx and reference_dy for current video =====
-                    
-                    // By std::vector<std::vector<desc_c_2D>> frames_points;
-
-                    // And - curr_dtp_3-> : 
-
-                    /*
-
-                        float zone_1_x_min_c = 0.6;                                            // zone_1: x > 0.6 * frame_width
-                        float zone_2_x_min_c = 0.7;                                            // zone_2: x > 0.7 * frame_width
-
-                        float zone_1_x_max_c = 0.8;                                            // zone_1: x < 0.8 * frame_width
-                        float zone_2_x_max_c = 0.9;                                            // zone_2: x < 0.9 * frame_width
-
-
-                        For each frame `i`, analyzes feature points to find structural anchors and calculate typical displacements:
-
-                        1. In `frames_points[i + 1]`, locates the bottom-left point within the horizontal range of [0.7, 0.9] * fw.
-                        2. In `frames_points[i]`, searches for the first point that is both to the left and above the anchor found in step 1,
-                           restricted to the horizontal range of [0.6, 0.8] * fw.
-                        3. If a valid pair of points is found, stores it in `frames_extreme_pairs` as `std::array<desc_c_2D, 2>`.
-                        4. After iterating through all frames, computes the typical displacement values (`reference_dx` and `reference_dy`)
-                           using a median-mean blend algorithm (weighted by `median_weight`).
-                           
-                    */
-
-
-                    // =======================================================================================
-                    // 1st pass logic - calibrate the reference dx and dy by bottom rigth extrema tracks points
-                    // =======================================================================================
+                    // 5. Calibrate the reference displacement from consecutive-frame point pairs:
+                    //    a. Select an extreme point in frame n+1 inside zone 2.
+                    //    b. Match it with a point in frame n inside zone 1.
+                    //    c. Collect valid pairs, blend their pixel displacements, and convert
+                    //       the result to millimeters for reference_dx and reference_dy.
 
                     // Buffers for deltas
                     std::vector<float> all_dx;
@@ -1242,9 +1239,8 @@ void opencv_calculation_global_update()
                     }
 
                         
-                    // =======================================================================================
-                    // 4. Ending part: Calculate global reference displacements using a median-mean blend (in mm).
-                    // =======================================================================================
+                    // Blend the collected displacements, convert them to millimeters,
+                    // and save them as the reference displacement for Stage 3.2.
 
                     nozzle_detection_mask* controlled_mask = &nozzle_mask_to_process;
 
@@ -1317,6 +1313,7 @@ void opencv_calculation_global_update()
                     }
                                                         
                     
+                    // 6. Print the video-wide results in test mode.
                     if (FPC_TEST_MODE)
                     {
 
@@ -1344,9 +1341,8 @@ void opencv_calculation_global_update()
                     
                     }
 
+                    // 7. Mark Stage 1 data as calculated.
                     curr_dtp_2->calculated = true;
-
-// ====================================================================================== Global video statistics calculation (Outside the frame loop) =====
 
                 }
 
@@ -1355,8 +1351,44 @@ void opencv_calculation_global_update()
                 state_progress_bar.operations_counter += 1;
             }
 
+
             else if (data_to_control->stage_1_end && !data_to_control->stage_2_end)
             {
+
+                /*
+
+                    Stage 2 processes the current video's frame data and calculates the final
+                    flow characteristics. It runs after Stage 1 has completed and before the
+                    video is marked as fully processed.
+
+                    Processing pipeline:
+
+                    1. Process the current frame for Stage 3.2:
+
+                        Collect that frame's particle tracks and add them to the per-frame and
+                        video-wide track containers. Advance the processed-pair counter and the
+                        current operation index.
+
+
+                    2. When the operation index reaches the current video's operation limit,
+                    calculate the final results:
+
+                        - For each frame, blend the median and mean track speed and angle.
+                        - Compare consecutive frames and blend the absolute speed and shortest
+                            angular deltas.
+                        - Calculate the blended main flow across all tracks, classify tracks as
+                            straight or deviated, and calculate the corresponding speed, angle,
+                            and deviation percentage.
+
+                    3. Print the Stage 3.2 results when test mode is enabled:
+
+                        Then mark the current video as fully processed, set the context to reset, restore the
+                        default operation state, and release the current file pointer. The next
+                        update can then select and process another video, if one remains.
+
+                */
+
+
                 opencv_global_calculation_update_ctx.global_operation = PROCESSING_STAGE_2_CGO;
 
 
@@ -1378,46 +1410,14 @@ void opencv_calculation_global_update()
 
 
 
-                // Check if the current video file has reached its absolute end for Stage 2.
-                // Since 'total_frame_count' represents the operations limit for the CURRENT active video only
-                // (calculated as N frames + (N - 1) pairs = 2N - 1) and 'current_frame_index' resets per video,
-                // hitting this condition means the current file is fully processed.
-                // 
-                // Next steps handling:
-                // - If there are more videos remaining: trigger switch_video(), update context, and set need_reset = true.
-                // - If this was the last video file: officially mark data_to_control->stage_2_end = true.
-
+                // Stage 2 processes N frames and N - 1 frame pairs. When the operation
+                // count reaches the current video's limit, calculate its final answers.
                 if (opencv_global_calculation_update_ctx.current_frame_index == 
                     opencv_global_calculation_update_ctx.total_frame_count)
                 {
+                    // ===== Finish Stage 2 and calculate track results =====
 
-                    // ====== Calculate the answers for stage 3.2 ======
-
-                    /*
-                        Answers:
-
-                            float main_angle;               // In degrees from -180 to 180 by the 0 at the main axe, founded at the step 1
-
-                            float main_speed;               // m/s for all tracks
-
-                            float straight_speed;           // m/s only for straight tracks
-
-                            float deviation_angle;          // In degrees from -180 to 180 by the 0 at the main_angle, founded at this calculation
-
-                            float deviation_speed;          // m/s only for deviated tracks
-
-                            float deviation_percentage;     // Size of deviated_tracks / size of tracks * 100
-
-                            float frames_speed_delta;       // Mean / med blend of main speed delta between frames (m/s) - for all frames pairs by tracks_frames
-                           
-                            float frames_angle_delta;       // Mean / med blend of main angle delta between frames (degrees) - for all frames pairs by tracks_frames
-
-                    */
-
-
-                    // -------------------------------------------------------------------------
-                    // Helpers
-                    // -------------------------------------------------------------------------
+                    // 1. Define the angle, mean, and median helpers used by the calculations.
 
                     auto normalize_angle = [](float angle) -> float
                     {
@@ -1495,9 +1495,7 @@ void opencv_calculation_global_update()
                     };
 
 
-                    // -------------------------------------------------------------------------
-                    // Input data
-                    // -------------------------------------------------------------------------
+                    // 2. Read the nozzle angle and the median/mean blend weights.
 
                     const float nozzle_axe_angle =
                         curr_dtp_1->nozzle_axe_angle;
@@ -1510,8 +1508,7 @@ void opencv_calculation_global_update()
                         1.0f - median_weight;
 
 
-                    // Calculate per-frame blended main flow values, then compare
-                    // each consecutive frame pair.
+                    // 3. Calculate each frame's blended main speed and angle.
 
                     
                     const std::vector<std::vector<single_track>>& tracks_frames =
@@ -1540,31 +1537,8 @@ void opencv_calculation_global_update()
                     }
 
 
-
-                    /*
-                        Calculation pipeline for main-flow changes between consecutive frames:
-
-                        1. For each frame in tracks_frames, collect the speeds and angles of its
-                        tracks. Calculate the median and mean for each characteristic, then
-                        combine them using median_weight and (1 - median_weight). This produces
-                        the frame's blended speed and angle using the same approach as for the
-                        overall tracks collection.
-
-                        2. For each pair of consecutive frames n and n+1, calculate the deltas:
-                        - speed delta: the absolute difference between blended speeds;
-                        - angle delta: the absolute shortest angular difference between blended
-                            angles. Normalize the difference to [-180, 180] to handle wraparound,
-                            such as a transition from 179° to -179°.
-
-                        3. Store the deltas from all consecutive frame pairs in separate
-                        containers. For each container, calculate the median and mean, then
-                        blend them using the same weights: median_weight and
-                        (1 - median_weight).
-
-                        4. Store the resulting blended values in frames_speed_delta and
-                        frames_angle_delta. If there are no frame pairs to compare, set the
-                        corresponding value to 0.
-                    */
+                    // 4. Compare consecutive frame values and blend their absolute deltas.
+                    //    Angle deltas use the shortest path across the -180/180 boundary.
                    
                     std::vector<float> delta_speed;
                     std::vector<float> delta_angle;
@@ -1645,6 +1619,7 @@ void opencv_calculation_global_update()
                         calculate_delta_blend(delta_angle);
 
 
+                    // 5. Calculate the blended main flow across all tracks.
                     std::vector<single_track>& tracks = curr_dtp_3->tracks;
 
 
@@ -1660,9 +1635,7 @@ void opencv_calculation_global_update()
                     }
                     else
                     {
-                        // ---------------------------------------------------------------------
-                        // Calculate statistics for ALL tracks
-                        // ---------------------------------------------------------------------
+                        // Calculate median and mean speed and angle for all tracks.
 
                         const float tracks_median_speed =
                             calculate_median(tracks, true);
@@ -1695,9 +1668,7 @@ void opencv_calculation_global_update()
                         curr_dtp_3->main_speed = blended_speed;
 
 
-                        // ---------------------------------------------------------------------
-                        // Determine angular deviation boundary
-                        // ---------------------------------------------------------------------
+                        // 6. Determine the deviation boundary and classify each track.
 
                         const float minimal_deviation_angle = 10.0f;
 
@@ -1710,10 +1681,6 @@ void opencv_calculation_global_update()
                             );
 
 
-
-                        // ---------------------------------------------------------------------
-                        // Split tracks into straight / deviated
-                        // ---------------------------------------------------------------------
 
                         curr_dtp_3->straight_tracks.clear();
                         curr_dtp_3->deviated_tracks.clear();
@@ -1741,9 +1708,7 @@ void opencv_calculation_global_update()
                         }
 
 
-                        // ---------------------------------------------------------------------
-                        // Straight tracks statistics
-                        // ---------------------------------------------------------------------
+                        // 7. Calculate blended speed for straight tracks.
 
                         const float straight_tracks_median_angle =
                             calculate_median(
@@ -1777,9 +1742,7 @@ void opencv_calculation_global_update()
                             straight_tracks_mean_speed * mean_weight;
 
 
-                        // ---------------------------------------------------------------------
-                        // Deviated tracks statistics
-                        // ---------------------------------------------------------------------
+                        // 8. Calculate deviation angle, speed, and percentage.
 
                         const float deviated_tracks_median_angle =
                             calculate_median(
@@ -1806,10 +1769,6 @@ void opencv_calculation_global_update()
                                 true
                             );
 
-
-                        // ---------------------------------------------------------------------
-                        // Deviation answers
-                        // ---------------------------------------------------------------------
 
                         if (!curr_dtp_3->deviated_tracks.empty())
                         {
@@ -1841,10 +1800,6 @@ void opencv_calculation_global_update()
                         }
 
 
-                        // ---------------------------------------------------------------------
-                        // Percentage of deviated tracks
-                        // ---------------------------------------------------------------------
-
                         curr_dtp_3->deviation_percentage =
 
                             static_cast<float>(curr_dtp_3->deviated_tracks.size()) /
@@ -1853,10 +1808,7 @@ void opencv_calculation_global_update()
 
                             
 
-                        // ---------------------------------------------------------------------
-                        // TEST OUTPUT
-                        // ---------------------------------------------------------------------
-
+                        // 9. Print the calculated Stage 3.2 results in test mode.
                         if (FPC_TEST_MODE)
                         {
                             std::cout << "\n";
@@ -2022,30 +1974,20 @@ void opencv_calculation_global_update()
                         }
                     }
 
-                    // ====== Calculate the answers for stage 3.2 ======
-
-
-
+                    // 10. Mark this video complete and reset the operation context.
+                    //     The next update will select another video if one remains.
                     data_to_control->stage_2_end = true;
 
-
-                    // 2nd stage ended - so we set the flag to switch the video
-                    // inside the for-loop at the start of this function
-                    // The next update cycle will select another using file.
                     data_to_control->calculated_flag = true;
 
 
-                    // For the next video
                     opencv_global_calculation_update_ctx.need_reset = true;
 
-                    // Basic
                     opencv_global_calculation_update_ctx.global_operation = PROCESSING_STAGE_1_CGO;
 
-                    // Current operation
                     opencv_global_calculation_update_ctx.operation = MASK_1_PROCESSING_CO;
 
 
-                    // Drop the data to control for calculation end or reinit
                     data_to_control = nullptr;
                 }
 
@@ -3785,6 +3727,9 @@ void analyse_pairs(
     unsigned int f_n_p_size = passed_frame_n_plus_points.size();
 
 
+    float scale = data_to_process_1->scale;
+
+
     // Matrix fill 
     for (unsigned int i = 0; i < f_n_size; i++)
     {
@@ -3802,19 +3747,20 @@ void analyse_pairs(
 
             bool compare_end = false;
 
+
             while (!compare_end)
             {
 
-            
                 int x_n = passed_frame_n_points[i].x;
                 int y_n = passed_frame_n_points[i].y;
 
                 int x_n_p = passed_frame_n_plus_points[j].x;
                 int y_n_p = passed_frame_n_plus_points[j].y;
 
-
-                int curr_dx = x_n_p - x_n;                   // Need to know direction on compare
-                int curr_dy = std::abs(y_n_p - y_n);         // Don't need to know direction on compare 
+                
+                // Deltas in mm
+                float curr_dx = (x_n_p - x_n) * scale;                   // Need to know direction on compare
+                float curr_dy = std::abs(y_n_p - y_n) * scale;           // Don't need to know direction on compare 
 
                 // Can't go back or stay on previous position 
                 if (curr_dx <= 0) 
@@ -3832,8 +3778,8 @@ void analyse_pairs(
 
                 // 1. Count errors
 
-                float error_x = std::fabs(static_cast<float>(curr_dx) - passed_t_dx);
-                float error_y = std::fabs(static_cast<float>(curr_dy) - passed_t_dy);
+                float error_x = std::fabs(curr_dx - passed_t_dx);
+                float error_y = std::fabs(curr_dy - passed_t_dy);
 
 
                 // 2. Calculate the Proximity Score (Range: 0.0 to 1.0)
@@ -3847,8 +3793,10 @@ void analyse_pairs(
                 // - The denominator (5.0f) controls the filtering stiffness (sensitivity tolerance):
                 //   A smaller value makes it strict (sharp drop), a larger value allows a wider error window.
 
-                float score_x = std::exp(-error_x / 5.0f); 
-                float score_y = std::exp(-error_y / 5.0f);
+                const float score_scale_mm = 5.0f * scale;
+
+                float score_x = std::exp(-error_x / score_scale_mm); 
+                float score_y = std::exp(-error_y / score_scale_mm);
 
 
                 // 3. Blend with coefficients
@@ -4208,10 +4156,9 @@ void processing_stage_3_2(cv::Mat* current_mat)
         data_to_process_3->frames_points[data_to_process_3->frames_points_vectors_counter + 1];
 
 
-    // Target dx and dy for my "pseudoHungary" algorithm
-
-    float t_dx = data_to_process_3->reference_dx;
-    float t_dy = data_to_process_3->reference_dy;
+    // Target dx and dy for my "pseudoHungary 
+    float t_dx = data_to_process_3->reference_dx;      // mm !!!
+    float t_dy = data_to_process_3->reference_dy;      // mm !!!
 
 
     // 1.0. Point to point comparation

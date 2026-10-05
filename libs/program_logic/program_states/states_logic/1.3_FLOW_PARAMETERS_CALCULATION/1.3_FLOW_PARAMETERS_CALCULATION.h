@@ -397,8 +397,8 @@ struct processing_3_data
 
     // By median-mean blend (depended on median_weight)
 
-    float reference_dx;                                                // Typical delta value by 1st pass analysis
-    float reference_dy;                                                // Typical delta value by 1st pass analysis
+    float reference_dx;                                                // Typical delta value by 1st pass analysis in mm
+    float reference_dy;                                                // Typical delta value by 1st pass analysis in mm
 
     // ===== First pass =====
 
