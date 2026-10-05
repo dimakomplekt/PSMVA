@@ -1407,6 +1407,11 @@ void opencv_calculation_global_update()
                             float deviation_speed;          // m/s only for deviated tracks
 
                             float deviation_percentage;     // Size of deviated_tracks / size of tracks * 100
+
+                            float frames_speed_delta;       // Mean / med blend of main speed delta between frames (m/s) - for all frames pairs by tracks_frames
+                           
+                            float frames_angle_delta;       // Mean / med blend of main angle delta between frames (degrees) - for all frames pairs by tracks_frames
+
                     */
 
 
@@ -1503,6 +1508,141 @@ void opencv_calculation_global_update()
 
                     const float mean_weight =
                         1.0f - median_weight;
+
+
+                    // Calculate per-frame blended main flow values, then compare
+                    // each consecutive frame pair.
+
+                    
+                    const std::vector<std::vector<single_track>>& tracks_frames =
+                        curr_dtp_3->tracks_frames;
+
+                    std::vector<float> frame_main_speeds;
+                    std::vector<float> frame_main_angles;
+
+                    frame_main_speeds.reserve(tracks_frames.size());
+                    frame_main_angles.reserve(tracks_frames.size());
+
+                    for (const std::vector<single_track>& frame_tracks : tracks_frames)
+                    {
+                        const float frame_blended_speed =
+                            calculate_median(frame_tracks, true) * median_weight +
+                            calculate_mean(frame_tracks, true) * mean_weight;
+
+                        const float frame_blended_angle =
+                            calculate_median(frame_tracks, false) * median_weight +
+                            calculate_mean(frame_tracks, false) * mean_weight;
+
+                        frame_main_speeds.push_back(frame_blended_speed);
+                        frame_main_angles.push_back(
+                            normalize_angle(frame_blended_angle - nozzle_axe_angle)
+                        );
+                    }
+
+
+
+                    /*
+                        Calculation pipeline for main-flow changes between consecutive frames:
+
+                        1. For each frame in tracks_frames, collect the speeds and angles of its
+                        tracks. Calculate the median and mean for each characteristic, then
+                        combine them using median_weight and (1 - median_weight). This produces
+                        the frame's blended speed and angle using the same approach as for the
+                        overall tracks collection.
+
+                        2. For each pair of consecutive frames n and n+1, calculate the deltas:
+                        - speed delta: the absolute difference between blended speeds;
+                        - angle delta: the absolute shortest angular difference between blended
+                            angles. Normalize the difference to [-180, 180] to handle wraparound,
+                            such as a transition from 179° to -179°.
+
+                        3. Store the deltas from all consecutive frame pairs in separate
+                        containers. For each container, calculate the median and mean, then
+                        blend them using the same weights: median_weight and
+                        (1 - median_weight).
+
+                        4. Store the resulting blended values in frames_speed_delta and
+                        frames_angle_delta. If there are no frame pairs to compare, set the
+                        corresponding value to 0.
+                    */
+                   
+                    std::vector<float> delta_speed;
+                    std::vector<float> delta_angle;
+
+
+                    if (tracks_frames.size() > 1)
+                    {
+                        delta_speed.reserve(tracks_frames.size() - 1);
+                        delta_angle.reserve(tracks_frames.size() - 1);
+
+                        for (size_t i = 0; i + 1 < tracks_frames.size(); ++i)
+                        {
+                            delta_speed.push_back(
+                                std::abs(
+                                    frame_main_speeds[i + 1] - frame_main_speeds[i]
+                                )
+                            );
+
+                            delta_angle.push_back(
+                                std::abs(
+                                    normalize_angle(
+                                        frame_main_angles[i + 1] - frame_main_angles[i]
+                                    )
+                                )
+                            );
+                        }
+                    }
+
+                    auto calculate_delta_median = [](const std::vector<float>& values) -> float
+                    {
+                        if (values.empty())
+                            return 0.0f;
+
+                        std::vector<float> sorted_values = values;
+                        const size_t middle = sorted_values.size() / 2;
+
+                        std::nth_element(
+                            sorted_values.begin(),
+                            sorted_values.begin() + middle,
+                            sorted_values.end()
+                        );
+
+                        const float upper = sorted_values[middle];
+                        if (sorted_values.size() % 2 != 0)
+                            return upper;
+
+                        std::nth_element(
+                            sorted_values.begin(),
+                            sorted_values.begin() + middle - 1,
+                            sorted_values.end()
+                        );
+
+                        return (sorted_values[middle - 1] + upper) * 0.5f;
+                    };
+
+
+                    auto calculate_delta_blend =
+                        [&](const std::vector<float>& values) -> float
+                    {
+                        if (values.empty())
+                            return 0.0f;
+
+                        const float sum =
+                            std::accumulate(values.begin(), values.end(), 0.0f);
+                        const float mean =
+                            sum / static_cast<float>(values.size());
+                        const float median = calculate_delta_median(values);
+
+                        return median * median_weight + mean * mean_weight;
+                    };
+
+
+                    curr_dtp_3->frames_speed_delta =
+                        calculate_delta_blend(delta_speed);
+
+
+                    curr_dtp_3->frames_angle_delta =
+                        calculate_delta_blend(delta_angle);
 
 
                     std::vector<single_track>& tracks = curr_dtp_3->tracks;
@@ -1763,6 +1903,18 @@ void opencv_calculation_global_update()
                             std::cout << "Main speed: "
                                       << curr_dtp_3->main_speed << " m/s\n";
 
+                            std::cout << "\n--- FRAME-TO-FRAME DELTAS ---\n";
+                            std::cout << "Frames compared: "
+                                      << delta_speed.size() << "\n";
+
+                            std::cout << "Blended absolute main speed delta: "
+                                      << curr_dtp_3->frames_speed_delta
+                                      << " m/s\n";
+
+                            std::cout << "Blended absolute main angle delta: "
+                                      << curr_dtp_3->frames_angle_delta
+                                      << " deg\n";
+
 
                             std::cout << "\n--- CLASSIFICATION ---\n";
                             std::cout << "Deflection percentage setting: "
@@ -1857,6 +2009,14 @@ void opencv_calculation_global_update()
                             std::cout << "deviation_percentage = "
                                       << curr_dtp_3->deviation_percentage
                                       << " %\n";
+
+                            std::cout << "frames_speed_delta = "
+                                      << curr_dtp_3->frames_speed_delta
+                                      << " m/s\n";
+
+                            std::cout << "frames_angle_delta = "
+                                      << curr_dtp_3->frames_angle_delta
+                                      << " deg\n";
 
                             std::cout << "\n==============================================\n";
                         }
@@ -4456,5 +4616,3 @@ void progress_bar_render(SDL_Renderer* renderer)
 }
 
 // =========================================================================================== PROGRESS BAR
-
-

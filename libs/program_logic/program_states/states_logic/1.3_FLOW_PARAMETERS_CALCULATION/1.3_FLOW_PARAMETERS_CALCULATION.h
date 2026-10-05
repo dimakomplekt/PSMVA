@@ -452,6 +452,10 @@ struct processing_3_data
 
     float deviation_percentage;                    // size of deviated_tracks container / size of tracks container * 100
 
+
+    float frames_speed_delta;                      // Mean / med blend of main speed delta between frames (m/s) - for all frames pairs by tracks_frames
+    float frames_angle_delta;                      // Mean / med blend of main angle delta between frames (degrees) - for all frames pairs by tracks_frames
+    
     // ===== Answer =====
 
 
