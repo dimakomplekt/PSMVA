@@ -3542,10 +3542,35 @@ void processing_stage_3_1(cv::Mat* current_mat)
 // Analysis of all pairs
 void analyse_pairs(
 
+    /**
+     * @brief Output 2D analysis grid storing comparison contexts for every possible point combination.
+     * Passed by non-const reference because the function directly populates each cell's 
+     * tracking metadata and calculated target_compare_result scores.
+     */
     std::vector<std::vector<pair_analysis_ctx>>& passed_analysis_matrix,
+
+    /**
+     * @brief Read-only list of 2D source points from the previous frame (Frame N).
+     * Passed by const-reference to efficiently read coordinates [x, y] without overhead.
+     */
     const std::vector<desc_c_2D>& passed_frame_n_points, 
+
+    /**
+     * @brief Read-only list of 2D destination points from the current frame (Frame N+1).
+     * Passed by const-reference to read destination coordinates [x, y] for delta calculations.
+     */
     const std::vector<desc_c_2D>& passed_frame_n_plus_points, 
+
+    /**
+     * @brief The expected baseline pixel displacement along the X-axis between frames.
+     * Used as the target reference value to evaluate tracking error on the horizontal axis.
+     */
     float passed_t_dx, 
+
+    /**
+     * @brief The expected baseline pixel displacement along the Y-axis between frames.
+     * Used as the target reference value to evaluate tracking error on the vertical axis.
+     */
     float passed_t_dy
 
 )
@@ -3553,6 +3578,37 @@ void analyse_pairs(
 
     // Fill the passed_analysis_matrix by the results of frames points comparation
     // and left the approved flag as false
+
+
+    /**
+     * @brief Pairwise Feature Analysis and Proximity Matrix Generation
+     * 
+     * This function evaluates all possible pairings between points in Frame N and Frame N+1.
+     * It computes a similarity score for each combination based on spatial constraints 
+     * and predicted frame displacement (deltas), populating a 2D analysis matrix.
+     * 
+     * @algorithm_flow
+     * 
+     * 1. MATRIX POPULATION GRID:
+     *    - Executes a nested loop over all points 'i' in Frame N and points 'j' in Frame N+1,
+     *      ensuring an exhaustive O(N * M) cross-comparison.
+     * 
+     * 2. HARD SPATIAL CONSTRAINTS (Early Rejection):
+     *    - Evaluates physical constraints before calculating complex scores.
+     *    - If a point moves backward or remains completely stagnant along the X-axis (curr_dx <= 0),
+     *      the combination is immediately invalidated by setting the score to 0.0.
+     * 
+     * 3. GAUSSIAN EXPONENTIAL ERROR DECAY:
+     *    - Calculates absolute pixel displacement errors relative to expected tracking deltas (passed_t_dx, passed_t_dy).
+     *    - Transforms these raw pixel errors into normalized similarity scores (0.0 to 1.0) using exponential decay.
+     *    - Perfect tracking alignment yields a score of 1.0, while increasing displacement errors cause the score to decay toward 0.0.
+     * 
+     * 4. BLENDED PROPORTIONAL SCORING:
+     *    - Combines the separate X and Y proximity scores into a single final metric using weighted blending proportions.
+     *    - In the current configuration, Y-axis displacement accuracy has double the influence (1.0 weight) 
+     *      compared to X-axis accuracy (0.5 weight) during score evaluation.
+     */
+
 
 
     // ===== !!! ATTENTION !!! =====
@@ -3598,7 +3654,7 @@ void analyse_pairs(
 
 
                 int curr_dx = x_n_p - x_n;                   // Need to know direction on compare
-                int curr_dy = std::abs(y_n_p - y_n);     // Don't need to know direction on compare 
+                int curr_dy = std::abs(y_n_p - y_n);         // Don't need to know direction on compare 
 
                 // Can't go back or stay on previous position 
                 if (curr_dx <= 0) 
@@ -3659,22 +3715,111 @@ void analyse_pairs(
 // Recursive pairs search and illimination stages by target_compare_result obtained at analyse_pairs stage
 void find_pairs(
 
+    /**
+     * @brief A 2D matrix containing pre-calculated similarity scores between points.
+     * Passed by const-reference to prevent expensive copying of the 2D grid.
+     * Accessing `matrix[i][j]` provides the comparison data between point 'i' (Frame N) and point 'j' (Frame N+1).
+     */
     const std::vector<std::vector<pair_analysis_ctx>>& passed_analysis_matrix,
+
+
+    /**
+     * @brief Output container that stores the final, validated pairs of matched points.
+     * Passed by non-const reference because the function directly appends (push_back) 
+     * the confirmed pairs into this external vector.
+     */
     std::vector<std::array<desc_c_2D, 2>>& passed_frame_pairs,
+
+    /**
+     * @brief Read-only list of all 2D point descriptors from the previous frame (Frame N).
+     * Passed by const-reference for performance. Used to read spatial coordinates (like .y) 
+     * and to pull the original points when writing winners to the output container.
+     */
     const std::vector<desc_c_2D>& passed_frame_n_points,
+
+    /**
+     * @brief Read-only list of all 2D point descriptors from the current frame (Frame N+1).
+     * Passed by const-reference for performance. Used for target destination coordinates 
+     * and to resolve conflicts based on movement direction.
+     */
     const std::vector<desc_c_2D>& passed_frame_n_plus_points
 
 )
 {
+    /**
+     * 
+     * @brief Iterative Greedy Matching Algorithm with Conflict Resolution
+     * 
+     * This function matches point features between two consecutive frames (Frame N and Frame N+1)
+     * using an analysis matrix (similarity scores) and vertical movement constraints.
+     * 
+     * @algorithm_flow
+     * 
+     * 1. INITIALIZATION:
+     *    - Populate two index pools ('remainder_n' and 'remainder_n_plus') with all available points.
+     *    - These pools represent the tracking "search space" and act as elimination zones.
+     *    - Set the quality threshold ('min_score_threshold = 0.5f') to ignore weak matches.
+     * 
+     * 2. THE MAIN ITERATIVE LOOP (while global_pair_found):
+     *    - Reset the loop control flag ('global_pair_found = false') and clear the temporary match board.
+     * 
+     * 3. GREEDY CANDIDATE SELECTION:
+     *    - For each currently unmatched point 'i' in Frame N, scan all remaining unmatched points 'j' in Frame N+1.
+     *    - Find the single best candidate 'best_j' that yields the highest similarity score ('max_score').
+     *    - If 'max_score' passes the 50% threshold, point 'i' attempts to claim 'best_j'.
+     * 
+     * 4. CASCADE CONFLICT RESOLUTION (Arena Phase):
+     *    - Since multiple points from Frame N can select the same target 'best_j', conflicts are evaluated:
+     *      - Priority 1 (Similarity): If the new candidate has a strictly higher score than the previous match, 
+     *        it immediately takes over the spot.
+     *      - Priority 2 (Directional Fallback): If the scores are not superior, the algorithm falls back 
+     *        to check the physical Y-axis movement direction (e.g., favoring downward motion if 'filter' is enabled).
+     *      - Priority 3 (Rejection): If the new candidate is weaker in both score and direction, it is discarded.
+     * 
+     * 5. MATCH LOCK-IN & POOL TRIMMING:
+     *    - At the end of the iteration, all surviving unique pairs in 'tentative_matches' are finalized.
+     *    - The pairs are recorded into the output container 'passed_frame_pairs'.
+     *    - To guarantee convergence, these matched indices are completely erased from 'remainder_n' and 'remainder_n_plus'.
+     *    - 'global_pair_found' is flipped to true, triggering a new sub-cycle for the remaining unmatched points.
+     * 
+     * 6. TERMINATION:
+     *    - The loop naturally terminates when no new pairs can be formed (either pools are empty or remaining scores are < 0.5).
+     * 
+     */
+
+
     size_t size_n = passed_frame_n_points.size();
     size_t size_n_plus = passed_frame_n_plus_points.size();
 
 
-    // TMP of the matches
+    /**
+     * @brief Temporary storage for resolving mapping conflicts between Frame N and Frame N+1.
+     * 
+     * Key (int): 
+     *   The unique index 'j' of a point from the NEXT frame (Frame N+1).
+     * 
+     * Value (temporary_match): 
+     *   The current best candidate 'i' from the PREVIOUS frame (Frame N) 
+     *   that wants to pair with 'j', along with its similarity score.
+     * 
+     * How it is used in the algorithm:
+     * 
+     *   1. Exclusive ownership: Since a map can only hold ONE value per key, 
+     *      each point 'j' in Frame N+1 can temporarily belong to only one point 'i' from Frame N.
+     *   2. Conflict resolution: If multiple points from Frame N claim the same 
+     *      point 'j' during the iteration, a custom filter checks their vertical 
+     *      movement direction and similarity score. The "winner" overwrites the value, 
+     *      while the "loser" is kicked out to try finding another pair in the next iteration.
+     *   3. Finalization: At the end of each sub-cycle, all surviving pairs in this map 
+     *      are confirmed as absolute matches, locked into the final container, and removed 
+     *      from future consideration.
+     */
     std::unordered_map<int, temporary_match> tentative_matches;
 
 
     // 1.0: Init step reminders
+
+    // After pair findings, the remaining unpaired points from Frame N and Frame N+1 will be stored in these sets.
 
     std::set<int> remainder_n;
     std::set<int> remainder_n_plus;
@@ -3685,14 +3830,15 @@ void find_pairs(
     for (size_t j = 0; j < size_n_plus; ++j) remainder_n_plus.insert(j);
 
 
+
     // Minimal active transition score
     const float min_score_threshold = 0.5f;
 
-
+    // Stop-flag
     bool global_pair_found = true;
 
 
-    // Cycle actions
+    // Recursive cycle actions
     while (global_pair_found)
     {
         global_pair_found = false;
@@ -3701,7 +3847,7 @@ void find_pairs(
         tentative_matches.clear();
 
 
-        // Step 3: Check the best pairs for reminders
+        // Step 3: Check the best pairs ONLY FOR REMINDERS
         for (int i : remainder_n) 
         {
 
@@ -3712,8 +3858,10 @@ void find_pairs(
             // Check free pairs of N+1 frame
             for (int j : remainder_n_plus) 
             {
+                // Inject current score from passed score-matrix
                 float current_score = passed_analysis_matrix[i][j].target_compare_result;
 
+                // Write max
                 if (current_score > max_score) 
                 {
                     max_score = current_score;
@@ -3722,15 +3870,19 @@ void find_pairs(
             }
             
 
+            // Step 4: Conflicts resolve.
             if (best_j != -1 && max_score >= min_score_threshold) 
             {
-                // Step 4: Conflicts resolve. If j is used with other i:
+                // If j is not used with other i (find() passet to .end()):
                 if (tentative_matches.find(best_j) == tentative_matches.end()) 
                 {
                     tentative_matches[best_j] = { i, max_score };
                 } 
                 else
                 {
+                    // Resolve part
+                    // Cascade filter of 2 values
+
                     const auto& previous_match = tentative_matches[best_j];
 
                     const float current_y_n =
@@ -3760,26 +3912,31 @@ void find_pairs(
                         previous_dy < 0.0f ? -1 : 0;
 
 
+                    // Control vertical filter
                     bool filter = false;
 
-                    // One candidate moves down, the other does not.
-                    if (current_vertical_direction == 1 &&
-                        previous_vertical_direction != 1)
+
+                    if (max_score > previous_match.score)
                     {
+                        tentative_matches[best_j] = { i, max_score };
+                    }
+                    else if (previous_vertical_direction == 1 && current_vertical_direction != 1)
+                    {
+                        //
+                    }
+
+                    // One candidate moves down, the other does not.
+                    else if (current_vertical_direction == 1 && previous_vertical_direction != 1)
+                    {
+                        // Only if filter is enabled, we give the worst candidate by score (or equal)
+                        // a 50% chance to knock out the leader based on movement direction
                         if (filter) 
                         {
-                            tentative_matches[best_j] = { i, max_score };
+                            if (rand() % 2 == 0)
+                            {
+                                tentative_matches[best_j] = { i, max_score };
+                            }
                         }
-                    }
-                    else if (previous_vertical_direction == 1 &&
-                            current_vertical_direction != 1)
-                    {
-                        // Keep previous match.
-                    }
-                    else if (max_score > previous_match.score)
-                    {
-                        // Same movement direction -> score decides.
-                        tentative_matches[best_j] = { i, max_score };
                     }
                 }
             }
@@ -3807,9 +3964,7 @@ void find_pairs(
 
     }
 
-
     // ===== ENDED =====
-
 
 }
 
@@ -3821,6 +3976,50 @@ void find_pairs(
 
 void processing_stage_3_2(cv::Mat* current_mat)
 {
+
+    /**
+     * @brief High-Level Pipeline for Inter-Frame Feature Tracking and Kinematics Calculation (Stage 3.2)
+     * 
+     * This function orchestrates the complete spatial feature-matching workflow between two sequential 
+     * video frames. It calculates physical path trajectories, scales pixel deltas to real-world metric units, 
+     * computes velocity profiles, and handles debug visualization.
+     * 
+     * @pipeline_flow
+     * 
+     * 1. FRAME DATA EXTRACTION:
+     *    - Extracts point descriptor vectors for the baseline frame (Frame N) and the target frame (Frame N+1) 
+     *      from the global processing data block using the current sequence counter.
+     *    - Retrieves historical reference shifts (t_dx, t_dy) to guide the "pseudo-Hungarian" tracking logic.
+     * 
+     * 2. PAIRWISE ANALYSIS & SCORE GENERATION (Stage 1.0):
+     *    - Instantiates a dense 2D 'analysis_matrix' mapping all points in Frame N against all points in Frame N+1.
+     *    - Delegates execution to 'analyse_pairs' to compute a grid of normalized proximity and similarity scores.
+     * 
+     * 3. EXCLUSIVE MATCH SEARCH & CONFLICT RESOLUTION (Stage 2.0):
+     *    - Invokes 'find_pairs' to recursively isolate optimal point-to-point associations.
+     *    - Resolves multi-candidate mapping conflicts using score hierarchy and directional rules, 
+     *      outputting deterministic pairs into the 'frame_pairs' container.
+     * 
+     * 4. KINEMATIC TRANSFORMATION & PHYSICS CALCULATION:
+     *    - Iterates through verified pairs to compute actual physical attributes:
+     *      - Computes directional pixel deltas (dx, dy).
+     *      - Scales raw pixel motion to absolute metric measurements (millimeters) via pixel scaling coefficients.
+     *      - Calculates full linear path distance (track length) using the Pythagorean theorem.
+     *      - Derives real-world velocity (meters per second) relative to the video frame-rate timestamp delta.
+     *      - Calculates exact trajectory vectors (angles in degrees, ranging from -180 to 180) 
+     *        mapped directly to the OpenCV flipped Y-axis layout using std::atan2.
+     * 
+     * 5. PERSISTENT STORAGE:
+     *    - Pushes calculated frame trajectories into the global tracking history storage object.
+     * 
+     * 6. DIAGNOSTIC RENDERING (Test Mode Overlay):
+     *    - If FPC_TEST_MODE is enabled, initializes a black hardware canvas mask.
+     *    - Draws a vector diagram overlay using anti-aliased geometry primitives (yellow trajectory vectors 
+     *      and solid red position anchors) to visualize feature transitions.
+     *    - Performs a destructive data copy, baking the diagnostic overlay directly back into the 'current_mat' buffer 
+     *      to ensure formatting compatibility with downstream graphic renderers (e.g., SDL).
+     * 
+     */
 
     // If we not inside test mode - calculate the transitions:
 
@@ -3913,6 +4112,7 @@ void processing_stage_3_2(cv::Mat* current_mat)
     // Init the vector of frame
     std::vector<single_track> frame_tracks;
     
+    
     // Fill the frame tracks
     for (unsigned int i = 0; i < frame_pairs.size(); i++)
     {
@@ -3971,6 +4171,8 @@ void processing_stage_3_2(cv::Mat* current_mat)
         data_to_process_3->tracks.push_back(frame_tracks[i]);
     }
 
+    data_to_process_3->tracks_frames.push_back(frame_tracks); 
+
     // Remainder
 
 
@@ -3989,12 +4191,12 @@ void processing_stage_3_2(cv::Mat* current_mat)
         cv::Point pt_n(frame_pairs[i][0].x, frame_pairs[i][0].y);
         cv::Point pt_n_plus(frame_pairs[i][1].x, frame_pairs[i][1].y);
 
-        // 1. Yellow 2px line between
-        cv::line(image_mask_bgr, pt_n, pt_n_plus, cv::Scalar(0, 255, 255), 2, cv::LINE_AA);
+        // 1. Yellow 1px line between
+        cv::line(image_mask_bgr, pt_n, pt_n_plus, cv::Scalar(0, 255, 255), 1, cv::LINE_AA);
 
-        // 2. Red dots 4mm
-        cv::circle(image_mask_bgr, pt_n, 4, cv::Scalar(0, 0, 255), -1, cv::LINE_AA);
-        cv::circle(image_mask_bgr, pt_n_plus, 4, cv::Scalar(0, 0, 255), -1, cv::LINE_AA);
+        // 2. Red dots 2mm
+        cv::circle(image_mask_bgr, pt_n, 2, cv::Scalar(0, 0, 255), -1, cv::LINE_AA);
+        cv::circle(image_mask_bgr, pt_n_plus, 2, cv::Scalar(0, 0, 255), -1, cv::LINE_AA);
     }
 
 

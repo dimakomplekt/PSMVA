@@ -422,11 +422,14 @@ struct processing_3_data
 
     // Tracks containers with separation
 
-    std::vector<single_track> tracks;               // Shared container
+    // Track for frames independent analysis
+    std::vector<std::vector<single_track>> tracks_frames; 
 
-    std::vector<single_track> straight_tracks;      // Tracks outside deviation zone
+    std::vector<single_track> tracks;                                   // Shared container
 
-    std::vector<single_track> deviated_tracks;     // Tracks inside deviation zone
+    std::vector<single_track> straight_tracks;                          // Tracks outside deviation zone
+
+    std::vector<single_track> deviated_tracks;                          // Tracks inside deviation zone
 
     // ===== Second pass =====
 
