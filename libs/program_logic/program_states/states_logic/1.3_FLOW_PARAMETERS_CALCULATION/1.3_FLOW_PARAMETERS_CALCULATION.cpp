@@ -1293,6 +1293,7 @@ void opencv_calculation_global_update()
                         std::cout << "\n\nVideo mean arc amplitude: " << curr_dtp_2->video_mean_jet_amplitude;
 
                         std::cout << "\nVideo mean light percentage: " << curr_dtp_2->video_mean_light_power_percentage << std::endl;
+                        
                         std::cout << "\nVideo mean light percentage delta (% / frame): " << curr_dtp_2->mean_light_power_delta_between_frames << std::endl;
                     
                     
@@ -1894,22 +1895,34 @@ void opencv_calculation_global_update()
                                       << " %\n";
 
 
+
+
                             std::cout << "\n--- FINAL ANSWERS ---\n";
+
+                            
+                            std::cout
+                                << "file: " << static_cast<int>(file_to_check_now) << "\n"
+                                << "path: " << file_path << "\n" << std::endl;
+                                
+
+                            std::cout << "\n\nVideo mean arc amplitude: " << curr_dtp_2->video_mean_jet_amplitude;
+
+                            std::cout << "\nVideo mean light percentage: " << curr_dtp_2->video_mean_light_power_percentage << std::endl;
+                            
+                            std::cout << "\nVideo mean light percentage delta (% / frame): " << curr_dtp_2->mean_light_power_delta_between_frames << std::endl;
+                        
+
                             std::cout << "main_angle = "
                                       << curr_dtp_3->main_angle
                                       << " deg\n";
 
-                            std::cout << "main_speed = "
-                                      << curr_dtp_3->main_speed
-                                      << " m/s\n";
+                            std::cout << "deviation_angle = "
+                                      << curr_dtp_3->deviation_angle
+                                      << " deg\n";
 
                             std::cout << "straight_speed = "
                                       << curr_dtp_3->straight_speed
                                       << " m/s\n";
-
-                            std::cout << "deviation_angle = "
-                                      << curr_dtp_3->deviation_angle
-                                      << " deg\n";
 
                             std::cout << "deviation_speed = "
                                       << curr_dtp_3->deviation_speed
