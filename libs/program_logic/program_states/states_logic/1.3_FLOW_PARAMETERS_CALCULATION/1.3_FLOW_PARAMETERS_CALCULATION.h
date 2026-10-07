@@ -371,18 +371,17 @@ struct processing_3_data
 
     // Delta from N + 1 point to N point
     float zone_1_x_min_c_delta = 0.02;
-    float zone_1_x_max_c_delta = 0.2;
+    float zone_1_x_max_c_delta = 0.15;
 
     // Maximum vertical distance from the selected N + 1 point.
     int pixel_spread = 10;
-
 
 
     // Allowed deviation from the main flow direction used for track classification.
     // Checks trigger if the value goes above (100 + X)% or below (95 - X)%.
     float deflection_percentage = 5.0f;
 
-    float minimal_deviation_angle = 5.0f;
+    float minimal_deviation_angle = 3.0f;
     
         
     // Answer characteristics use a median-mean blend.
@@ -410,7 +409,7 @@ struct processing_3_data
 
 
     // Threshold for nearness to reference dx/dy value for pair detection
-    float min_score_threshold = 0.6f;
+    float min_score_threshold = 0.5f;
 
     // Part of dx delta inside the score to reference nearness (uses inside the analyse_pairs() function)
     float dx_blend_part = 0.5f;

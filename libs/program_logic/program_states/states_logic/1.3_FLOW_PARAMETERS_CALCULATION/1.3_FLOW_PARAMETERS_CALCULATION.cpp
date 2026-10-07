@@ -4048,7 +4048,7 @@ void find_pairs(
 
 
                     // Control vertical filter
-                    bool filter = true;
+                    bool filter = false;
 
 
                     if (max_score > previous_match.score)
