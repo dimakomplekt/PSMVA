@@ -1525,7 +1525,7 @@ void opencv_calculation_global_update()
                         }
                     }
 
-                    auto calculate_delta_median = [](const std::vector<float>& values) -> float
+                    auto calculate_median_value = [](const std::vector<float>& values) -> float
                     {
                         if (values.empty())
                             return 0.0f;
@@ -1553,7 +1553,7 @@ void opencv_calculation_global_update()
                     };
 
 
-                    auto calculate_delta_blend =
+                    auto calculate_mean_median_blend =
                         [&](const std::vector<float>& values) -> float
                     {
                         if (values.empty())
@@ -1563,18 +1563,18 @@ void opencv_calculation_global_update()
                             std::accumulate(values.begin(), values.end(), 0.0f);
                         const float mean =
                             sum / static_cast<float>(values.size());
-                        const float median = calculate_delta_median(values);
+                        const float median = calculate_median_value(values);
 
                         return median * median_weight + mean * mean_weight;
                     };
 
 
                     curr_dtp_3->frames_speed_delta =
-                        calculate_delta_blend(delta_speed);
+                        calculate_mean_median_blend(delta_speed);
 
 
                     curr_dtp_3->frames_angle_delta =
-                        calculate_delta_blend(delta_angle);
+                        calculate_mean_median_blend(delta_angle);
 
 
                     // 5. Calculate the blended main flow across all tracks.
@@ -1588,6 +1588,8 @@ void opencv_calculation_global_update()
                         curr_dtp_3->main_speed = 0.0f;
                         curr_dtp_3->straight_speed = 0.0f;
                         curr_dtp_3->deviation_angle = 0.0f;
+                        curr_dtp_3->max_deviation_angle = 0.0f;
+                        curr_dtp_3->max_deviation_angle_all_frames = 0.0f;
                         curr_dtp_3->deviation_speed = 0.0f;
                         curr_dtp_3->deviation_percentage = 0.0f;
                     }
@@ -1625,7 +1627,6 @@ void opencv_calculation_global_update()
 
                         curr_dtp_3->main_speed = blended_speed;
 
-
                         // 6. Determine the deviation boundary and classify each track.
 
                         const float minimal_deviation_angle = data_to_process_3->minimal_deviation_angle;
@@ -1646,6 +1647,7 @@ void opencv_calculation_global_update()
                         curr_dtp_3->straight_tracks.reserve(tracks.size());
                         curr_dtp_3->deviated_tracks.reserve(tracks.size());
 
+                        float max_deviation_angle_all_frames = 0.0f;
 
                         for (const single_track& track : tracks)
                         {
@@ -1658,12 +1660,53 @@ void opencv_calculation_global_update()
                                 deviation_angle_limit)
                             {
                                 curr_dtp_3->deviated_tracks.push_back(track);
+                                max_deviation_angle_all_frames =
+                                    std::max(
+                                        max_deviation_angle_all_frames,
+                                        std::abs(angle_difference)
+                                    );
                             }
                             else
                             {
                                 curr_dtp_3->straight_tracks.push_back(track);
                             }
                         }
+
+                        curr_dtp_3->max_deviation_angle_all_frames =
+                            max_deviation_angle_all_frames;
+
+                        // Blend per-frame maximum deviations among classified deviated tracks only.
+                        std::vector<float> frame_max_deviation_angles;
+                        frame_max_deviation_angles.reserve(tracks_frames.size());
+
+                        for (const std::vector<single_track>& frame_tracks : tracks_frames)
+                        {
+                            float frame_max_deviation_angle = 0.0f;
+                            bool has_deviated_track = false;
+
+                            for (const single_track& track : frame_tracks)
+                            {
+                                const float angle_difference =
+                                    std::abs(normalize_angle(track.angle - blended_angle));
+
+                                if (angle_difference > deviation_angle_limit)
+                                {
+                                    frame_max_deviation_angle =
+                                        std::max(frame_max_deviation_angle, angle_difference);
+                                    has_deviated_track = true;
+                                }
+                            }
+
+                            if (has_deviated_track)
+                            {
+                                frame_max_deviation_angles.push_back(
+                                    frame_max_deviation_angle
+                                );
+                            }
+                        }
+
+                        curr_dtp_3->max_deviation_angle =
+                            calculate_mean_median_blend(frame_max_deviation_angles);
 
 
                         // 7. Calculate blended speed for straight tracks.
@@ -1730,22 +1773,24 @@ void opencv_calculation_global_update()
 
                         if (!curr_dtp_3->deviated_tracks.empty())
                         {
-                            const float deviated_blended_angle =
-                                deviated_tracks_median_angle * median_weight +
-                                deviated_tracks_mean_angle * mean_weight;
-
-
                             const float deviated_blended_speed =
                                 deviated_tracks_median_speed * median_weight +
                                 deviated_tracks_mean_speed * mean_weight;
 
+                            std::vector<float> deviated_angle_magnitudes;
+                            deviated_angle_magnitudes.reserve(
+                                curr_dtp_3->deviated_tracks.size()
+                            );
 
-                            // Deviation relative to the main flow direction.
-                            curr_dtp_3->deviation_angle =
-                                normalize_angle(
-                                    deviated_blended_angle -
-                                    blended_angle
+                            for (const single_track& track : curr_dtp_3->deviated_tracks)
+                            {
+                                deviated_angle_magnitudes.push_back(
+                                    std::abs(normalize_angle(track.angle - blended_angle))
                                 );
+                            }
+
+                            curr_dtp_3->deviation_angle =
+                                calculate_mean_median_blend(deviated_angle_magnitudes);
 
 
                             curr_dtp_3->deviation_speed =
@@ -1823,6 +1868,12 @@ void opencv_calculation_global_update()
 
                             std::cout << "Blended absolute main angle delta: "
                                       << curr_dtp_3->frames_angle_delta
+                                      << " deg\n";
+                            std::cout << "Blended per-frame maximum deviation angle: "
+                                      << curr_dtp_3->max_deviation_angle
+                                      << " deg\n";
+                            std::cout << "Absolute maximum deviation angle across all frames: "
+                                      << curr_dtp_3->max_deviation_angle_all_frames
                                       << " deg\n";
 
 
@@ -1902,7 +1953,7 @@ void opencv_calculation_global_update()
                             
                             std::cout
                                 << "file: " << static_cast<int>(file_to_check_now) << "\n"
-                                << "path: " << file_path << "\n" << std::endl;
+                                << "path: " << file_path << std::endl;
                                 
 
                             std::cout << "\n\nVideo mean arc amplitude: " << curr_dtp_2->video_mean_jet_amplitude;
@@ -1918,6 +1969,14 @@ void opencv_calculation_global_update()
 
                             std::cout << "deviation_angle = "
                                       << curr_dtp_3->deviation_angle
+                                      << " deg\n";
+
+                            std::cout << "Max deviation_angle = "
+                                      << curr_dtp_3->max_deviation_angle
+                                      << " deg\n";
+
+                            std::cout << "Max deviation_angle_all_frames = "
+                                      << curr_dtp_3->max_deviation_angle_all_frames
                                       << " deg\n";
 
                             std::cout << "straight_speed = "
@@ -1941,6 +2000,8 @@ void opencv_calculation_global_update()
                                       << " deg\n";
 
                             std::cout << "\n==============================================\n";
+
+
                         }
                     }
 
@@ -3683,7 +3744,7 @@ void analyse_pairs(
 
     // Blend proportions!
 
-    float dx_blend_part = 0.5;
+    float dx_blend_part = data_to_process_3->dx_blend_part;
     float dy_blend_part = 1.0 - dx_blend_part; 
 
     // ===== !!! ATTENTION !!! =====

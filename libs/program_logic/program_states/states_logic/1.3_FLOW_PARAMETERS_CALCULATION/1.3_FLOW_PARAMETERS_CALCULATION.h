@@ -374,15 +374,15 @@ struct processing_3_data
     float zone_1_x_max_c_delta = 0.2;
 
     // Maximum vertical distance from the selected N + 1 point.
-    int pixel_spread = 7;
+    int pixel_spread = 10;
 
 
 
     // Allowed deviation from the main flow direction used for track classification.
     // Checks trigger if the value goes above (100 + X)% or below (95 - X)%.
-    float deflection_percentage = 3;
+    float deflection_percentage = 5.0f;
 
-    float minimal_deviation_angle = 2.0f;
+    float minimal_deviation_angle = 5.0f;
     
         
     // Answer characteristics use a median-mean blend.
@@ -402,12 +402,18 @@ struct processing_3_data
     // Extreme point pairs matched between consecutive frames during the 1st pass
     std::vector<std::array<desc_c_2D, 2>> frames_extreme_pairs;
 
-    // By median-mean blend (depended on median_weight)
 
-    float min_score_threshold = 0.75f;
+    // By median-mean blend (depended on median_weight)
 
     float reference_dx;                                                // Typical delta value by 1st pass analysis in mm
     float reference_dy;                                                // Typical delta value by 1st pass analysis in mm
+
+
+    // Threshold for nearness to reference dx/dy value for pair detection
+    float min_score_threshold = 0.6f;
+
+    // Part of dx delta inside the score to reference nearness (uses inside the analyse_pairs() function)
+    float dx_blend_part = 0.5f;
 
     // ===== First pass =====
 
@@ -455,7 +461,11 @@ struct processing_3_data
 
     float straight_speed;                          // m/s only for straight tracks  
 
-    float deviation_angle;                         // In degrees from -180 to 180 by the 0 at the main_angle, founded at this calculation
+    float deviation_angle;                         // Mean/median blend of absolute deviated-track angles from the main flow (0 to 180 degrees)
+
+    float max_deviation_angle;                     // Mean/median blend of per-frame maximum absolute deviations (0 to 180 degrees)
+
+    float max_deviation_angle_all_frames;          // Absolute maximum deviation among deviated tracks across the video (0 to 180 degrees)
 
     float deviation_speed;                         // m/s only for deviated tracks      
 
