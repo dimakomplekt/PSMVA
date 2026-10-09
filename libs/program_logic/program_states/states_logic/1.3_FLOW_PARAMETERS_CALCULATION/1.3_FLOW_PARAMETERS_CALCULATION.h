@@ -276,9 +276,12 @@ struct processing_2_data
     std::vector<float> frames_median_jet_amplitude;             // Median jet amplitude inside frames
     std::vector<float> frames_mean_jet_amplitude;               // Mean jet amplitudes inside frames
 
+    std::vector<float> frames_mean_jet_length;                  // Mean jet length inside frames
+
     float video_mean_light_power_percentage;                    // Light power inside video - mead V / Vmax (HSV)
     float video_median_jet_amplitude;                           // Median jet amplitude inside video   
     float video_mean_jet_amplitude;                             // Mean jet amplitudes inside video
+    float video_mean_jet_length = 0.0f;                         // Mean jet length inside video
 
 
     // Frame switch time in seconds
@@ -456,23 +459,25 @@ struct processing_3_data
 
     float main_angle;                              // In degrees from -180 to 180 by the 0 at the main axe, founded at the step 1
 
-    float main_speed;                              // m/s for all tracks
-
-    float straight_speed;                          // m/s only for straight tracks  
-
     float deviation_angle;                         // Mean/median blend of absolute deviated-track angles from the main flow (0 to 180 degrees)
 
     float max_deviation_angle;                     // Mean/median blend of per-frame maximum absolute deviations (0 to 180 degrees)
 
     float max_deviation_angle_all_frames;          // Absolute maximum deviation among deviated tracks across the video (0 to 180 degrees)
 
-    float deviation_speed;                         // m/s only for deviated tracks      
 
-    float deviation_percentage;                    // size of deviated_tracks container / size of tracks container * 100
+    float main_speed;                              // m/s for all tracks
+
+    float straight_speed;                          // m/s only for straight tracks  
+
+    float deviation_speed;                         // m/s only for deviated tracks      
 
 
     float frames_speed_delta;                      // Mean / med blend of main speed delta between frames (m/s) - for all frames pairs by tracks_frames
     float frames_angle_delta;                      // Mean / med blend of main angle delta between frames (degrees) - for all frames pairs by tracks_frames
+    
+
+    float deviation_percentage;                    // size of deviated_tracks container / size of tracks container * 100
     
     // ===== Answer =====
 

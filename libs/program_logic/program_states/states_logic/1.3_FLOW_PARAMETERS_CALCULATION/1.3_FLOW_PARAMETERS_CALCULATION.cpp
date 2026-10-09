@@ -1109,6 +1109,22 @@ void opencv_calculation_global_update()
                         curr_dtp_2->video_mean_jet_amplitude = 0.0f;
                     }
 
+                    if (!curr_dtp_2->frames_mean_jet_length.empty())
+                    {
+                        const float sum_mean_length = std::accumulate(
+                            curr_dtp_2->frames_mean_jet_length.begin(),
+                            curr_dtp_2->frames_mean_jet_length.end(),
+                            0.0f
+                        );
+
+                        curr_dtp_2->video_mean_jet_length =
+                            sum_mean_length / static_cast<float>(curr_dtp_2->frames_mean_jet_length.size());
+                    }
+                    else
+                    {
+                        curr_dtp_2->video_mean_jet_length = 0.0f;
+                    }
+
 
 
                     // 5. Calibrate the reference displacement from consecutive-frame point pairs:
@@ -1956,48 +1972,38 @@ void opencv_calculation_global_update()
                                 << "path: " << file_path << std::endl;
                                 
 
-                            std::cout << "\n\nVideo mean arc amplitude: " << curr_dtp_2->video_mean_jet_amplitude;
-
-                            std::cout << "\nVideo mean light percentage: " << curr_dtp_2->video_mean_light_power_percentage << std::endl;
-                            
-                            std::cout << "\nVideo mean light percentage delta (% / frame): " << curr_dtp_2->mean_light_power_delta_between_frames << std::endl;
-                        
-
-                            std::cout << "main_angle = "
+                            std::cout << "\n"
+                                      << "Интенсивность излучения, %: "
+                                      << curr_dtp_2->video_mean_light_power_percentage << "\n"
+                                      << "Дельта интенсивности излучения, % / кадр: "
+                                      << curr_dtp_2->mean_light_power_delta_between_frames << "\n"
+                                      << "Ширина струи, мм: "
+                                      << curr_dtp_2->video_mean_jet_amplitude << "\n"
+                                      << "Длина струи, мм: "
+                                      << curr_dtp_2->video_mean_jet_length << "\n"
+                                      << "Угол основной траектории, °: "
                                       << curr_dtp_3->main_angle
-                                      << " deg\n";
-
-                            std::cout << "deviation_angle = "
+                                      << "\n"
+                                      << "Угол отклонения, °: "
                                       << curr_dtp_3->deviation_angle
-                                      << " deg\n";
-
-                            std::cout << "Max deviation_angle = "
-                                      << curr_dtp_3->max_deviation_angle
-                                      << " deg\n";
-
-                            std::cout << "Max deviation_angle_all_frames = "
+                                      << "\n"
+                                      << "Максимальный угол отклонения, °: "
                                       << curr_dtp_3->max_deviation_angle_all_frames
-                                      << " deg\n";
-
-                            std::cout << "straight_speed = "
+                                      << "\n"
+                                      << "Скорость неотклоненных частиц, м/с: "
                                       << curr_dtp_3->straight_speed
-                                      << " m/s\n";
-
-                            std::cout << "deviation_speed = "
+                                      << "\n"
+                                      << "Скорость отклоненных частиц, м/с: "
                                       << curr_dtp_3->deviation_speed
-                                      << " m/s\n";
-
-                            std::cout << "deviation_percentage = "
-                                      << curr_dtp_3->deviation_percentage
-                                      << " %\n";
-
-                            std::cout << "frames_speed_delta = "
+                                      << "\n"
+                                      << "Дельта скорости (м/с) / кадр: "
                                       << curr_dtp_3->frames_speed_delta
-                                      << " m/s\n";
-
-                            std::cout << "frames_angle_delta = "
+                                      << "\n"
+                                      << "Дельта угла, ° / кадр: "
                                       << curr_dtp_3->frames_angle_delta
-                                      << " deg\n";
+                                      << "\n"
+                                      << "Процент отклоненных частиц, %: "
+                                      << curr_dtp_3->deviation_percentage << "\n";
 
                             std::cout << "\n==============================================\n";
 
@@ -2717,6 +2723,8 @@ void processing_stage_2(cv::Mat* current_mat)
     // Вектор для хранения амплитуды (высоты) струи для каждого столбца X.
     // Инициализируем нулями, размер равен ширине маски.
     std::vector<int> frame_median_jet_amplitude(image_mask.cols, 0);
+    int first_jet_x = -1;
+    int last_jet_x = -1;
 
     // Проходим по каждому столбцу X (слева направо)
     for (int x = 0; x < image_mask.cols; ++x) 
@@ -2776,6 +2784,15 @@ void processing_stage_2(cv::Mat* current_mat)
 
         // Сохраняем итоговую амплитуду для текущей координаты X
         frame_median_jet_amplitude[x] = max_segment_length;
+
+        if (max_segment_length > 0)
+        {
+            if (first_jet_x == -1)
+            {
+                first_jet_x = x;
+            }
+            last_jet_x = x;
+        }
     }
 
 
@@ -2818,6 +2835,10 @@ void processing_stage_2(cv::Mat* current_mat)
             data_to_process_2->frames_mean_jet_amplitude.push_back(
                 frame_jet_amplitude_mean_mm
             );
+
+            const float frame_jet_length_mm =
+                static_cast<float>(last_jet_x - first_jet_x + 1) * current_scale;
+            data_to_process_2->frames_mean_jet_length.push_back(frame_jet_length_mm);
 
             // ===== Mean-calculation zone =====
 
