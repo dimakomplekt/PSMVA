@@ -129,11 +129,15 @@ class GI_mouse
 enum class Key_actions
 {
 
-    Menu_forward,
-    Menu_back,
-    Confirm,
-    Decline,
-    Special_1,
+    ENTER,
+    EXIT,
+    MENU_FORWARD,
+    MENU_BACK,
+    SPECIAL_1,
+    LEFT,
+    UP,
+    RIGHT,
+    DOWN,
 
     COUNT
 

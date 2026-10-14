@@ -5,8 +5,11 @@
 
 // =========================================================================================== IMPORT
 
-
 #include "../../../../engine/engine.h"
+
+#include "../../../../program_gui/basic_elements/global_palette/global_palette.h"
+#include "../../../../program_gui/basic_elements/global_fonts/global_fonts.h"
+
 #include "../../../global_data/global_data.h"
 
 // =========================================================================================== IMPORT

@@ -5,6 +5,8 @@
 
 #include "lang_state.h"
 
+#include <iostream>
+
 // =========================================================================================== IMPORT
 
 
@@ -39,10 +41,14 @@ Lang_list Lang_state::get_lang() const
 }
 
 
-bool Lang_state::set_lang(Lang_list language)
+void Lang_state::set_lang(Lang_list language)
 {
     // Validate input: must be within the enum range
-    if (language < Lang_list::EN || language >= Lang_list::LIMIT) return false;
+    if (language < Lang_list::EN || language >= Lang_list::LIMIT)
+    {
+        std::cerr << "Wrong language pass";
+        return;
+    }
 
     // Assign the selected language
     // Could extend this switch to initialize other language-specific resources if needed
@@ -59,15 +65,30 @@ bool Lang_state::set_lang(Lang_list language)
             break;
 
         // Defensive fallback, should never hit because of validation above
-        default: return false;
+        default: return;
     }
 
     // Loop counter and flag reset for language switch in dictionary-oriented textboxes
     this->lang_reset_flag = true;
     this->lang_reset_flag_loops_counter = 0;
-
-    return true; // Language successfully set
 }
+
+
+void Lang_state::switch_to_next_lang()
+{
+    // Convert enum to underlying integer
+    unsigned int next = static_cast<unsigned int>(current_lang) + 1;
+
+    // Wrap around using LIMIT
+    if (next >= static_cast<unsigned int>(Lang_list::LIMIT))
+    {
+        next = static_cast<unsigned int>(Lang_list::EN);
+    }
+
+    // Apply new language
+    this->set_lang(static_cast<Lang_list>(next));
+}
+
 
 
 bool Lang_state::get_lang_reset_flag() const

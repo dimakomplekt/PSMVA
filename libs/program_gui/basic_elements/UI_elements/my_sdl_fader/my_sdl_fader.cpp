@@ -20,6 +20,7 @@ My_SDL_fader::My_SDL_fader()
     // Data
 
     this->fader_value = 0.5f;
+    this->prev_fader_value = 0.5f;
 
     // Control flags
 
@@ -155,8 +156,77 @@ float My_SDL_fader::get_fader_value() const
 }
 
 
+void My_SDL_fader::set_fader_value(float new_value)
+{
+    if (new_value < 0.0 || new_value > 1.0) return;
+
+    this->fader_value = new_value;
+
+    int new_x_point = this->knob_position_by_fader_value();
+
+    this->set_knob_render_point(new_x_point);
+}
+
+
+int My_SDL_fader::fader_value_to_int_from_range(int min, int max)
+{
+    float val = this->get_fader_value();
+    
+    // std::round ensures correct switching at the midpoint of the fader travel
+    return min + static_cast<int>(std::round(val * (max - min)));
+}
+
+
+float My_SDL_fader::fader_value_to_float_from_range(float min, float max)
+{
+    float val = this->get_fader_value();
+    
+    // Standart linear interpolation (lerp)
+    return min + val * (max - min);
+}
+
+
+void My_SDL_fader::set_fader_value_by_int_from_range(int curr, int min, int max)
+{
+    // Prevent division by zero if the range is invalid
+    if (max == min) return; 
+
+    // Calculate the normalized proportion of the current value within the range
+    float new_value = static_cast<float>(curr - min) / static_cast<float>(max - min);
+
+    // set_fader_value handles boundary checks (0.0 - 1.0) and updates the knob position
+    this->set_fader_value(new_value);
+}
+
+
+void My_SDL_fader::set_fader_value_by_float_from_range(float curr, float min, float max)
+{
+    // Prevent division by zero for floating-point values
+    if (std::abs(max - min) < 1e-6f) return; 
+
+    // Inverse linear interpolation (get normalized 0.0 - 1.0 value)
+    float new_value = (curr - min) / (max - min);
+
+    this->set_fader_value(new_value);
+}
+
+
+
+
 void My_SDL_fader::update()
 {
+    // No actions for not visiable element
+    if (!this->visible_flag) return;
+
+
+    // Update prev_fader_value for next step
+    this->prev_fader_value = this->fader_value;
+
+
+    // Movement logic if the movement is on
+    this->movement_logic_in_update_loop();
+
+
     // Check if the palette was switched and update the colors by the new palette if it was
     this->reset_colors_if_palette_switched();
 
@@ -335,19 +405,30 @@ void My_SDL_fader::update()
 
     // Update render data
     this->render_data_recalculation();
+
 }
 
 
-void My_SDL_fader::push_mode_switch()
+void My_SDL_fader::switch_push_mode()
 {
     this->push_mode_on = !this->push_mode_on;
 }
 
 
+bool My_SDL_fader::fader_value_changed_at_last_step()
+{
+    // Will return true if value been changed
+    return (this->fader_value != this->prev_fader_value);
+}
+
+
+
+
 float My_SDL_fader::fader_value_by_knob_position()
 {
     // Fader value calculation by the knob position like ((s.x.rp + (s.w - k.w) / 2) - (s.x.rp + (s.w - k.w) / 2) - curr.x)) / (s.w - k.w) jr
-    float new_fader_value = static_cast<float>(this->knob_x_render_point - (this->slot_x_render_point - (this->slot_width_size - this->knob_width_size) / 2)) / static_cast<float>(this->slot_width_size - this->knob_width_size);
+    float new_fader_value = static_cast<float>(this->knob_x_render_point - (this->slot_x_render_point - 
+    (this->slot_width_size - this->knob_width_size) / 2)) / static_cast<float>(this->slot_width_size - this->knob_width_size);
 
     // Overflow check for the fader value
     if (new_fader_value < 0.0f) new_fader_value = 0.0f;
@@ -385,6 +466,9 @@ void My_SDL_fader::knob_hover_check()
 
 void My_SDL_fader::render(SDL_Renderer *renderer)
 {
+    // No actions for not visiable element
+    if (!this->visible_flag) return;
+
     // Render the slot and knob with the appropriate colors, sizes and positions, based on the current states
 
     // Slot render
@@ -463,18 +547,27 @@ void My_SDL_fader::set_render_point(int x_cc_rp, int y_cc_rp)
 
     this->knob_y_render_point = y_cc_rp;
 
-    this->reset_slot_boundaries_points();
-    
-    this->reset_knob_boundaries_points();
 
+    this->knob_x_render_point = this->knob_position_by_fader_value();
+    this->knob_y_render_point = this->slot_y_render_point;
+
+
+    // borders
+
+    this->reset_knob_boundaries_points();
+    this->reset_slot_boundaries_points();
+
+
+    // Anchor points
     this->reset_anchor_points();
+    
 }
 
 
 void My_SDL_fader::set_slot_size(unsigned int new_width, unsigned int new_height)
 {
     // Slot can't be circle
-    if ((new_width < 120 || new_height < 20) || 
+    if ((new_width < 120 || new_height < 10) || 
         (this->slot_border_width_size > new_width / 2) || 
         (this->slot_border_width_size > new_height / 2) || 
         (this->slot_border_radius_size != 0 && this->slot_border_width_size > (this->slot_border_radius_size - 1)))

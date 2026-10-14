@@ -10,6 +10,8 @@
 #include <cmath>                                                        // for std::round()
 
 
+// #include "../../../../program_logic/global_data/global_data.h" 
+
 #include "../../../../engine/engine.h"                                  // SDL3 and SDL ttf import
 
 #include "../../GUI_functions/drawing/figures_drawing.h"                // Basic figures
@@ -39,6 +41,56 @@ enum element_gui_type
 
 };
 
+
+// ===== Movement =====
+
+
+// Descartes coordinate for  SDL3 2D space.
+struct desc_c_2D
+{
+
+    int x;    // Coordinate by x-axes (width).
+    int y;    // Coordinate by y-axes (height).
+
+};
+
+
+// Enum for movement animation type define
+enum movement_easing
+{
+    
+    LINEAR,                      // Linear movement
+    EXPONENTIAL,                 // Exponential movement
+    LOGARITHMIC,                 // Logarithmic movement 
+    BACKWARD_LOGARITHMIC,        // Logarithmic movement
+
+};
+
+
+struct movement_ctx
+{
+
+    bool active = false;
+
+    desc_c_2D start_pos;
+    desc_c_2D end_pos;
+
+    Uint64 start_time;
+    Uint64 duration;
+
+    float progress = 0.0f;
+
+    movement_easing easing;
+
+    bool opacity_change = false;
+
+    Uint8 start_opacity;
+    Uint8 end_opacity;
+
+};
+// ===== Movement =====
+
+
 // Element rectangle boundaries struct for logic like hover and click checks
 struct element_rect_boundaries
 {
@@ -60,17 +112,6 @@ enum element_state
 
 };
 
-
-// TODO: rewrite x-y devide to desc_c_2D???
-
-// Descartes coordinate for  SDL3 2D space.
-struct desc_c_2D
-{
-
-    int x;    // Coordinate by x-axes (width).
-    int y;    // Coordinate by y-axes (height).
-
-};
 
 
 /**
@@ -166,6 +207,13 @@ class My_SDL_element
         // Container-panel getter
         My_SDL_panel* get_element_container() const;
 
+        
+        
+        // TODO: LATER LOGIC SHOULD BE DEVIDED TO SET_ACTIVE AND SET_VISIBLE, NOT ALL IN ONE
+
+        // Element visible condition setter
+        virtual void set_visible_flag(bool new_flag);
+
         // ===== MAIN LOGIC =====
 
 
@@ -191,6 +239,35 @@ class My_SDL_element
          * 
          */
         virtual void set_render_point(int x_cc_rp, int y_cc_rp) = 0;
+
+
+        /**
+         * @brief Element movement setter
+         * 
+         * Moves the element from point to point in every frame (until it reaches
+         * the end of trajectory) by element_movement
+         * 
+         * 
+         * @param x_cc_rp x coordinate of the movement end center-center render point
+         * @param y_cc_rp y coordinate of the movement end center-center render point
+         * @param easing  type of movement by the movement_easing enum
+         * @param movement_time movement time in ms
+         * 
+         */
+        virtual void move_to_point(
+            
+            int new_x_cc_rp, 
+            int new_y_cc_rp,
+
+            movement_easing easing,
+
+            Uint64 movement_time
+
+        );
+
+
+        // Movement reset function
+        void movement_reset();
 
 
         /**
@@ -279,20 +356,29 @@ class My_SDL_element
         // ===== GUI =====
 
 
+    // Panel friendship for direct use of methods
     friend class My_SDL_panel;
 
     protected:
 
             // ===== CONSTRUCTOR AND DESTRUCTOR =====
 
-            My_SDL_element();                            // Element constructor (never calls, only for inheritance)
+            My_SDL_element();                                   // Element constructor (never calls, only for inheritance)
             
             // ===== CONSTRUCTOR AND DESTRUCTOR =====
 
 
             // ===== MAIN LOGIC =====
 
-            My_SDL_panel* element_container = nullptr;    // NON-owning
+            My_SDL_panel* element_container = nullptr;          // NON-owning
+
+
+            movement_ctx element_movement;                      // Element movement context
+
+            virtual void movement_logic_in_update_loop();       // Element movement context update  
+
+
+            bool visible_flag;                                  // Element visible flag (used unside render() to choose render or not)
 
             // ===== MAIN LOGIC =====
 

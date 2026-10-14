@@ -16,6 +16,24 @@ file(GLOB_RECURSE PROJECT_SOURCES CONFIGURE_DEPENDS
 add_executable(PSMVA ${PROJECT_SOURCES})
 
 
+# ==============================================================================
+# ФИКС ОШИБКИ C1083: Принудительно даем MSVC пути к стандартной библиотеке C++ и SDK
+# ==============================================================================
+if(MSVC)
+    target_include_directories(PSMVA SYSTEM PRIVATE
+        # Путь к STL (string, array, limits)
+        "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.43.34808/include"
+        
+        # Пути к Windows SDK (stdarg.h и системные вызовы). 
+        # ВНИМАНИЕ: Проверьте номер папки (у меня указана 10.0.22621.0, у вас может быть 10.0.19041.0 или другая!)
+        "C:/Program Files (x86)/Windows Kits/10/Include/10.0.22621.0/ucrt"
+        "C:/Program Files (x86)/Windows Kits/10/Include/10.0.22621.0/um"
+        "C:/Program Files (x86)/Windows Kits/10/Include/10.0.22621.0/shared"
+    )
+endif()
+# ==============================================================================
+
+
 # ---------------- SDL ----------------
 
 # Include SDL
@@ -30,17 +48,32 @@ target_link_libraries(PSMVA PRIVATE
 
 # SDL ttf include
 target_include_directories(PSMVA PRIVATE
-    ${CMAKE_SOURCE_DIR}/libs/engine/SDL3_ttf-3.1.0/include
+    ${CMAKE_SOURCE_DIR}/libs/engine/SDL3_ttf-3.2.2/include
 )
 
 target_include_directories(PSMVA PRIVATE
-    ${CMAKE_SOURCE_DIR}/libs/engine/SDL3_ttf-3.1.0/include/SDL3_ttf
+    ${CMAKE_SOURCE_DIR}/libs/engine/SDL3_ttf-3.2.2/include/SDL3_ttf
 )
 
 target_link_libraries(PSMVA PRIVATE
-    ${CMAKE_SOURCE_DIR}/libs/engine/SDL3_ttf-3.1.0/lib/x64/SDL3_ttf.lib
+    ${CMAKE_SOURCE_DIR}/libs/engine/SDL3_ttf-3.2.2/lib/x64/SDL3_ttf.lib
 )
 
+# SDL Image
+
+target_include_directories(PSMVA PRIVATE
+    ${CMAKE_SOURCE_DIR}/libs/engine/SDL3_image-3.4.4/include/SDL3_image
+)
+
+target_link_libraries(PSMVA PRIVATE
+    ${CMAKE_SOURCE_DIR}/libs/engine/SDL3_image-3.4.4/lib/x64/SDL3_image.lib
+)
+
+add_custom_command(TARGET PSMVA POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${CMAKE_SOURCE_DIR}/libs/engine/SDL3_image-3.4.4/lib/x64/SDL3_image.dll"
+        "$<TARGET_FILE_DIR:PSMVA>"
+)
 
 # ---------------- dll copying for SDL ----------------
 
@@ -52,7 +85,7 @@ add_custom_command(TARGET PSMVA POST_BUILD
 
 add_custom_command(TARGET PSMVA POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "${CMAKE_SOURCE_DIR}/libs/engine/SDL3_ttf-3.1.0/lib/x64/SDL3_ttf.dll"
+        "${CMAKE_SOURCE_DIR}/libs/engine/SDL3_ttf-3.2.2/lib/x64/SDL3_ttf.dll"
         "$<TARGET_FILE_DIR:PSMVA>"
 )
 
@@ -76,12 +109,33 @@ target_include_directories(PSMVA PRIVATE ${OpenCV_INCLUDE_DIRS})
  
 
  # Добавляем include для IntelliSense
- target_include_directories(PSMVA PRIVATE
-
+ target_include_directories(
+    
+    PSMVA PRIVATE
+    
     "C:/opencv/build/include"
-    "C:/opencv/build/x64/vc16/lib"
+
+    "C:/opencv/modules/geometry/include"
     "C:/opencv/modules/imgproc/include"
-    "C:/opencv/modules/highgui/include" 
-    "C:/opencv/sources/include/opencv2"
+    "C:/opencv/modules/highgui/include"
 
 )
+
+# ---------------- dll copying for OpenCV ----------------
+
+add_custom_command(TARGET PSMVA POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "C:/opencv/build/bin/opencv_videoio_ffmpeg500_64.dll"
+        "$<TARGET_FILE_DIR:PSMVA>"
+)
+
+add_custom_command(TARGET PSMVA POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "C:/opencv/build/x64/vc16/bin/opencv_world500.dll"
+        "$<TARGET_FILE_DIR:PSMVA>"
+)
+
+
+
+
+target_compile_options(PSMVA PRIVATE /utf-8)

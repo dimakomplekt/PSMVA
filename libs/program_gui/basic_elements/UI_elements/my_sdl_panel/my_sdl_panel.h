@@ -98,6 +98,11 @@ class My_SDL_panel : public My_SDL_element
         void set_opacity(Uint8 new_opacity) override;
 
 
+        // Element visible condition setter override for panel
+        
+        void set_visible_flag(bool new_flag) override;
+
+
         // ===== MAIN LOGIC =====
 
 
@@ -167,6 +172,17 @@ class My_SDL_panel : public My_SDL_element
         // Global y-coordinate getter
         int global_y_by_local_y(int local_y);
 
+
+        // Local x-coordinate getter
+        int local_x_by_global_x(int global_x);
+
+        // Local y-coordinate getter
+        int local_y_by_global_y(int global_y);
+
+
+        // Movement override for panel
+        void movement_logic_in_update_loop() override;
+
         // ===== PANEL SPECIFIC =====
 
 
@@ -233,12 +249,21 @@ class My_SDL_panel : public My_SDL_element
 
 
         /**
+         * @brief Border width getter.
+         *
+         * 
+         */
+        const unsigned int get_border_width_size();
+
+
+
+        /**
          * @brief Sets the border radius for rounded corners.
          *
          * @param new_radius_size New border radius in pixels
          * 
          */
-        void set_border_radius_size(unsigned int new_radius_size);
+        void set_border_radius(unsigned int new_radius_size);
 
 
         /**

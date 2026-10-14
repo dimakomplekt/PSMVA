@@ -8,6 +8,9 @@
 // Onetime CPP include for remove_element() method providing
 #include "../my_sdl_panel/my_sdl_panel.h"
 
+
+#include <algorithm>
+
 // =========================================================================================== IMPORT
 
 
@@ -42,30 +45,23 @@ My_SDL_button::My_SDL_button()
     this->button_clicked_tmp = false;
 
     this->current_button_state = DEFAULT_ES;
+    this->prev_button_state = DEFAULT_ES;
 
     this->push_mode_on = true;
     this->press_offset = 0;
 
 
     // Textbox setup
-    
+
     this->button_textbox = My_SDL_textbox();
 
     // Now the button content color controlled only by button itself 
     this->button_textbox.switch_passed_by_palette_flag(false);
 
-    // Now the button content font controlled only by button itself 
-    this->button_textbox.switch_passed_by_font_palette_flag(false);
-
-    this->button_textbox_font_passed_by_font_palette = true;
-
-    this->button_textbox.set_font_path(App_fonts.get_current_fonts_palette().button_text_font.font_path);
-    this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().button_text_font.ttf_font_link);
-
-
-    this->button_textbox.set_font_size(12);
+    this->button_textbox.switch_textbox_type(BUTTON_TEXT);
 
     this->button_textbox.set_content("But");
+
 
     // Sizes
 
@@ -86,7 +82,7 @@ My_SDL_button::My_SDL_button()
     this->border_width_size = 5;
     this->border_radius_size = 15;
 
-    this->set_shadow_offset(3, -2);
+    this->set_shadow_offset(10, -10);
     this->shadow_scale_factor = 1.0f;
 
 
@@ -149,6 +145,14 @@ My_SDL_button::My_SDL_button()
 
 
     this->current_palette_number = 1;
+
+    this->po_base_font = this->get_button_content_textbox()->ttf_font_link;
+    this->po_base_size = (int)this->button_textbox.get_font_size();
+    this->po_base_font_owned = false;
+    this->po_cached = false;
+
+
+    this->button_textbox_font_passed_by_font_palette  = true;
 }
 
 
@@ -156,24 +160,39 @@ void My_SDL_button::delete_element()
 {
     My_SDL_panel* container = this->get_element_container();
 
-    // Textbox clean before destruction
-    // this->button_textbox.cleanup(); - Did automatically in the My_SDL_textbox destructor, so no need to call it here
+    if (container) container->remove_element(this);
 
-    if (container)
-    {
-        container->remove_element(this);
-    }
-    else
-    {
-        delete this;
-    }
+    else delete this;
 }
 
 
 My_SDL_button::~My_SDL_button()
 {
     // default
+
+    this->cleanup();
 }
+
+
+void My_SDL_button::cleanup()
+{
+    // Base font guardianship return in case when the button is destroyed
+    // in the middle of the press animation (the last press step font closes inside)
+    if (this->po_cached)
+    {
+        if (this->po_base_font_owned) this->button_textbox.set_owned_font(this->po_base_font);
+
+        else this->button_textbox.set_shared_font(this->po_base_font);
+
+        this->po_cached = false;
+    }
+
+    // Texture and owned font delete by the textbox itself (the content texture is always
+    // owned by the textbox, the fonts close only if they were self-opened - the shared
+    // palette fonts are owned and closed by App_fonts)
+    this->button_textbox.cleanup();
+}
+
 
 
 // =========================================================================================== CONSTRUCTOR AND DESTRUCTOR
@@ -183,8 +202,14 @@ My_SDL_button::~My_SDL_button()
 
 void My_SDL_button::update()
 {    
-    // Onetime initialization of the font
-    this->button_textbox.update();
+    // Write prev state
+    this->prev_button_state = this->current_button_state;
+
+    // No actions for not visible element
+    if (!this->visible_flag) return;
+
+    // Movement logic if the movement is on
+    this->movement_logic_in_update_loop();
 
     // Hover check
     this->button_hover_check();
@@ -217,13 +242,9 @@ void My_SDL_button::update()
 
 
     if (this->click_access_type == BUTTON_DEFAULT_CLICK_PERMISSION)
-        if (this->button_hovered && this->button_clicked)
-            if (!this->button_clicked_tmp) 
-            {
-                this->button_clicked_tmp = true;
-
-                this->current_button_state = CLICKED_ES;
-            }
+    {
+        this->click_permission = true;
+    }
 
     // There can not be anything instead of BUTTON_EXTERN_CLICK_PERMISSION
     else if (this->click_access_type == BUTTON_EXTERN_CLICK_PERMISSION)
@@ -232,24 +253,6 @@ void My_SDL_button::update()
         if (this->extern_click_permission)
         {
             this->click_permission = this->extern_click_permission();
-
-            // Button_clicked logic by the callback if the permission obtained
-            if (this->click_permission)
-                if (this->button_hovered && this->button_clicked)
-
-                    // Button_clicked logic by the callback
-                    if (!this->button_clicked_tmp)
-                    {
-                        this->button_clicked_tmp = true;
-
-                        this->current_button_state = CLICKED_ES;
-                    }
-
-            else
-            {
-                // Block repeats and reset
-                this->button_clicked_tmp = false;
-            }
         }
         else 
         {
@@ -260,12 +263,20 @@ void My_SDL_button::update()
     }
 
 
+    if (this->click_permission && (this->button_hovered && this->button_clicked))
+        if (!this->button_clicked_tmp) 
+        {
+            this->button_clicked_tmp = true;
+
+            this->current_button_state = CLICKED_ES;
+        }
+
+
     // If we press and then release - reset permission
     if (!this->button_clicked && this->button_clicked_tmp) 
     {
         // One callback call after release
-        if ((this->click_access_type == BUTTON_DEFAULT_CLICK_PERMISSION || this->click_permission)
-        && this->on_click)
+        if (this->on_click)
         {
             this->on_click();
         }
@@ -284,6 +295,9 @@ void My_SDL_button::update()
     // to update the font link and path if they are setted by the font palette
     this->reset_button_textbox_if_font_palette_switched();
 
+    // Font prepare (onetime at the start or onetime by reset_flag from fonts palette)
+    this->button_textbox.update();
+
     // Palette prepare for rendering
     this->button_palette_prepare();  
 
@@ -291,9 +305,154 @@ void My_SDL_button::update()
 }
 
 
-void My_SDL_button::push_mode_switch()
+void My_SDL_button::move_to_point(
+            
+    int new_x_cc_rp, 
+    int new_y_cc_rp,
+
+    movement_easing easing,
+
+    Uint64 movement_time
+
+)
+{
+    My_SDL_element::move_to_point(
+            
+        new_x_cc_rp, 
+        new_y_cc_rp,
+    
+        easing,
+    
+        movement_time
+    
+    );
+
+    this->get_button_content_textbox()->move_to_point(
+            
+        new_x_cc_rp, 
+        new_y_cc_rp,
+    
+        easing,
+    
+        movement_time
+    
+    );
+}
+
+
+
+void My_SDL_button::switch_push_mode()
 {
     this->push_mode_on = !this->push_mode_on;
+}
+
+
+void My_SDL_button::switch_button_textbox_type(app_textbox_type new_type)
+{
+    // Type switch
+    this->get_button_content_textbox()->switch_textbox_type(new_type);
+
+    // Font link rewrite
+    switch (this->get_button_content_textbox()->textbox_type)
+    {
+        case BUTTON_TEXT:
+
+            this->get_button_content_textbox()->font_path = (App_fonts.get_current_fonts_palette().button_text_font.font_path);
+
+            this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().button_text_font.ttf_font_link);
+
+            this->get_button_content_textbox()->font_size = App_fonts.get_current_fonts_palette().button_text_font.font_size;
+
+            break;
+
+
+        case HEADER_1:
+
+            this->get_button_content_textbox()->font_path = (App_fonts.get_current_fonts_palette().header_1_font.font_path);
+
+            this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().header_1_font.ttf_font_link);
+
+            this->get_button_content_textbox()->font_size = App_fonts.get_current_fonts_palette().header_1_font.font_size;
+
+            break;
+
+
+        case HEADER_2:
+
+            this->get_button_content_textbox()->font_path = (App_fonts.get_current_fonts_palette().header_2_font.font_path);
+
+            this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().header_2_font.ttf_font_link);
+
+            this->get_button_content_textbox()->font_size = App_fonts.get_current_fonts_palette().header_2_font.font_size;
+
+            break;
+
+
+        case HEADER_3:
+
+            this->get_button_content_textbox()->font_path = (App_fonts.get_current_fonts_palette().header_3_font.font_path);
+
+            this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().header_3_font.ttf_font_link);
+
+            this->get_button_content_textbox()->font_size = App_fonts.get_current_fonts_palette().header_3_font.font_size;
+
+            break;
+
+            
+        case ORDINARY_TEXT:
+
+            this->get_button_content_textbox()->font_path = (App_fonts.get_current_fonts_palette().ordinary_text_font.font_path);
+
+            this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().ordinary_text_font.ttf_font_link);
+
+            this->get_button_content_textbox()->font_size = App_fonts.get_current_fonts_palette().ordinary_text_font.font_size;
+
+            break;
+        
+
+        case SMALL_TEXT:
+
+            this->get_button_content_textbox()->font_path = (App_fonts.get_current_fonts_palette().small_text_font.font_path);
+
+            this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().small_text_font.ttf_font_link);
+
+            this->get_button_content_textbox()->font_size = App_fonts.get_current_fonts_palette().small_text_font.font_size;
+
+            break;
+
+
+        case EMOJI_TEXT:
+
+            this->get_button_content_textbox()->font_path = (App_fonts.get_current_fonts_palette().emoji_text_font.font_path);
+
+            this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().emoji_text_font.ttf_font_link);
+
+            this->get_button_content_textbox()->font_size = App_fonts.get_current_fonts_palette().emoji_text_font.font_size;
+
+            break;
+
+
+        default: break;
+    }
+
+    // Reset base data
+    this->po_base_font = this->get_button_content_textbox()->ttf_font_link;
+    this->po_base_size = (int)this->button_textbox.get_font_size();
+
+    this->po_base_font_owned = (
+
+        this->po_base_font != nullptr &&
+        this->get_button_content_textbox()->owned_font == this->po_base_font
+
+    );
+
+    this->po_cached = false;
+
+    // Reset flag to not pass by palette after the first update by the palette switch
+
+    this->get_button_content_textbox()->content_dirty = true;
+
+    this->get_button_content_textbox()->passed_by_font_palette = false;
 }
 
 
@@ -308,6 +467,10 @@ void My_SDL_button::set_access_type(button_access_type new_access_type)
 
     // New type setting
     else this->click_access_type = new_access_type;
+
+    if (new_access_type == BUTTON_DEFAULT_CLICK_PERMISSION) this->set_gui_type(STATIC_ELEMENT_GUI);
+
+    else if (new_access_type == BUTTON_EXTERN_CLICK_PERMISSION) this->set_gui_type(DYNAMIC_ELEMENT_GUI);
 }
 
 
@@ -326,7 +489,10 @@ void My_SDL_button::button_hover_check()
 
 void My_SDL_button::render(SDL_Renderer* renderer)
 {
+    // No actions for not visible element
+    if (!this->visible_flag) return;
 
+    
     // Render 3 figures (shadow (border sizes * scaler), border and background (width or hight - 2 * border_width)) 
     // by their sizes, with use of current colors and render point (center-center)
     if (this->current_form == RECTANGLE_EF)
@@ -375,7 +541,9 @@ void My_SDL_button::render(SDL_Renderer* renderer)
 void My_SDL_button::button_palette_prepare()
 {
     // Current palette define logic
-    
+    this->prev_palette_number = this->current_palette_number;
+
+
     if (this->gui_type == STATIC_ELEMENT_GUI)
     {
         // Basic
@@ -472,9 +640,7 @@ void My_SDL_button::button_palette_prepare()
 
             break;
     
-        default:
-
-            break;
+        default: break;
     }
     
 
@@ -488,7 +654,12 @@ void My_SDL_button::button_palette_prepare()
 
 
     // Onetime update render color for the textbox with content_dirty flag status change
-    this->button_textbox.set_content_color(this->render_content_color);
+    if ((this->prev_palette_number != this->current_palette_number) || (this->prev_button_state != this->current_button_state))
+    {
+        if (TEST_MODE) std::cout << "Need to switch button textbox color! Call switch!!!" << "\n << std::endl";
+        
+        this->button_textbox.set_content_color_if_palette_switched(this->render_content_color);
+    } 
 }
 
 
@@ -590,6 +761,7 @@ void My_SDL_button::set_border_width_size(unsigned int new_size)
 
     this->border_width_size = new_size;
 }
+
 
 void My_SDL_button::set_border_radius(unsigned int new_size)
 {
@@ -848,23 +1020,150 @@ void My_SDL_button::reset_colors_if_palette_switched()
     this->access_permitted_click_content_color = App_palette.get_current_palette().access_permitted_click_content_color;
     this->access_permitted_click_shadow_color = App_palette.get_current_palette().access_permitted_click_shadow_color;
 
+    
+    // Renew current colors
+
+    this->button_palette_prepare();
+
+    this->button_textbox.set_content_color_if_palette_switched(this->render_content_color);
 }
 
 
 void My_SDL_button::reset_button_textbox_if_font_palette_switched()
 {
-
     if (this->button_textbox_font_passed_by_font_palette && App_fonts.get_fonts_palette_reset_flag())
     {
+        switch (this->get_button_content_textbox()->textbox_type)
+        {
+            case BUTTON_TEXT:
 
-        // Now the button content font controlled only by button itself 
-        this->button_textbox.switch_passed_by_font_palette_flag(false);
+                this->get_button_content_textbox()->font_path = (App_fonts.get_current_fonts_palette().button_text_font.font_path);
 
-        this->button_textbox.set_font_path(App_fonts.get_current_fonts_palette().button_text_font.font_path);
-        this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().button_text_font.ttf_font_link);
+                if (this->press_offset == 0 && !this->button_clicked && !this->button_clicked_tmp)
+                {
+                    this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().button_text_font.ttf_font_link);
+
+                    this->get_button_content_textbox()->font_size = App_fonts.get_current_fonts_palette().button_text_font.font_size;
+                }
+
+                break;
+
+
+            case HEADER_1:
+
+                this->get_button_content_textbox()->font_path = (App_fonts.get_current_fonts_palette().header_1_font.font_path);
+
+                if (this->press_offset == 0 && !this->button_clicked && !this->button_clicked_tmp)
+                {
+                    this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().header_1_font.ttf_font_link);
+
+                    this->get_button_content_textbox()->font_size = App_fonts.get_current_fonts_palette().header_1_font.font_size;
+                }
+
+                break;
+
+
+            case HEADER_2:
+
+                this->get_button_content_textbox()->font_path = (App_fonts.get_current_fonts_palette().header_2_font.font_path);
+
+                if (this->press_offset == 0 && !this->button_clicked && !this->button_clicked_tmp)
+                {
+                    this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().header_2_font.ttf_font_link);
+
+                    this->get_button_content_textbox()->font_size = App_fonts.get_current_fonts_palette().header_2_font.font_size;
+                }
+
+                break;
+
+
+            case HEADER_3:
+
+                this->get_button_content_textbox()->font_path = (App_fonts.get_current_fonts_palette().header_3_font.font_path);
+
+                if (this->press_offset == 0 && !this->button_clicked && !this->button_clicked_tmp)
+                {
+                    this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().header_3_font.ttf_font_link);
+
+                    this->get_button_content_textbox()->font_size = App_fonts.get_current_fonts_palette().header_3_font.font_size;
+                }
+
+                break;
+
+
+            case ORDINARY_TEXT:
+
+                this->get_button_content_textbox()->font_path = (App_fonts.get_current_fonts_palette().ordinary_text_font.font_path);
+
+                if (this->press_offset == 0 && !this->button_clicked && !this->button_clicked_tmp)
+                {
+                    this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().ordinary_text_font.ttf_font_link);
+
+                    this->get_button_content_textbox()->font_size = App_fonts.get_current_fonts_palette().ordinary_text_font.font_size;
+                }
+
+                break;
+            
+
+            case SMALL_TEXT:
+
+                this->get_button_content_textbox()->font_path = (App_fonts.get_current_fonts_palette().small_text_font.font_path);
+
+                if (this->press_offset == 0 && !this->button_clicked && !this->button_clicked_tmp)
+                {
+                    this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().small_text_font.ttf_font_link);
+
+                    this->get_button_content_textbox()->font_size = App_fonts.get_current_fonts_palette().small_text_font.font_size;
+                }
+
+                break;
+
+
+            case EMOJI_TEXT:
+
+                this->get_button_content_textbox()->font_path = (App_fonts.get_current_fonts_palette().emoji_text_font.font_path);
+
+                if (this->press_offset == 0 && !this->button_clicked && !this->button_clicked_tmp)
+                {
+                    this->button_textbox.set_ttf_font_link(App_fonts.get_current_fonts_palette().emoji_text_font.ttf_font_link);
+
+                    this->get_button_content_textbox()->font_size = App_fonts.get_current_fonts_palette().emoji_text_font.font_size;
+                }
+
+                break;
+
+
+            default: break;
+        }
+
+        // Reset base data (only outside of the press animation - the po_base_* data
+        // must stay valid for the release restore; the two-loops-long reset flag
+        // guarantees the second pass after the release restore)
+        if (this->press_offset == 0 && !this->button_clicked && !this->button_clicked_tmp)
+        {
+            this->po_base_font = this->get_button_content_textbox()->ttf_font_link;
+            this->po_base_size = (int)this->button_textbox.get_font_size();
+
+            this->po_base_font_owned = (
+
+                this->po_base_font != nullptr &&
+                this->get_button_content_textbox()->owned_font == this->po_base_font
+
+            );
+
+            this->po_cached = false;
+        }
+
+        // Reset flag to not pass by palette after the first update by the palette switch
+
+        this->get_button_content_textbox()->content_dirty = true;
+
+        // Now the button content font controlled only by button itself
+        this->get_button_content_textbox()->passed_by_font_palette = false;
 
     }
 }
+
 
 void My_SDL_button::button_textbox_font_passed_by_font_palette_flag_switch(bool new_flag)
 {
@@ -874,9 +1173,6 @@ void My_SDL_button::button_textbox_font_passed_by_font_palette_flag_switch(bool 
 
 void My_SDL_button::render_data_recalculation()
 {
-    if (this->current_button_state != CLICKED_ES) this->press_offset = 0;
-
-
     // Figures to build data calculation
 
 
@@ -916,41 +1212,112 @@ void My_SDL_button::render_data_recalculation()
     
     // Increment the press offset at every render repeat
 
-    if (this->current_button_state == CLICKED_ES)
+    // PRESS ANIMATION (simplified)
+    
+    // Cache
+    if (this->button_clicked_tmp && this->press_offset == 0 && !this->po_cached)
     {
-        if (this->push_mode_on && this->press_offset <= 5)
+        int current_size = (int)this->button_textbox.get_font_size();
+
+        if (current_size > 0)
         {
-            this->press_offset += 1;
+            this->po_base_font = this->get_button_content_textbox()->ttf_font_link;
+            this->po_base_size = current_size;
 
-            // Set the new text size by current offset
-            if (this->button_textbox.get_font_size() - this->press_offset >= 10)
+            // Base font guardianship goes to the button for the press animation time,
+            // so the press step fonts close by the set_owned_font() calls chain
+            // without touching the base font
+            this->po_base_font_owned = (
+
+                this->po_base_font != nullptr &&
+                this->get_button_content_textbox()->owned_font == this->po_base_font
+
+            );
+
+            this->get_button_content_textbox()->owned_font = nullptr;
+
+            this->po_cached = true;
+        }
+    }
+
+
+    if (this->button_clicked_tmp)
+    {
+        if (this->push_mode_on && this->po_cached)
+        {
+            // Temporarily disable palette font management during press animation.
+            // Previous textbox type will be restored on release.
+            this->button_textbox.switch_textbox_type(NO_TYPE);
+
+
+            if (this->press_offset < 5) this->press_offset++;
+    
+            int new_size = std::max(10, static_cast<int>(this->po_base_size - 0.5 * this->press_offset));
+    
+    
+            // Only 4 + 1 (on release) TTF_OpenFont operation quantity control by:
+            // (second condition for repetitive update block)
+            if (this->press_offset <= 5 && this->button_textbox.get_font_size() != new_size)
             {
-                this->button_textbox.set_ttf_font_link(TTF_OpenFont(
-
-              this->button_textbox.get_font_path().c_str(), 
-            this->button_textbox.get_font_size() - static_cast<int>(std::round(static_cast<float>(this->press_offset) / 2)))
-
+                TTF_Font* new_font = TTF_OpenFont(
+                    this->button_textbox.get_font_path().c_str(),
+                    new_size
                 );
+        
+                if (new_font)
+                {
+                    // Set new font with the ownership pass - the previous press step font
+                    // closes inside set_owned_font(), the base font is not owned by the
+                    // textbox during the press, so it stays untouched
+                    this->get_button_content_textbox()->set_owned_font(new_font);
 
+                    this->get_button_content_textbox()->font_size = static_cast<unsigned int>(new_size);
+
+                    this->get_button_content_textbox()->content_dirty = true;
+                }
             }
         }
     }
     else
     {
-        if (this->push_mode_on && this->press_offset > 0)
+        if (this->push_mode_on && this->press_offset >= 1)
         {
-            // Reset size of text to default value
-            this->button_textbox.set_ttf_font_link((TTF_OpenFont(
+            this->button_textbox.switch_textbox_type(this->button_textbox.get_prev_textbox_type());
 
-            this->button_textbox.get_font_path().c_str(),
-          this->button_textbox.get_font_size()))
-
-            );
 
             this->press_offset = 0;
+
+            if (this->po_cached)
+            {
+                // Base font return with the guardianship return - the last press step font
+                // closes inside the set_owned_font() / set_shared_font() call
+
+                if (this->po_base_font_owned) this->get_button_content_textbox()->set_owned_font(this->po_base_font);
+
+                else this->get_button_content_textbox()->set_shared_font(this->po_base_font);
+
+
+                this->get_button_content_textbox()->font_size = static_cast<unsigned int>(this->po_base_size);
+
+                this->po_cached = false;
+            }
+
+            this->get_button_content_textbox()->content_dirty = true;
+
+
+            // Block the palette font re-fetch on the next update_font() call and keep the
+            // pre-press flags state - the base font is already restored manually here
+            this->get_button_content_textbox()->textbox_type_changed = false;
+
+            this->get_button_content_textbox()->passed_by_font_palette = false;
         }
     }
+
 }
 
 
+My_SDL_textbox* My_SDL_button::get_button_content_textbox()
+{
+    return &this->button_textbox;
+}
 // =========================================================================================== GUI

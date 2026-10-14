@@ -30,6 +30,28 @@ struct app_font_ctx
 
     TTF_Font* ttf_font_link = nullptr;             // TTF Font pointer (void* to avoid SDL_ttf dependency in header)
 
+    
+    unsigned int font_size;                        // TTF font size
+};
+
+
+// App textbox type enum
+// use for UI text palette choose inside textbox element
+enum app_textbox_type
+{
+
+    HEADER_1,
+    HEADER_2,
+    HEADER_3,
+    ORDINARY_TEXT,
+    SMALL_TEXT,
+    BUTTON_TEXT,
+    EMOJI_TEXT,
+
+    NO_TYPE,
+
+    LIMIT
+
 };
 
 // Struct for app fonts, which contains all basic fonts for basic UI
@@ -44,7 +66,11 @@ struct app_fonts_palette_ctx
     
     app_font_ctx ordinary_text_font;
 
+    app_font_ctx small_text_font;
+
     app_font_ctx button_text_font;
+
+    app_font_ctx emoji_text_font;
 
 };
 
@@ -52,7 +78,7 @@ struct app_fonts_palette_ctx
 
 
 /**
- * @brief Singleton class that holds the fonts structure and current font pallette select.
+ * @brief Singleton class that holds the fonts structure and current font palette select.
  *
  * Ensures there is only one global instance of app palette.
  * 
@@ -83,18 +109,18 @@ class Global_fonts
 
         // Automatically initializes / reinitializes the SDL_TTF fonts in the main update loop, 
         // if the palette reset flag is set 
-        void fonts_init_in_update_loop();
+        void fonts_management_in_update_loop();
 
         /**
          * @brief Adds a fonts palette to the internal fonts palette list.
          *
-         * @param new_font_pallette Fonts palette data to be stored.
+         * @param new_font_palette Fonts palette data to be stored.
          *
          * Palette is copied into internal std::vector storage.
          * No dynamic allocation or ownership transfer is involved.
          * 
          */
-        void add_fonts_palette(const app_fonts_palette_ctx& new_fonts_pallette);
+        void add_fonts_palette(const app_fonts_palette_ctx& new_fonts_palette);
 
 
         /**
@@ -125,7 +151,7 @@ class Global_fonts
          * Also sets reset flag to notify UI about palette change.
          * 
          */
-        void switch_to_the_next_fonts_palette();
+        void switch_to_the_next_font_palette();
 
 
         /**
@@ -197,6 +223,7 @@ class Global_fonts
 
         // Flag to indicate if the palette has been reset (for UI updates, etc.)
         bool fonts_palette_reset_flag;
+        bool fonts_palette_init_flag;
 
         // Counter to track how many loops have passed since the palette reset flag was set
         unsigned int fonts_palette_reset_flag_loops_counter;

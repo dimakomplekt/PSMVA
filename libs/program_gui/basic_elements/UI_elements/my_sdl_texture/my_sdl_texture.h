@@ -43,9 +43,36 @@ class My_SDL_texture : public My_SDL_element // SDL_Element
          * anchor points reset
          *
          * @param new_texture New texture to display
+         * @param take_ownership Texture ownership status for current object
          * 
          */
-        void set_texture(SDL_Texture* new_texture);
+        void set_texture(SDL_Texture* new_texture, bool take_ownership);
+
+
+        /**
+         * @brief Sets the texture, which would displayed with render().
+         *
+         * Updates the texture (with old texture delete) and reset sizes, then calls the
+         * anchor points reset
+         *
+         * @param link Global link to the image which will be translated into texture
+         * @param renderer Renderer for texture
+         * 
+         */
+        void My_SDL_texture::set_texture_by_image(const std::string& link, SDL_Renderer* renderer);
+
+
+        /**
+         * @brief Sets the texture owning flag
+         *
+         * Switches the texture control mode by My_SDL_Texture
+         * If the flag is true - Object fully controlling texture
+         * otherwise - texture is free and object can't deallocate it
+         *
+         * @param new_flag New texture owning status
+         *          
+         */
+        void switch_texture_owning_flag(bool new_flag);
 
         // ===== MAIN LOGIC =====
 
@@ -190,6 +217,8 @@ class My_SDL_texture : public My_SDL_element // SDL_Element
 
         // Texture for rendering
         SDL_Texture* texture;
+
+        bool owns_texture;
 
 
         // Variables for rendering with autoset 

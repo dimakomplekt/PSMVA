@@ -8,13 +8,15 @@
 
 #include "../my_sdl_element/my_sdl_element.h" // Base class import
 
+#include "../../global_fonts/global_fonts.h" // Font types
+
 // =========================================================================================== IMPORT
 
 
 // =========================================================================================== TYPES
 
-// Stucture for blinking element implimentation
-struct blinkig_textbox_ctx
+// Stucture for blinking element implementation
+struct blinking_textbox_ctx
 {
 
     bool blinking_mode_on;
@@ -54,6 +56,13 @@ class My_SDL_textbox : public My_SDL_element // SDL_Element
         // ===== MAIN LOGIC =====
 
         void update() override;
+
+
+        void switch_textbox_type(app_textbox_type new_type);
+
+        app_textbox_type get_textbox_type() const;
+
+        app_textbox_type get_prev_textbox_type() const;
 
         // ===== MAIN LOGIC =====
 
@@ -176,6 +185,7 @@ class My_SDL_textbox : public My_SDL_element // SDL_Element
          */
         unsigned int get_font_size() const;
 
+
         /**
          * Content color setter
          *                       
@@ -186,6 +196,18 @@ class My_SDL_textbox : public My_SDL_element // SDL_Element
          *           
          */                                  
         void set_content_color(SDL_Color new_color);
+
+        /**
+         * Content color setter for palette switch logic
+         *                       
+         * For elements with dynamic content color textboxes should                       
+         * call switch_passed_by_palette_flag(false) for inner textbox               
+         * and switch content color by the pallet or not by the palette by themselves
+         * for double calls protection   
+         *           
+         */                                  
+        void set_content_color_if_palette_switched(SDL_Color new_color);
+
 
         
         // Texture setters
@@ -237,6 +259,7 @@ class My_SDL_textbox : public My_SDL_element // SDL_Element
          */
         void set_blinking_duty(float new_blinking_duty);
 
+
         // ===== GUI ======
 
 
@@ -245,6 +268,44 @@ class My_SDL_textbox : public My_SDL_element // SDL_Element
         friend class My_SDL_button;
 
     protected:
+
+        // ===== MAIN LOGIC =====
+
+        // Textbox type
+        app_textbox_type textbox_type;
+
+        // Previous textbox type
+        app_textbox_type prev_textbox_type;
+
+        bool textbox_type_changed;
+        
+
+        void update_font();
+
+
+        // Font ownership setters - the ONLY valid ways to change ttf_font_link inside the class code
+
+        /**
+         * @brief Sets a SHARED (palette-owned) font as the current font.
+         *
+         * Closes the previously owned font (if there was one), then links the shared font
+         * without taking ownership. Shared fonts are NEVER closed by the textbox.
+         *
+         * @param shared_font Pointer to a font, owned by the App_fonts palette (or another external owner)
+         *
+         */
+        void set_shared_font(TTF_Font* shared_font);
+
+        /**
+         * @brief Sets an OWNED (self-opened) font as the current font.
+         *
+         * Closes the previously owned font (if there was one), then links the new font
+         * with taking ownership. The owned font closes on the next font change or inside cleanup().
+         *
+         * @param new_owned_font Pointer to a font, opened by the textbox (or by the button around it)
+         *
+         */
+        void set_owned_font(TTF_Font* new_owned_font);
 
         // ===== GUI ======
 
@@ -255,8 +316,10 @@ class My_SDL_textbox : public My_SDL_element // SDL_Element
         std::string font_path;                         // Font path for text
 
         TTF_Font* ttf_font_link = nullptr;             // TTF Font pointer
-        
-        bool passed_by_font_palette;                      // Flag for showing that the font path and ttf_font_link setted by the font palette, automatically set to true inside the basic class constructor
+
+        TTF_Font* owned_font = nullptr;                // Font, OWNED by this textbox (self-opened by TTF_OpenFont); nullptr - when ttf_font_link is a SHARED (palette-owned) font. Invariant: owned_font is nullptr or equal to ttf_font_link
+
+        bool passed_by_font_palette;                   // Flag for showing that the font path and ttf_font_link setted by the font palette, automatically set to true inside the basic class constructor
 
         unsigned int font_size;                        // Content size
 
@@ -266,8 +329,9 @@ class My_SDL_textbox : public My_SDL_element // SDL_Element
 
         // Variables for rendering with autoset 
         
-        int content_width_size;  
-        int content_height_size;
+        bool textbox_sizes_initiation_update_flag;
+        mutable int content_width;  
+        mutable int content_height;
 
 
         // Text's override for anchor points reset function
@@ -276,7 +340,7 @@ class My_SDL_textbox : public My_SDL_element // SDL_Element
 
 
         // Flag for render recalculation after new content or new content settings set
-        bool content_dirty;
+        mutable bool content_dirty;
 
 
         // Text texture for rendering
@@ -291,7 +355,7 @@ class My_SDL_textbox : public My_SDL_element // SDL_Element
          * Creates a new SDL_Texture from the current content string, font, and specified color.
          * If the content is unchanged or no font/text is set, the function does nothing.
          * Any existing texture is destroyed before creating a new one.
-         * The resulting texture dimensions are stored in content_width_size and content_height_size.
+         * The resulting texture dimensions are stored in content_width and content_height.
          * Marks the content as clean (content_dirty = false).
          * 
          */
@@ -305,7 +369,7 @@ class My_SDL_textbox : public My_SDL_element // SDL_Element
 
 
         // Blinking mode context
-        blinkig_textbox_ctx blinking_mode_context;
+        blinking_textbox_ctx blinking_mode_context;
 
 
         // ===== GUI ======

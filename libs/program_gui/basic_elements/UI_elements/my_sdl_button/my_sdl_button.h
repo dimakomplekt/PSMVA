@@ -94,7 +94,10 @@ class My_SDL_button : public My_SDL_element // SDL_Element
 
 
         // Toggles the push mode flag (affects pressed-state rendering behavior)
-        void push_mode_switch();
+        void switch_push_mode();
+
+        // Switches the button's textbox type without crushes
+        void switch_button_textbox_type(app_textbox_type new_type);
 
 
         /**
@@ -377,6 +380,36 @@ class My_SDL_button : public My_SDL_element // SDL_Element
         // Switch the flag for showing that the button textbox font path and ttf_font_link setted by the font palette
         void button_textbox_font_passed_by_font_palette_flag_switch(bool new_flag);
 
+        // Button textbox getter 
+        My_SDL_textbox* get_button_content_textbox();
+
+
+
+        /**
+         * @brief Element movement setter
+         * 
+         * Moves the element from point to point in every frame (until it reaches
+         * the end of trajectory) by element_movement
+         * 
+         * 
+         * @param x_cc_rp x coordinate of the movement end center-center render point
+         * @param y_cc_rp y coordinate of the movement end center-center render point
+         * @param easing  type of movement by the movement_easing enum
+         * @param movement_time movement time in ms
+         * 
+         */
+        virtual void move_to_point(
+            
+            int new_x_cc_rp, 
+            int new_y_cc_rp,
+
+            movement_easing easing,
+
+            Uint64 movement_time
+
+        ) override;
+
+
         // ===== GUI ======s
 
 
@@ -385,6 +418,8 @@ class My_SDL_button : public My_SDL_element // SDL_Element
         // ===== CONSTRUCTOR AND DESTRUCTOR =====
 
         ~My_SDL_button();                           // Button destructor  (call in state.exit)  
+
+        void cleanup();                             // Non palette-font destructor
 
         // ===== CONSTRUCTOR AND DESTRUCTOR =====
 
@@ -411,14 +446,22 @@ class My_SDL_button : public My_SDL_element // SDL_Element
         bool push_mode_on;                           // Current push display mode
         int press_offset;                            // Current press offset for push animation
 
+        // Data for press offset
+        TTF_Font* po_base_font;
+        int po_base_size;
+        bool po_base_font_owned;    // true - the base font was owned (self-opened) by the textbox before the press
+        bool po_cached;
+
 
         element_state current_button_state;
+        element_state prev_button_state;
 
         // ===== MAIN LOGIC =====
         
 
         // ===== GUI ======
 
+        unsigned int prev_palette_number;    // 1 or 2
         unsigned int current_palette_number; // 1 or 2
 
 

@@ -8,6 +8,10 @@
 
 #include <SDL3/SDL.h>
 
+#include <string>
+
+#include "app_timer/app_timer.h"
+
 // =========================================================================================== IMPORT
 
 
@@ -20,7 +24,7 @@
  * for the running program instance.
  * 
  */
-const std::string THIS_APP_NAME = "PSMVA"; 
+const std::string THIS_APP_NAME = "PSMVA_1.0"; 
 
 
 // =========================================================================================== APP SETTINGS
@@ -34,22 +38,6 @@ const std::string THIS_APP_NAME = "PSMVA";
 // Main window vertical size
 #define MAIN_WINDOW_V_SIZE 1000
 
-const SDL_WindowFlags THIS_APP_WINDOW_FLAG = SDL_WINDOW_RESIZABLE; // | SDL_WINDOW_ALLOW_HIGHDPI
+const SDL_WindowFlags THIS_APP_WINDOW_FLAG = 0; // | SDL_WINDOW_ALLOW_HIGHDPI
 
 // =========================================================================================== GLOBAL WINDOW SETTINGS
-
-
-// =========================================================================================== FPS LIMITER
-
-// FPS
-extern const int TARGET_FPS;                // Change in CPP file
-extern const Uint64 FRAME_TIME_MS;          // Autoset in CPP file based on TARGET_FPS
-
-// Frame timing variables
-
-extern Uint64 frame_start;
-extern Uint64 frame_end;
-extern Uint64 frame_duration;
-
-
-// =========================================================================================== FPS LIMITER

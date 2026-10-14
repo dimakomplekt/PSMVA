@@ -109,14 +109,22 @@ GI_input_manager& GI_input_manager::Instance()
     if (!initialized)
     {
         // Actions initialization zone
-        instance.bind(Key_actions::Menu_forward, SDL_SCANCODE_RIGHT);
-        instance.bind(Key_actions::Menu_back, SDL_SCANCODE_LEFT);
 
-        instance.bind(Key_actions::Confirm, SDL_SCANCODE_RETURN);
+        instance.bind(Key_actions::ENTER, SDL_SCANCODE_RETURN);
 
-        instance.bind(Key_actions::Decline, SDL_SCANCODE_ESCAPE);
+        instance.bind(Key_actions::EXIT, SDL_SCANCODE_ESCAPE);
 
-        instance.bind(Key_actions::Special_1, SDL_SCANCODE_SPACE);
+        instance.bind(Key_actions::MENU_FORWARD, SDL_SCANCODE_RIGHT);
+
+        instance.bind(Key_actions::MENU_BACK, SDL_SCANCODE_LEFT);
+
+
+        instance.bind(Key_actions::SPECIAL_1, SDL_SCANCODE_SPACE);
+
+        instance.bind(Key_actions::LEFT, SDL_SCANCODE_LEFT);
+        instance.bind(Key_actions::UP, SDL_SCANCODE_UP);
+        instance.bind(Key_actions::RIGHT, SDL_SCANCODE_RIGHT);
+        instance.bind(Key_actions::DOWN, SDL_SCANCODE_DOWN);
 
         initialized = true;
     }

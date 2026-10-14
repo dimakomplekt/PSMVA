@@ -20,6 +20,62 @@ REFERENCE
 ```
 */
 
+// ===== Palette 0 =====
+
+static app_palette_ctx make_palette_0()
+{
+    app_palette_ctx palette;
+
+
+    palette.global_background_color = hex_to_sdl_color("#f4f3ee", 255);
+
+    palette.basic_background_color = hex_to_sdl_color("#071826", 255);
+    palette.basic_border_color = hex_to_sdl_color("#0b2340", 255);
+    palette.basic_content_color = hex_to_sdl_color("#f4f3ee", 255);
+    palette.basic_shadow_color = hex_to_sdl_color("#0b2340", 220);
+    
+    palette.inverted_basic_background_color = hex_to_sdl_color("#071826", 255);
+    palette.inverted_basic_border_color = hex_to_sdl_color("#0b2340", 255);
+    palette.inverted_basic_content_color = hex_to_sdl_color("#f4f3ee", 255);
+    palette.inverted_basic_shadow_color = hex_to_sdl_color("#0b2340", 220);
+    
+    palette.hover_background_color = hex_to_sdl_color("#f5b31f", 255);
+    palette.hover_border_color = hex_to_sdl_color("#0b2340", 255);
+    palette.hover_content_color = hex_to_sdl_color("#071826", 255);
+    palette.hover_shadow_color = hex_to_sdl_color("#0b2340", 220);
+    
+    palette.click_background_color = hex_to_sdl_color("#f4f3ee", 255);
+    palette.click_border_color = hex_to_sdl_color("#0b2340", 255);
+    palette.click_content_color = hex_to_sdl_color("#071826", 255);
+    palette.click_shadow_color = hex_to_sdl_color("#0b2340", 220);
+    
+    palette.access_denied_background_color = hex_to_sdl_color("#ff3b30", 255);
+    palette.access_denied_border_color = hex_to_sdl_color("#2f2c23", 255);
+    palette.access_denied_content_color = hex_to_sdl_color("#2f2c23", 255);
+    palette.access_denied_shadow_color = hex_to_sdl_color("#2f2c23", 220);
+    
+    palette.access_permitted_background_color = hex_to_sdl_color("#34c759", 255);
+    palette.access_permitted_border_color = hex_to_sdl_color("#2f2c23", 255);
+    palette.access_permitted_content_color = hex_to_sdl_color("#2f2c23", 255);
+    palette.access_permitted_shadow_color = hex_to_sdl_color("#2f2c23", 220);
+    
+    palette.access_permitted_hover_background_color = hex_to_sdl_color("#3fe06a", 255);
+    palette.access_permitted_hover_border_color = hex_to_sdl_color("#2f2c23", 255);
+    palette.access_permitted_hover_content_color = hex_to_sdl_color("#2f2c23", 255);
+    palette.access_permitted_hover_shadow_color = hex_to_sdl_color("#2f2c23", 220);
+    
+    palette.access_permitted_click_background_color = hex_to_sdl_color("#2fb351", 255);
+    palette.access_permitted_click_border_color = hex_to_sdl_color("#2f2c23", 255);
+    palette.access_permitted_click_content_color = hex_to_sdl_color("#2f2c23", 255);
+    palette.access_permitted_click_shadow_color = hex_to_sdl_color("#2f2c23", 220);
+
+
+    return palette;
+}
+
+// ===== Palette 0 =====
+
+
 // ===== Palette 1 =====
 
 static app_palette_ctx make_palette_1()
@@ -27,47 +83,47 @@ static app_palette_ctx make_palette_1()
     app_palette_ctx palette;
 
 
-    palette.global_background_color = hex_to_sdl_color("#f0e7d6", 255);
+    palette.global_background_color = hex_to_sdl_color("#2f2c23", 255);
 
-    palette.basic_background_color = hex_to_sdl_color("#f5f219", 255);
-    palette.basic_border_color = hex_to_sdl_color("#171717", 255);
-    palette.basic_content_color = hex_to_sdl_color("#171717", 255);
-    palette.basic_shadow_color = hex_to_sdl_color("#d6cf17", 180);
+    palette.basic_background_color = hex_to_sdl_color("#fdf5e8", 255);
+    palette.basic_border_color = hex_to_sdl_color("#2f2c23", 255);
+    palette.basic_content_color = hex_to_sdl_color("#2f2c23", 255);
+    palette.basic_shadow_color = hex_to_sdl_color("#2f2c23", 220);
     
-    palette.inverted_basic_background_color = hex_to_sdl_color("#f5f219", 255);
-    palette.inverted_basic_border_color = hex_to_sdl_color("#d6cf17", 180);
-    palette.inverted_basic_content_color = hex_to_sdl_color("#171717", 255);
-    palette.inverted_basic_shadow_color = hex_to_sdl_color("#171717", 255);
+    palette.inverted_basic_background_color = hex_to_sdl_color("#fdf5e8", 255);
+    palette.inverted_basic_border_color = hex_to_sdl_color("#2f2c23", 255);
+    palette.inverted_basic_content_color = hex_to_sdl_color("#2f2c23", 255);
+    palette.inverted_basic_shadow_color = hex_to_sdl_color("#2f2c23", 220);
     
-    palette.hover_background_color = hex_to_sdl_color("#E8DE2A", 255);
-    palette.hover_border_color = hex_to_sdl_color("#171717", 255);
-    palette.hover_content_color = hex_to_sdl_color("#171717", 255);
-    palette.hover_shadow_color = hex_to_sdl_color("#cfc61f", 180);
+    palette.hover_background_color = hex_to_sdl_color("#2f2c23", 255);
+    palette.hover_border_color = hex_to_sdl_color("#2f2c23", 255);
+    palette.hover_content_color = hex_to_sdl_color("#fdf5e8", 255);
+    palette.hover_shadow_color = hex_to_sdl_color("#2f2c23", 220);
     
-    palette.click_background_color = hex_to_sdl_color("#d4c91a", 255);
-    palette.click_border_color = hex_to_sdl_color("#171717", 255);
-    palette.click_content_color = hex_to_sdl_color("#171717", 255);
-    palette.click_shadow_color = hex_to_sdl_color("#b8af15", 180);
+    palette.click_background_color = hex_to_sdl_color("#2f2c23", 255);
+    palette.click_border_color = hex_to_sdl_color("#2f2c23", 255);
+    palette.click_content_color = hex_to_sdl_color("#e6a795", 255);
+    palette.click_shadow_color = hex_to_sdl_color("#2f2c23", 220);
     
     palette.access_denied_background_color = hex_to_sdl_color("#ff3b30", 255);
-    palette.access_denied_border_color = hex_to_sdl_color("#171717", 255);
-    palette.access_denied_content_color = hex_to_sdl_color("#171717", 255);
-    palette.access_denied_shadow_color = hex_to_sdl_color("#cc2f26", 180);
+    palette.access_denied_border_color = hex_to_sdl_color("#2f2c23", 255);
+    palette.access_denied_content_color = hex_to_sdl_color("#2f2c23", 255);
+    palette.access_denied_shadow_color = hex_to_sdl_color("#2f2c23", 220);
     
     palette.access_permitted_background_color = hex_to_sdl_color("#34c759", 255);
-    palette.access_permitted_border_color = hex_to_sdl_color("#171717", 255);
-    palette.access_permitted_content_color = hex_to_sdl_color("#171717", 255);
-    palette.access_permitted_shadow_color = hex_to_sdl_color("#2da94c", 180);
+    palette.access_permitted_border_color = hex_to_sdl_color("#2f2c23", 255);
+    palette.access_permitted_content_color = hex_to_sdl_color("#2f2c23", 255);
+    palette.access_permitted_shadow_color = hex_to_sdl_color("#2f2c23", 220);
     
     palette.access_permitted_hover_background_color = hex_to_sdl_color("#3fe06a", 255);
-    palette.access_permitted_hover_border_color = hex_to_sdl_color("#171717", 255);
-    palette.access_permitted_hover_content_color = hex_to_sdl_color("#171717", 255);
-    palette.access_permitted_hover_shadow_color = hex_to_sdl_color("#35c25b", 180);
+    palette.access_permitted_hover_border_color = hex_to_sdl_color("#2f2c23", 255);
+    palette.access_permitted_hover_content_color = hex_to_sdl_color("#2f2c23", 255);
+    palette.access_permitted_hover_shadow_color = hex_to_sdl_color("#2f2c23", 220);
     
     palette.access_permitted_click_background_color = hex_to_sdl_color("#2fb351", 255);
-    palette.access_permitted_click_border_color = hex_to_sdl_color("#171717", 255);
-    palette.access_permitted_click_content_color = hex_to_sdl_color("#171717", 255);
-    palette.access_permitted_click_shadow_color = hex_to_sdl_color("#279444", 180);
+    palette.access_permitted_click_border_color = hex_to_sdl_color("#2f2c23", 255);
+    palette.access_permitted_click_content_color = hex_to_sdl_color("#2f2c23", 255);
+    palette.access_permitted_click_shadow_color = hex_to_sdl_color("#2f2c23", 220);
 
 
     return palette;
@@ -82,48 +138,48 @@ static app_palette_ctx make_palette_2()
 {
     app_palette_ctx palette;
 
+    palette.global_background_color = hex_to_sdl_color("#cf93ff", 255);
 
-    palette.global_background_color = hex_to_sdl_color("#dedede", 255);
-
-    palette.basic_background_color = hex_to_sdl_color("#f25623", 255);
+    palette.basic_background_color = hex_to_sdl_color("#8f00ff", 255);
     palette.basic_border_color = hex_to_sdl_color("#171717", 255);
     palette.basic_content_color = hex_to_sdl_color("#171717", 255);
-    palette.basic_shadow_color = hex_to_sdl_color("#c9441c", 180);
+    palette.basic_shadow_color = hex_to_sdl_color("#6f00cc", 220);
     
-    palette.inverted_basic_background_color = hex_to_sdl_color("#f25623", 255);
-    palette.inverted_basic_border_color = hex_to_sdl_color("#c9441c", 180);
+    palette.inverted_basic_background_color = hex_to_sdl_color("#8f00ff", 255);
+    palette.inverted_basic_border_color = hex_to_sdl_color("#171717", 255);
     palette.inverted_basic_content_color = hex_to_sdl_color("#171717", 255);
-    palette.inverted_basic_shadow_color = hex_to_sdl_color("#171717", 255);
+    palette.inverted_basic_shadow_color = hex_to_sdl_color("#6f00cc", 220);
     
-    palette.hover_background_color = hex_to_sdl_color("#ff6a2e", 255);
+    palette.hover_background_color = hex_to_sdl_color("#a020ff", 255);
     palette.hover_border_color = hex_to_sdl_color("#171717", 255);
-    palette.hover_content_color = hex_to_sdl_color("#171717", 255);
-    palette.hover_shadow_color = hex_to_sdl_color("#d45524", 180);
+    palette.hover_content_color = hex_to_sdl_color("#f4f3ee", 255);
+    palette.hover_shadow_color = hex_to_sdl_color("#8219cc", 220);
     
-    palette.click_background_color = hex_to_sdl_color("#d94d1f", 255);
+    palette.click_background_color = hex_to_sdl_color("#7a00d9", 255);
     palette.click_border_color = hex_to_sdl_color("#171717", 255);
-    palette.click_content_color = hex_to_sdl_color("#171717", 255);
-    palette.click_shadow_color = hex_to_sdl_color("#b53f19", 180);
+    palette.click_content_color = hex_to_sdl_color("#f4f3ee", 255);
+    palette.click_shadow_color = hex_to_sdl_color("#6300b3", 220);
     
     palette.access_denied_background_color = hex_to_sdl_color("#ff3b30", 255);
     palette.access_denied_border_color = hex_to_sdl_color("#171717", 255);
     palette.access_denied_content_color = hex_to_sdl_color("#171717", 255);
-    palette.access_denied_shadow_color = hex_to_sdl_color("#cc2f26", 180);
+    palette.access_denied_shadow_color = hex_to_sdl_color("#cc2f26", 220);
     
     palette.access_permitted_background_color = hex_to_sdl_color("#34c759", 255);
     palette.access_permitted_border_color = hex_to_sdl_color("#171717", 255);
     palette.access_permitted_content_color = hex_to_sdl_color("#171717", 255);
-    palette.access_permitted_shadow_color = hex_to_sdl_color("#2da94c", 180);
+    palette.access_permitted_shadow_color = hex_to_sdl_color("#2da94c", 220);
     
     palette.access_permitted_hover_background_color = hex_to_sdl_color("#3fe06a", 255);
     palette.access_permitted_hover_border_color = hex_to_sdl_color("#171717", 255);
     palette.access_permitted_hover_content_color = hex_to_sdl_color("#171717", 255);
-    palette.access_permitted_hover_shadow_color = hex_to_sdl_color("#35c25b", 180);
+    palette.access_permitted_hover_shadow_color = hex_to_sdl_color("#35c25b", 220);
     
     palette.access_permitted_click_background_color = hex_to_sdl_color("#2fb351", 255);
     palette.access_permitted_click_border_color = hex_to_sdl_color("#171717", 255);
     palette.access_permitted_click_content_color = hex_to_sdl_color("#171717", 255);
-    palette.access_permitted_click_shadow_color = hex_to_sdl_color("#279444", 180);
+    palette.access_permitted_click_shadow_color = hex_to_sdl_color("#279444", 220);
+    
 
 
     return palette;
@@ -136,57 +192,58 @@ static app_palette_ctx make_palette_2()
 
 static app_palette_ctx make_palette_3()
 {
+ 
     app_palette_ctx palette;
 
-    palette.global_background_color = hex_to_sdl_color("#cf93ff", 255);
 
-    palette.basic_background_color = hex_to_sdl_color("#8f00ff", 255);
+    palette.global_background_color = hex_to_sdl_color("#dedede", 255);
+
+    palette.basic_background_color = hex_to_sdl_color("#f25623", 255);
     palette.basic_border_color = hex_to_sdl_color("#171717", 255);
     palette.basic_content_color = hex_to_sdl_color("#171717", 255);
-    palette.basic_shadow_color = hex_to_sdl_color("#6f00cc", 180);
+    palette.basic_shadow_color = hex_to_sdl_color("#c9441c", 220);
     
-    palette.inverted_basic_background_color = hex_to_sdl_color("#8f00ff", 255);
-    palette.inverted_basic_border_color = hex_to_sdl_color("#6f00cc", 180);
+    palette.inverted_basic_background_color = hex_to_sdl_color("#f25623", 255);
+    palette.inverted_basic_border_color = hex_to_sdl_color("#171717", 255);
     palette.inverted_basic_content_color = hex_to_sdl_color("#171717", 255);
-    palette.inverted_basic_shadow_color = hex_to_sdl_color("#171717", 255);
+    palette.inverted_basic_shadow_color = hex_to_sdl_color("#c9441c", 220);
     
-    palette.hover_background_color = hex_to_sdl_color("#a020ff", 255);
+    palette.hover_background_color = hex_to_sdl_color("#ff6a2e", 255);
     palette.hover_border_color = hex_to_sdl_color("#171717", 255);
     palette.hover_content_color = hex_to_sdl_color("#171717", 255);
-    palette.hover_shadow_color = hex_to_sdl_color("#8219cc", 180);
+    palette.hover_shadow_color = hex_to_sdl_color("#d45524", 220);
     
-    palette.click_background_color = hex_to_sdl_color("#7a00d9", 255);
+    palette.click_background_color = hex_to_sdl_color("#d94d1f", 255);
     palette.click_border_color = hex_to_sdl_color("#171717", 255);
     palette.click_content_color = hex_to_sdl_color("#171717", 255);
-    palette.click_shadow_color = hex_to_sdl_color("#6300b3", 180);
+    palette.click_shadow_color = hex_to_sdl_color("#b53f19", 220);
     
     palette.access_denied_background_color = hex_to_sdl_color("#ff3b30", 255);
     palette.access_denied_border_color = hex_to_sdl_color("#171717", 255);
     palette.access_denied_content_color = hex_to_sdl_color("#171717", 255);
-    palette.access_denied_shadow_color = hex_to_sdl_color("#cc2f26", 180);
+    palette.access_denied_shadow_color = hex_to_sdl_color("#cc2f26", 220);
     
     palette.access_permitted_background_color = hex_to_sdl_color("#34c759", 255);
     palette.access_permitted_border_color = hex_to_sdl_color("#171717", 255);
     palette.access_permitted_content_color = hex_to_sdl_color("#171717", 255);
-    palette.access_permitted_shadow_color = hex_to_sdl_color("#2da94c", 180);
+    palette.access_permitted_shadow_color = hex_to_sdl_color("#2da94c", 220);
     
     palette.access_permitted_hover_background_color = hex_to_sdl_color("#3fe06a", 255);
     palette.access_permitted_hover_border_color = hex_to_sdl_color("#171717", 255);
     palette.access_permitted_hover_content_color = hex_to_sdl_color("#171717", 255);
-    palette.access_permitted_hover_shadow_color = hex_to_sdl_color("#35c25b", 180);
+    palette.access_permitted_hover_shadow_color = hex_to_sdl_color("#35c25b", 220);
     
     palette.access_permitted_click_background_color = hex_to_sdl_color("#2fb351", 255);
     palette.access_permitted_click_border_color = hex_to_sdl_color("#171717", 255);
     palette.access_permitted_click_content_color = hex_to_sdl_color("#171717", 255);
-    palette.access_permitted_click_shadow_color = hex_to_sdl_color("#279444", 180);
-    
+    palette.access_permitted_click_shadow_color = hex_to_sdl_color("#279444", 220);
 
 
     return palette;
+
 }
 
 // ===== Palette 3 =====
-
 
 // =========================================================================================== APP PALETTES
 
@@ -202,6 +259,7 @@ Global_palette& Global_palette::Instance()
     if (!initialized)
     {
         // Palettes initialization zone
+        instance.add_palette(make_palette_0());
         instance.add_palette(make_palette_1());
         instance.add_palette(make_palette_2());
         instance.add_palette(make_palette_3());
@@ -215,7 +273,7 @@ Global_palette& Global_palette::Instance()
 
 Global_palette::Global_palette()
 {
-    this->current_palette_id = 2;
+    this->current_palette_id = 0;
 
     this->palette_reset_flag = true;
     this->palette_reset_flag_loops_counter = 0;

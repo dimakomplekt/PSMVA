@@ -20,14 +20,15 @@ My_SDL_panel::My_SDL_panel()
     this->x_render_point = panel_width_size / 2 + 300;
     this->y_render_point = panel_height_size / 2 + 300;
 
-    this->border_width_size = 1;
-    this->border_radius_size = 0;
+    this->border_width_size = 5;
+    this->border_radius_size = 30;
 
 
     this->current_form = RECTANGLE_EF;
 
-    this->shadow_offset_x = 2;
-    this->shadow_offset_y = 2;
+    this->shadow_offset_x = 10;
+    this->shadow_offset_y = 10;
+    
     this->shadow_scale_factor = 1.0f;
 
 
@@ -78,6 +79,12 @@ void My_SDL_panel::delete_element()
 
 void My_SDL_panel::update()
 {
+    // No actions for not visiable element
+    if (!this->visible_flag) return;
+
+    // Movement logic if the movement is on
+    this->movement_logic_in_update_loop();
+
     // Check if the palette was switched and update the colors by the new palette if it was
     this->reset_colors_if_palette_switched();
 
@@ -120,6 +127,20 @@ void My_SDL_panel::set_opacity(Uint8 new_opacity)
 }
 
 
+void My_SDL_panel::set_visible_flag(bool new_flag)
+{   
+    this->My_SDL_element::set_visible_flag(new_flag);
+
+    
+    // Change the opacity for all inner elements by the new container opacity
+    for (auto& inner : inner_elements)
+    {
+        inner.element_pointer->set_visible_flag(new_flag);
+    }
+}
+
+
+
 void My_SDL_panel::panel_palette_prepare()
 {
     // GLOBAL element opacity implementation
@@ -137,6 +158,9 @@ void My_SDL_panel::panel_palette_prepare()
 
 void My_SDL_panel::render(SDL_Renderer* renderer)
 {
+    // No actions for not visiable element
+    if (!this->visible_flag) return;
+
     // Render 3 figures (shadow (border sizes * scaler), border and background (width or hight - 2 * border_width)) 
     // by their sizes, with use of current colors and render point (center-center)
 
@@ -183,6 +207,8 @@ void My_SDL_panel::render(SDL_Renderer* renderer)
     
     for (auto it = this->inner_elements.begin(); it != this->inner_elements.end(); ++it)
     {
+        if (!it->element_pointer->visible_flag) continue;
+        
         it->element_pointer->render(renderer);
     }
 }
@@ -201,6 +227,18 @@ void My_SDL_panel::set_render_point(int x_cc_rp, int y_cc_rp)
 
     // Update inner elements positions (though they will be set again in render, this ensures consistency)
     this->change_inner_elements_global_coordinates();
+}
+
+
+void My_SDL_panel::movement_logic_in_update_loop()
+{
+    // Basic movement
+    My_SDL_element::movement_logic_in_update_loop();
+
+    reset_anchor_points();
+    render_data_reset();
+
+    change_inner_elements_global_coordinates(); // ONLY update mapping
 }
 
 
@@ -246,8 +284,13 @@ void My_SDL_panel::set_border_width_size(unsigned int new_size)
     this->render_data_reset();
 }
 
+const unsigned int My_SDL_panel::get_border_width_size()
+{
+    return this->border_width_size; 
+}
 
-void My_SDL_panel::set_border_radius_size(unsigned int new_size)
+
+void My_SDL_panel::set_border_radius(unsigned int new_size)
 {
 
     if (new_size > this->panel_width_size / 2 || new_size > this->panel_height_size / 2)
@@ -268,7 +311,7 @@ void My_SDL_panel::set_border_radius_size(unsigned int new_size)
 void My_SDL_panel::set_shadow_offset(int new_x_offset, int new_y_offset)
 {
     this->shadow_offset_x = new_x_offset;
-    this->shadow_offset_y = new_y_offset;
+    this->shadow_offset_y = -new_y_offset;  // SDL works with inverted y-axis on offset
 
     this->render_data_reset();
 }
@@ -457,6 +500,8 @@ void My_SDL_panel::add_element(My_SDL_element* element_pointer, int local_x, int
     element_pointer->element_container = this;
 
     element_pointer->set_opacity(element_pointer->get_basic_opacity());
+
+    element_pointer->set_visible_flag(this->visible_flag);
 }
 
 
@@ -569,6 +614,17 @@ int My_SDL_panel::global_y_by_local_y(int local_y)
 
     // Required global y-coordinate by offset from (0; 0)
     return g_p_r_p_y_0 + local_y;
+}
+
+
+int My_SDL_panel::local_x_by_global_x(int global_x)
+{
+    return global_x - this->element_anchor_points.top_left.x;
+}
+
+int My_SDL_panel::local_y_by_global_y(int global_y)
+{
+    return global_y - this->element_anchor_points.top_left.y;
 }
 
 

@@ -14,16 +14,6 @@
 #include "../../program_gui/basic_elements/global_fonts/global_fonts.h"
 #include "../global_data/global_data.h"
 
-// States import
-
-// #include "states_logic/0.0_START/0.0_START.h"
-// #include "states_logic/1.0_MAIN_MENU/1.0_MAIN_MENU.h"
-// #include "states_logic/1.1_FILE_CHOOSE/1.1_FILE_CHOOSE.h"
-// #include "states_logic/1.2_MASKS_SETUP/1.2_MASKS_SETUP.h"
-// #include "states_logic/1.3_FLOW_PARAMETERS_CALCULATION/1.3_FLOW_PARAMETERS_CALCULATION.h"
-// #include "states_logic/1.4_REPORT_FORMING/1.4_REPORT_FORMING.h"
-// #include "states_logic/2.0_PROGRAM_END/2.0_PROGRAM_END.h"
-
 // =========================================================================================== IMPORT
 
 
@@ -38,13 +28,29 @@
  */
 
 const State_ID START_ID                             = {0};           // Initial boot/start state
+
+
 const State_ID MAIN_MENU_ID                         = {1};           // Main functions basic state
+
 const State_ID FILE_CHOOSE_ID                       = {1, 1};        // File choose state
+
 const State_ID MASKS_SETUP_ID                       = {1, 2};        // Masks setup state
+
+const State_ID MASKS_SETUP_ID_1                     = {1, 2, 1};     // Masks setup state
+const State_ID MASKS_SETUP_ID_2                     = {1, 2, 2};     // Masks setup state
+const State_ID MASKS_SETUP_ID_3                     = {1, 2, 3};     // Masks setup state
+const State_ID MASKS_SETUP_ID_4                     = {1, 2, 4};     // Masks setup state
+const State_ID MASKS_SETUP_ID_5                     = {1, 2, 5};     // Masks setup state
+const State_ID MASKS_SETUP_ID_6                     = {1, 2, 6};     // Masks setup state
+
+
 const State_ID FLOW_PARAMETERS_CALCULATION_ID       = {1, 3};        // Flow parameters calculation state
+
+
 const State_ID REPORT_FORMING_ID                    = {1, 4};        // Report forming state
 
-const State_ID PROGRAM_END_ID                       = {2};           // Program exit state
+
+const State_ID PROGRAM_END_ID                       = {1, 5};        // Study complete state
 
 /**
  * @brief Mapping of State_IDs to human-readable names.
@@ -53,13 +59,19 @@ const State_ID PROGRAM_END_ID                       = {2};           // Program 
  */
 const std::vector<std::pair<State_ID, std::string>> state_defs = {
 
-    {{0},       "START"},                           // Просто запуск программы, загрузка чего-то, подготовка к работе
-    {{1},       "MAIN_MENU"},                       // Дать возможность начать работу с программой или выйти
-    {{1,1},     "FILE_CHOOSE"},                     // Меню выбора файлов для обработки    
-    {{1,2},     "MASKS_SETUP"},                     // Меню выбора параметров масок для обработки видео        
-    {{1,3},     "FLOW_PARAMETERS_CALCULATION"},     // Расчёт + статус бар + прогресс бар по каждому видео + сигнализация по успеху (с переходом вперед) неудаче (переход назад + лог)
-    {{1,4},     "REPORT_FORMING"},                  // Формирование отчёта + выбор места сохранения + сигнализация об успехе + переход к следующему этапу
-    {{2},       "PROGRAM_END"}                      // Сообщение о завершении работы + переход на этап MAIN_MENU при нажатии любой клавиши
+    {{0},               "START"},                           // Просто запуск программы, загрузка чего-то, подготовка к работе
+    {{1},               "MAIN_MENU"},                       // Дать возможность начать работу с программой или выйти
+    {{1, 1},            "FILE_CHOOSE"},                     // Меню выбора файлов для обработки    
+    {{1, 2},            "MASKS_SETUP"},                     // Меню выбора параметров масок для обработки видео
+    {{1, 2, 1},         "MASKS_SETUP_1"},                   // Меню выбора параметров масок для обработки видео
+    {{1, 2, 2},         "MASKS_SETUP_2"},                   // Меню выбора параметров масок для обработки видео
+    {{1, 2, 3},         "MASKS_SETUP_3"},                   // Меню выбора параметров масок для обработки видео
+    {{1, 2, 4},         "MASKS_SETUP_4"},                   // Меню выбора параметров масок для обработки видео
+    {{1, 2, 5},         "MASKS_SETUP_5"},                   // Меню выбора параметров масок для обработки видео
+    {{1, 2, 6},         "MASKS_SETUP_6"},                   // Меню выбора параметров масок для обработки видео  
+    {{1, 3},            "FLOW_PARAMETERS_CALCULATION"},     // Расчёт + статус бар + прогресс бар по каждому видео + сигнализация по успеху (с переходом вперед) неудаче (переход назад + лог)
+    {{1, 4},            "REPORT_FORMING"},                  // Формирование отчёта + выбор места сохранения + сигнализация об успехе + переход к следующему этапу
+    {{1, 5},            "PROGRAM_END"}                      // Завершение исследования
 
 };
 
@@ -68,47 +80,6 @@ const std::vector<std::pair<State_ID, std::string>> state_defs = {
 
 // =========================================================================================== CALLBACKS
 
-/**
- * Functions called when entering or exiting a specific state.
- *
- * These are assigned to the `on_enter` and `on_exit` callbacks of the
- * corresponding State objects in the state machine.
- *
- * Example:
- * 
- * app_state_machine.add_state(std::make_unique<State>(START_ID, "START"));
- * state->on_enter = start_enter;
- * 
- */
-
-void start_enter();
-void start_exit();
-void start_render(SDL_Renderer* renderer);
-
-void main_menu_enter();
-void main_menu_exit();
-void main_menu_render(SDL_Renderer* renderer);
-
-void file_choose_enter();
-void file_choose_exit();
-void file_choose_render(SDL_Renderer* renderer);
-
-void masks_setup_enter();
-void masks_setup_exit();
-void masks_setup_render(SDL_Renderer* renderer);
-
-void flow_parameters_calculation_enter();
-void flow_parameters_calculation_exit();
-void flow_parameters_calculation_render(SDL_Renderer* renderer);
-
-void report_forming_enter();
-void report_forming_exit();
-void report_forming_render(SDL_Renderer* renderer);
-
-
-void program_end_enter();
-void program_end_exit();
-void program_end_render(SDL_Renderer* renderer);
 
 // =========================================================================================== CALLBACKS
 

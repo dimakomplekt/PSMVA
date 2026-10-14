@@ -80,6 +80,69 @@ class My_SDL_fader : public My_SDL_element // SDL_Element
 
 
         /**
+         * @brief Fader value setter
+         * 
+         * Set's the fader value, moves the knob to the position which should be shown 
+         * with setted value
+         *
+         * @param new_value fader value (0.0 - 1.0)
+         * 
+         */
+        void set_fader_value(float new_value);
+
+
+        /**
+         * @brief Value by fader value getter
+         * 
+         * Uses for external logic
+         *
+         * @return Current fader value (0.0 - 1.0) translated to value from range
+         * 
+         */
+        int fader_value_to_int_from_range(int min, int max);
+
+
+        /**
+         * @brief Value by fader value getter
+         * 
+         * Uses for external logic
+         *
+         * @return Current fader value (0.0 - 1.0) translated to value from range
+         * 
+         */
+        float fader_value_to_float_from_range(float min, float max);
+
+
+        
+        /**
+         * @brief Fader value setter by value and range
+         * 
+         * Uses for external logic
+         *
+         * @param curr Current value in range
+         * @param min Min value in range
+         * @param max Max value in range 
+         * 
+         */
+        void set_fader_value_by_int_from_range(int curr, int min, int max);
+
+
+        /**
+         * @brief Fader value setter by value and range
+         * 
+         * Uses for external logic
+         *
+         * @param curr Current value in range
+         * @param min Min value in range
+         * @param max Max value in range 
+         * 
+         */
+        void set_fader_value_by_float_from_range(float curr, float min, float max);
+
+
+
+
+        /**
          * @brief Updates the fader
          *
          * - Performs hover detection with different z for slot and knob and updates hover states
@@ -94,7 +157,18 @@ class My_SDL_fader : public My_SDL_element // SDL_Element
         
 
         // Toggles the push mode flag (affects pressed-state rendering behavior)
-        void push_mode_switch();
+        void switch_push_mode();
+
+
+        /**
+         * @brief Get the fader "dirty" status for some elements updates logic
+         * 
+         * Returns the true or false, in depending of fader value change at the last step
+         *
+         * @return true (if value been changed) or false
+         * 
+         */
+        bool fader_value_changed_at_last_step();
 
         // ===== MAIN LOGIC =====
 
@@ -378,7 +452,7 @@ class My_SDL_fader : public My_SDL_element // SDL_Element
         
         // Fader value (0.0 - 1.0)
         float fader_value;
-
+        float prev_fader_value;
 
         // Inner fader value by fader position calculation
         float fader_value_by_knob_position();

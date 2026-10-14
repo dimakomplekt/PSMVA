@@ -25,9 +25,31 @@ My_SDL_textbox::My_SDL_textbox()
     this->y_render_point = 300;
 
 
-    // Font 
+    // Font - basically set as ordinary text font
 
-    this->font_size = 12; 
+    this->passed_by_font_palette = true;
+
+
+    // Basic data, which will be switch further
+    // need to be here for initialization on the first
+    // cycle steps
+
+    this->font_size = 18;
+
+    this->content_width = 0;
+    this->content_height = 0;
+
+    this->content_dirty = true;
+
+    this->content_texture = nullptr;
+
+    // Basic data, which will be switch further
+    // need to be here for initialization on the first
+    // cycle steps
+
+
+    this->prev_textbox_type = ORDINARY_TEXT;
+    this->textbox_type = ORDINARY_TEXT;
 
     // Relative path to the font file from the executable (can be changed by the setter for the font path)
     this->font_path = App_fonts.get_current_fonts_palette().ordinary_text_font.font_path;
@@ -35,10 +57,12 @@ My_SDL_textbox::My_SDL_textbox()
     if (App_fonts.get_current_fonts_palette().ordinary_text_font.ttf_font_link != nullptr)
     {
         this->ttf_font_link = App_fonts.get_current_fonts_palette().ordinary_text_font.ttf_font_link;
+        this->font_size = App_fonts.get_current_fonts_palette().ordinary_text_font.font_size;
     }
-     else
+    
+    else
     {
-        this->ttf_font_link = TTF_OpenFont(this->font_path.c_str(), this->font_size);
+        // this->ttf_font_link = TTF_OpenFont(this->font_path.c_str(), this->font_size); - Maybe destroys the logic
 
         if (!this->ttf_font_link)
         {
@@ -46,10 +70,8 @@ My_SDL_textbox::My_SDL_textbox()
         }
     }
 
-    this->passed_by_font_palette = true;
 
-
-    // if (!ttf_font_link) this->update();
+    // if (!ttf_font_link) this->update(); - Maybe destroys the logic
 
     // Content and sizes set with anchor points reset
     this->set_content("Text");
@@ -64,11 +86,8 @@ My_SDL_textbox::My_SDL_textbox()
     // flag for showing that the color setted by the pallet, automatically set to true inside the basic class constructor
     set_content_color(App_palette.get_current_palette().basic_content_color);
 
-
-    this->content_texture = nullptr;
-
-    // Reset flag for the next update in render
-    this->content_dirty = true; 
+    // Upper function resetted this flag XD
+    this->passed_by_palette = true;
 
 
     // Blinking mode setup
@@ -92,6 +111,13 @@ My_SDL_textbox::My_SDL_textbox()
 
     // Start with inactive condition (constantly switch inside the 1st update)
     this->blinking_mode_context.active_now = true;
+
+
+    this->content_dirty = true;
+
+    this->textbox_type_changed = true;
+
+    this->textbox_sizes_initiation_update_flag = true;
 }
 
 
@@ -124,60 +150,260 @@ My_SDL_textbox::~My_SDL_textbox()
 
 void My_SDL_textbox::cleanup()
 {
-    // Texture delete
+    // Texture delete - the content texture is ALWAYS owned by the textbox
     if (this->content_texture)
     {
         SDL_DestroyTexture(this->content_texture);
         this->content_texture = nullptr;
     }
 
-    this->set_content("");
+    // Font delete - ONLY for the owned (self-opened) font,
+    // the shared palette fonts are owned and closed by App_fonts
+    if (this->owned_font)
+    {
+        TTF_CloseFont(this->owned_font);
+        this->owned_font = nullptr;
+    }
+
+    this->ttf_font_link = nullptr;
 }
 
 
 // =========================================================================================== CONSTRUCTOR AND DESTRUCTOR
 
 // Helper-function predeclare
-void blinking_mode_control(blinkig_textbox_ctx &blinking_ctx);
+void blinking_mode_control(blinking_textbox_ctx &blinking_ctx);
+
 
 void My_SDL_textbox::update()
 {
+    // No actions for not visiable element
+    if (!this->visible_flag) return;
+
+    // Font update
+    update_font();
+
+
+    // Movement logic if the movement is on
+    this->movement_logic_in_update_loop();
+
     // Control blinking if it's needed
     blinking_mode_control(this->blinking_mode_context);
 
-    // Just font start initialization
+
+    // Check if the palette was switched and update the colors by the new palette if it was
+    this->reset_colors_if_palette_switched();
+}
+
+
+void My_SDL_textbox::update_font()
+{
+    // Just font start initialization in case when font not passed by font palette
     if (this->ttf_font_link == nullptr && !this->passed_by_font_palette)
     {
-        if(!this->font_path.empty()) this->set_ttf_font_link(TTF_OpenFont(this->font_path.c_str(), this->font_size));
+        // Self-opened font - the textbox takes the ownership
+        if (!this->font_path.empty())
+        {
+            TTF_Font* self_opened_font = TTF_OpenFont(this->font_path.c_str(), this->font_size);
+
+            if (self_opened_font) this->set_owned_font(self_opened_font);
+
+            else SDL_Log("TTF_OpenFont failed: %s", SDL_GetError());
+        }
     }
 
     // Reset the font if current font palette was switched and the font was set by the font palette,
     // to update the font by the new palette
-    if (this->passed_by_font_palette && App_fonts.get_fonts_palette_reset_flag())
+    if (this->passed_by_font_palette && (App_fonts.get_fonts_palette_reset_flag() || this->textbox_type_changed))
     {
-        this->font_path = App_fonts.get_current_fonts_palette().ordinary_text_font.font_path;
-    
-        if (App_fonts.get_current_fonts_palette().ordinary_text_font.ttf_font_link != nullptr)
+
+        std::string curr_font_path;
+        TTF_Font* curr_font_link = nullptr;    // nullptr init vs the uninitialized read on the default case
+
+
+        switch (this->textbox_type)
         {
-            this->ttf_font_link = App_fonts.get_current_fonts_palette().ordinary_text_font.ttf_font_link;
+            case HEADER_1:
+
+                curr_font_path = App_fonts.get_current_fonts_palette().header_1_font.font_path;
+                curr_font_link = App_fonts.get_current_fonts_palette().header_1_font.ttf_font_link;
+                this->font_size = App_fonts.get_current_fonts_palette().header_1_font.font_size;
+
+                break;
+
+
+            case HEADER_2:
+
+                curr_font_path = App_fonts.get_current_fonts_palette().header_2_font.font_path;
+                curr_font_link = App_fonts.get_current_fonts_palette().header_2_font.ttf_font_link;       
+                this->font_size = App_fonts.get_current_fonts_palette().header_2_font.font_size;
+
+                break;
+
+
+            case HEADER_3:
+
+                curr_font_path = App_fonts.get_current_fonts_palette().header_3_font.font_path;
+                curr_font_link = App_fonts.get_current_fonts_palette().header_3_font.ttf_font_link;
+                this->font_size = App_fonts.get_current_fonts_palette().header_3_font.font_size;
+                
+                break;
+
+
+            case ORDINARY_TEXT:
+
+                curr_font_path = App_fonts.get_current_fonts_palette().ordinary_text_font.font_path;
+                curr_font_link = App_fonts.get_current_fonts_palette().ordinary_text_font.ttf_font_link;
+                this->font_size = App_fonts.get_current_fonts_palette().ordinary_text_font.font_size;
+
+                break;
+
+
+            case SMALL_TEXT:
+
+                curr_font_path = App_fonts.get_current_fonts_palette().small_text_font.font_path;
+                curr_font_link = App_fonts.get_current_fonts_palette().small_text_font.ttf_font_link;
+                this->font_size = App_fonts.get_current_fonts_palette().small_text_font.font_size;
+
+                break;
+
+
+            case BUTTON_TEXT:
+
+                curr_font_path = App_fonts.get_current_fonts_palette().button_text_font.font_path;
+                curr_font_link = App_fonts.get_current_fonts_palette().button_text_font.ttf_font_link;
+                this->font_size = App_fonts.get_current_fonts_palette().button_text_font.font_size;
+
+                break;
+
+
+            case EMOJI_TEXT:
+
+                curr_font_path = App_fonts.get_current_fonts_palette().emoji_text_font.font_path;
+                curr_font_link = App_fonts.get_current_fonts_palette().emoji_text_font.ttf_font_link;
+                this->font_size = App_fonts.get_current_fonts_palette().emoji_text_font.font_size;
+
+                break;
+
+
+
+            default:
+            
+                break;
+                
         }
-         else
+
+
+        if (curr_font_link != nullptr)
         {
-            this->ttf_font_link = TTF_OpenFont(this->font_path.c_str(), this->font_size);
+            // Renew by the shared palette font (the previous owned font closes inside)
+
+            this->font_path = curr_font_path;
+            this->set_shared_font(curr_font_link);
+
+        }
+        else
+        {
+            // Reset
+            
+            // this->ttf_font_link = TTF_OpenFont(this->font_path.c_str(), this->font_size); - Maybe the reason of errors!!!
     
             if (!this->ttf_font_link)
             {
                 SDL_Log("TTF_OpenFont failed: %s", SDL_GetError());
             }
         }
-    }
 
-    // Check if the palette was switched and update the colors by the new palette if it was
-    this->reset_colors_if_palette_switched();
+        this->textbox_type_changed = false;
+        this->content_dirty = true;
+    }
 }
 
+
+// Font ownership setters - the ONLY valid ways to change ttf_font_link inside the class code
+
+void My_SDL_textbox::set_shared_font(TTF_Font* shared_font)
+{
+    // Previous owned font close (shared fonts are never closed here)
+    if (this->owned_font != nullptr && this->owned_font != shared_font)
+    {
+        TTF_CloseFont(this->owned_font);
+    }
+
+    this->owned_font = nullptr;
+
+    this->ttf_font_link = shared_font;
+
+    this->content_dirty = true;
+}
+
+
+void My_SDL_textbox::set_owned_font(TTF_Font* new_owned_font)
+{
+    // Previous owned font close (with the same font double set protection)
+    if (this->owned_font != nullptr && this->owned_font != new_owned_font)
+    {
+        TTF_CloseFont(this->owned_font);
+    }
+
+    this->owned_font = new_owned_font;
+
+    this->ttf_font_link = new_owned_font;
+
+    this->content_dirty = true;
+}
+
+
+void My_SDL_textbox::switch_textbox_type(app_textbox_type new_type)
+{
+    // Error handler
+    if (new_type < HEADER_1 || new_type >= LIMIT)
+    {
+        std::cerr << "Wrong font type setting attempt!\n";
+        return;
+    }
+
+    // No type case
+    if (new_type == NO_TYPE)
+    {
+        // Type set
+
+        // Save previous one with protection of double NO_TYPE set
+        if (this->textbox_type != NO_TYPE) this->prev_textbox_type = this->textbox_type;
+
+        this->textbox_type = new_type;
+
+        // Flag reset
+        this->passed_by_font_palette = false;
+
+        return;
+    }
+
+
+    this->prev_textbox_type = this->textbox_type;
+    this->textbox_type = new_type;
+
+    this->passed_by_font_palette = true;
+    
+    this->textbox_type_changed = true;
+    this->content_dirty = true;
+}
+
+
+app_textbox_type My_SDL_textbox::get_textbox_type() const
+{
+    return this->textbox_type;
+}
+
+
+app_textbox_type My_SDL_textbox::get_prev_textbox_type() const
+{
+    return this->prev_textbox_type;
+}
+
+
 // Helper-function for blinking mode parameters calculation
-void blinking_mode_control(blinkig_textbox_ctx &blinking_ctx)
+void blinking_mode_control(blinking_textbox_ctx &blinking_ctx)
 {
     if (!blinking_ctx.blinking_mode_on)
     {
@@ -200,8 +426,16 @@ void blinking_mode_control(blinkig_textbox_ctx &blinking_ctx)
 
 void My_SDL_textbox::render(SDL_Renderer* renderer)
 {
-    // Render logic
+    // No actions for not visiable element
+    if (!this->visible_flag) return;
 
+    if (this->ttf_font_link == nullptr) return;
+
+    if (this->content.empty()) return;
+
+    this->reset_colors_if_palette_switched();
+
+    // Render logic
     this->update_content_texture(renderer, this->content_render_color);
     
     // Basic draw if blinking mode is off
@@ -226,19 +460,21 @@ void My_SDL_textbox::set_render_point(int x_cc_rp, int y_cc_rp)
 
 unsigned int My_SDL_textbox::get_width_size() const
 {
-    return this->content_width_size;
+    return this->content_width;
 }
 
 
 unsigned int My_SDL_textbox::get_height_size() const
 {
-    return this->content_height_size;
+    return this->content_height;
 }
 
 
 
 void My_SDL_textbox::set_content(const std::string& new_text)
 {
+    if (TEST_MODE) std::cout << "Set content: " << content << std::endl;
+
     this->content = new_text;
 
     if (!this->ttf_font_link)
@@ -246,39 +482,31 @@ void My_SDL_textbox::set_content(const std::string& new_text)
         std::cerr << "Font not initialized!\n";
         return;
     }
-
-    int w = 0;
-    int h = 0;
-
-
-    // SDL3 AND SDL2 CONFLICT
-    if (!TTF_GetStringSize(
-
-            this->ttf_font_link,
-            this->content.c_str(),
-            this->content.length(),
-            &w,
-            &h
-
-    ))
-    {
-        std::cerr << "TTF_GetStringSize failed: " << SDL_GetError() << std::endl;
-        return;
-    }
-
-    this->content_width_size = w;
-    this->content_height_size = h;
-
-    this->reset_anchor_points();
-
+    
     this->content_dirty = true;
 }
 
 
 void My_SDL_textbox::switch_passed_by_font_palette_flag(bool new_flag)
 {
-    this->passed_by_font_palette = new_flag;
+    // Switch the type if false flag
+    if (!new_flag)
+    {
+        this->switch_textbox_type(NO_TYPE);
+    }
+
+    // Protection vs double No_TYPE set flag reset cases
+    if (new_flag && this->textbox_type == NO_TYPE)
+    {
+        this->switch_textbox_type(this->prev_textbox_type);
+    }
+
+    if (new_flag && this->textbox_type != NO_TYPE)
+    {
+        this->switch_textbox_type(this->textbox_type);
+    }
 }
+
 
 bool My_SDL_textbox::get_passed_by_font_palette_flag() const
 {
@@ -295,7 +523,13 @@ void My_SDL_textbox::set_ttf_font_link(TTF_Font* new_ttf_font_link)
         return;
     }
 
-    this->ttf_font_link = new_ttf_font_link;
+    // External font links are SHARED (palette) fonts - link without taking ownership
+    // (the previous owned font closes inside set_shared_font)
+    this->set_shared_font(new_ttf_font_link);
+
+    // TEST:
+
+    if (TEST_MODE) std::cout << "TTF link setted: " << this->font_path << " with: " << this->font_size << "pts. \n" << std::endl;
 }
 
 
@@ -308,14 +542,23 @@ void My_SDL_textbox::set_font_path(const std::string& new_font_path)
         return;
     }
 
+    this->passed_by_font_palette = false;
+
     this->font_path = new_font_path;
 
-    this->set_ttf_font_link(TTF_OpenFont(this->font_path.c_str(), this->font_size));
+    if (TEST_MODE) std::cout << "TTF font path setted: " << this->font_path << "\n" << std::endl;
 
-    if (!this->ttf_font_link)
+    // Self-opened font - the textbox takes the ownership
+    // (the previous owned font closes inside set_owned_font)
+    TTF_Font* self_opened_font = TTF_OpenFont(this->font_path.c_str(), this->font_size);
+
+    if (!self_opened_font)
     {
         SDL_Log("TTF_OpenFont failed: %s", SDL_GetError());
+        return;
     }
+
+    this->set_owned_font(self_opened_font);
 }
 
 
@@ -335,8 +578,31 @@ void My_SDL_textbox::set_font_size(unsigned int new_size)
 
     this->font_size = new_size;
 
-    // Content is dirty after reset
+    this->passed_by_font_palette = false;
+
+    if (TEST_MODE) std::cout << "Try to set content: " << this->content << " new size size: " << new_size << "\n" << std::endl;
+
+    // Open new font with the ownership taking - the previous owned font closes inside
+    // set_owned_font, the shared palette fonts stay untouched (the old direct TTF_CloseFont
+    // here destroyed the logic exactly because it could close a shared palette font)
+    TTF_Font* self_opened_font = TTF_OpenFont(this->font_path.c_str(), this->font_size);
+
+    if (!self_opened_font)
+    {
+        SDL_Log("TTF_OpenFont failed: %s", SDL_GetError());
+        return;
+    }
+
+    this->set_owned_font(self_opened_font);
+
+    // rebuild geometry
+    this->set_content(this->content);
+
+    // force texture rebuild
     this->content_dirty = true;
+
+
+    if (TEST_MODE) std::cout << "Set content: " << this->content << " new size size: " << new_size << "\n" << std::endl;
 }
 
 
@@ -346,6 +612,7 @@ unsigned int My_SDL_textbox::get_font_size() const
 }
 
 
+// For textboxes, which colors ain't passed by palette
 void My_SDL_textbox::set_content_color(SDL_Color new_color)
 {
     // Safely check of equivalence
@@ -357,17 +624,49 @@ void My_SDL_textbox::set_content_color(SDL_Color new_color)
         return;     // Return if nothing changed
     }
 
+    this->passed_by_palette = false;
+
     this->content_render_color = new_color;
 
     // Content is dirty after reset
     this->content_dirty = true;
+
+    if (TEST_MODE) std::cout << "Textbox: " << this->content << "new color by palette switch setted with palette linking off\n" << std::endl;
 }
+
+
+// For textboxes with colors, passed by palette
+
+void My_SDL_textbox::set_content_color_if_palette_switched(SDL_Color new_color)
+{
+    // Safely check of equivalence
+    if (this->content_render_color.r == new_color.r &&
+        this->content_render_color.g == new_color.g &&
+        this->content_render_color.b == new_color.b &&
+        this->content_render_color.a == new_color.a)
+    {
+        return;     // Return if nothing changed
+    }
+
+    // No switch!!!
+    // this->passed_by_palette = false;
+
+    this->content_render_color = new_color;
+
+    // Content is dirty after reset
+    this->content_dirty = true;
+
+    if (TEST_MODE) std::cout << "Textbox: " << this->content << "new color by palette switch setted\n" << std::endl;
+}
+
 
 
 void My_SDL_textbox::set_content_texture(SDL_Texture* new_texture)
 {
     if (this->content_texture)
         SDL_DestroyTexture(this->content_texture);
+
+    this->passed_by_palette = false;
 
     this->content_texture = new_texture;
 
@@ -390,7 +689,11 @@ void My_SDL_textbox::reset_colors_if_palette_switched()
     //     !!!    and switch content color by the pallet or not by the palette by themselves    !!!
     //     !!!    for double calls protection                                                   !!!
 
-    set_content_color(App_palette.get_current_palette().basic_content_color);
+    if (TEST_MODE) std::cout << "Textbox: " << this->content << "started reset color by palette switch\n" << std::endl;
+
+
+    set_content_color_if_palette_switched(App_palette.get_current_palette().basic_content_color);
+
 }
 
 
@@ -489,8 +792,8 @@ void My_SDL_textbox::reset_anchor_points()
     // Uses current crop to set the current anchor points
 
     // Always the same rounding accuracy, because we work with crop map in initial scale and new scalers
-    int half_w = static_cast<int>(std::round(static_cast<float>(this->content_width_size) * 0.5));
-    int half_h = static_cast<int>(std::round(static_cast<float>(this->content_height_size) * 0.5));
+    int half_w = static_cast<int>(std::round(static_cast<float>(this->content_width) * 0.5));
+    int half_h = static_cast<int>(std::round(static_cast<float>(this->content_height) * 0.5));
 
 
     // Element_anchor_points reset
@@ -525,56 +828,83 @@ void My_SDL_textbox::reset_anchor_points()
 
 void My_SDL_textbox::update_content_texture(SDL_Renderer* renderer, SDL_Color new_color)
 {
-    // SDL ttf workflow
-
     if (!this->content_dirty) return;
 
 
-    if (!this->ttf_font_link) 
+    if (!this->ttf_font_link)
     {
-        std::cerr << "Font load error!" << SDL_GetError() << std::endl;
+        std::cerr << "Font not initialized\n";
+        this->content_dirty = false;   // FIX
         return;
     }
 
-    // Empty content check
-    if (this->content.empty())
+    if (content.empty())
     {
-        if (this->content_texture)
+        if (content_texture)
         {
-            SDL_DestroyTexture(this->content_texture);
-            this->content_texture = nullptr;
+            SDL_DestroyTexture(content_texture);
+            content_texture = nullptr;
         }
 
         this->content_dirty = false;
         return;
     }
 
-
-    // Old texture clear
     if (this->content_texture)
     {
         SDL_DestroyTexture(this->content_texture);
         this->content_texture = nullptr;
     }
 
-
-    SDL_Color color = new_color; // By passed palette 
-
     SDL_Surface* surface = TTF_RenderText_Blended(
         this->ttf_font_link,
         this->content.c_str(),
         0,
-        color
+        new_color
     );
 
-    if (!surface) return;
+    if (!surface)
+    {
+        this->content_dirty = false; // FIX
+        return;
+    }
 
     this->content_texture = SDL_CreateTextureFromSurface(renderer, surface);
 
-    this->content_width_size = surface->w;
-    this->content_height_size = surface->h;
-
     SDL_DestroySurface(surface);
+
+    // Renew sizes before render (autoupdated on the 1st step after init)
+    if (this->content_dirty || this->textbox_sizes_initiation_update_flag)
+    {
+
+        if (TEST_MODE) std::cout << "Try to update textbox: " << this->content << "sizes" << "\n" << std::endl;
+
+        int w = 0, h = 0; 
+    
+        if (this->ttf_font_link != nullptr && !this->content.empty())
+        {
+            if (!TTF_GetStringSize(this->ttf_font_link, this->content.c_str(), this->content.length(), &w, &h))
+            { 
+                std::cerr << "TTF_GetStringSize failed\n";
+        
+                this->content_dirty = false; 
+                
+                return; 
+            } 
+            
+        }
+    
+        this->content_width = w; 
+        this->content_height = h;
+
+        
+        reset_anchor_points();
+
+        // Block the next step autoupdate
+        this->textbox_sizes_initiation_update_flag = false;
+
+        if (TEST_MODE) std::cout << "Textbox: " << this->content << "sizes updated: " << this->content_width << "x" << this->content_height << "\n" << std::endl;
+    }
 
     this->content_dirty = false;
 }
@@ -586,8 +916,8 @@ void My_SDL_textbox::text_draw(SDL_Renderer* renderer)
     {
         SDL_FRect dst;
 
-        dst.w = this->content_width_size;
-        dst.h = this->content_height_size;
+        dst.w = this->content_width;
+        dst.h = this->content_height;
 
         dst.x = this->x_render_point - dst.w / 2.0f;
         dst.y = this->y_render_point - dst.h / 2.0f;

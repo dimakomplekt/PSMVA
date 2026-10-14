@@ -55,10 +55,13 @@ class Lang_state
          * @brief Sets the current language.
          *
          * @param lang New language to set.
-         * @return true if the language was changed successfully, false if invalid.
          * 
          */
-        bool set_lang(Lang_list lang);
+        void set_lang(Lang_list lang);
+
+
+        // Switches language to the next language inside the list
+        void switch_to_next_lang();
 
         // ===== Language workflow =====
 

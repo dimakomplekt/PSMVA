@@ -1,0 +1,10 @@
+^C:\CREATOR\IT\PROGRAMS\CPP\PSMVA\BUILD\CMAKEFILES\0EE5EA983663627AD81EAF37DA4707A9\GENERATE.STAMP.RULE
+setlocal
+C:\DEVTOOLS\CMAKE\bin\cmake.exe -SC:/creator/it/programs/cpp/PSMVA -BC:/creator/it/programs/cpp/PSMVA/build --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file C:/creator/it/programs/cpp/PSMVA/build/PSMVA.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
