@@ -34,7 +34,7 @@
 
 // =========================================================================================== DEFINES
 
-#define FPC_TEST_MODE 1
+#define FPC_TEST_MODE 0
 
 // =========================================================================================== DEFINES
 
@@ -56,6 +56,7 @@
 
 void flow_parameters_calculation_enter();
 void flow_parameters_calculation_exit();
+void flow_parameters_calculation_reset_context();
 
 void flow_parameters_calculation_update();
 void flow_parameters_calculation_render(SDL_Renderer* renderer);

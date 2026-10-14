@@ -1,9 +1,8 @@
 #pragma once
 
-#include "../../platform/platform.h"
+#include <SDL3/SDL.h>
 
-
-bool report_forming();
-
-
-program_states new_study_or_end_program();
+void report_forming_enter();
+void report_forming_exit();
+void report_forming_update();
+void report_forming_render(SDL_Renderer* renderer);

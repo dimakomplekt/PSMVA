@@ -103,6 +103,9 @@
     <ClCompile Include="C:\creator\it\programs\cpp\PSMVA\libs\program_logic\program_states\states_logic\1.4_REPORT_FORMING\1.4_REPORT_FORMING.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="C:\creator\it\programs\cpp\PSMVA\libs\program_logic\program_states\states_logic\1.4_REPORT_FORMING\xlsx_report_writer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="C:\creator\it\programs\cpp\PSMVA\libs\program_logic\program_states\states_logic\2.0_PROGRAM_END\2.0_PROGRAM_END.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

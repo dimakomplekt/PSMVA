@@ -50,7 +50,7 @@ const State_ID FLOW_PARAMETERS_CALCULATION_ID       = {1, 3};        // Flow par
 const State_ID REPORT_FORMING_ID                    = {1, 4};        // Report forming state
 
 
-const State_ID PROGRAM_END_ID                       = {2};           // Program exit state
+const State_ID PROGRAM_END_ID                       = {1, 5};        // Study complete state
 
 /**
  * @brief Mapping of State_IDs to human-readable names.
@@ -71,7 +71,7 @@ const std::vector<std::pair<State_ID, std::string>> state_defs = {
     {{1, 2, 6},         "MASKS_SETUP_6"},                   // Меню выбора параметров масок для обработки видео  
     {{1, 3},            "FLOW_PARAMETERS_CALCULATION"},     // Расчёт + статус бар + прогресс бар по каждому видео + сигнализация по успеху (с переходом вперед) неудаче (переход назад + лог)
     {{1, 4},            "REPORT_FORMING"},                  // Формирование отчёта + выбор места сохранения + сигнализация об успехе + переход к следующему этапу
-    {{2},               "PROGRAM_END"}                      // Сообщение о завершении работы + переход на этап MAIN_MENU при нажатии любой клавиши
+    {{1, 5},            "PROGRAM_END"}                      // Завершение исследования
 
 };
 

@@ -92,6 +92,9 @@ My_SDL_textbox* mask_textbox;
 My_SDL_textbox* frame_textbox;
 
 My_SDL_button* next_state_button;
+My_SDL_button* back_state_button;
+
+bool reset_calculation_context_on_exit = false;
 
 // =========================================================================================== STATE DATA
 
@@ -122,6 +125,7 @@ void flow_parameters_calculation_enter()
 {
     // Log the enter in console
     std::cout << "Entering flow_parameters_calculation\n"; 
+    reset_calculation_context_on_exit = false;
 
     // ===== State allocation =====
 
@@ -155,7 +159,19 @@ void flow_parameters_calculation_exit()
 
     flow_parameters_calculation_elements_free_and_nullptr();
 
-    opencv_calculation_global_free_and_nullptr();
+    if (reset_calculation_context_on_exit)
+    {
+        flow_parameters_calculation_reset_context();
+    }
+    else
+    {
+        opencv_calculation_global_free_and_nullptr();
+        data_to_process_1 = nullptr;
+        data_to_process_2 = nullptr;
+        data_to_process_3 = nullptr;
+    }
+
+    reset_calculation_context_on_exit = false;
 
     // ===== State deallocation =====
 
@@ -257,6 +273,7 @@ void flow_parameters_calculation_elements_create()
     frame_textbox = new My_SDL_textbox();
 
     next_state_button = new My_SDL_button();
+    back_state_button = new My_SDL_button();
 
 }
 
@@ -282,6 +299,31 @@ void flow_parameters_calculation_elements_setup()
     frame_textbox->switch_textbox_type(SMALL_TEXT);
     frame_textbox->set_render_point(0.1 * WINDOW_WIDTH, 0.7 * WINDOW_HEIGHT);
 
+    next_state_button->switch_button_textbox_type(SMALL_TEXT);
+    next_state_button->get_button_content_textbox()->set_content(str_by_dictionary(gd_report_forming));
+    next_state_button->set_size(260, 80);
+    next_state_button->set_render_point(
+        MAIN_WINDOW_H_SIZE - 50 - static_cast<int>(next_state_button->get_width_size() / 2),
+        MAIN_WINDOW_V_SIZE - 50 - static_cast<int>(next_state_button->get_height_size() / 2)
+    );
+    next_state_button->on_click = []()
+    {
+        this_app.app_sm.request_state_change(REPORT_FORMING_ID);
+    };
+
+    back_state_button->switch_button_textbox_type(SMALL_TEXT);
+    back_state_button->get_button_content_textbox()->set_content(str_by_dictionary(gd_back));
+    back_state_button->set_size(260, 80);
+    back_state_button->set_render_point(
+        50 + static_cast<int>(back_state_button->get_width_size() / 2),
+        MAIN_WINDOW_V_SIZE - 50 - static_cast<int>(back_state_button->get_height_size() / 2)
+    );
+    back_state_button->on_click = []()
+    {
+        reset_calculation_context_on_exit = true;
+        this_app.app_sm.request_state_change(MASKS_SETUP_ID);
+    };
+
 }
 
 
@@ -297,6 +339,7 @@ void flow_parameters_calculation_elements_free_and_nullptr()
     frame_textbox->delete_element();
 
     next_state_button->delete_element();
+    back_state_button->delete_element();
 
 
     // Nullptr the pointers
@@ -310,6 +353,7 @@ void flow_parameters_calculation_elements_free_and_nullptr()
     frame_textbox = nullptr;
 
     next_state_button = nullptr;
+    back_state_button = nullptr;
     
 }
 
@@ -324,6 +368,12 @@ void flow_parameters_calculation_elements_update()
 
     // Update progress bar
     progress_bar_update();
+
+    back_state_button->update();
+    if (global_calculation_end_flag)
+    {
+        next_state_button->update();
+    }
 }
 
 
@@ -334,6 +384,8 @@ void reset_passed_by_dictionary_textboxes_if_language_switched_fpc()
     {
         // All textboxes here
         progress_bar_update();
+        next_state_button->get_button_content_textbox()->set_content(str_by_dictionary(gd_report_forming));
+        back_state_button->get_button_content_textbox()->set_content(str_by_dictionary(gd_back));
     }
 }
 
@@ -343,7 +395,8 @@ void flow_parameters_calculation_actions()
     // Switch the state to EXIT if EXIT pressed
     if (App_inputs.is_just_released(Key_actions::EXIT))
     {
-        this_app.app_sm.request_state_change(MASKS_SETUP_ID_1);
+        reset_calculation_context_on_exit = true;
+        this_app.app_sm.request_state_change(MASKS_SETUP_ID);
     }
 
 
@@ -362,6 +415,12 @@ void flow_parameters_calculation_elements_render(SDL_Renderer* renderer)
 
     // Progress bar render
     progress_bar_render(renderer);
+
+    back_state_button->render(renderer);
+    if (global_calculation_end_flag)
+    {
+        next_state_button->render(renderer);
+    }
 
 }
 
@@ -392,6 +451,7 @@ opencv_calculation_update_ctx opencv_global_calculation_update_ctx;
 
 
 bool global_calculation_end_flag = false;
+bool calculation_ends = false;
 
 
 parsed_video_data video_data;
@@ -621,8 +681,6 @@ void kingsize_window_close_fpc()
 
 void opencv_calculation_global_update()
 {
-    static bool calculation_ends = false;
-
     if (calculation_ends) 
     {
         global_calculation_end_flag = true;
@@ -2142,6 +2200,17 @@ void opencv_calculation_global_update()
 
 void opencv_calculation_global_free_and_nullptr()
 {
+    if (video_capture_device_global_fpc != nullptr)
+    {
+        if (video_capture_device_global_fpc->isOpened())
+        {
+            video_capture_device_global_fpc->release();
+        }
+
+        delete video_capture_device_global_fpc;
+        video_capture_device_global_fpc = nullptr;
+    }
+
     // 1. Clear mats
 
     if (calculation_cv_mat_mask_1_global != nullptr)
@@ -2166,9 +2235,27 @@ void opencv_calculation_global_free_and_nullptr()
     }
 
 
-    // Activate reinit
-    // TODO:??? Need or not?>
+}
+
+
+void flow_parameters_calculation_reset_context()
+{
+    opencv_calculation_global_free_and_nullptr();
+
+    global_processing_data = {};
+    state_progress_bar = {};
+    opencv_global_calculation_update_ctx = {};
     opencv_calculation_pipeline_reset_global = false;
+    global_calculation_end_flag = false;
+    calculation_ends = false;
+
+    video_data = {};
+    nozzle_mask_to_process = {};
+    jet_mask_to_process = {};
+    particle_mask_to_process = {};
+    data_to_process_1 = nullptr;
+    data_to_process_2 = nullptr;
+    data_to_process_3 = nullptr;
 }
 
 
@@ -4382,10 +4469,15 @@ void processing_stage_3_2(cv::Mat* current_mat)
 
 void progress_bar_update()
 {
+    if (global_calculation_end_flag)
+    {
+        state_progress_bar.operations_counter = state_progress_bar.operations_count;
+        state_progress_bar.percentage = 100.0f;
+    }
+
     if (state_progress_bar.operations_count == 0)
     {
-        state_progress_bar.percentage = 0.0f;
-        return;
+        state_progress_bar.percentage = global_calculation_end_flag ? 100.0f : 0.0f;
     }
     else
     {

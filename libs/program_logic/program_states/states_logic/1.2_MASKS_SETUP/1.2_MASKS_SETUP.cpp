@@ -700,6 +700,19 @@ void opencv_global_update()
 
 void opencv_global_free_and_nullptr()
 {
+    if (video_capture_device_global != nullptr)
+    {
+        if (video_capture_device_global->isOpened())
+        {
+            video_capture_device_global->release();
+        }
+
+        delete video_capture_device_global;
+        video_capture_device_global = nullptr;
+    }
+
+    kingsize_window_close();
+
     // 1. Clear mats
 
     if (video_cv_mat_mask_1_global != nullptr)
@@ -731,6 +744,9 @@ void opencv_global_free_and_nullptr()
 
         translated_texture_global = nullptr; 
     }
+
+    opencv_global_update_ctx = {};
+    opencv_global_update_ctx.need_reset = true;
 
     // Activate reinit
     opencv_pipeline_reset_global = false;

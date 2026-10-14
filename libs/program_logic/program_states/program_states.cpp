@@ -19,35 +19,14 @@
 #include "states_logic/1.1_FILE_CHOOSE/1.1_FILE_CHOOSE.h"
 #include "states_logic/1.2_MASKS_SETUP/1.2_MASKS_SETUP.h"
 #include "states_logic/1.3_FLOW_PARAMETERS_CALCULATION/1.3_FLOW_PARAMETERS_CALCULATION.h"
-// #include "states_logic/1.4_REPORT_FORMING/1.4_REPORT_FORMING.h"
-// #include "states_logic/2.0_PROGRAM_END/2.0_PROGRAM_END.h"
+#include "states_logic/1.4_REPORT_FORMING/1.4_REPORT_FORMING.h"
+#include "states_logic/2.0_PROGRAM_END/2.0_PROGRAM_END.h"
 
 
 // =========================================================================================== IMPORT
 
 
 // =========================================================================================== CALLBACKS
-
-
-void program_end_enter()
-{
-    std::cout << "Entering EXIT_PROGRAM\n";
-}
-
-void program_end_exit()
-{
-
-}
-
-void program_end_update()
-{
-
-}
-
-void program_end_render(SDL_Renderer* renderer)
-{
-
-}
 
 
 // =========================================================================================== CALLBACKS
@@ -200,6 +179,21 @@ void init_program_states(State_machine& app_state_machine)
 
 
     // === FLOW_PARAMETERS_CALCULATION ===
+
+
+    // === REPORT_FORMING ===
+
+    app_state_machine.initiate_state(REPORT_FORMING_ID, "REPORT_FORMING");
+
+    if (auto* s = app_state_machine.get_state(REPORT_FORMING_ID))
+    {
+        s->on_enter = report_forming_enter;
+        s->on_exit = report_forming_exit;
+        s->state_update = report_forming_update;
+        s->state_render = report_forming_render;
+    }
+
+    // === REPORT_FORMING ===
 
 
     // === EXIT_PROGRAM ===

@@ -38,6 +38,7 @@ set(OLD_GLOB
   "C:/creator/it/programs/cpp/PSMVA/libs/program_logic/program_states/states_logic/1.2_MASKS_SETUP/1.2_MS_HELPER.cpp"
   "C:/creator/it/programs/cpp/PSMVA/libs/program_logic/program_states/states_logic/1.3_FLOW_PARAMETERS_CALCULATION/1.3_FLOW_PARAMETERS_CALCULATION.cpp"
   "C:/creator/it/programs/cpp/PSMVA/libs/program_logic/program_states/states_logic/1.4_REPORT_FORMING/1.4_REPORT_FORMING.cpp"
+  "C:/creator/it/programs/cpp/PSMVA/libs/program_logic/program_states/states_logic/1.4_REPORT_FORMING/xlsx_report_writer.cpp"
   "C:/creator/it/programs/cpp/PSMVA/libs/program_logic/program_states/states_logic/2.0_PROGRAM_END/2.0_PROGRAM_END.cpp"
   )
 if(NOT "${NEW_GLOB}" STREQUAL "${OLD_GLOB}")

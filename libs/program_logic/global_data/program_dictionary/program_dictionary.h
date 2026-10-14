@@ -272,6 +272,84 @@ inline Lang_string_type gd_masks_setup_1_info = {
 
 
 
+// =========================================================================================== STATE 1.4 DICTIONARY
+
+
+inline Lang_string_type gd_report_forming = {
+
+    "Report forming",
+    "Сформировать отчёт"
+
+};
+
+
+inline Lang_string_type gd_back = {
+
+    "Back",
+    "Назад"
+
+};
+
+
+inline Lang_string_type gd_exit = {
+
+    "Exit",
+    "Выход"
+
+};
+
+
+inline Lang_string_type gd_new_study = {
+
+    "New study",
+    "Новый расчёт"
+
+};
+
+
+inline Lang_string_type gd_report_saved = {
+
+    "Report saved",
+    "Отчёт сохранён"
+
+};
+
+
+inline Lang_string_type gd_report_failed = {
+
+    "Failed to create report",
+    "Не удалось создать отчёт"
+
+};
+
+
+inline Lang_string_type gd_calculation_complete = {
+
+    "Calculation complete",
+    "Расчёт завершён"
+
+};
+
+
+inline Lang_string_type gd_choose_report_location = {
+
+    "Choose where to save the report",
+    "Выберите место сохранения отчёта"
+
+};
+
+
+inline Lang_string_type gd_study_complete = {
+
+    "Study complete",
+    "Исследование завершено"
+
+};
+
+
+// =========================================================================================== STATE 1.4 DICTIONARY
+
+
 // =========================================================================================== STATE 1.3 DICTIONARY
 
 
