@@ -49,7 +49,7 @@ ___
 
 ## Interesting features
 
-1. **`cv::Mat` to `SDL_Texture` Translator** – A custom bridge implementation for seamless conversion and rendering between OpenCV images and SDL3 textures.
+1. **`cv::Mat` to `SDL_Texture` translator** – A custom bridge implementation for seamless conversion and rendering between OpenCV images and SDL3 textures.
   
    📂: [`libs/engine/special/opencv_to_sdl`](libs/engine/special/opencv_to_sdl) 
 
