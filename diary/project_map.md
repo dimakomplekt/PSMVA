@@ -15,7 +15,7 @@ PSMVA/
 │   │   ├── platform/                     # Определение платформы (Windows/Linux)
 │   │   ├── special/
 │   │   │   ├── opencv_to_sdl/            # Перевод cv::Mat -> SDL_Texture
-│   │   │   └── absolute_by_relative/      # Путь к ресурсам относительно папки .exe
+│   │   │   └── absolute_by_relative/     # Путь к ресурсам относительно папки .exe
 │   │   ├── SDL3-3.4.2/                   # SDL3 headers/libs
 │   │   ├── SDL3_ttf-3.2.2/               # SDL3_ttf
 │   │   └── SDL3_image-3.4.4/             # SDL3_image
